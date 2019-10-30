@@ -1,3 +1,5 @@
+import java.util.Random;
+
 import jig.Vector;
 
 public class Item extends StationaryObject{
@@ -11,15 +13,46 @@ public class Item extends StationaryObject{
 	private boolean cursed;		//whether the item is cursed
 	private boolean identified; //whether the player knows the item's properties
 	
+	private Random rand;
+	
 	
 	public Item(Vector wc, boolean locked){
 		super(wc, locked); //superconstructor
 		//set random properties
+		rand = new Random();
+		rand.setSeed(System.nanoTime());
+		//id should be set to the next sequential id (needs a call back to PlayingState class)
+		//oid is simply initialized to 0 because the world owns newly placed items
+		oid = 0;
+		
+		//effect is one of the possible effects, stored as a static variable in a parent class
+		//effect = Main.StatusEffects[ rand.nextInt(Main.StatusEffects.length) ];
+		
+		//type and material are the same as effect
+		//type = Main.ItemTypes[ rand.nextInt(Main.ItemTypes.length) ];
+		//material = Main.Materials[ rand.nextInt(Main.Materials.length) ];
+		
+		//items have a 50% chance to be cursed (for now?)
+		if( rand.nextInt(100) <= 50 ){
+			cursed = true;
+		}else{
+			cursed = false;
+		}
+		
+		//all items start unidentified
+		identified = false;
 	}
 	
 	public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified){
 		super(wc, locked);
 		//create item with given properties
+		this.id = id;
+		this.oid = oid;
+		this.effect = effect;
+		this.type = type;
+		this.material = material;
+		this.cursed = cursed;
+		this.identified = identified;
 	}
 
 }
