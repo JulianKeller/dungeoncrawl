@@ -55,4 +55,16 @@ public class ItemManager {
 	public ItemManager() throws SQLException{
 		dbConnect(); //connect to data source
 	}
+	
+	public void give(int itemID, int playerID) throws SQLException{
+		//give an item to a player
+		String q = "update item set oid = "+playerID+"where iid = "+itemID;
+		rs = s.executeQuery(q);
+	}
+	
+	public void take(int itemID) throws SQLException{
+		//set the item's owner to -1, destroying it in effect
+		String q = "update item set oid = -1 where iid = "+itemID;
+		rs = s.executeQuery(q);
+	}
 }
