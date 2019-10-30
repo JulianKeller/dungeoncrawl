@@ -25,12 +25,34 @@ public class Item extends StationaryObject{
 		this.id = id;
 		this.oid = oid;
 		
-		//effect is one of the possible effects, stored as a static variable in a parent class
-		//effect = Main.StatusEffects[ rand.nextInt(Main.StatusEffects.length) ];
+		//first get the item type
+		this.type = Main.ItemTypes[ rand.nextInt(Main.ItemTypes.length) ];
 		
-		//type and material are the same as effect
-		//type = Main.ItemTypes[ rand.nextInt(Main.ItemTypes.length) ];
-		//material = Main.Materials[ rand.nextInt(Main.Materials.length) ];
+		//choose materials from the appropriate list
+		if( type.equals("Sword") ){
+			this.material = Main.SwordMaterials[ rand.nextInt(Main.SwordMaterials.length) ];
+		}else if( type.equals("Armor") ){
+			this.material = Main.ArmorMaterials[ rand.nextInt(Main.ArmorMaterials.length) ];
+		}else if( type.equals("Staff") ){
+			this.material = Main.StaffMaterials[ rand.nextInt(Main.StaffMaterials.length) ];
+		}else if( type.equals("Glove") ){
+			this.material = Main.GloveMaterials[ rand.nextInt(Main.GloveMaterials.length) ];
+		}
+		
+		//choose effects from the appropriate list
+		if( type.equals("Sword") ){
+			this.effect = Main.SwordEffects[ rand.nextInt(Main.SwordEffects.length) ];
+		}else if( type.equals("Armor") ){
+			this.effect = Main.ArmorEffects[ rand.nextInt(Main.ArmorEffects.length) ];
+		}else if( type.equals("Staff") ){
+			this.effect = Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ];
+		}else if( type.equals("Glove") ){
+			this.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
+		}else if( type.equals("Potion") ){
+			this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
+		}else if( type.equals("Arrow") ){
+			this.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
+		}
 		
 		//items have a 50% chance to be cursed (for now?)
 		if( rand.nextInt(100) <= 50 ){
