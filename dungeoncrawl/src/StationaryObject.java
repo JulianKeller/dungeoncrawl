@@ -9,6 +9,7 @@ public class StationaryObject extends Entity{
 	private boolean locked;
 	
 	public StationaryObject(Vector worldCoordinates, boolean locked){
+		super(worldCoordinates);
 		this.worldCoordinates = worldCoordinates;
 		this.locked = locked;
 	}
