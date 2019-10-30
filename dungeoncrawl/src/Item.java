@@ -16,14 +16,14 @@ public class Item extends StationaryObject{
 	private Random rand;
 	
 	
-	public Item(Vector wc, boolean locked){
+	public Item(Vector wc, boolean locked, int id, int oid){
 		super(wc, locked); //superconstructor
 		//set random properties
 		rand = new Random();
 		rand.setSeed(System.nanoTime());
-		//id should be set to the next sequential id (needs a call back to PlayingState class)
-		//oid is simply initialized to 0 because the world owns newly placed items
-		oid = 0;
+		
+		this.id = id;
+		this.oid = oid;
 		
 		//effect is one of the possible effects, stored as a static variable in a parent class
 		//effect = Main.StatusEffects[ rand.nextInt(Main.StatusEffects.length) ];
