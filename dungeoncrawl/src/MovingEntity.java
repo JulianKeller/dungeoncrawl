@@ -59,6 +59,18 @@ public class MovingEntity extends Entity {
         hitPoints-= amt;
     }
 
+
+    public Vector getWorldCoordinates(){
+        return worldCoordinates;
+    }
+
+    /**
+     * Sets the moving entity's worldcoordinates
+     * @param wc Vector to set entity's world coordinates.
+     */
+    public void setWorldCoordinates(Vector wc){
+        worldCoordinates = wc;
+    }
     /**
      * Returns the MovingEntity's current world coordinates.
      * @return Vector world coordinates
