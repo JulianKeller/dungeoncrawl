@@ -1,21 +1,25 @@
 import jig.Entity;
+import jig.Vector;
 
 public class MovingEntity extends Entity {
     private int hitPoints;
     private int armorPoints;
+    private Vector worldCoordinates;
+    private float speed;
 
     /**
      * Create a new Entity
-     * @param x starting x coordinate
-     * @param y starting y coordinate
+     * @param wx starting world x coordinate
+     * @param wy starting world y coordinate
      * @param hp entity's starting hit points
      * @param ap entity's starting armor points
+     * @param spd entity's starting speed.
      */
-    public MovingEntity(final float x, final float y, int hp, int ap) {
-        super(x,y);
+    public MovingEntity(final float wx, final float wy, int hp, int ap, float spd) {
         hitPoints = hp;
         armorPoints = ap;
-
+        worldCoordinates = new Vector(wx,wy);
+        speed = spd;
     }
 
     /**
