@@ -1,6 +1,8 @@
 import jig.Entity;
 import jig.ResourceManager;
 
+import java.sql.SQLException;
+
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
