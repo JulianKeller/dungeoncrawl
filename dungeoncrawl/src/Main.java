@@ -48,7 +48,25 @@ public class Main extends StateBasedGame {
     int tileH;
     int[][] map;
     Entity[][] entities;
-
+    
+    //item types
+    public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
+    
+    //item materials
+    public static final String[] ArmorMaterials = {"Leather", "Iron", "Turtle Shell"};
+    public static final String[] SwordMaterials = {"Wooden", "Iron", "Gold"};
+    public static final String[] StaffMaterials = {"Ruby", "Emerald", "Amethyst"};
+    public static final String[] GloveMaterials = {"Leather", "Iron", "Gold"};
+    
+    //item effects
+    public static final String[] PotionEffects = {"Healing", "Strength", "Flame", "Mana", "Invisibility"};
+    public static final String[] ArrowMaterials = {"Flaming", "Poisoned", "Ice"};
+    public static final String[] StaffEffects = {"Healing", "Lightning", "Flame", "Ice"};
+    public static final String[] ArmorEffects = {"Stench", "Iron Skin", "Thorns", "Swiftness"};
+    public static final String[] SwordEffects = {"Fright", "Might", "Flame", "Ice"};
+    public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection"};
+    
+    //displayed item name should be of the form "material type of effect" using whatever fields are filled in
 
     /**
      * Create a new state based game
@@ -95,9 +113,16 @@ public class Main extends StateBasedGame {
     }
 
     public static void main(String[] args) {
+    	Main game = new Main("Dungeon Crawl", 1024, 672);
+    	try {
+			ItemManager im = new ItemManager(game);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         AppGameContainer app;
         try {
-            app = new AppGameContainer(new Main("Dungeon Crawl", 1024, 672));
+            app = new AppGameContainer(game);
             app.setDisplayMode(1024, 672, false);
             app.setVSync(true);
 //            app.setShowFPS(false);      // disable fps
