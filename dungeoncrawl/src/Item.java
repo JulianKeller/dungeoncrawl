@@ -54,5 +54,28 @@ public class Item extends StationaryObject{
 		this.cursed = cursed;
 		this.identified = identified;
 	}
-
+	
+	
+	//getter functions
+	public int getID(){
+		return id;
+	}
+	public int getOID(){
+		return oid;
+	}
+	public String getEffect(){
+		return effect;
+	}
+	public String getType(){
+		return type;
+	}
+	public String getMaterial(){
+		return material;
+	}
+	public boolean isCursed(){
+		return cursed;
+	}
+	public boolean isIdentified(){
+		return identified;
+	}
 }
