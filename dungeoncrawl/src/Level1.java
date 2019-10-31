@@ -6,9 +6,11 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import java.util.ArrayList;
+
 public class Level1 extends BasicGameState {
     private Boolean paused;
-    AnimateEntity walkRight;
+    ArrayList<AnimateEntity> animated;
 
     @Override
     public int getID() {
@@ -69,8 +71,11 @@ public class Level1 extends BasicGameState {
         dc.potions[10][2] = new Potion(10 * dc.tileH + dc.tileH/2, 2 * dc.tileW + dc.tileW/2, "strength");
         dc.potions[10][6] = new Potion(10 * dc.tileH + dc.tileH/2, 6 * dc.tileW + dc.tileW/2, "invisibility");
 
-//        dc.testEntity = new Tank(3 * dc.tileH + dc.tileH/2, 3 * dc.tileW + dc.tileW/2, "down");
-        walkRight = new AnimateEntity(3 * dc.tileH + dc.tileH/2, 3 * dc.tileW + dc.tileW/2, "spell_down", 100);
+        animated = new ArrayList<>(20);
+        String[] variations = new String[] {"spell_up", "spell_left", "spell_down", "spell_right"};
+        for (int i = 0; i < variations.length; i++) {
+            animated.add(new AnimateEntity((i + 3) * dc.tileH + dc.tileH/2, 4 * dc.tileW, variations[i], 100));
+        }
 
     }
 
@@ -136,8 +141,11 @@ public class Level1 extends BasicGameState {
                 dc.potions[i][j].render(g);
             }
         }
-        
-        walkRight.render(g);
+
+        // display the animated entities
+        for (AnimateEntity a : animated) {
+            a.render(g);
+        }
 
     }
 
