@@ -110,7 +110,7 @@ public class ItemManager {
 		//testing
 		plant(5);
 		
-		ArrayList<Item> items = restore();
+		ArrayList<Item> items = restore(new Vector(0, 0), new Vector(100, 100));
 		
 		System.out.println("Searching items on world...");
 		for( Item i : items ){
@@ -196,13 +196,15 @@ public class ItemManager {
 		
 	}
 	
-	public ArrayList<Item> restore() throws SQLException{
+	public ArrayList<Item> restore(Vector min, Vector max) throws SQLException{
 		//returns a list of items that belong to the world
 		//they should be rendered by whatever is calling this function
 		
 		ArrayList<Item> items = new ArrayList<Item>();
-		//get all items owned by the world
-		String q = "select * from item where oid = 0"; //could also include screen boundaries
+		//get all items owned by the world in a given region
+		String q = "select * from item where oid = 0 "+
+		"and iworldCoordX >= "+min.getX()+" and iworldCoordX <= "+max.getX()+
+		" and iworldCoordY >= "+min.getY()+" and iworldCoordY <= "+max.getY();
 		rs = s.executeQuery(q);
 		
 		int id = 0;
