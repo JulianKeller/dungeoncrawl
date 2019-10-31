@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Random;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
@@ -98,13 +99,23 @@ public class ItemManager {
 	}
 	
 	public ItemManager(Main game) throws SQLException{
+		System.out.println("Connecting to database...");
 		dbConnect(); //connect to data source
+		System.out.println("Resetting database...");
 		dbReset();
+		System.out.println("Done.");
 		this.game = game;
 		rand = new Random();
 		
 		//testing
 		plant(5);
+		
+		ArrayList<Item> items = restore();
+		
+		System.out.println("Searching items on world...");
+		for( Item i : items ){
+			System.out.println("It is "+i.getMaterial()+" "+i.getType()+" of "+i.getEffect());
+		}
 	}
 	
 	public void give(int itemID, int playerID) throws SQLException{
@@ -139,7 +150,7 @@ public class ItemManager {
 			//add its values to the database
 			String q = "insert into item values("
 					+currentItemID+","+item.getOID()+",'"+item.getEffect()+"','"+item.getType()+"','"+item.getMaterial()
-					+"', "+(int) vec.getX()+", "+(int) vec.getY()+")";
+					+"', "+(int) vec.getX()+", "+(int) vec.getY()+", "+item.isCursed()+", "+item.isIdentified()+")";
 			s.executeUpdate(q);
 			
 			numItems--;
@@ -185,9 +196,13 @@ public class ItemManager {
 		
 	}
 	
-	public Item restore(int itemID) throws SQLException{
-		//add an item to the map with values from the database
-		String q = "select * from item where iid = "+itemID;
+	public ArrayList<Item> restore() throws SQLException{
+		//returns a list of items that belong to the world
+		//they should be rendered by whatever is calling this function
+		
+		ArrayList<Item> items = new ArrayList<Item>();
+		//get all items owned by the world
+		String q = "select * from item where oid = 0"; //could also include screen boundaries
 		rs = s.executeQuery(q);
 		
 		int id = 0;
@@ -200,41 +215,46 @@ public class ItemManager {
 		Vector wc = new Vector(0, 0);
 		
 		
-		int column = 0;
+		//ResultSet.next() moves the pointer to the next row
+		// or returns false if there are no more rows
 		while( rs.next() ){
-			switch( column ){
-			case 0:
-				id = rs.getInt(1);
-				break;
-			case 1:
-				oid = rs.getInt(1);
-				break;
-			case 2:
-				effect = rs.getString(1);
-				break;
-			case 3:
-				type = rs.getString(1);
-				break;
-			case 4:
-				material = rs.getString(1);
-				break;
-			case 5:
-				cursed = rs.getBoolean(1);
-				break;
-			case 6:
-				identified = rs.getBoolean(1);
-				break;
-			case  7:
-				wc.setX(rs.getInt(1));
-				break;
-			case 8:
-				wc.setY(rs.getInt(1));
-				break;
+			for( int column = 1; column <= 9; column++){
+				//the column index starts at 1
+				switch( column ){
+				case 1:
+					id = rs.getInt(column);
+					break;
+				case 2:
+					oid = rs.getInt(column);
+					break;
+				case 3:
+					effect = rs.getString(column);
+					break;
+				case 4:
+					type = rs.getString(column);
+					break;
+				case 5:
+					material = rs.getString(column);
+					break;
+				case 6:
+					cursed = rs.getBoolean(column);
+					break;
+				case 7:
+					identified = rs.getBoolean(column);
+					break;
+				case 8:
+					wc.setX(rs.getInt(column));
+					break;
+				case 9:
+					wc.setY(rs.getInt(column));
+					break;
+				}
+				
 			}
-			column++;
+			items.add(new Item(wc, false, id, oid, effect, type, material, cursed, identified));
 		}
 		
-		return new Item(wc, false, id, oid, effect, type, material, cursed, identified);
+		return items;
 	}
 	
 	public ResultSet getInventory(int playerID){
