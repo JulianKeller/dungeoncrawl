@@ -1,6 +1,5 @@
 import jig.Entity;
 import jig.ResourceManager;
-import jig.Vector;
 
 import java.sql.SQLException;
 
@@ -24,7 +23,7 @@ public class Main extends StateBasedGame {
 
 
     public static final String WALL = "resources/wall/wall_2d.png";
-    public static final String WALL_TOP = "resources/floor/wall_2dtop.png";
+    public static final String WALL_TOP = "resources/wall/wall_2dtop.png";
 
     public static final String FLOOR = "resources/floor/floor_2d.png";
     public static final String SHADOW_FLOOR = "resources/floor/floor_2d_shadow.png";
@@ -39,6 +38,14 @@ public class Main extends StateBasedGame {
     public static final String ARROW_D = "resources/arrows/down.png";
     public static final String ARROW_L = "resources/arrows/left.png";
     public static final String ARROW_R = "resources/arrows/right.png";
+
+    // potions
+    public static final String POTION_BLUE = "resources/potions/blue_potion.png";
+    public static final String POTION_RED = "resources/potions/red_potion.png";
+    public static final String POTION_YELLOW = "resources/potions/yellow_potion.png";
+    public static final String POTION_PINK = "resources/potions/pink_potion.png";
+    public static final String POTION_ORANGE = "resources/potions/orange_potion.png";
+
 
     // Screen Size
     public final int ScreenWidth;
@@ -72,6 +79,8 @@ public class Main extends StateBasedGame {
     
     //create an item manager
     public static ItemManager im;
+    Entity[][] potions;
+
 
     /**
      * Create a new state based game
@@ -115,6 +124,12 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(ISOFLOOR);
         ResourceManager.loadImage(ISOWALL);
 
+        // POTIONS
+        ResourceManager.loadImage(POTION_BLUE);
+        ResourceManager.loadImage(POTION_ORANGE);
+        ResourceManager.loadImage(POTION_PINK);
+        ResourceManager.loadImage(POTION_RED);
+        ResourceManager.loadImage(POTION_YELLOW);
     }
 
     public static void main(String[] args) {
