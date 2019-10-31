@@ -1,3 +1,7 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -78,29 +82,16 @@ public class ItemManager {
 		s.executeUpdate(q);
 		q = "use "+dbName;
 		s.executeUpdate(q);
-		
-		q = "create table Player("+
-		"pid int,"+				
-		"pname varchar(200),"+	
-		"pclass varchar(200),"+	
-		"plevel smallint,"+		
-		"primary key(pid)"+
-		");";
-		s.executeUpdate(q);
 
-		q = "create table Item("+
-		"iid int,"+				
-		"oid int,"+				
-		"ieffect varchar(200),"+	
-		"itype varchar(200),"+		
-		"imat varchar(200),"+		
-    
-    	"primary key(iid),"+
-    	"foreign key(oid) references player(pid)"+
-    	"on update cascade on delete cascade"+
-    	");";
-		s.executeUpdate(q);
-		
+		try {
+			executeSQLFile("database/createTables.sql", s);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//insert world as player
 		q = "insert into player values(0, '', '', 0)";
 		s.executeUpdate(q);
@@ -147,13 +138,50 @@ public class ItemManager {
 			//add its values to the database
 			String q = "insert into item values("
 					+currentItemID+","+item.getOID()+",'"+item.getEffect()+"','"+item.getType()+"','"+item.getMaterial()
-					+"')";
-			
-			System.out.println("Query = "+q);
+					+"', "+(int) vec.getX()+", "+(int) vec.getY()+")";
 			s.executeUpdate(q);
 			
 			numItems--;
 		}
+	}
+	
+	private void executeSQLFile(String filepath, Statement s) throws IOException, FileNotFoundException{
+		FileInputStream in = new FileInputStream(filepath);
+		
+		//build a string until a semicolon is encountered
+		String q = "";
+		int ch = -1;
+		while(true){
+			try {
+				ch = in.read();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				break;
+			}  
+			if( ch == -1 ){
+				//end of file
+				break;
+			}else if( ch == 59 ){
+				//semicolon; end of statement
+				q = q + (char) ch;
+				try {
+					s.execute(q);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					break;
+				}
+				q = "";
+			}else if( ch != 10 ){
+				//if not a newline
+				q = q + (char) ch;
+			}
+		}
+		
+		//close input stream
+		in.close();
+		
 	}
 	
 	public void restore(int itemID) throws SQLException{
