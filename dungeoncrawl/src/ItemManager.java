@@ -185,7 +185,7 @@ public class ItemManager {
 		
 	}
 	
-	public void restore(int itemID) throws SQLException{
+	public Item restore(int itemID) throws SQLException{
 		//add an item to the map with values from the database
 		String q = "select * from item where iid = "+itemID;
 		rs = s.executeQuery(q);
@@ -234,6 +234,22 @@ public class ItemManager {
 			column++;
 		}
 		
-		Item item = new Item(wc, false, id, oid, effect, type, material, cursed, identified);
+		return new Item(wc, false, id, oid, effect, type, material, cursed, identified);
 	}
+	
+	public ResultSet getInventory(int playerID){
+		/**
+		 * Returns a ResultSet object containing rows from the item table
+		 *   owned by the player with given ID.
+		 */
+		String q = "select * from item where oid = "+playerID;
+		try {
+			return s.executeQuery(q);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 }
