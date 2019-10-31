@@ -37,6 +37,8 @@ public class Item extends StationaryObject{
 			this.material = Main.StaffMaterials[ rand.nextInt(Main.StaffMaterials.length) ];
 		}else if( type.equals("Glove") ){
 			this.material = Main.GloveMaterials[ rand.nextInt(Main.GloveMaterials.length) ];
+		}else{
+			this.material = "";
 		}
 		
 		//choose effects from the appropriate list
@@ -52,6 +54,8 @@ public class Item extends StationaryObject{
 			this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
 		}else if( type.equals("Arrow") ){
 			this.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
+		}else{
+			this.effect = "";
 		}
 		
 		//items have a 50% chance to be cursed (for now?)
