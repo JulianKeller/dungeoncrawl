@@ -15,6 +15,8 @@ create table Item(
     imat varchar(200),		/*thie item's material, e.g. 'Leather'*/
     iworldCoordX int,		/*the world coordinates of this item*/
     iworldCoordY int,		/*  both will be -1 for items which don't exist on the world*/
+    cursed boolean,
+    isIdentified boolean,
     
     primary key(iid),
     foreign key(oid) references player(pid)
