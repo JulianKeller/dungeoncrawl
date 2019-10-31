@@ -108,14 +108,16 @@ public class ItemManager {
 		rand = new Random();
 		
 		//testing
-		plant(5);
+		//plant(5);
 		
+		/*
 		ArrayList<Item> items = restore(new Vector(0, 0), new Vector(100, 100));
 		
 		System.out.println("Searching items on world...");
 		for( Item i : items ){
 			System.out.println("It is "+i.getMaterial()+" "+i.getType()+" of "+i.getEffect());
 		}
+		*/
 	}
 	
 	public void give(int itemID, int playerID) throws SQLException{
@@ -214,7 +216,8 @@ public class ItemManager {
 		String material = "";
 		boolean cursed = false;
 		boolean identified = false;
-		Vector wc = new Vector(0, 0);
+		int x = -1;
+		int y = -1;
 		
 		
 		//ResultSet.next() moves the pointer to the next row
@@ -239,21 +242,27 @@ public class ItemManager {
 					material = rs.getString(column);
 					break;
 				case 6:
-					cursed = rs.getBoolean(column);
+					System.out.println(rs.getInt(column));
+					//wc.setX(rs.getInt(column));
+					//System.out.println("Setting item wcx to "+wc.getX());
+					x = rs.getInt(column);
 					break;
 				case 7:
-					identified = rs.getBoolean(column);
+					System.out.println(rs.getInt(column));
+					//wc.setY(rs.getInt(column));
+					//System.out.println("Setting item wcy to "+wc.getY());
+					y = rs.getInt(column);
 					break;
 				case 8:
-					wc.setX(rs.getInt(column));
+					cursed = rs.getBoolean(column);
 					break;
 				case 9:
-					wc.setY(rs.getInt(column));
+					identified = rs.getBoolean(column);
 					break;
 				}
 				
 			}
-			items.add(new Item(wc, false, id, oid, effect, type, material, cursed, identified));
+			items.add(new Item(new Vector(x, y), false, id, oid, effect, type, material, cursed, identified));
 		}
 		
 		return items;

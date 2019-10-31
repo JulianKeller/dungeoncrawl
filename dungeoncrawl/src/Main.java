@@ -1,5 +1,6 @@
 import jig.Entity;
 import jig.ResourceManager;
+import jig.Vector;
 
 import java.sql.SQLException;
 
@@ -67,6 +68,10 @@ public class Main extends StateBasedGame {
     public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection"};
     
     //displayed item name should be of the form "material type of effect" using whatever fields are filled in
+    
+    
+    //create an item manager
+    public static ItemManager im;
 
     /**
      * Create a new state based game
@@ -115,7 +120,7 @@ public class Main extends StateBasedGame {
     public static void main(String[] args) {
     	Main game = new Main("Dungeon Crawl", 1024, 672);
     	try {
-			ItemManager im = new ItemManager(game);
+			im = new ItemManager(game);
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
