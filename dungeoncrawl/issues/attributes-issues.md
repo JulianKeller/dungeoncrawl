@@ -32,5 +32,7 @@
         Leather Gloves
         Iron Gloves
         Gold Gloves
+        
+[8] - Test making character animate as it walks
 
 ## Resolved Issues ##
