@@ -44,6 +44,8 @@ public class Main extends StateBasedGame {
     public static final String POTION_PINK = "resources/potions/pink_potion.png";
     public static final String POTION_ORANGE = "resources/potions/orange_potion.png";
 
+    // Knight
+    public static final String KNIGHT_LEATHER = "resources/knight/knight_leather.png";
 
     // Screen Size
     public final int ScreenWidth;
@@ -105,6 +107,9 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(POTION_PINK);
         ResourceManager.loadImage(POTION_RED);
         ResourceManager.loadImage(POTION_YELLOW);
+
+        // KNIGHT
+        ResourceManager.loadImage(KNIGHT_LEATHER);
     }
 
     public static void main(String[] args) {
