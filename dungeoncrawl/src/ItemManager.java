@@ -128,10 +128,11 @@ public class ItemManager {
 		
 		rand.setSeed(System.nanoTime());
 		
-		Vector vec = new Vector(rand.nextInt(maxx), rand.nextInt(maxy));
+		
 		
 		while( numItems > 0 ){
 			//create a new item object with random properties
+			Vector vec = new Vector(rand.nextInt(maxx), rand.nextInt(maxy));
 			Item item = new Item(vec, false, currentItemID, 0);
 			currentItemID++;
 			
