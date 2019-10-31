@@ -1,5 +1,5 @@
 ## RESOLVED ISSUES ##
-**[ 1 ]** Create Moving Entity Class (Awaiting group Approval)<br>
+**[ 1 ]** Create Moving Entity Class<br>
 ## PENDING ISSUES ##
 **[ 2 ]** Create Character Class<br>
 **[ 3 ]** Create Enemy Class<br>
