@@ -6,6 +6,8 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
+import java.util.ArrayList;
+
 
 public class Main extends StateBasedGame {
     // Game States
@@ -80,6 +82,7 @@ public class Main extends StateBasedGame {
     int[][] map;
     Entity[][] entities;
     Entity[][] potions;
+    ArrayList<AnimateEntity> animations;
 
 
     /**

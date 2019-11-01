@@ -6,6 +6,8 @@ import org.newdawn.slick.Animation;
 
 
 // TODO most likely each character will contain an instance of this class
+// TODO
+
 /**
  * A class representing a characters movement.
  */
@@ -16,6 +18,14 @@ class AnimateEntity extends Entity {
     private String spritesheet;
     private int speed;
 
+    /*
+    Creates an Animated Entity
+    @param x entities starting x position
+    @param y entities starting y position
+    @param action the movement and action the entity is taking (walking, slashing... etc)
+    @param speed The speed the animation plays at, 100 is pretty balanced
+    @param sprite The sprite that is being animated
+     */
     public AnimateEntity(final float x, final float y, String action, int speed, String sprite) {
         super(x, y);
         this.action = action;
@@ -25,6 +35,9 @@ class AnimateEntity extends Entity {
         selectAnimation();
     }
 
+    /*
+    Get the correct spritesheet for the specified sprite
+    */
     private void getSpritesheet() {
         switch (sprite) {
             case "knight_leather": {
@@ -82,7 +95,9 @@ class AnimateEntity extends Entity {
         }
     }
 
-    // Selects and starts the appropriate animation sequence for the specified action
+    /*
+     Selects and starts the appropriate animation sequence for the specified sprites action
+    */
     private void selectAnimation() {
         int row = 0;        // sprite sheet y
         int startx = 0;
@@ -234,5 +249,52 @@ class AnimateEntity extends Entity {
     // check if the animation is active
     public boolean isActive() {
         return !animation.isStopped();
+    }
+
+    /*
+    draw all the animations for all the characters on seperate rows for testing
+    @param dc The games main class
+    */
+    public static void testAllCharacterAnimations(Main dc) {
+        String[] sprites = new String[] {
+                "knight_leather", "knight_iron", "knight_gold",
+                "mage_leather", "mage_improved",
+                "archer_leather",
+                "tank_leather", "tank_iron", "tank_gold",
+                "skeleton_basic", "skeleton_leather", "skeleton_chain",
+                "ice_elf"};
+
+        String[] limited_sprites = new String[] {
+                "knight_iron", "knight_gold",
+                "mage_leather",
+                "archer_leather",
+                "tank_leather",
+                "skeleton_basic",
+                "ice_elf"};
+
+        int row = 2;
+        for (int i = 0; i < limited_sprites.length; i++) {
+            displayAllAnimations(dc, limited_sprites[i], row );
+            row += 2;
+        }
+    }
+
+    /*
+    draw all of a single characters animations in a single row for testing
+    @param dc The games main class
+    @param sprite The sprite to display animations for
+    @param row The screen row to draw the coordinates at
+    */
+    public static void displayAllAnimations(Main dc, String sprite, int row) {
+        String[] variations = new String[]{
+                "spell_up", "spell_left", "spell_down", "spell_right",
+                "jab_up", "jab_left", "jab_down", "jab_right",
+                "walk_up", "walk_left", "walk_down", "walk_right",
+                "slash_up", "slash_left", "slash_down", "slash_right",
+                "shoot_up", "shoot_left", "shoot_down", "shoot_right",
+                "die"};
+        for (int i = 0; i < variations.length; i++) {
+            dc.animations.add(new AnimateEntity((i + 3) * dc.tileH + dc.tileH / 2, row * dc.tileW, variations[i], 100, sprite));
+        }
     }
 }

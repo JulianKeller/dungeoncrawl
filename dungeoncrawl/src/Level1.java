@@ -10,7 +10,6 @@ import java.util.ArrayList;
 
 public class Level1 extends BasicGameState {
     private Boolean paused;
-    ArrayList<AnimateEntity> animated;
 
     @Override
     public int getID() {
@@ -71,23 +70,13 @@ public class Level1 extends BasicGameState {
         dc.potions[10][2] = new Potion(10 * dc.tileH + dc.tileH/2, 2 * dc.tileW + dc.tileW/2, "strength");
         dc.potions[10][6] = new Potion(10 * dc.tileH + dc.tileH/2, 6 * dc.tileW + dc.tileW/2, "invisibility");
 
-        animated = new ArrayList<>(20);
-        String[] variations = new String[] {
-                "spell_up", "spell_left", "spell_down", "spell_right",
-                "jab_up", "jab_left", "jab_down", "jab_right",
-                "walk_up", "walk_left", "walk_down", "walk_right",
-                "slash_up", "slash_left", "slash_down", "slash_right",
-                "shoot_up", "shoot_left", "shoot_down", "shoot_right",
-                "die"};
-        for (int i = 0; i < variations.length; i++) {
-            animated.add(new AnimateEntity((i + 3) * dc.tileH + dc.tileH/2, 4 * dc.tileW, variations[i], 100, "knight_leather"));
-        }
+        dc.animations = new ArrayList<>(200);
+        AnimateEntity.testAllCharacterAnimations(dc);
 
     }
 
     // Draw the 2D map
     public void display2Dmap(Main dc) {
-//        System.out.printf("rows: %s, cols: %s\n", dc.map.length, dc.map[0].length);
         int x, y;
         for (int i = 0; i < dc.map.length; i++) {
             for (int j = 0; j < dc.map[i].length; j++) {
@@ -129,7 +118,6 @@ public class Level1 extends BasicGameState {
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
-//        g.drawImage(ResourceManager.getImage(Game.LEVEL_BACKGROUND), 0, 0);
         // render tiles
         for (int i = 0; i < dc.entities.length; i++) {
             for (int j = 0; j < dc.entities[0].length; j++) {
@@ -149,10 +137,9 @@ public class Level1 extends BasicGameState {
         }
 
         // display the animated entities
-        for (AnimateEntity a : animated) {
+        for (AnimateEntity a : dc.animations) {
             a.render(g);
         }
-
     }
 
 
