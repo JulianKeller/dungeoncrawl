@@ -122,21 +122,21 @@ public class Level1 extends BasicGameState {
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
     	//plant some items on the level
-//    	try {
-//			Main.im.plant(5);
-//		} catch (SQLException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//    	//then restore the visible items from the database to render them
-//    	//TODO: make the restoration boundary cover only the screen area + a buffer
-//    	try {
-//			itemsToRender = Main.im.restore(new Vector(0, 0), new Vector(100, 100));
-//		} catch (SQLException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+    	try {
+			Main.im.plant(5);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+    	//then restore the visible items from the database to render them
+    	//TODO: make the restoration boundary cover only the screen area + a buffer
+    	try {
+			itemsToRender = Main.im.restore(new Vector(0, 0), new Vector(100, 100));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     @Override
@@ -152,13 +152,13 @@ public class Level1 extends BasicGameState {
         }
         
         //render all visible items
-//        g.setColor(Color.red);
-//        for( Item i : itemsToRender){
-//        	System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
-//        	//TODO: draw item images
-//        	//for now, use ovals
-//        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
-//        }
+        g.setColor(Color.red);
+        for( Item i : itemsToRender){
+        	System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
+        	//TODO: draw item images
+        	//for now, use ovals
+        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
+        }
 //
         // display the animated entities
         for (AnimateEntity a : dc.animations) {
