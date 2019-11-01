@@ -1,5 +1,6 @@
 ##Open Issues##
 [5] Test player interactions with items
+[6] Update database code to use memory instead of local storage
 
 ##Resolved Issues##
 [1] Create database schema to hold items and player inventories
