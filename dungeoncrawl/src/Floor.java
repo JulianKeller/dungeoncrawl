@@ -20,6 +20,10 @@ public class Floor extends Entity {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.SHADOW_FLOOR_R));
                 break;
             }
+            case "shadow_corner": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.SHADOW_FLOOR_CORNER));
+                break;
+            }
             case "iso": {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.ISOFLOOR));
                 break;

@@ -79,7 +79,7 @@ public class Level1 extends BasicGameState {
         dc.potions[7][19] = new Potion(7 * dc.tileH + dc.tileH/2, 19 * dc.tileW + dc.tileW/2, "invisibility");
 
         dc.animations = new ArrayList<>(200);
-        AnimateEntity.testAllCharacterAnimations(dc);
+//        AnimateEntity.testAllCharacterAnimations(dc);
 
     }
 
@@ -102,12 +102,17 @@ public class Level1 extends BasicGameState {
                         dc.entities[i][j] = new Wall(x, y, "top");
                     }
                 }
+                // FLOOR
                 else if (dc.map[i][j] == 0) {
                     if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
                         dc.entities[i][j] = new Floor(x, y, "shadow");
                     }
-                    else if (j-1 > 0 && dc.map[i][j-1] == 1) {
+                    else if (j-1 >= 0 && dc.map[i][j-1] == 1) {
                         dc.entities[i][j] = new Floor(x, y, "shadow_right");
+                    }
+                    // TODO
+                    else if (j-1 > 0 && i+1 < dc.map[i].length && dc.map[i+1][j-1] == 1) {
+                        dc.entities[i][j] = new Floor(x, y, "shadow_corner");
                     }
                     else {
                         dc.entities[i][j] = new Floor(x, y, "normal");
@@ -122,21 +127,21 @@ public class Level1 extends BasicGameState {
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
     	//plant some items on the level
-    	try {
-			Main.im.plant(5);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-    	//then restore the visible items from the database to render them
-    	//TODO: make the restoration boundary cover only the screen area + a buffer
-    	try {
-			itemsToRender = Main.im.restore(new Vector(0, 0), new Vector(100, 100));
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//    	try {
+//			Main.im.plant(5);
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//    	//then restore the visible items from the database to render them
+//    	//TODO: make the restoration boundary cover only the screen area + a buffer
+//    	try {
+//			itemsToRender = Main.im.restore(new Vector(0, 0), new Vector(100, 100));
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
     }
 
     @Override
@@ -152,13 +157,13 @@ public class Level1 extends BasicGameState {
         }
         
         //render all visible items
-        g.setColor(Color.red);
-        for( Item i : itemsToRender){
-        	System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
-        	//TODO: draw item images
-        	//for now, use ovals
-        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
-        }
+//        g.setColor(Color.red);
+//        for( Item i : itemsToRender){
+//        	System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
+//        	//TODO: draw item images
+//        	//for now, use ovals
+//        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
+//        }
 //
         // display the animated entities
         for (AnimateEntity a : dc.animations) {
