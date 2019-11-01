@@ -9,9 +9,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Random;
 
-//import com.mysql.cj.jdbc.MysqlDataSource;
+// TODO this import doesn't work for me (Julian)
+import com.mysql.cj.jdbc.MysqlDataSource;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+// TODO however this import does work
+//import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+
 import jig.Vector;
 public class ItemManager {
 	/**
