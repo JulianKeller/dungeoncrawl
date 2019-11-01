@@ -104,13 +104,15 @@ public class Level1 extends BasicGameState {
                 }
                 // FLOOR
                 else if (dc.map[i][j] == 0) {
-                    if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
+                    if (dc.map[i+1][j] == 1 && dc.map[i][j-1] == 1) {
+                        dc.entities[i][j] = new Floor(x, y, "shadow_double");
+                    }
+                    else if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
                         dc.entities[i][j] = new Floor(x, y, "shadow");
                     }
                     else if (j-1 >= 0 && dc.map[i][j-1] == 1) {
                         dc.entities[i][j] = new Floor(x, y, "shadow_right");
                     }
-                    // TODO
                     else if (j-1 > 0 && i+1 < dc.map[i].length && dc.map[i+1][j-1] == 1) {
                         dc.entities[i][j] = new Floor(x, y, "shadow_corner");
                     }
