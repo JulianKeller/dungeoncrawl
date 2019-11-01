@@ -134,12 +134,7 @@ public class Main extends StateBasedGame {
 
     public static void main(String[] args) {
     	Main game = new Main("Dungeon Crawl", 1024, 672);
-    	try {
-			im = new ItemManager(game);
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+    	im = new ItemManager(game);
         AppGameContainer app;
         try {
             app = new AppGameContainer(game);

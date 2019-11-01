@@ -120,21 +120,11 @@ public class Level1 extends BasicGameState {
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
     	//plant some items on the level
-    	try {
-			Main.im.plant(5);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Main.im.plant(5);
     	
-    	//then restore the visible items from the database to render them
+    	//then restore the visible items from the world
     	//TODO: make the restoration boundary cover only the screen area + a buffer
-    	try {
-			itemsToRender = Main.im.restore(new Vector(0, 0), new Vector(100, 100));
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
 
     @Override
