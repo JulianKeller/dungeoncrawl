@@ -1,5 +1,6 @@
 ##Open Issues##
 [5] Update/test player interactions with items
+[7] Fix infinite loops and remove print statements
 
 ##Resolved Issues##
 [1] Create database schema to hold items and player inventories
