@@ -19,13 +19,39 @@ public class ItemManager {
 		for( Item i : worldItems ){
 			if( i.getID() == itemID ){
 				//add to the player's inventory
+				/*
+				for( Player p : game.players){
+					if( p.getID() == playerID ){
+						p.getInventory().add(i);
+						worldItems.remove(i);
+						return;
+					}
+				}
+				*/
 			}
 		}
 
 	}
 	
 	public void take(int itemID, int playerID, Vector wc){
-		
+		//take an item from the player and place it at the given coordinates
+		// unless the coordinate is null
+		/*
+		for( Player p : game.players ){
+			if( p.getID() == playerID ){
+				for( Item i : p.getInventory() ){
+					if( i.getID() == itemID ){
+						p.getInvetory().remove(i);
+						
+						//if the wc is not null, place the item on the world
+						if( wc != null ){
+							i.setWorldCoordinates(wc);
+						}
+					}
+				}
+			}
+		}
+		*/
 	}
 	
 	private int currentItemID = 0;
