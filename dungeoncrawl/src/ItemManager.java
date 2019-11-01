@@ -8,14 +8,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.TimeZone;
 
-// TODO this import doesn't work for me (Julian)
 import com.mysql.cj.jdbc.MysqlDataSource;
 
-// TODO however this import does work
-//import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
-
 import jig.Vector;
+
+// TODO fix connection lost to mysql error
+
 public class ItemManager {
 	/**
 	 * This class will handle all database operations to do with items.
@@ -57,6 +57,7 @@ public class ItemManager {
 			datasource.setPassword("password");
 			datasource.setServerName("localhost");
 			datasource.setPort(3306);
+			datasource.setServerTimezone(TimeZone.getDefault().getID());
 		}
 		
 		//create connection object
@@ -89,7 +90,7 @@ public class ItemManager {
 		s.executeUpdate(q);
 
 		try {
-			executeSQLFile("database/createTables.sql", s);
+			executeSQLFile("dungeoncrawl/database/createTables.sql", s);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

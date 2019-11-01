@@ -13,6 +13,11 @@ out
 # Mac
 .DS_Store
 
+# SQL
+mysql-connector-java-8.0.18.tar.gz
+mysql-connector-java-8.0.18/
+
+
 # Maven
 log/
 target/
