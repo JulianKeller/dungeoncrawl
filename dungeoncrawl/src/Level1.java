@@ -146,7 +146,7 @@ public class Level1 extends BasicGameState {
         //render all visible items
         g.setColor(Color.red);
         for( Item i : itemsToRender){
-        	System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
+        	//System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
         	//TODO: draw item images
         	//for now, use ovals
         	g.drawOval((i.getWorldCoordinates().getX()*dtc.tileW)+(dtc.tileW/2), (i.getWorldCoordinates().getY()*dtc.tileH)+(dtc.tileH/2), 4, 4);

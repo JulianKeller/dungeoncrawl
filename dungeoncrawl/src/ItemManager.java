@@ -69,6 +69,8 @@ public class ItemManager {
 			worldItems.add(new Item(wc, false, currentItemID, 0));
 			
 			currentItemID++;
+			
+			numItems--;
 		}
 
 	}
