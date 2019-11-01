@@ -1,10 +1,14 @@
 import jig.Entity;
 import jig.ResourceManager;
 
+import java.sql.SQLException;
+
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+
+import java.util.ArrayList;
 
 
 public class Main extends StateBasedGame {
@@ -44,6 +48,31 @@ public class Main extends StateBasedGame {
     public static final String POTION_PINK = "resources/potions/pink_potion.png";
     public static final String POTION_ORANGE = "resources/potions/orange_potion.png";
 
+    // Knight
+    public static final String KNIGHT_LEATHER = "resources/knight/knight_leather.png";
+    public static final String KNIGHT_IRON = "resources/knight/knight_iron.png";
+    public static final String KNIGHT_GOLD = "resources/knight/knight_gold.png";
+
+    // Mage
+    public static final String MAGE_LEATHER = "resources/mage/mage_leather.png";
+    public static final String MAGE_IMPROVED = "resources/mage/mage_improved.png";
+
+
+    // Archer
+    public static final String ARCHER_LEATHER = "resources/archer/archer_leather.png";
+
+    // Tank
+    public static final String TANK_LEATHER = "resources/tank/tank_leather.png";
+    public static final String TANK_IRON = "resources/tank/tank_iron.png";
+    public static final String TANK_GOLD = "resources/tank/tank_gold.png";
+
+    // skeleton
+    public static final String SKELETON_BASIC = "resources/skeleton/skeleton_basic.png";
+    public static final String SKELETON_LEATHER = "resources/skeleton/skeleton_leather.png";
+    public static final String SKELETON_CHAIN = "resources/skeleton/skeleton_chainmail.png";
+
+    // dark elf
+    public static final String ICE_ELF = "resources/darkelf/iceelf.png";
 
     // Screen Size
     public final int ScreenWidth;
@@ -54,7 +83,31 @@ public class Main extends StateBasedGame {
     int tileH;
     int[][] map;
     Entity[][] entities;
+    
+    //item types
+    public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
+    
+    //item materials
+    public static final String[] ArmorMaterials = {"Leather", "Iron", "Turtle Shell"};
+    public static final String[] SwordMaterials = {"Wooden", "Iron", "Gold"};
+    public static final String[] StaffMaterials = {"Ruby", "Emerald", "Amethyst"};
+    public static final String[] GloveMaterials = {"Leather", "Iron", "Gold"};
+    
+    //item effects
+    public static final String[] PotionEffects = {"Healing", "Strength", "Flame", "Mana", "Invisibility"};
+    public static final String[] ArrowEffects = {"Flaming", "Poisoned", "Ice"};
+    public static final String[] StaffEffects = {"Healing", "Lightning", "Flame", "Ice"};
+    public static final String[] ArmorEffects = {"Stench", "Iron Skin", "Thorns", "Swiftness"};
+    public static final String[] SwordEffects = {"Fright", "Might", "Flame", "Ice"};
+    public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection"};
+    
+    //displayed item name should be of the form "material type of effect" using whatever fields are filled in
+    
+    
+    //create an item manager
+    public static ItemManager im;
     Entity[][] potions;
+    ArrayList<AnimateEntity> animations;
 
 
     /**
@@ -105,12 +158,44 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(POTION_PINK);
         ResourceManager.loadImage(POTION_RED);
         ResourceManager.loadImage(POTION_YELLOW);
+
+        // KNIGHT
+        ResourceManager.loadImage(KNIGHT_LEATHER);
+        ResourceManager.loadImage(KNIGHT_IRON);
+        ResourceManager.loadImage(KNIGHT_GOLD);
+
+        // MAGE
+        ResourceManager.loadImage(MAGE_LEATHER);
+        ResourceManager.loadImage(MAGE_IMPROVED);
+
+        // ARCHER
+        ResourceManager.loadImage(ARCHER_LEATHER);
+
+        // TANK
+        ResourceManager.loadImage(TANK_LEATHER);
+        ResourceManager.loadImage(TANK_IRON);
+        ResourceManager.loadImage(TANK_GOLD);
+
+        // SKELETON
+        ResourceManager.loadImage(SKELETON_BASIC);
+        ResourceManager.loadImage(SKELETON_CHAIN);
+        ResourceManager.loadImage(SKELETON_LEATHER);
+
+        // ELF
+        ResourceManager.loadImage(ICE_ELF);
     }
 
     public static void main(String[] args) {
+    	Main game = new Main("Dungeon Crawl", 1024, 672);
+    	try {
+			im = new ItemManager(game);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         AppGameContainer app;
         try {
-            app = new AppGameContainer(new Main("Dungeon Crawl", 1024, 672));
+            app = new AppGameContainer(game);
             app.setDisplayMode(1024, 672, false);
             app.setVSync(true);
 //            app.setShowFPS(false);      // disable fps

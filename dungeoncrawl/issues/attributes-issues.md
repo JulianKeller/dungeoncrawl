@@ -1,12 +1,4 @@
 ## Open Issues ##
-[1] - Draw 4 game characters
-[2] - Draw Potions
-        Health
-        Mana
-        Strength
-        Fire
-        Invisibility
-
 [3] - Draw Armor
         Leather
         Iron
@@ -32,5 +24,10 @@
         Leather Gloves
         Iron Gloves
         Gold Gloves
-
+        
+[9] - several entities are missing bow and sword
+        
 ## Resolved Issues ##
+[1] - Draw 4 game characters
+[2] - Draw Potions
+[8] - Test making character animate as it walks 
