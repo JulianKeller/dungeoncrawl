@@ -85,6 +85,7 @@ public class Level1 extends BasicGameState {
 
     // Draw the 2D map
     public void display2Dmap(Main dc) {
+
         int x, y;
         for (int i = 0; i < dc.map.length; i++) {
             for (int j = 0; j < dc.map[i].length; j++) {
@@ -102,12 +103,19 @@ public class Level1 extends BasicGameState {
                         dc.entities[i][j] = new Wall(x, y, "top");
                     }
                 }
+                // FLOOR
                 else if (dc.map[i][j] == 0) {
-                    if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
+                    if (dc.map[i+1][j] == 1 && dc.map[i][j-1] == 1) {
+                        dc.entities[i][j] = new Floor(x, y, "shadow_double");
+                    }
+                    else if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
                         dc.entities[i][j] = new Floor(x, y, "shadow");
                     }
-                    else if (j-1 > 0 && dc.map[i][j-1] == 1) {
+                    else if (j-1 >= 0 && dc.map[i][j-1] == 1) {
                         dc.entities[i][j] = new Floor(x, y, "shadow_right");
+                    }
+                    else if (j-1 > 0 && i+1 < dc.map[i].length && dc.map[i+1][j-1] == 1) {
+                        dc.entities[i][j] = new Floor(x, y, "shadow_corner");
                     }
                     else {
                         dc.entities[i][j] = new Floor(x, y, "normal");
