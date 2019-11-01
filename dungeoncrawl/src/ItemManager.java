@@ -9,8 +9,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.mysql.cj.jdbc.MysqlDataSource;
+//import com.mysql.cj.jdbc.MysqlDataSource;
 
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import jig.Vector;
 public class ItemManager {
 	/**
