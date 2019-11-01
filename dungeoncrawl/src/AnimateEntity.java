@@ -4,27 +4,47 @@ import jig.ResourceManager;
 import org.newdawn.slick.Animation;
 
 
-// TODO this class will need to be updated to grab the correct spritesheet for each character
-//  most likely each character will contain an instance of this class
+
+// TODO most likely each character will contain an instance of this class
 /**
- * A class representing a transient explosion. The game should monitor
- * explosions to determine when they are no longer active and remove/hide
- * them at that point.
+ * A class representing a characters movement.
  */
 class AnimateEntity extends Entity {
-    private Animation action;
-    private String type;
+    private Animation animation;
+    private String action;
+    private String sprite;
+    private String spritesheet;
     private int speed;
 
-    public AnimateEntity(final float x, final float y, String type, int speed) {
+    public AnimateEntity(final float x, final float y, String action, int speed, String sprite) {
         super(x, y);
-        this.type = type;
+        this.action = action;
         this.speed = speed;
+        this.sprite = sprite;
+        getSpritesheet();
+        selectAnimation();
+    }
+
+    private void getSpritesheet() {
+        switch (sprite) {
+            case "knight_leather": {
+                spritesheet = Main.KNIGHT_LEATHER;
+                break;
+            }
+            case "knight_iron": {
+                spritesheet = Main.KNIGHT_IRON;
+                break;
+            }
+        }
+    }
+
+    // Selects and starts the appropriate animation sequence for the specified action
+    private void selectAnimation() {
         int row = 0;        // sprite sheet y
         int startx = 0;
         int endx = 0;
         int spritesize = 64;
-        switch (type) {
+        switch (action) {
             case "spell_up": {
                 row = 0;
                 startx = 0;
@@ -152,23 +172,23 @@ class AnimateEntity extends Entity {
                 break;
             }
         }
-        action = new Animation(ResourceManager.getSpriteSheet(Main.KNIGHT_LEATHER, spritesize, spritesize), startx, row, endx, row, true, speed, true);
-        addAnimation(action);
-        action.setLooping(true);
+        animation = new Animation(ResourceManager.getSpriteSheet(spritesheet, spritesize, spritesize), startx, row, endx, row, true, speed, true);
+        addAnimation(animation);
+        animation.setLooping(true);
     }
 
     // stop the animation
     public void stop() {
-        action.stop();
+        animation.stop();
     }
 
     // resume the animation
     public void start() {
-        action.start();
+        animation.start();
     }
 
     // check if the animation is active
     public boolean isActive() {
-        return !action.isStopped();
+        return !animation.isStopped();
     }
 }

@@ -46,6 +46,15 @@ public class Main extends StateBasedGame {
 
     // Knight
     public static final String KNIGHT_LEATHER = "resources/knight/knight_leather.png";
+    public static final String KNIGHT_IRON = "resources/knight/knight_iron.png";
+
+    // Mage
+
+    // Archer
+
+    // Tank
+
+    // Bad Guy
 
     // Screen Size
     public final int ScreenWidth;
@@ -110,6 +119,7 @@ public class Main extends StateBasedGame {
 
         // KNIGHT
         ResourceManager.loadImage(KNIGHT_LEATHER);
+        ResourceManager.loadImage(KNIGHT_IRON);
     }
 
     public static void main(String[] args) {
