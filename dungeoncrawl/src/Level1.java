@@ -12,6 +12,8 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import java.util.ArrayList;
+
 public class Level1 extends BasicGameState {
     private Boolean paused;
     
@@ -76,13 +78,13 @@ public class Level1 extends BasicGameState {
         dc.potions[10][2] = new Potion(10 * dc.tileH + dc.tileH/2, 2 * dc.tileW + dc.tileW/2, "strength");
         dc.potions[10][6] = new Potion(10 * dc.tileH + dc.tileH/2, 6 * dc.tileW + dc.tileW/2, "invisibility");
 
-
+        dc.animations = new ArrayList<>(200);
+        AnimateEntity.testAllCharacterAnimations(dc);
 
     }
 
     // Draw the 2D map
     public void display2Dmap(Main dc) {
-//        System.out.printf("rows: %s, cols: %s\n", dc.map.length, dc.map[0].length);
         int x, y;
         for (int i = 0; i < dc.map.length; i++) {
             for (int j = 0; j < dc.map[i].length; j++) {
@@ -129,17 +131,13 @@ public class Level1 extends BasicGameState {
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-
-    	
-    	
-    	Main dtc = (Main) game;
-//        g.drawImage(ResourceManager.getImage(Game.LEVEL_BACKGROUND), 0, 0);
+        Main dc = (Main) game;
         // render tiles
-        for (int i = 0; i < dtc.entities.length; i++) {
-            for (int j = 0; j < dtc.entities[0].length; j++) {
-                if (dtc.entities[i][j] == null)
+        for (int i = 0; i < dc.entities.length; i++) {
+            for (int j = 0; j < dc.entities[0].length; j++) {
+                if (dc.entities[i][j] == null)
                     continue;
-                dtc.entities[i][j].render(g);
+                dc.entities[i][j].render(g);
             }
         }
         
@@ -149,20 +147,24 @@ public class Level1 extends BasicGameState {
         	//System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
         	//TODO: draw item images
         	//for now, use ovals
-        	g.drawOval((i.getWorldCoordinates().getX()*dtc.tileW)+(dtc.tileW/2), (i.getWorldCoordinates().getY()*dtc.tileH)+(dtc.tileH/2), 4, 4);
+        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
         }
         
 
 
         // render potions
-        for (int i = 0; i < dtc.potions.length; i++) {
-            for (int j = 0; j < dtc.potions[0].length; j++) {
-                if (dtc.potions[i][j] == null)
+        for (int i = 0; i < dc.potions.length; i++) {
+            for (int j = 0; j < dc.potions[0].length; j++) {
+                if (dc.potions[i][j] == null)
                     continue;
-                dtc.potions[i][j].render(g);
+                dc.potions[i][j].render(g);
             }
         }
 
+        // display the animated entities
+        for (AnimateEntity a : dc.animations) {
+            a.render(g);
+        }
     }
 
 
@@ -170,8 +172,8 @@ public class Level1 extends BasicGameState {
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         Input input = container.getInput();
-        Main dtc = (Main) game;
-        Cheats.enableCheats(dtc, input);
+        Main dc = (Main) game;
+        Cheats.enableCheats(dc, input);
         pause(input);
         if (paused) {
             return;
