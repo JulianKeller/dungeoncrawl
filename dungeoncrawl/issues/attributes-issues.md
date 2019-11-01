@@ -27,11 +27,12 @@
         
 [9] - several entities are missing bow and sword
 [10] - get mysql connector working properly
-[11] - update potions styles
-[12] - update wall tiles
+
+[12] - update floor tiles
 [13] - update wall tiles
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
 [2] - Draw Potions
 [8] - Test making character animate as it walks 
+[11] - update potions styles
