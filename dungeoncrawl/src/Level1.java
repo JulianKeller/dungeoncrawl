@@ -1,4 +1,10 @@
 import jig.Entity;
+import jig.Vector;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
@@ -10,6 +16,8 @@ import java.util.ArrayList;
 
 public class Level1 extends BasicGameState {
     private Boolean paused;
+    
+    private ArrayList<Item> itemsToRender;
 
     @Override
     public int getID() {
@@ -113,6 +121,22 @@ public class Level1 extends BasicGameState {
 
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
+    	//plant some items on the level
+    	try {
+			Main.im.plant(5);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	//then restore the visible items from the database to render them
+    	//TODO: make the restoration boundary cover only the screen area + a buffer
+    	try {
+			itemsToRender = Main.im.restore(new Vector(0, 0), new Vector(100, 100));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     @Override
@@ -126,6 +150,17 @@ public class Level1 extends BasicGameState {
                 dc.entities[i][j].render(g);
             }
         }
+        
+        //render all visible items
+        g.setColor(Color.red);
+        for( Item i : itemsToRender){
+        	System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
+        	//TODO: draw item images
+        	//for now, use ovals
+        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
+        }
+        
+
 
         // render potions
         for (int i = 0; i < dc.potions.length; i++) {
