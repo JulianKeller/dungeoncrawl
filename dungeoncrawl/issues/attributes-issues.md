@@ -26,6 +26,7 @@
         Gold Gloves
         
 [9] - several entities are missing bow and sword
+[10] - get mysql connector working properly
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
