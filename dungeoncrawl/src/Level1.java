@@ -72,11 +72,11 @@ public class Level1 extends BasicGameState {
 
         // draw potions
         dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
-        dc.potions[10][10] = new Potion(10 * dc.tileH + dc.tileH/2, 10 * dc.tileW + dc.tileW/2, "health");
-        dc.potions[10][4] = new Potion(10 * dc.tileH + dc.tileH/2, 4 * dc.tileW + dc.tileW/2, "manna");
-        dc.potions[10][8] = new Potion(10 * dc.tileH + dc.tileH/2, 8 * dc.tileW + dc.tileW/2, "fire");
-        dc.potions[10][2] = new Potion(10 * dc.tileH + dc.tileH/2, 2 * dc.tileW + dc.tileW/2, "strength");
-        dc.potions[10][6] = new Potion(10 * dc.tileH + dc.tileH/2, 6 * dc.tileW + dc.tileW/2, "invisibility");
+        dc.potions[3][19] = new Potion(3 * dc.tileH + dc.tileH/2, 19 * dc.tileW + dc.tileW/2, "health");
+        dc.potions[4][19] = new Potion(4 * dc.tileH + dc.tileH/2, 19 * dc.tileW + dc.tileW/2, "manna");
+        dc.potions[5][19] = new Potion(5 * dc.tileH + dc.tileH/2, 19 * dc.tileW + dc.tileW/2, "fire");
+        dc.potions[6][19] = new Potion(6 * dc.tileH + dc.tileH/2, 19 * dc.tileW + dc.tileW/2, "strength");
+        dc.potions[7][19] = new Potion(7 * dc.tileH + dc.tileH/2, 19 * dc.tileW + dc.tileW/2, "invisibility");
 
         dc.animations = new ArrayList<>(200);
         AnimateEntity.testAllCharacterAnimations(dc);
@@ -122,21 +122,21 @@ public class Level1 extends BasicGameState {
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
     	//plant some items on the level
-    	try {
-			Main.im.plant(5);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
-    	//then restore the visible items from the database to render them
-    	//TODO: make the restoration boundary cover only the screen area + a buffer
-    	try {
-			itemsToRender = Main.im.restore(new Vector(0, 0), new Vector(100, 100));
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//    	try {
+//			Main.im.plant(5);
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//    	//then restore the visible items from the database to render them
+//    	//TODO: make the restoration boundary cover only the screen area + a buffer
+//    	try {
+//			itemsToRender = Main.im.restore(new Vector(0, 0), new Vector(100, 100));
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
     }
 
     @Override
@@ -152,15 +152,18 @@ public class Level1 extends BasicGameState {
         }
         
         //render all visible items
-        g.setColor(Color.red);
-        for( Item i : itemsToRender){
-        	System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
-        	//TODO: draw item images
-        	//for now, use ovals
-        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
+//        g.setColor(Color.red);
+//        for( Item i : itemsToRender){
+//        	System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
+//        	//TODO: draw item images
+//        	//for now, use ovals
+//        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
+//        }
+//
+        // display the animated entities
+        for (AnimateEntity a : dc.animations) {
+            a.render(g);
         }
-        
-
 
         // render potions
         for (int i = 0; i < dc.potions.length; i++) {
@@ -171,10 +174,7 @@ public class Level1 extends BasicGameState {
             }
         }
 
-        // display the animated entities
-        for (AnimateEntity a : dc.animations) {
-            a.render(g);
-        }
+
     }
 
 
