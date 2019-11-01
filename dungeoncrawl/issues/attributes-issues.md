@@ -30,6 +30,7 @@
 
 [12] - update floor tiles
 [13] - update wall tiles
+[14] - refactor walls and levels classes into one map class
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
