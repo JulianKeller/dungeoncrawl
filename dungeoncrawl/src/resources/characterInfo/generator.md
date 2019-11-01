@@ -19,6 +19,14 @@
 
 
 ## Tank
-- leather: 
-- iron: 
-- gold: 
+- leather: http://gaurav.munjal.us/Universal-LPC-Spritesheet-Character-Generator/#?body=orc&eyes=yellow&legs=pants_teal&clothes=none&armor=chest_leather&hair=none&hat=none&shoes=none
+- iron: http://gaurav.munjal.us/Universal-LPC-Spritesheet-Character-Generator/#?body=orc&eyes=yellow&legs=pants_teal&clothes=none&armor=chest_plate&hair=none&hat=helmet_metal&shoes=boots_metal&arms=plate&greaves=metal&weapon=none&=shoes_black&spikes=gold&gloves=none
+- gold: http://gaurav.munjal.us/Universal-LPC-Spritesheet-Character-Generator/#?body=orc&eyes=yellow&legs=pants_teal&clothes=none&armor=chest_gold&hair=none&hat=helmet_golden&shoes=boots_golden&arms=gold&greaves=golden&weapon=none&=shoes_black&spikes=gold&gloves=none
+
+## Skeleton
+- basic: http://gaurav.munjal.us/Universal-LPC-Spritesheet-Character-Generator/#?body=skeleton&eyes=red&clothes=none&armor=none
+- leather: http://gaurav.munjal.us/Universal-LPC-Spritesheet-Character-Generator/#?body=skeleton&eyes=red&clothes=none&armor=chest_leather&mail=none&hair=none&arms=none&spikes=none&weapon=none&shoes=none
+- chainmail: http://gaurav.munjal.us/Universal-LPC-Spritesheet-Character-Generator/#?body=skeleton&eyes=red&clothes=none&armor=none&mail=chain&hair=none&arms=none&spikes=none&weapon=none&shoes=none
+
+## Ice Elf
+http://gaurav.munjal.us/Universal-LPC-Spritesheet-Character-Generator/#?sex=female&body=darkelf&eyes=purple&nose=big&ears=big&legs=pants_white&clothes=pirate_white&armor=none&jacket=none&hair=unkempt_white_cyan&shoulders=none&gloves=none&bracers=none&hat=tiara_iron&hats=tiara_purple&shoes=none&=shoes_black&gown-underdress=0&gown-overskirt=0&gown-blue-vest=0&weapon=wand_wood

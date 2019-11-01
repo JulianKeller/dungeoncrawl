@@ -47,14 +47,28 @@ public class Main extends StateBasedGame {
     // Knight
     public static final String KNIGHT_LEATHER = "resources/knight/knight_leather.png";
     public static final String KNIGHT_IRON = "resources/knight/knight_iron.png";
+    public static final String KNIGHT_GOLD = "resources/knight/knight_gold.png";
 
     // Mage
+    public static final String MAGE_LEATHER = "resources/mage/mage_leather.png";
+    public static final String MAGE_IMPROVED = "resources/mage/mage_improved.png";
+
 
     // Archer
+    public static final String ARCHER_LEATHER = "resources/archer/archer_leather.png";
 
     // Tank
+    public static final String TANK_LEATHER = "resources/tank/tank_leather.png";
+    public static final String TANK_IRON = "resources/tank/tank_iron.png";
+    public static final String TANK_GOLD = "resources/tank/tank_gold.png";
 
-    // Bad Guy
+    // skeleton
+    public static final String SKELETON_BASIC = "resources/skeleton/skeleton_basic.png";
+    public static final String SKELETON_LEATHER = "resources/skeleton/skeleton_leather.png";
+    public static final String SKELETON_CHAIN = "resources/skeleton/skeleton_chainmail.png";
+
+    // dark elf
+    public static final String ICE_ELF = "resources/darkelf/iceelf.png";
 
     // Screen Size
     public final int ScreenWidth;
@@ -120,6 +134,27 @@ public class Main extends StateBasedGame {
         // KNIGHT
         ResourceManager.loadImage(KNIGHT_LEATHER);
         ResourceManager.loadImage(KNIGHT_IRON);
+        ResourceManager.loadImage(KNIGHT_GOLD);
+
+        // MAGE
+        ResourceManager.loadImage(MAGE_LEATHER);
+        ResourceManager.loadImage(MAGE_IMPROVED);
+
+        // ARCHER
+        ResourceManager.loadImage(ARCHER_LEATHER);
+
+        // TANK
+        ResourceManager.loadImage(TANK_LEATHER);
+        ResourceManager.loadImage(TANK_IRON);
+        ResourceManager.loadImage(TANK_GOLD);
+
+        // SKELETON
+        ResourceManager.loadImage(SKELETON_BASIC);
+        ResourceManager.loadImage(SKELETON_CHAIN);
+        ResourceManager.loadImage(SKELETON_LEATHER);
+
+        // ELF
+        ResourceManager.loadImage(ICE_ELF);
     }
 
     public static void main(String[] args) {

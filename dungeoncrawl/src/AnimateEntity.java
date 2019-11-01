@@ -35,6 +35,50 @@ class AnimateEntity extends Entity {
                 spritesheet = Main.KNIGHT_IRON;
                 break;
             }
+            case "knight_gold": {
+                spritesheet = Main.KNIGHT_GOLD;
+                break;
+            }
+            case "mage_leather": {
+                spritesheet = Main.MAGE_LEATHER;
+                break;
+            }
+            case "mage_improved": {
+                spritesheet = Main.MAGE_IMPROVED;
+                break;
+            }
+            case "archer_leather": {
+                spritesheet = Main.ARCHER_LEATHER;
+                break;
+            }
+            case "tank_leather": {
+                spritesheet = Main.TANK_LEATHER;
+                break;
+            }
+            case "tank_iron": {
+                spritesheet = Main.TANK_IRON;
+                break;
+            }
+            case "tank_gold": {
+                spritesheet = Main.TANK_GOLD;
+                break;
+            }
+            case "skeleton_basic": {
+                spritesheet = Main.SKELETON_BASIC;
+                break;
+            }
+            case "skeleton_leather": {
+                spritesheet = Main.SKELETON_LEATHER;
+                break;
+            }
+            case "skeleton_chain": {
+                spritesheet = Main.SKELETON_CHAIN;
+                break;
+            }
+            case "ice_elf": {
+                spritesheet = Main.ICE_ELF;
+                break;
+            }
         }
     }
 
