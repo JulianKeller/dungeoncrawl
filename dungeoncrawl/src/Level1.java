@@ -72,14 +72,14 @@ public class Level1 extends BasicGameState {
 
         // draw potions
         dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
-        dc.potions[3][19] = new Potion(3 * dc.tileH + dc.tileH/2, 19 * dc.tileW + dc.tileW/2, "health");
-        dc.potions[4][19] = new Potion(4 * dc.tileH + dc.tileH/2, 19 * dc.tileW + dc.tileW/2, "manna");
-        dc.potions[5][19] = new Potion(5 * dc.tileH + dc.tileH/2, 19 * dc.tileW + dc.tileW/2, "fire");
-        dc.potions[6][19] = new Potion(6 * dc.tileH + dc.tileH/2, 19 * dc.tileW + dc.tileW/2, "strength");
-        dc.potions[7][19] = new Potion(7 * dc.tileH + dc.tileH/2, 19 * dc.tileW + dc.tileW/2, "invisibility");
+        dc.potions[10][10] = new Potion(10 * dc.tileH + dc.tileH/2, 10 * dc.tileW + dc.tileW/2, "health");
+        dc.potions[10][4] = new Potion(10 * dc.tileH + dc.tileH/2, 4 * dc.tileW + dc.tileW/2, "manna");
+        dc.potions[10][8] = new Potion(10 * dc.tileH + dc.tileH/2, 8 * dc.tileW + dc.tileW/2, "fire");
+        dc.potions[10][2] = new Potion(10 * dc.tileH + dc.tileH/2, 2 * dc.tileW + dc.tileW/2, "strength");
+        dc.potions[10][6] = new Potion(10 * dc.tileH + dc.tileH/2, 6 * dc.tileW + dc.tileW/2, "invisibility");
 
         dc.animations = new ArrayList<>(200);
-//        AnimateEntity.testAllCharacterAnimations(dc);
+        AnimateEntity.testAllCharacterAnimations(dc);
 
     }
 
@@ -102,19 +102,12 @@ public class Level1 extends BasicGameState {
                         dc.entities[i][j] = new Wall(x, y, "top");
                     }
                 }
-                // FLOOR
                 else if (dc.map[i][j] == 0) {
-                    if (dc.map[i+1][j] == 1 && dc.map[i][j-1] == 1) {
-                        dc.entities[i][j] = new Floor(x, y, "shadow_double");
-                    }
-                    else if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
+                    if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
                         dc.entities[i][j] = new Floor(x, y, "shadow");
                     }
-                    else if (j-1 >= 0 && dc.map[i][j-1] == 1) {
+                    else if (j-1 > 0 && dc.map[i][j-1] == 1) {
                         dc.entities[i][j] = new Floor(x, y, "shadow_right");
-                    }
-                    else if (j-1 > 0 && i+1 < dc.map[i].length && dc.map[i+1][j-1] == 1) {
-                        dc.entities[i][j] = new Floor(x, y, "shadow_corner");
                     }
                     else {
                         dc.entities[i][j] = new Floor(x, y, "normal");
@@ -129,21 +122,11 @@ public class Level1 extends BasicGameState {
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
     	//plant some items on the level
-//    	try {
-//			Main.im.plant(5);
-//		} catch (SQLException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//    	//then restore the visible items from the database to render them
-//    	//TODO: make the restoration boundary cover only the screen area + a buffer
-//    	try {
-//			itemsToRender = Main.im.restore(new Vector(0, 0), new Vector(100, 100));
-//		} catch (SQLException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		Main.im.plant(5);
+    	
+    	//then restore the visible items from the world
+    	//TODO: make the restoration boundary cover only the screen area + a buffer
+    	itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
 
     @Override
@@ -159,18 +142,15 @@ public class Level1 extends BasicGameState {
         }
         
         //render all visible items
-//        g.setColor(Color.red);
-//        for( Item i : itemsToRender){
-//        	System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
-//        	//TODO: draw item images
-//        	//for now, use ovals
-//        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
-//        }
-//
-        // display the animated entities
-        for (AnimateEntity a : dc.animations) {
-            a.render(g);
+        g.setColor(Color.red);
+        for( Item i : itemsToRender){
+        	//System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
+        	//TODO: draw item images
+        	//for now, use ovals
+        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
         }
+        
+
 
         // render potions
         for (int i = 0; i < dc.potions.length; i++) {
@@ -181,7 +161,10 @@ public class Level1 extends BasicGameState {
             }
         }
 
-
+        // display the animated entities
+        for (AnimateEntity a : dc.animations) {
+            a.render(g);
+        }
     }
 
 

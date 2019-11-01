@@ -18,6 +18,10 @@ public class StationaryObject extends Entity{
 		return worldCoordinates;
 	}
 	
+	public void setWorldCoordinates(Vector wc){
+		worldCoordinates = wc;
+	}
+	
 	public boolean isLocked(){
 		return locked;
 	}
