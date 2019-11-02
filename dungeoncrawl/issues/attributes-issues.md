@@ -26,8 +26,15 @@
         Gold Gloves
         
 [9] - several entities are missing bow and sword
+
+[12] - update floor tiles
+[13] - update wall tiles
+[15] - render multiple random maps and save them
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
 [2] - Draw Potions
 [8] - Test making character animate as it walks 
+[10] - get mysql connector working properly
+[11] - update potions styles
+[14] - refactor walls and levels classes into one map class

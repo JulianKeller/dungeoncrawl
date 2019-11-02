@@ -1,7 +1,7 @@
 import jig.Entity;
 import jig.Vector;
 
-import java.sql.SQLException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.newdawn.slick.Color;
@@ -11,8 +11,6 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-
-import java.util.ArrayList;
 
 public class Level1 extends BasicGameState {
     private Boolean paused;
@@ -29,48 +27,15 @@ public class Level1 extends BasicGameState {
         Main dc = (Main) game;
         paused = false;
 
-        // 32 x 21 map
-        dc.map = new int[][] {
-                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                {1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1},
-                {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1},
-                {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1},
-                {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1},
-                {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
-                {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
-                {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
-                {1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-                {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1},
-                {1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1},
-                {1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1},
-                {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1},
-                {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                };
+        try {
+            dc.map = RenderMap.getRandomMap(dc);        // grab a randomly generated map
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
+        RenderMap.displayMap(dc);                   // renders the map Tiles
 
-        // 10x10 map
-//        dtc.map = new int[][] {
-//                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-//                {1, 1, 0, 1, 1, 1, 1, 1, 0, 1},
-//                {1, 1, 0, 1, 1, 1, 1, 0, 0, 1},
-//                {1, 1, 0, 1, 0, 0, 0, 0, 0, 1},
-//                {1, 1, 0, 1, 1, 1, 1, 0, 1, 1},
-//                {1, 1, 0, 1, 1, 1, 1, 0, 0, 1},
-//                {1, 1, 0, 1, 1, 1, 1, 0, 1, 1},
-//                {1, 1, 1, 1, 0, 0, 0, 0, 0, 1},
-//                {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-//                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},};
-
-        dc.entities = new Entity[dc.map.length][dc.map[0].length];
-        display2Dmap(dc);
-
-        // draw potions
+        // TODO can be removed. Just here to display potions
         dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
         dc.potions[10][10] = new Potion(10 * dc.tileH + dc.tileH/2, 10 * dc.tileW + dc.tileW/2, "health");
         dc.potions[10][4] = new Potion(10 * dc.tileH + dc.tileH/2, 4 * dc.tileW + dc.tileW/2, "manna");
@@ -78,89 +43,42 @@ public class Level1 extends BasicGameState {
         dc.potions[10][2] = new Potion(10 * dc.tileH + dc.tileH/2, 2 * dc.tileW + dc.tileW/2, "strength");
         dc.potions[10][6] = new Potion(10 * dc.tileH + dc.tileH/2, 6 * dc.tileW + dc.tileW/2, "invisibility");
 
+        // TODO can be removed, here to demo animations/characters
         dc.animations = new ArrayList<>(200);
         AnimateEntity.testAllCharacterAnimations(dc);
-
-    }
-
-    // Draw the 2D map
-    public void display2Dmap(Main dc) {
-        int x, y;
-        for (int i = 0; i < dc.map.length; i++) {
-            for (int j = 0; j < dc.map[i].length; j++) {
-                x = j * dc.tileH + dc.tileH/2;        // columns
-                y = i * dc.tileW + dc.tileW/2;        // rows
-                // WALL
-                if (dc.map[i][j] == 1) {
-                    if (i+1 >= dc.map.length) {
-                        dc.entities[i][j] = new Wall(x, y, "top");
-                    }
-                    else if (dc.map[i+1][j] == 0) {
-                        dc.entities[i][j] = new Wall(x, y, "border");
-                    }
-                    else if (dc.map[i+1][j] == 1) {
-                        dc.entities[i][j] = new Wall(x, y, "top");
-                    }
-                }
-                else if (dc.map[i][j] == 0) {
-                    if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
-                        dc.entities[i][j] = new Floor(x, y, "shadow");
-                    }
-                    else if (j-1 > 0 && dc.map[i][j-1] == 1) {
-                        dc.entities[i][j] = new Floor(x, y, "shadow_right");
-                    }
-                    else {
-                        dc.entities[i][j] = new Floor(x, y, "normal");
-                    }
-
-                }
-            }
-        }
     }
 
 
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
     	//plant some items on the level
-    	try {
-			Main.im.plant(5);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Main.im.plant(5);
     	
-    	//then restore the visible items from the database to render them
+    	//then restore the visible items from the world
     	//TODO: make the restoration boundary cover only the screen area + a buffer
-    	try {
-			itemsToRender = Main.im.restore(new Vector(0, 0), new Vector(100, 100));
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
         // render tiles
-        for (int i = 0; i < dc.entities.length; i++) {
-            for (int j = 0; j < dc.entities[0].length; j++) {
-                if (dc.entities[i][j] == null)
+        for (int i = 0; i < dc.mapTiles.length; i++) {
+            for (int j = 0; j < dc.mapTiles[0].length; j++) {
+                if (dc.mapTiles[i][j] == null)
                     continue;
-                dc.entities[i][j].render(g);
+                dc.mapTiles[i][j].render(g);
             }
         }
         
         //render all visible items
         g.setColor(Color.red);
         for( Item i : itemsToRender){
-        	System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
+        	//System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
         	//TODO: draw item images
         	//for now, use ovals
         	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
         }
-        
-
 
         // render potions
         for (int i = 0; i < dc.potions.length; i++) {

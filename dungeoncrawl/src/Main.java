@@ -24,12 +24,16 @@ public class Main extends StateBasedGame {
     public static final String STARTUP_BANNER = "resources/startup/startup_screen.png";
 
 
+    // walls
     public static final String WALL = "resources/wall/wall_2d.png";
     public static final String WALL_TOP = "resources/wall/wall_2dtop.png";
 
+    // floors
     public static final String FLOOR = "resources/floor/floor_2d.png";
     public static final String SHADOW_FLOOR = "resources/floor/floor_2d_shadow.png";
     public static final String SHADOW_FLOOR_R = "resources/floor/floor_2d_shadow_right.png";
+    public static final String SHADOW_FLOOR_CORNER = "resources/floor/floor_2d_shadow_corner.png";
+    public static final String SHADOW_FLOOR_DOUBLE_CORNER = "resources/floor/floor_2d_dual_shadows.png";
 
     // iso
     public static final String ISOFLOOR = "resources/floor/floor_grey.png";
@@ -82,7 +86,7 @@ public class Main extends StateBasedGame {
     int tileW;
     int tileH;
     int[][] map;
-    Entity[][] entities;
+    Entity[][] mapTiles;
     
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
@@ -147,6 +151,8 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(FLOOR);
         ResourceManager.loadImage(SHADOW_FLOOR);
         ResourceManager.loadImage(SHADOW_FLOOR_R);
+        ResourceManager.loadImage(SHADOW_FLOOR_CORNER);
+        ResourceManager.loadImage(SHADOW_FLOOR_DOUBLE_CORNER);
 
         // ISO
         ResourceManager.loadImage(ISOFLOOR);
@@ -186,17 +192,12 @@ public class Main extends StateBasedGame {
     }
 
     public static void main(String[] args) {
-    	Main game = new Main("Dungeon Crawl", 1024, 672);
-    	try {
-			im = new ItemManager(game);
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+    	Main game = new Main("Dungeon Crawl", 1280, 768);
+    	im = new ItemManager(game);
         AppGameContainer app;
         try {
             app = new AppGameContainer(game);
-            app.setDisplayMode(1024, 672, false);
+            app.setDisplayMode(1280, 768, false);
             app.setVSync(true);
 //            app.setShowFPS(false);      // disable fps
             app.start();
