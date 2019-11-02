@@ -1,82 +1,76 @@
-import jig.ResourceManager;
 import jig.Vector;
-import org.newdawn.slick.Animation;
 
 public class Character extends MovingEntity {
-    private Animation animation;
-    private char type;
-    private String sprite;
-    private String action;
-    private String spritesheet;
-    private int ani_speed;
+    private String type;
+    AnimateEntity animations;
+
     /**
      * Create a new Character (wx, wy)
      * @param wx world coordinates x
      * @param wy world coordinats y
-     * @param sprite String to sprite sheet file
      * @param type 'K'night, 'M'age, 'A'rcher, 'T'ank
+     * @param id id for MovingEntity
      */
-    public Character(final float wx, final float wy, String sprite, char type){
-        super(wx,wy);
-        spritesheet = sprite;
+    public Character(final float wx, final float wy, String type, int id){
+        super(wx,wy,id);
         this.type = type;
-        addImageWithBoundingBox(ResourceManager.getImage(sprite));
-        setStatsandSprites();
+        setStats();
     }
 
     /**
      * Create a new Character (Vector)
-     * @param wc world coordinates x
+     * @param wc world coordinates Vector
      * @param type 'K'night, 'M'age, 'A'rcher, 'T'ank
+     * @param id id for MovingEntity
      */
-    public Character(Vector wc, char type) {
-        super(wc);
-        spritesheet = "";
+    public Character(Vector wc, String type, int id) {
+        super(wc, id);
         this.type = type;
-        setStatsandSprites();
+        setStats();
     }
 
     /**
      * Sets Character HP, AP, and Mana based on type given.
      */
-    private void setStatsandSprites(){
+    private void setStats(){
         switch (type){
-            case 'K': // Knight
+            case "knight_leather": // Knight
+            case "knight_iron":
+            case "knight_gold":
                 setHitPoints(100);
                 setArmorPoints(100);
                 setSpeed(50);
-                spritesheet = Main.KNIGHT_GOLD;
                 break;
-            case 'M': // Mage
+            case "mage_leather": // Mage
+            case "mage_improved":
                 setHitPoints(80);
                 setArmorPoints(50);
                 setSpeed(75);
                 setMana(100);
-                spritesheet = Main.MAGE_IMPROVED;
                 break;
-            case 'A': // Archer
+            case "archer_leather": // Archer
                 setHitPoints(100);
                 setArmorPoints(50);
                 setSpeed(75);
-                spritesheet = Main.ARCHER_LEATHER;
                 break;
-            case 'T': // Tank
+            case "tank_leather": // Tank
+            case "tank_iron":
+            case "tank_gold":
                 setHitPoints(150);
                 setArmorPoints(100);
                 setSpeed(25);
-                spritesheet = Main.TANK_GOLD;
                 break;
             default:
                 System.out.println("ERROR: No matching Character type specified.\n");
                 break;
         }
     }
-    
+
     /**
      * Retrieves the character for the character type.
      * @return type
      */
-    public char getType() {
+    public String getType() {
         return type;
     }
 }
