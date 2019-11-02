@@ -1,13 +1,30 @@
 import jig.Entity;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
+import java.util.Random;
+
 /*
 This class exists for the purpose of rendering the floors and walls of the map.
  */
 public class RenderMap extends Entity {
 
-    public static int[][] getRandomMap(Main dc) {
-        // TODO get a randomly generated map
-        // Return it
+    // grabs a random map and returns it as a 2d array
+    public static int[][] getRandomMap(Main dc) throws IOException {
+        String directory = "dungeoncrawl/mapGen/maps/";
+        Random r = new Random();
+        int rand = r.nextInt(100);
+        String filepath = directory + "map" + rand + ".txt";
+        return loadMapFromFile(Paths.get(filepath));
+    }
+
+    /*
+    Returns a small map 32 x 21 for debugging
+     */
+    public static int[][] getDebugMap(Main dc) {
         return new int[][] {
                 {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
                 {1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -31,6 +48,19 @@ public class RenderMap extends Entity {
                 {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
                 {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
         };
+    }
+
+    /*
+    Based on Streams from: https://stackoverflow.com/questions/22185683/read-txt-file-into-2d-array
+    Uses Java's Stream API to convert a text file to a 2d int array
+     */
+    static public int[][] loadMapFromFile(Path path) throws IOException {
+        return Files.lines(path)                        // Read all lines from the filepath
+                .map(line -> line.split("\\s"))   // for each line, get an array chars split by spaces
+                .map((sa) -> Stream.of(sa)              // convert char array to a sequential ordered stream
+                .mapToInt(Integer::parseInt)            // map the char array to an int stream
+                .toArray())                             // convert the int stream to an array
+                .toArray(int[][]::new);                 // add the array to a 2d array
     }
 
     // Draw the 2D map to the screen

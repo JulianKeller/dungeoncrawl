@@ -1,6 +1,7 @@
 import jig.Entity;
 import jig.Vector;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.newdawn.slick.Color;
@@ -26,7 +27,11 @@ public class Level1 extends BasicGameState {
         Main dc = (Main) game;
         paused = false;
 
-        dc.map = RenderMap.getRandomMap(dc);        // grab a randomly generated map
+        try {
+            dc.map = RenderMap.getRandomMap(dc);        // grab a randomly generated map
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         RenderMap.displayMap(dc);                   // renders the map Tiles
 
