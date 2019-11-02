@@ -86,7 +86,7 @@ public class Main extends StateBasedGame {
     int tileW;
     int tileH;
     int[][] map;
-    Entity[][] entities;
+    Entity[][] mapTiles;
     
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
@@ -192,12 +192,12 @@ public class Main extends StateBasedGame {
     }
 
     public static void main(String[] args) {
-    	Main game = new Main("Dungeon Crawl", 1024, 672);
+    	Main game = new Main("Dungeon Crawl", 1280, 768);
     	im = new ItemManager(game);
         AppGameContainer app;
         try {
             app = new AppGameContainer(game);
-            app.setDisplayMode(1024, 672, false);
+            app.setDisplayMode(1280, 768, false);
             app.setVSync(true);
 //            app.setShowFPS(false);      // disable fps
             app.start();

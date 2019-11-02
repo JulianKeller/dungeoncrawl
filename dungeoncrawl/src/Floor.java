@@ -1,12 +1,13 @@
 import jig.Entity;
 import jig.ResourceManager;
 
+/*
+This class creates a Floor tile Entity with the correct image
+ */
 public class Floor extends Entity {
 
     public Floor(final float x, final float y, String type) {
-//public Floor(final float x, final float y) {
         super(x, y);
-//    addImageWithBoundingBox(ResourceManager.getImage(Game.FLOOR));
         switch (type) {
             case "normal": {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.FLOOR));

@@ -1,6 +1,9 @@
 import jig.Entity;
 import jig.ResourceManager;
 
+/*
+This class creates a Floor tile Entity with the correct image
+ */
 public class Wall extends Entity {
 
     public Wall(final float x, final float y, String type) {
