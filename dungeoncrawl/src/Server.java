@@ -1,49 +1,46 @@
+/*
+ * Multithreaded Server Example from GeeksforGeeks.org
+ * https://www.geeksforgeeks.org/introducing-threads-socket-programming-java/
+ *
+ */
+
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
 
 
 public class Server {
-    private Socket socket = null;
-    private ServerSocket server = null;
-    private DataInputStream in = null;
-    public Server(int port) {
-        // starts server and waits for connection
-        try {
-            server = new ServerSocket(port);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        while (true) {
+    // setting up server class to be starting up in Main.java
+//    public Server(){
+//
+//    }
+
+    public static void main(String [] args) throws IOException {
+        // server is listening on port 5000
+        ServerSocket ss = new ServerSocket(5000);
+        // infinite loop for getting client request
+        while(true){
+            Socket s = null;
             try {
-            System.out.println("Server Started");
-            System.out.println("Waiting for a client...");
-            socket = server.accept();
-            System.out.println("Client accepted");
+                // socket object to receive incoming client requests
+                s = ss.accept();
 
-            // takes input from the client socket
-            in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            String line = "";
+                System.out.println("A new client is connected: " + s);
 
-            // reads message from client until "Over" is sent
-            while (!line.equals("Over")) {
-                try {
-                    line = in.readUTF();
-                    System.out.println((line));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                // obtaining input and out streams
+                DataInputStream dis = new DataInputStream(s.getInputStream());
+                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+
+                System.out.println("Assigning new thread for this client");
+
+                // Create a new thread object
+                Thread t = new ClientHandler(s,dis,dos);
+
+                // Invoking the start() method
+                t.start();
+            } catch (Exception e){
+                s.close();
+                e.printStackTrace();
             }
-            System.out.println("Closing connection");
-            // close connection
-            socket.close();
-            in.close();
-        } catch(IOException e){
-            e.printStackTrace();
         }
-    }
-    }
-    public static void main(String [] args){
-        Server server = new Server(5000);
     }
 }
