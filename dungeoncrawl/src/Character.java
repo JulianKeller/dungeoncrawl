@@ -15,6 +15,7 @@ public class Character extends MovingEntity {
         super(wx,wy,id);
         this.type = type;
         setStats();
+        animations = new AnimateEntity(wx,wy,100,this.type);
     }
 
     /**
