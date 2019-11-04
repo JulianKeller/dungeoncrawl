@@ -14,10 +14,35 @@ public class Client {
             socket = new Socket(address,port);
             System.out.println("Connected");
 
+            // takes input from terminal
+            input = new DataInputStream(System.in);
 
-        } catch()
+            // sends output to the socket
+            out = new DataOutputStream(socket.getOutputStream());
+
+            String line = "";
+            while(!line.equals("Over")){
+                try{
+                    line = input.readLine();
+                    out.writeUTF(line);
+                } catch(IOException e){
+                    System.out.println(e);
+                }
+            }
+
+        } catch(IOException i){
+            System.out.println(i);
+        }
+        // close the connection
+        try{
+            input.close();
+            out.close();
+            socket.close();
+        } catch(IOException e){
+            System.out.println(e);
+        }
     }
-    public static void Main(String [] args){
-
+    public static void main(String [] args){
+        Client client = new Client("127.0.0.1", 5000);
     }
 }
