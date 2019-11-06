@@ -14,7 +14,7 @@ public class RenderMap extends Entity {
 
     // grabs a random map and returns it as a 2d array
     public static int[][] getRandomMap(Main dc) throws IOException {
-        String directory = "dungeoncrawl/mapGen/maps/";
+        String directory = "/Users/tylerhiggins/teamgameproj/dungeoncrawl/dungeoncrawl/mapGen/maps/";
         Random r = new Random();
         int rand = r.nextInt(100);
         String filepath = directory + "map" + rand + ".txt";
