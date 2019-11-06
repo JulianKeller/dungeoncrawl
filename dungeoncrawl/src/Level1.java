@@ -46,11 +46,7 @@ public class Level1 extends BasicGameState {
 
         // TODO can be removed, here to demo animations/characters
         dc.animations = new ArrayList<>(200);
-<<<<<<< HEAD
-        //AnimateEntity.testAllCharacterAnimations(dc);
-=======
 //        AnimateEntity.testAllCharacterAnimations(dc);
->>>>>>> develop
     }
 
 
