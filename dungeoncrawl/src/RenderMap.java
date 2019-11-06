@@ -15,7 +15,13 @@ public class RenderMap extends Entity {
 
     // grabs a random map and returns it as a 2d array
     public static int[][] getRandomMap(Main dc) throws IOException {
-        File f = new File("dungeoncrawl/mapGen/maps");
+    	File f;
+    	if( System.getProperty("os.name").toLowerCase().contains("mac") ){
+    		//if this is running on mac os
+    		f = new File("dungeoncrawl/mapGen/maps");
+    	}else{
+    		f = new File("mapGen/maps");
+    	}
         // Get the absolute path of file f
         String absolute = f.getAbsolutePath();
         String directory = absolute + "/";
