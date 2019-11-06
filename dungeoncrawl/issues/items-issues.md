@@ -1,5 +1,7 @@
 ##Open Issues##
 [5] Update/test player interactions with items
+[8] Add images to items
+[9] Update give/take methods to work with current codebase
 
 ##Resolved Issues##
 [1] Create database schema to hold items and player inventories
