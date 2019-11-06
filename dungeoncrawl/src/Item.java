@@ -1,5 +1,9 @@
 import java.util.Random;
 
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+
+import jig.ResourceManager;
 import jig.Vector;
 
 public class Item extends StationaryObject{
@@ -12,6 +16,7 @@ public class Item extends StationaryObject{
 	private String material;	//  the player class will handle the actual effects of items
 	private boolean cursed;		//whether the item is cursed
 	private boolean identified; //whether the player knows the item's properties
+	private Image img; 			//this item's image
 	
 	private Random rand;
 	
@@ -26,7 +31,9 @@ public class Item extends StationaryObject{
 		this.oid = oid;
 		
 		//first get the item type
-		this.type = Main.ItemTypes[ rand.nextInt(Main.ItemTypes.length) ];
+		//this.type = Main.ItemTypes[ rand.nextInt(Main.ItemTypes.length) ];
+		type = "Potion";
+		System.out.println(type);
 		
 		//choose materials from the appropriate list
 		if( type.equals("Sword") ){
@@ -58,6 +65,33 @@ public class Item extends StationaryObject{
 			this.effect = "";
 		}
 		
+		//add image to item (specific to type and material)
+		if( type.equals("Potion") ){
+			String image = "";
+			int x = rand.nextInt(5); //the number of potion images
+			switch(x){
+			case 0:
+				image = Main.POTION_BLUE;
+				break;
+			case 1:
+				image = Main.POTION_ORANGE;
+				break;
+			case 2:
+				image = Main.POTION_PINK;
+				break;
+			case 3:
+				image = Main.POTION_RED;
+				break;
+			case 4:
+				image = Main.POTION_YELLOW;
+				break;
+			}
+			
+			img = ResourceManager.getImage(image);
+			addImage(img);
+		}
+		
+		
 		//items have a 50% chance to be cursed (for now?)
 		if( rand.nextInt(100) <= 50 ){
 			cursed = true;
@@ -79,6 +113,10 @@ public class Item extends StationaryObject{
 		this.material = material;
 		this.cursed = cursed;
 		this.identified = identified;
+	}
+	
+	public void render(Graphics g){
+		super.render(g);
 	}
 	
 	
@@ -103,5 +141,8 @@ public class Item extends StationaryObject{
 	}
 	public boolean isIdentified(){
 		return identified;
+	}
+	public Image getImage(){
+		return img;
 	}
 }

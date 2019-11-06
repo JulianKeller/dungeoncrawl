@@ -45,7 +45,7 @@ public class Level1 extends BasicGameState {
 
         // TODO can be removed, here to demo animations/characters
         dc.animations = new ArrayList<>(200);
-        AnimateEntity.testAllCharacterAnimations(dc);
+        //AnimateEntity.testAllCharacterAnimations(dc);
     }
 
 
@@ -77,10 +77,14 @@ public class Level1 extends BasicGameState {
         	//System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
         	//TODO: draw item images
         	//for now, use ovals
-        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
+        	//g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
+        	i.setX((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2));
+        	i.setY((i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2));
+        	i.render(g);
         }
 
         // render potions
+        /*
         for (int i = 0; i < dc.potions.length; i++) {
             for (int j = 0; j < dc.potions[0].length; j++) {
                 if (dc.potions[i][j] == null)
@@ -93,6 +97,7 @@ public class Level1 extends BasicGameState {
         for (AnimateEntity a : dc.animations) {
             a.render(g);
         }
+        */
     }
 
 
