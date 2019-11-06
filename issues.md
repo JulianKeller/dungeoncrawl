@@ -5,6 +5,6 @@
 **[ 4 ]** Create a simple client/server network<br>
 **[ 5 ]** Convert to a multithreaded network.<br>
 ## PENDING ISSUES ##
-**[ 6 ]** Work on the server as the game<br>
+**[ 6 ]** Work on Client sending keystrokes and Server response to them<br>
 **[ 7 ]** Use a dumb client model<br>
 **[ 8 ]** Test connections on lab machine<br> 
