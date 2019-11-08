@@ -15,6 +15,7 @@ public class RenderMap extends Entity {
 
     // grabs a random map and returns it as a 2d array
     public static int[][] getRandomMap(Main dc) throws IOException {
+
 //        File f;
 //        if( System.getProperty("os.name").toLowerCase().contains("mac") ){
 //            //if this is running on mac os
@@ -22,7 +23,9 @@ public class RenderMap extends Entity {
 //        }else{
 //            f = new File("mapGen/maps");
 //        }
-        File f = new File("dungeoncrawl/src/maps");
+
+
+        File f = new File("dungeoncrawl/mapGen/maps");
         Random r = new Random();
         int rand = r.nextInt(100);
         String filepath = f.getAbsolutePath() + "/map" + rand + ".txt";
