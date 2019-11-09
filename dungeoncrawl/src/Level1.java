@@ -45,8 +45,8 @@ public class Level1 extends BasicGameState {
         dc.animations = new ArrayList<>(200);
 //        AnimateEntity.testAllCharacterAnimations(dc);
         float wx = 10 * dc.tileH + dc.tileH/2;
-        float wy = 10 * dc.tileW;
-        knight = new Character(dc, wx, wy, "knight_gold", 1);
+        float wy = 10 * dc.tileW + dc.tileW/2;
+        knight = new Character(wx, wy, "knight_gold", 1);
 //        knight.animate.selectAnimation("walk_down");
 //        knight.animate.stop();
 //

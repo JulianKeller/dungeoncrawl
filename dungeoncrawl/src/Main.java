@@ -85,7 +85,6 @@ public class Main extends StateBasedGame {
     // declare entities
     int tileW;
     int tileH;
-    int tilesize;
     int[][] map;
     Entity[][] mapTiles;
     
@@ -127,7 +126,6 @@ public class Main extends StateBasedGame {
 
         tileW = 32;     // TODO set to 17 for iso
         tileH = 32;     // TODO set to 34 for iso
-        tilesize = 32;
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);    // set a rectangle
     }
 
