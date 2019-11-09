@@ -116,6 +116,7 @@ public class Level1 extends BasicGameState {
             return;
         }
         knight.move(input);
+//        knight.update();
     }
 
 
