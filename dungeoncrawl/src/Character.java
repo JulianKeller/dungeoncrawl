@@ -26,12 +26,13 @@ public class Character extends MovingEntity {
         this.dc = dc;
         this.type = type;
         setStats();
-        setSpeed(100);
+        setSpeed(50);
         animate = new AnimateEntity(wx, wy, getSpeed(), this.type);
         direction = "walk_down";
         animate.selectAnimation(direction);
         animate.stop();
-        wcNext = getWorldCoordinates();
+        Vector wc = getWorldCoordinates();
+//        System.out.printf("World Coordinates %s, %s\n", wc.getX(), wc.getY());
     }
 
     /**
@@ -92,83 +93,97 @@ public class Character extends MovingEntity {
     }
 
 
-    public void update() {
-        Vector wc = getWorldCoordinates();
-        float wx = wc.getX();
-        float wy = wc.getY();
-        float nx = wcNext.getX();
-        float ny = wcNext.getY();
-        float x = 0, y = 0;
-        if (movesLeft > 0) {
-            if (direction.equals("walk_up")) {
-                x = wx;
-                y = nx + 2;
-            }
-            else if (direction.equals("walk_down")) {
-                x = wx;
-                y = nx - 2;
-            }
-            else if (direction.equals("walk_left")) {
-                x = wx - 2;
-                y = nx;
-            }
-            else if (direction.equals("walk_right")) {
-                x = wx + 2;
-                y = nx;
-            }
-            movesLeft -= 2;
-            walk(x, y);
-            setWorldCoordinates(new Vector(x, y));
-        }
-    }
+//    public void update() {
+//        Vector wc = getWorldCoordinates();
+//        float wx = wc.getX();
+//        float wy = wc.getY();
+//        float nx = wcNext.getX();
+//        float ny = wcNext.getY();
+//        float x = 0, y = 0;
+//        if (movesLeft > 0) {
+//            if (direction.equals("walk_up")) {
+//                x = wx;
+//                y = nx + 2;
+//            }
+//            else if (direction.equals("walk_down")) {
+//                x = wx;
+//                y = nx - 2;
+//            }
+//            else if (direction.equals("walk_left")) {
+//                x = wx - 2;
+//                y = nx;
+//            }
+//            else if (direction.equals("walk_right")) {
+//                x = wx + 2;
+//                y = nx;
+//            }
+//            movesLeft -= 2;
+//            walk(x, y);
+//            setWorldCoordinates(new Vector(x, y));
+//        }
+//    }
 
     /*
     Move the character based on the keystrokes given
      */
-    public void move(Input input) {
+    // TODO configure such that the entity only moves 32 pixels each time
+    public void move(String key) {
         String movement = null;
-        int distance = 2;
+        float distance = 1f;
         Vector wc = getWorldCoordinates();
         float x = 0, y = 0;
-        if (input.isKeyDown(Input.KEY_W)) {
+
+        if (key == null) {
+            animate.stop();
+        }
+        else if (key.equals("w")) {
             movement = "walk_up";
             x = wc.getX();
             y = wc.getY() - distance;
         }
-        else if (input.isKeyDown(Input.KEY_S)) {
+        else if (key.equals("s")) {
             movement = "walk_down";
             x = wc.getX();
             y = wc.getY() + distance;
         }
-        else if (input.isKeyDown(Input.KEY_A)) {
+        else if (key.equals("a")) {
             movement = "walk_left";
             x = wc.getX() - distance;
             y = wc.getY();
         }
-        else if (input.isKeyDown(Input.KEY_D)) {
+        else if (key.equals("d")) {
             movement = "walk_right";
             x = wc.getX() + distance;
             y = wc.getY();
         }
         if (movement != null) {
-            updateAnimation(movement);
-            direction = movement;
-//            movesLeft = tilesize;
+            if (!movement.equals(direction)) {
+                updateAnimation(movement);
+                direction = movement;
+            }
+            else {
+                animate.start();
+                animate.setX(x);
+                animate.setY(y);
+            }
             walk(x, y);
-//            wcNext = new Vector(x, y);
         }
     }
 
+    /*
+    Updates the animation that is currently in use
+     */
     public void updateAnimation(String action) {
         if (action != null) {
             // TODO change getX and getY
             Vector wc = getWorldCoordinates();
-            System.out.printf("World Coordinates %s, %s\n", wc.getX(), wc.getY());
+//            System.out.printf("World Coordinates %s, %s\n", wc.getX(), wc.getY());
             animate = new AnimateEntity(wc.getX(), wc.getY(), getSpeed(), this.type);
             animate.selectAnimation(action);
         }
     }
 
+    // Translates the entity's position
     public void walk(float x, float y) {
         animate.translate(x, y);
         setWorldCoordinates(new Vector(x, y));

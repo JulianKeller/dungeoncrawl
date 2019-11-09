@@ -46,11 +46,7 @@ public class Level1 extends BasicGameState {
 //        AnimateEntity.testAllCharacterAnimations(dc);
         float wx = 10 * dc.tileH + dc.tileH/2;
         float wy = 10 * dc.tileW;
-        knight = new Character(dc, wx, wy, "knight_gold", 1);
-//        knight.animate.selectAnimation("walk_down");
-//        knight.animate.stop();
-//
-
+        knight = new Character(dc, 160, 160, "knight_gold", 1);
     }
 
 
@@ -94,14 +90,7 @@ public class Level1 extends BasicGameState {
             }
         }
 
-        // display the animated entities
-//        for (AnimateEntity a : dc.animations) {
-//            a.render(g);
-//        }
-
-//        if (knight.animation != null)
         knight.animate.render(g);
-
     }
 
 
@@ -115,8 +104,7 @@ public class Level1 extends BasicGameState {
         if (paused) {
             return;
         }
-        knight.move(input);
-//        knight.update();
+        knight.move(getKeystroke(input));
     }
 
 
@@ -128,6 +116,25 @@ public class Level1 extends BasicGameState {
     }
 
 
+    /*
+    get the key being pressed, returns a string
+     */
+    public String getKeystroke(Input input) {
+        String ks = null;
+        if (input.isKeyDown(Input.KEY_W)) {
+            ks = "w";
+        }
+        else if (input.isKeyDown(Input.KEY_S)) {
+            ks = "s";
+        }
+        else if (input.isKeyDown(Input.KEY_A)) {
+            ks = "a";
+        }
+        else if (input.isKeyDown(Input.KEY_D)) {
+            ks = "d";
+        }
+        return ks;
+    }
 
 
 
