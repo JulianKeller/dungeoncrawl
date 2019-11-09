@@ -108,7 +108,7 @@ public class Main extends StateBasedGame {
     //displayed item name should be of the form "material type of effect" using whatever fields are filled in
     
     
-    //create an item manager
+    // create an item manager
     public static ItemManager im;
     Entity[][] potions;
     ArrayList<AnimateEntity> animations;

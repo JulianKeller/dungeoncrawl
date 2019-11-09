@@ -1,8 +1,12 @@
 import jig.Vector;
+import org.newdawn.slick.Animation;
+import org.newdawn.slick.Input;
 
 public class Character extends MovingEntity {
     private String type;
-    AnimateEntity animations;
+    AnimateEntity animate;
+    Animation animation;
+    String spritesheet;
 
     /**
      * Create a new Character (wx, wy)
@@ -11,11 +15,14 @@ public class Character extends MovingEntity {
      * @param type 'K'night, 'M'age, 'A'rcher, 'T'ank
      * @param id id for MovingEntity
      */
-    public Character(final float wx, final float wy, String type, int id){
-        super(wx,wy,id);
+    public Character(final float wx, final float wy, String type, int id) {
+        super(wx, wy, id);
         this.type = type;
         setStats();
-        animations = new AnimateEntity(wx, wy,100, this.type);
+        setSpeed(100);
+        animate = new AnimateEntity(wx, wy, getSpeed(), this.type);
+        animate.selectAnimation("walk_down");
+        animate.stop();
     }
 
     /**
@@ -67,11 +74,51 @@ public class Character extends MovingEntity {
         }
     }
 
+//    public void setAnimation(String action) {
+//        animation = animate.selectAnimation(action);
+//    }
+
+//    public void removeAnimation() {
+//        animation = null;
+//    }
+
+
     /**
      * Retrieves the character for the character type.
      * @return type
      */
     public String getType() {
         return type;
+    }
+
+
+    /*
+    Move the character based on the keystrokes given
+     */
+    public void move(Input input) {
+        String movement = null;
+        if (input.isKeyPressed(Input.KEY_W)) {
+            movement = "walk_up";
+        }
+        else if (input.isKeyPressed(Input.KEY_A)) {
+            movement = "walk_left";
+        }
+        else if (input.isKeyPressed(Input.KEY_S)) {
+            movement = "walk_down";
+        }
+        else if (input.isKeyPressed(Input.KEY_D)) {
+            movement = "walk_right";
+        }
+        if (movement != null)
+            updateAnimation(movement);
+    }
+
+    public void updateAnimation(String action) {
+        if (action != null) {
+            // TODO change getX and getY
+            Vector wc = getWorldCoordinates();
+            animate = new AnimateEntity(wc.getX(), wc.getY(), getSpeed(), this.type);
+            animate.selectAnimation(action);
+        }
     }
 }
