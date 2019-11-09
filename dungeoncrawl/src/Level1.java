@@ -45,8 +45,8 @@ public class Level1 extends BasicGameState {
         dc.animations = new ArrayList<>(200);
 //        AnimateEntity.testAllCharacterAnimations(dc);
 
-        float wx = (dc.tilesize * 4) - dc.xOffset;
-        float wy = (dc.tilesize * 4) - dc.yOffset;
+        float wx = (dc.tilesize * 4) - dc.offset;// - dc.xOffset;
+        float wy = (dc.tilesize * 4) - dc.doubleOffset;// - dc.yOffset;
         knight = new Character(dc, wx, wy, "knight_iron", 1);
     }
 

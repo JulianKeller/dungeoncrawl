@@ -28,7 +28,7 @@ public class Character extends MovingEntity {
         setStats();
 //        Vector wc = getWorldCoordinates();
         // FIXME for some reason the x, y coordinates are getting divided by 2 before they get here
-        animate = new AnimateEntity( wx * 2, wy * 2, getSpeed(), this.type);
+        animate = new AnimateEntity( wx, wy, getSpeed(), this.type);
         direction = "walk_down";
         animate.selectAnimation(direction);
         animate.stop();
@@ -168,8 +168,9 @@ public class Character extends MovingEntity {
             y = wc.getY();
         }
         if (movement != null) {
+            collision(x, y);
             canMove = false;
-            movesLeft = dc.offset - 1;      // -1 because we walk once before the update method
+            movesLeft = dc.tilesize - 1;      // -1 because we walk once before the update method
             if (!movement.equals(direction)) {
                 updateAnimation(movement);
                 direction = movement;
@@ -184,6 +185,28 @@ public class Character extends MovingEntity {
     }
 
 
+    // check if there is a collision at the next x, y
+    public boolean collision(float x, float y) {
+        int len = dc.map.length;
+        int width = dc.map[0].length;
+//        if (direction.equals("walk_up")) {
+//            y -= dc.offset;
+//        }
+//        else if (direction.equals("walk_down")) {
+//            y += dc.offset;
+//        }
+//        else if (direction.equals("walk_left")) {
+//            x -= dc.offset;
+//        }
+//        else if (direction.equals("walk_right")) {a
+//            x += dc.offset;
+//        }
+//        System.out.printf("this x, this y:  %s, %s\n", this.getX(), this.getY());
+        System.out.printf("animate x, y:  %s, %s\n", animate.getX(), animate.getY());
+//        System.out.printf("x, y:  %s, %s\n",  x/dc.tilesize, y/dc.offset);
+//        System.out.printf("len %s, width %s\n", len, width);
+        return true;
+    }
 
 
 
@@ -203,8 +226,8 @@ public class Character extends MovingEntity {
 
     // Translates the entity's position
     public void walk(float x, float y) {
-        animate.translate(x, y);
+        animate.setPosition(x, y);
         setWorldCoordinates(new Vector(x, y));
-        System.out.printf("Walk Coordinates %s, %s\n", x, y);
+//        System.out.printf("Walk Coordinates %s, %s\n", x, y);
     }
 }
