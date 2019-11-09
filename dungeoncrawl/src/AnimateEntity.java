@@ -254,6 +254,16 @@ class AnimateEntity extends Entity {
         return !animation.isStopped();
     }
 
+    @Override
+    public float getX() {
+        return super.getX();
+    }
+
+    @Override
+    public float getY() {
+        return super.getY() + 24;
+    }
+
     /*
     draw all the animations for all the characters on seperate rows for testing
     @param dc The games main class

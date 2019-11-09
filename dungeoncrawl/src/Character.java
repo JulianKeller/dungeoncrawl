@@ -117,13 +117,14 @@ public class Character extends MovingEntity {
                 y = wy;
             }
             movesLeft -= change;
-            animate.setX(x);
-            animate.setY(y);
+//            animate.setX(x);
+//            animate.setY(y);
             walk(x, y);
 //            setWorldCoordinates(new Vector(x, y));
         }
         else {
             canMove = true;
+            System.out.printf("Collision? x, y:  %s, %s\n", animate.getX() - 16, animate.getY() - 16);
             System.out.println();
         }
     }
@@ -168,19 +169,17 @@ public class Character extends MovingEntity {
             y = wc.getY();
         }
         if (movement != null) {
-            collision(x, y);
+//            collision(x, y);
             canMove = false;
-            movesLeft = dc.tilesize - 1;      // -1 because we walk once before the update method
+            movesLeft = dc.tilesize;      // -1 because we walk once before the update method
             if (!movement.equals(direction)) {
                 updateAnimation(movement);
                 direction = movement;
             }
             else {
                 animate.start();
-                animate.setX(x);
-                animate.setY(y);
             }
-            walk(x, y);
+            update();
         }
     }
 
@@ -189,20 +188,21 @@ public class Character extends MovingEntity {
     public boolean collision(float x, float y) {
         int len = dc.map.length;
         int width = dc.map[0].length;
-//        if (direction.equals("walk_up")) {
-//            y -= dc.offset;
-//        }
-//        else if (direction.equals("walk_down")) {
-//            y += dc.offset;
-//        }
-//        else if (direction.equals("walk_left")) {
-//            x -= dc.offset;
-//        }
-//        else if (direction.equals("walk_right")) {a
-//            x += dc.offset;
-//        }
+        if (direction.equals("walk_up")) {
+            y -= dc.tilesize;
+        }
+        else if (direction.equals("walk_down")) {
+            y += dc.tilesize;
+        }
+        else if (direction.equals("walk_left")) {
+            x -= dc.tilesize;
+        }
+        else if (direction.equals("walk_right")) {
+            x += dc.tilesize;
+        }
 //        System.out.printf("this x, this y:  %s, %s\n", this.getX(), this.getY());
-        System.out.printf("animate x, y:  %s, %s\n", animate.getX(), animate.getY());
+        System.out.printf("Collision? x, y:  %s, %s\n", animate.getX(), animate.getY());
+//        System.out.printf("Collision? x, y:  %s, %s\n", x/dc.tilesize, y/dc.tilesize);
 //        System.out.printf("x, y:  %s, %s\n",  x/dc.tilesize, y/dc.offset);
 //        System.out.printf("len %s, width %s\n", len, width);
         return true;
@@ -226,8 +226,11 @@ public class Character extends MovingEntity {
 
     // Translates the entity's position
     public void walk(float x, float y) {
+        Vector wc = getWorldCoordinates();
+//        System.out.printf("World Coordinates %s, %s\n", wc.getX(), wc.getY());
+//        System.out.printf("Walk Coordinates %s, %s\n\n", x, y);
         animate.setPosition(x, y);
-        setWorldCoordinates(new Vector(x, y));
-//        System.out.printf("Walk Coordinates %s, %s\n", x, y);
+        setWorldCoordinates(x, y);
+
     }
 }

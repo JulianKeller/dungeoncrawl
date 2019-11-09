@@ -200,6 +200,9 @@ public class MovingEntity extends Entity {
     public void setWorldCoordinates(Vector wc){
         worldCoordinates = wc;
     }
+    public void setWorldCoordinates(float x, float y){
+        setWorldCoordinates(new Vector(x, y));
+    }
     /**
      * Returns the MovingEntity's current world coordinates.
      * @return Vector world coordinates
@@ -255,8 +258,8 @@ public class MovingEntity extends Entity {
         speed -= amt;
     }
 
-    public void update(int delta){
-        translate(position.scale(delta));
-    }
+//    public void update(int delta){
+//        translate(position.scale(delta));
+//    }
 
 }
