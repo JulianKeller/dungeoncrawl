@@ -32,7 +32,7 @@ public class Character extends MovingEntity {
         direction = "walk_down";
         animate.selectAnimation(direction);
         animate.stop();
-//        System.out.printf("Animate %s, %s", wx, wy);
+        System.out.printf("Start Position %s, %s", wx, wy);
     }
 
     /**
@@ -93,43 +93,51 @@ public class Character extends MovingEntity {
     }
 
 
-//    public void update() {
-//        Vector wc = getWorldCoordinates();
-//        float wx = wc.getX();
-//        float wy = wc.getY();
-//        float nx = wcNext.getX();
-//        float ny = wcNext.getY();
-//        float x = 0, y = 0;
-//        if (movesLeft > 0) {
-//            if (direction.equals("walk_up")) {
-//                x = wx;
-//                y = nx + 2;
-//            }
-//            else if (direction.equals("walk_down")) {
-//                x = wx;
-//                y = nx - 2;
-//            }
-//            else if (direction.equals("walk_left")) {
-//                x = wx - 2;
-//                y = nx;
-//            }
-//            else if (direction.equals("walk_right")) {
-//                x = wx + 2;
-//                y = nx;
-//            }
-//            movesLeft -= 2;
-//            walk(x, y);
+    public void update() {
+        Vector wc = getWorldCoordinates();
+        float wx = wc.getX();
+        float wy = wc.getY();
+        float x = 0, y = 0;
+        int change = 1;
+        if (movesLeft > 0) {
+            if (direction.equals("walk_up")) {
+                x = wx;
+                y = wy - change;
+            }
+            else if (direction.equals("walk_down")) {
+                x = wx;
+                y = wy + change;
+            }
+            else if (direction.equals("walk_left")) {
+                x = wx - change;
+                y = wy;
+            }
+            else if (direction.equals("walk_right")) {
+                x = wx + change;
+                y = wy;
+            }
+            movesLeft -= change;
+            animate.setX(x);
+            animate.setY(y);
+            walk(x, y);
 //            setWorldCoordinates(new Vector(x, y));
-//        }
-//    }
+        }
+        else {
+            canMove = true;
+            System.out.println();
+        }
+    }
 
     /*
     Move the character based on the keystrokes given
      */
     // TODO configure such that the entity only moves 32 pixels each time
     public void move(String key) {
-        if (!canMove)
+        // keep the character fixed to the grid
+        if (!canMove) {
+            update();
             return;
+        }
 
         String movement = null;
         float distance = 1f;
@@ -160,6 +168,8 @@ public class Character extends MovingEntity {
             y = wc.getY();
         }
         if (movement != null) {
+            canMove = false;
+            movesLeft = dc.offset - 1;      // -1 because we walk once before the update method
             if (!movement.equals(direction)) {
                 updateAnimation(movement);
                 direction = movement;
@@ -173,6 +183,10 @@ public class Character extends MovingEntity {
         }
     }
 
+
+
+
+
     /*
     Updates the animation that is currently in use
      */
@@ -180,7 +194,7 @@ public class Character extends MovingEntity {
         if (action != null) {
             // TODO change getX and getY
             Vector wc = getWorldCoordinates();
-            System.out.printf("Update World Coordinates %s, %s\n", wc.getX(), wc.getY());
+//            System.out.printf("Update World Coordinates %s, %s\n", wc.getX(), wc.getY());
             animate = new AnimateEntity(wc.getX(), wc.getY(), getSpeed(), this.type);
             animate.selectAnimation(action);
             // TODO set world coordinates
@@ -191,6 +205,6 @@ public class Character extends MovingEntity {
     public void walk(float x, float y) {
         animate.translate(x, y);
         setWorldCoordinates(new Vector(x, y));
-//        System.out.printf("Walk Coordinates %s, %s\n", x, y);
+        System.out.printf("Walk Coordinates %s, %s\n", x, y);
     }
 }
