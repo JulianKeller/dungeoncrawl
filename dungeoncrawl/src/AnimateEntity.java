@@ -12,11 +12,12 @@ import org.newdawn.slick.Animation;
  * A class representing a characters movement.
  */
 class AnimateEntity extends Entity {
-    private Animation animation;
-    //private String action;
+    public Animation animation;
+    private String action;
     private String sprite;
     private String spritesheet;
     private int speed;
+
 
     /*
     Creates an Animated Entity
@@ -25,19 +26,19 @@ class AnimateEntity extends Entity {
     @param speed The speed the animation plays at, 100 is pretty balanced
     @param sprite The sprite that is being animated
      */
-    public AnimateEntity(final float x, final float y, int speed, String sprite) {
+    public AnimateEntity(float x, float y, int speed, String sprite) {
         super(x, y);
         //this.action = action;
         this.speed = speed;
         this.sprite = sprite;
-        getSpritesheet();
-        //selectAnimation();
+        this.spritesheet = getSpritesheet();
     }
 
     /*
     Get the correct spritesheet for the specified sprite
     */
-    private void getSpritesheet() {
+    public String getSpritesheet() {
+        String spritesheet = null;
         switch (sprite) {
             case "knight_leather": {
                 spritesheet = Main.KNIGHT_LEATHER;
@@ -92,12 +93,13 @@ class AnimateEntity extends Entity {
                 break;
             }
         }
+        return spritesheet;
     }
 
     /*
      Selects and starts the appropriate animation sequence for the specified sprites action
     */
-    public void selectAnimation(String action) {
+    public Animation selectAnimation(String action) {
         int row = 0;        // sprite sheet y
         int startx = 0;
         int endx = 0;
@@ -231,11 +233,12 @@ class AnimateEntity extends Entity {
             }
         }
         animation = new Animation(ResourceManager.getSpriteSheet(spritesheet, spritesize, spritesize), startx, row, endx, row, true, speed, true);
-        addAnimation(animation);
         animation.setLooping(true);
+        addAnimation(animation);
+        return animation;
     }
 
-    // stop the animation
+//     stop the animation
     public void stop() {
         animation.stop();
     }

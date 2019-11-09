@@ -4,16 +4,13 @@ import jig.Vector;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.newdawn.slick.Color;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 public class Level1 extends BasicGameState {
     private Boolean paused;
+    Character knight;
     
     private ArrayList<Item> itemsToRender;
 
@@ -47,6 +44,9 @@ public class Level1 extends BasicGameState {
         // TODO can be removed, here to demo animations/characters
         dc.animations = new ArrayList<>(200);
 //        AnimateEntity.testAllCharacterAnimations(dc);
+        float wx = 10 * dc.tileH + dc.tileH/2;
+        float wy = 10 * dc.tileW;
+        knight = new Character(dc, 160, 160, "knight_gold", 1);
     }
 
 
@@ -90,10 +90,7 @@ public class Level1 extends BasicGameState {
             }
         }
 
-        // display the animated entities
-        for (AnimateEntity a : dc.animations) {
-            a.render(g);
-        }
+        knight.animate.render(g);
     }
 
 
@@ -107,6 +104,7 @@ public class Level1 extends BasicGameState {
         if (paused) {
             return;
         }
+        knight.move(getKeystroke(input));
     }
 
 
@@ -116,5 +114,28 @@ public class Level1 extends BasicGameState {
             paused = !paused;
         }
     }
+
+
+    /*
+    get the key being pressed, returns a string
+     */
+    public String getKeystroke(Input input) {
+        String ks = null;
+        if (input.isKeyDown(Input.KEY_W)) {
+            ks = "w";
+        }
+        else if (input.isKeyDown(Input.KEY_S)) {
+            ks = "s";
+        }
+        else if (input.isKeyDown(Input.KEY_A)) {
+            ks = "a";
+        }
+        else if (input.isKeyDown(Input.KEY_D)) {
+            ks = "d";
+        }
+        return ks;
+    }
+
+
 
 }
