@@ -18,6 +18,7 @@ class AnimateEntity extends Entity {
     private String spritesheet;
     private int speed;
 
+
     /*
     Creates an Animated Entity
     @param x entities starting x position
@@ -25,8 +26,9 @@ class AnimateEntity extends Entity {
     @param speed The speed the animation plays at, 100 is pretty balanced
     @param sprite The sprite that is being animated
      */
-    public AnimateEntity(final float x, final float y, int speed, String sprite) {
+    public AnimateEntity(float x, float y, int speed, String sprite) {
         super(x, y);
+//        System.out.printf("Animate Entity %s, %s\n", x, y);
         //this.action = action;
         this.speed = speed;
         this.sprite = sprite;
@@ -295,7 +297,7 @@ class AnimateEntity extends Entity {
 //                "shoot_up", "shoot_left", "shoot_down", "shoot_right",
 //                "die"};
 //        for (int i = 0; i < variations.length; i++) {
-//            dc.animations.add(new AnimateEntity((i + 3) * dc.tileH + dc.tileH / 2, row * dc.tileW, variations[i], 100, sprite));
+//            dc.animations.add(new AnimateEntity((i + 3) * dc.tilesize + dc.tilesize / 2, row * dc.tilesize, variations[i], 100, sprite));
 //        }
 //    }
 }

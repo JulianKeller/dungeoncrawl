@@ -57,8 +57,8 @@ public class ItemManager {
 	private int currentItemID = 0;
 	
 	public void plant(int numItems){
-		int maxx = game.ScreenWidth/game.tileW;
-		int maxy = game.ScreenHeight/game.tileH;
+		int maxx = game.ScreenWidth/game.tilesize;
+		int maxy = game.ScreenHeight/game.tilesize;
 		
 		rand.setSeed(System.nanoTime());
 		
