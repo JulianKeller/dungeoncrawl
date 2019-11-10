@@ -1,60 +1,113 @@
-/*
- * Multithreaded Client Example from GeeksforGeeks.org
- * https://www.geeksforgeeks.org/introducing-threads-socket-programming-java/
+/* Client
+ *
  */
+
+import org.newdawn.slick.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
 
 
 
-public class Client {
-    public Client(){
+public class Client extends BasicGame {
+    private final int ScreenWidth;
+    private final int ScreenHeight;
+    private DataInputStream dis;
+    private DataOutputStream dos;
+    private String message;
+    private Socket socket;
+    private boolean keyPressed;
+    private String keystroke;
+
+    public Client(String title, int width, int height, DataInputStream dis, DataOutputStream dos){
+        super(title);
+        ScreenWidth = width;
+        ScreenHeight = height;
+        this.dis = dis;
+        this.dos = dos;
+
+    }
+
+    @Override
+    public void init(GameContainer container) throws SlickException {
+
+    }
+
+    @Override
+    public void render(GameContainer container, Graphics g) throws SlickException {
+        g.drawString("Server's Response: "+message,ScreenWidth/2f-100, ScreenHeight/2f);
+        g.drawString("keyPressed: " + keyPressed, ScreenWidth/2f-100,ScreenHeight/2f+30);
+    }
+
+    @Override
+    public void update(GameContainer container, int delta) throws SlickException {
+        Input input = container.getInput();
+        try{
+            if(input.isKeyPressed(Input.KEY_W)){
+                dos.writeUTF("W");
+                keyPressed = true;
+            }
+            if(input.isKeyPressed(Input.KEY_S)){
+                dos.writeUTF("S");
+                keyPressed = true;
+            }
+            if(input.isKeyPressed(Input.KEY_A)){
+                dos.writeUTF("A");
+                keyPressed = true;
+            }
+            if(input.isKeyPressed(Input.KEY_D)){
+                dos.writeUTF(("D"));
+                keyPressed = true;
+            }
+            if(input.isKeyPressed(Input.KEY_X)){
+                dos.writeUTF("Exit");
+                System.out.println("Closing this connection.");
+                socket.close();
+                dis.close();
+                dos.close();
+                System.out.println("Connection closed.");
+                System.exit(0);
+            }
+            if(keyPressed){
+                message = dis.readUTF();
+                keyPressed = false;
+            }
+        } catch(IOException e){
+            e.printStackTrace();
+        }
 
     }
     public static void main(String [] args){
+        Socket socket;
+        DataInputStream dis = null;
+        DataOutputStream dos = null;
         try {
-            Scanner scn = new Scanner(System.in);
             byte [] ipAddr = new byte[] {127,0,0,1};
 
             // getting localhost ip
             InetAddress ip = InetAddress.getByAddress(ipAddr);
 
             // establish the connection with server port 5000
-            Socket s = new Socket(ip, 5000);
+            socket = new Socket(ip, 5000);
 
             // obtaining input and out streams
-            DataInputStream dis = new DataInputStream(s.getInputStream());
-            DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+            dis = new DataInputStream(socket.getInputStream());
+            dos = new DataOutputStream(socket.getOutputStream());
 
-            // the following loop performs an exchange of information
-            // between the client and client handler
-            while(true){
-                System.out.println(dis.readUTF());
-                String tosend = scn.nextLine();
-                dos.writeUTF(tosend);
-
-                // If client sends exit, close this connection and break
-                // from while loop
-                if(tosend.equals("Exit")){
-                    System.out.println("Closing this connection");
-                    s.close();
-                    System.out.println("Connection closed");
-                    break;
-                }
-
-                // printing date or time as requested by client
-                String received = dis.readUTF();
-                System.out.println(received);
-
-            }
-            // closing resources
-            scn.close();
-            dis.close();
-            dos.close();
         } catch(Exception e){
             e.printStackTrace();
         }
+        AppGameContainer app;
+        try {
+            app = new AppGameContainer(new Client("Client/Server Demo", 1280,768,
+            dis,dos));
+            app.setDisplayMode(1280, 768, false);
+            app.setVSync(true);
+            app.start();
+        } catch (SlickException e) {
+            e.printStackTrace();
+        }
+
     }
+
 }
