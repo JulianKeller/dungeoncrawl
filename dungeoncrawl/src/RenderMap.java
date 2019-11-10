@@ -1,4 +1,5 @@
 import jig.Entity;
+import jig.Vector;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,37 +74,57 @@ public class RenderMap extends Entity {
                 .toArray(int[][]::new);                 // add the array to a 2d array
     }
 
+/*
+    int origin = knight.screenOrigin;     // TODO this is equal to the players offset
+    int h = dc.height + origin;
+    int w = dc.width + origin;
+        for (int i = origin; i < h; i++) {
+        for (int j = origin; j < w; j++) {
+            if (dc.mapTiles[i][j] == null)
+                continue;
+            dc.mapTiles[i][j].render(g);
+        }
+    }
+
+ */
+
     // Draw the 2D map to the screen
-    public static void displayMap(Main dc) {
+    public static void setMap(Main dc, Vector origin) {
+        System.out.println("Setting new Map Layout:" + origin);
         int x, y;
-        for (int i = 0; i < dc.map.length; i++) {
-            for (int j = 0; j < dc.map[i].length; j++) {
+        dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
+        int ox = (int) origin.getX();
+        int oy = (int) origin.getY();
+//        for (int i = 0; i < dc.map.length; i++) {
+//            for (int j = 0; j < dc.map[i].length; j++) {
+        for (int i = 0; i < dc.height; i++) {
+            for (int j = 0; j < dc.width; j++) {
                 x = j * dc.tilesize + dc.tilesize/2;        // columns
                 y = i * dc.tilesize + dc.tilesize/2;        // rows
                 // WALLs
-                if (dc.map[i][j] == 1) {
+                if (dc.map[i+ox][j+oy] == 1) {
                     if (i+1 >= dc.map.length) {
                         dc.mapTiles[i][j] = new Wall(x, y, "top");
                     }
-                    else if (dc.map[i+1][j] == 0) {
+                    else if (dc.map[i+ox+1][j+oy] == 0) {
                         dc.mapTiles[i][j] = new Wall(x, y, "border");
                     }
-                    else if (dc.map[i+1][j] == 1) {
+                    else if (dc.map[i+ox+1][j+oy] == 1) {
                         dc.mapTiles[i][j] = new Wall(x, y, "top");
                     }
                 }
                 // FLOORs
-                else if (dc.map[i][j] == 0) {
-                    if (dc.map[i+1][j] == 1 && dc.map[i][j-1] == 1) {
+                else if (dc.map[i+ox][j+oy] == 0) {
+                    if (dc.map[i+ox+1][j+oy] == 1 && dc.map[i+ox][j-1+oy] == 1) {
                         dc.mapTiles[i][j] = new Floor(x, y, "shadow_double");
                     }
-                    else if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
+                    else if (i+1 < dc.map.length && dc.map[i+ox+1][j+oy] == 1) {
                         dc.mapTiles[i][j] = new Floor(x, y, "shadow");
                     }
-                    else if (j-1 >= 0 && dc.map[i][j-1] == 1) {
+                    else if (j-1 >= 0 && dc.map[i+ox][j-1+oy] == 1) {
                         dc.mapTiles[i][j] = new Floor(x, y, "shadow_right");
                     }
-                    else if (j-1 > 0 && i+1 < dc.map[i].length && dc.map[i+1][j-1] == 1) {
+                    else if (j-1 > 0 && i+1 < dc.map[i].length && dc.map[i+ox+1][j-1+oy] == 1) {
                         dc.mapTiles[i][j] = new Floor(x, y, "shadow_corner");
                     }
                     else {
