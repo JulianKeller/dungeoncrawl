@@ -28,6 +28,7 @@ class AnimateEntity extends Entity {
      */
     public AnimateEntity(float x, float y, int speed, String sprite) {
         super(x, y);
+//        System.out.printf("Animate Entity %s, %s\n", x, y);
         //this.action = action;
         this.speed = speed;
         this.sprite = sprite;
@@ -253,6 +254,16 @@ class AnimateEntity extends Entity {
         return !animation.isStopped();
     }
 
+    @Override
+    public float getX() {
+        return super.getX();
+    }
+
+    @Override
+    public float getY() {
+        return super.getY() + 24;
+    }
+
     /*
     draw all the animations for all the characters on seperate rows for testing
     @param dc The games main class
@@ -296,7 +307,7 @@ class AnimateEntity extends Entity {
 //                "shoot_up", "shoot_left", "shoot_down", "shoot_right",
 //                "die"};
 //        for (int i = 0; i < variations.length; i++) {
-//            dc.animations.add(new AnimateEntity((i + 3) * dc.tileH + dc.tileH / 2, row * dc.tileW, variations[i], 100, sprite));
+//            dc.animations.add(new AnimateEntity((i + 3) * dc.tilesize + dc.tilesize / 2, row * dc.tilesize, variations[i], 100, sprite));
 //        }
 //    }
 }

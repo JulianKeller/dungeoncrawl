@@ -25,9 +25,10 @@ public class MovingEntity extends Entity {
      * @param wy starting world y coordinate
      */
     public MovingEntity(final float wx, final float wy, int pid) {
+        super(wx, wy);
         hitPoints = 0;
         armorPoints = 0;
-        worldCoordinates = new Vector(wx,wy);
+        worldCoordinates = new Vector(wx, wy);
         speed = 0;
         mana = 0;
         this.pid = pid;
@@ -35,6 +36,10 @@ public class MovingEntity extends Entity {
         equipped = new Item[4];
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
+
+        Vector wc = getWorldCoordinates();
+//        System.out.printf("\nGiven ME World Coordinates %s, %s\n", wx, wy);
+//        System.out.printf("Computed ME World Coordinates %s, %s\n\n", wc.getX(), wc.getY());
     }
 
     /**
@@ -42,7 +47,8 @@ public class MovingEntity extends Entity {
      * @param wc Vector for starting world coordinates of the moving entity
      * @param pid entity's id.
      */
-    public MovingEntity(Vector wc, int pid){
+    public MovingEntity(Vector wc, int pid) {
+        super(wc.getX(), wc.getY());
         hitPoints = 0;
         armorPoints = 0;
         worldCoordinates = wc;
@@ -194,6 +200,9 @@ public class MovingEntity extends Entity {
     public void setWorldCoordinates(Vector wc){
         worldCoordinates = wc;
     }
+    public void setWorldCoordinates(float x, float y){
+        setWorldCoordinates(new Vector(x, y));
+    }
     /**
      * Returns the MovingEntity's current world coordinates.
      * @return Vector world coordinates
@@ -249,212 +258,8 @@ public class MovingEntity extends Entity {
         speed -= amt;
     }
 
-    public void update(int delta){
-        translate(position.scale(delta));
-    }
-
-
-//    public static String getSpritesheet(String sprite) {
-//        String spritesheet = null;
-//        switch (sprite) {
-//            case "knight_leather": {
-//                spritesheet = Main.KNIGHT_LEATHER;
-//                break;
-//            }
-//            case "knight_iron": {
-//                spritesheet = Main.KNIGHT_IRON;
-//                break;
-//            }
-//            case "knight_gold": {
-//                spritesheet = Main.KNIGHT_GOLD;
-//                break;
-//            }
-//            case "mage_leather": {
-//                spritesheet = Main.MAGE_LEATHER;
-//                break;
-//            }
-//            case "mage_improved": {
-//                spritesheet = Main.MAGE_IMPROVED;
-//                break;
-//            }
-//            case "archer_leather": {
-//                spritesheet = Main.ARCHER_LEATHER;
-//                break;
-//            }
-//            case "tank_leather": {
-//                spritesheet = Main.TANK_LEATHER;
-//                break;
-//            }
-//            case "tank_iron": {
-//                spritesheet = Main.TANK_IRON;
-//                break;
-//            }
-//            case "tank_gold": {
-//                spritesheet = Main.TANK_GOLD;
-//                break;
-//            }
-//            case "skeleton_basic": {
-//                spritesheet = Main.SKELETON_BASIC;
-//                break;
-//            }
-//            case "skeleton_leather": {
-//                spritesheet = Main.SKELETON_LEATHER;
-//                break;
-//            }
-//            case "skeleton_chain": {
-//                spritesheet = Main.SKELETON_CHAIN;
-//                break;
-//            }
-//            case "ice_elf": {
-//                spritesheet = Main.ICE_ELF;
-//                break;
-//            }
-//        }
-//        return spritesheet;
+//    public void update(int delta){
+//        translate(position.scale(delta));
 //    }
-//
-//    /*
-//     Selects and starts the appropriate animation sequence for the specified sprites action
-//    */
-//    public static Animation selectAnimation(String action, String spritesheet, int speed) {
-//        speed = 100;
-//        int row = 0;        // sprite sheet y
-//        int startx = 0;
-//        int endx = 0;
-//        int spritesize = 64;
-//        System.out.println("action: " + action);
-//        switch (action) {
-//            case "spell_up": {
-//                row = 0;
-//                startx = 0;
-//                endx = 6;
-//                break;
-//            }
-//            case "spell_left": {
-//                row = 1;
-//                startx = 0;
-//                endx = 6;
-//                break;
-//            }
-//            case "spell_down": {
-//                row = 2;
-//                startx = 0;
-//                endx = 6;
-//                break;
-//            }
-//            case "spell_right": {
-//                row = 3;
-//                startx = 0;
-//                endx = 6;
-//                break;
-//            }
-//            case "jab_up": {
-//                row = 4;
-//                startx = 0;
-//                endx = 7;
-//                break;
-//            }
-//            case "jab_left": {
-//                row = 5;
-//                startx = 0;
-//                endx = 7;
-//                break;
-//            }
-//            case "jab_down": {
-//                row = 6;
-//                startx = 0;
-//                endx = 7;
-//                break;
-//            }
-//            case "jab_right": {
-//                row = 7;
-//                startx = 0;
-//                endx = 7;
-//                break;
-//            }
-//            case "walk_up": {
-//                row = 8;
-//                startx = 0;
-//                endx = 8;
-//                break;
-//            }
-//            case "walk_left": {
-//                row = 9;
-//                startx = 0;
-//                endx = 8;
-//                break;
-//            }
-//            case "walk_down": {
-//                row = 10;
-//                startx = 0;
-//                endx = 8;
-//                break;
-//            }
-//            case "walk_right": {
-//                row = 11;
-//                startx = 0;
-//                endx = 8;
-//                break;
-//            }
-//            case "slash_up": {
-//                row = 12;
-//                startx = 0;
-//                endx = 5;
-//                break;
-//            }
-//            case "slash_left": {
-//                row = 13;
-//                startx = 0;
-//                endx = 5;
-//                break;
-//            }
-//            case "slash_down": {
-//                row = 14;
-//                startx = 0;
-//                endx = 5;
-//                break;
-//            }
-//            case "slash_right": {
-//                row = 15;
-//                startx = 0;
-//                endx = 5;
-//                break;
-//            }
-//            case "shoot_up": {
-//                row = 16;
-//                startx = 0;
-//                endx = 12;
-//                break;
-//            }
-//            case "shoot_left": {
-//                row = 17;
-//                startx = 0;
-//                endx = 12;
-//                break;
-//            }
-//            case "shoot_down": {
-//                row = 18;
-//                startx = 0;
-//                endx = 12;
-//                break;
-//            }
-//            case "shoot_right": {
-//                row = 19;
-//                startx = 0;
-//                endx = 12;
-//                break;
-//            }
-//            case "die": {
-//                row = 20;
-//                startx = 0;
-//                endx = 5;
-//                break;
-//            }
-//        }
-//        Animation animation = new Animation(ResourceManager.getSpriteSheet(spritesheet, spritesize, spritesize), startx, row, endx, row, true, speed, true);
-//        animation.setLooping(true);
-////        addAnimation(animation);
-//        return animation;
-//    }
-    
+
 }

@@ -83,9 +83,11 @@ public class Main extends StateBasedGame {
     public final int ScreenHeight;
 
     // declare entities
-    int tileW;
-    int tileH;
+    int offset;
     int tilesize;
+    int doubleOffset;
+    int yOffset;
+    int xOffset;
     int[][] map;
     Entity[][] mapTiles;
     
@@ -125,9 +127,11 @@ public class Main extends StateBasedGame {
         ScreenWidth = width;
         ScreenHeight = height;
 
-        tileW = 32;     // TODO set to 17 for iso
-        tileH = 32;     // TODO set to 34 for iso
         tilesize = 32;
+        offset = tilesize/2;
+        doubleOffset = offset/2;
+        xOffset = tilesize - doubleOffset;
+        yOffset = tilesize + doubleOffset/2;
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);    // set a rectangle
     }
 

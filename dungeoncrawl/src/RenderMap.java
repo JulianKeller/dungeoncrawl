@@ -78,8 +78,8 @@ public class RenderMap extends Entity {
         int x, y;
         for (int i = 0; i < dc.map.length; i++) {
             for (int j = 0; j < dc.map[i].length; j++) {
-                x = j * dc.tileH + dc.tileH/2;        // columns
-                y = i * dc.tileW + dc.tileW/2;        // rows
+                x = j * dc.tilesize + dc.tilesize/2;        // columns
+                y = i * dc.tilesize + dc.tilesize/2;        // rows
                 // WALLs
                 if (dc.map[i][j] == 1) {
                     if (i+1 >= dc.map.length) {

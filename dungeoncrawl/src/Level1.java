@@ -34,19 +34,20 @@ public class Level1 extends BasicGameState {
         RenderMap.displayMap(dc);                   // renders the map Tiles
 
         // TODO can be removed. Just here to display potions
-        dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
-        dc.potions[10][10] = new Potion(10 * dc.tileH + dc.tileH/2, 10 * dc.tileW + dc.tileW/2, "health");
-        dc.potions[10][4] = new Potion(10 * dc.tileH + dc.tileH/2, 4 * dc.tileW + dc.tileW/2, "manna");
-        dc.potions[10][8] = new Potion(10 * dc.tileH + dc.tileH/2, 8 * dc.tileW + dc.tileW/2, "fire");
-        dc.potions[10][2] = new Potion(10 * dc.tileH + dc.tileH/2, 2 * dc.tileW + dc.tileW/2, "strength");
-        dc.potions[10][6] = new Potion(10 * dc.tileH + dc.tileH/2, 6 * dc.tileW + dc.tileW/2, "invisibility");
+//        dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
+//        dc.potions[10][10] = new Potion(10 * dc.tilesize + dc.tilesize/2, 10 * dc.tilesize + dc.tilesize/2, "health");
+//        dc.potions[10][4] = new Potion(10 * dc.tilesize + dc.tilesize/2, 4 * dc.tilesize + dc.tilesize/2, "manna");
+//        dc.potions[10][8] = new Potion(10 * dc.tilesize + dc.tilesize/2, 8 * dc.tilesize + dc.tilesize/2, "fire");
+//        dc.potions[10][2] = new Potion(10 * dc.tilesize + dc.tilesize/2, 2 * dc.tilesize + dc.tilesize/2, "strength");
+//        dc.potions[10][6] = new Potion(10 * dc.tilesize + dc.tilesize/2, 6 * dc.tilesize + dc.tilesize/2, "invisibility");
 
         // TODO can be removed, here to demo animations/characters
         dc.animations = new ArrayList<>(200);
 //        AnimateEntity.testAllCharacterAnimations(dc);
-        float wx = 10 * dc.tileH + dc.tileH/2;
-        float wy = 10 * dc.tileW;
-        knight = new Character(dc, 160, 160, "knight_gold", 1);
+
+        float wx = (dc.tilesize * 4) - dc.offset;// - dc.xOffset;
+        float wy = (dc.tilesize * 4) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
+        knight = new Character(dc, wx, wy, "knight_iron", 1);
     }
 
 
@@ -78,17 +79,17 @@ public class Level1 extends BasicGameState {
         	//System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
         	//TODO: draw item images
         	//for now, use ovals
-        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
+        	g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
         }
 
         // render potions
-        for (int i = 0; i < dc.potions.length; i++) {
-            for (int j = 0; j < dc.potions[0].length; j++) {
-                if (dc.potions[i][j] == null)
-                    continue;
-                dc.potions[i][j].render(g);
-            }
-        }
+//        for (int i = 0; i < dc.potions.length; i++) {
+//            for (int j = 0; j < dc.potions[0].length; j++) {
+//                if (dc.potions[i][j] == null)
+//                    continue;
+//                dc.potions[i][j].render(g);
+//            }
+//        }
 
         knight.animate.render(g);
     }
