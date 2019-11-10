@@ -11,8 +11,6 @@ import org.newdawn.slick.state.StateBasedGame;
 public class Level1 extends BasicGameState {
     private Boolean paused;
     Character knight;
-    int width;
-    int height;
     
     private ArrayList<Item> itemsToRender;
 
@@ -25,8 +23,9 @@ public class Level1 extends BasicGameState {
     public void enter(GameContainer container, StateBasedGame game) {
         Main dc = (Main) game;
         paused = false;
-        width = dc.ScreenWidth/dc.tilesize;
-        height = dc.ScreenHeight/dc.tilesize;
+        dc.width = dc.ScreenWidth/dc.tilesize;
+        dc.height = dc.ScreenHeight/dc.tilesize;
+
 
 //        dc.map = RenderMap.getDebugMap(dc);
         try {
@@ -35,7 +34,7 @@ public class Level1 extends BasicGameState {
             e.printStackTrace();
         }
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
-        RenderMap.displayMap(dc);                   // renders the map Tiles
+        RenderMap.setMap(dc, 0);                   // renders the map Tiles
 
         // TODO can be removed. Just here to display potions
 //        dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
@@ -69,10 +68,10 @@ public class Level1 extends BasicGameState {
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
         // render tiles
-        // TODO only render
-        int origin = 0;     // TODO this is equal to the players offset
-        int h = height + origin;
-        int w = width + origin;
+        // TODO only render in the screen
+        int origin = knight.screenOrigin;     // TODO this is equal to the players offset
+        int h = dc.height + origin;
+        int w = dc.width + origin;
         for (int i = origin; i < h; i++) {
             for (int j = origin; j < w; j++) {
                 if (dc.mapTiles[i][j] == null)

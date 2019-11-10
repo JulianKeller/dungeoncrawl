@@ -88,6 +88,8 @@ public class Main extends StateBasedGame {
     int doubleOffset;
     int yOffset;
     int xOffset;
+    int width;  // num tiles in width
+    int height; // num tiles in height
     int[][] map;
     Entity[][] mapTiles;
     boolean collisions;
@@ -134,6 +136,9 @@ public class Main extends StateBasedGame {
         xOffset = tilesize - doubleOffset;
         yOffset = tilesize + doubleOffset/2;
         collisions = true;
+
+
+
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);    // set a rectangle
     }
 

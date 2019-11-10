@@ -13,6 +13,9 @@ public class Character extends MovingEntity {
     String direction;
     int movesLeft;
     Main dc;
+    int screenOrigin;
+    int screenEnd;
+    int moveSpeed;
 
     /**
      * Create a new Character (wx, wy)
@@ -33,6 +36,10 @@ public class Character extends MovingEntity {
         animate.selectAnimation(direction);
         animate.stop();
         System.out.printf("Start Position %s, %s", wx, wy);
+        screenOrigin = 0;
+        screenEnd = screenOrigin + dc.width;
+        setSpeed(25);
+        moveSpeed = 2;
     }
 
     /**
@@ -98,7 +105,11 @@ public class Character extends MovingEntity {
         float wx = wc.getX();
         float wy = wc.getY();
         float x = 0, y = 0;
-        int change = 1;
+        int change = moveSpeed;
+
+        // TODO check players distance from edges of the screen
+        changeOrigin();
+
         if (movesLeft > 0) {
             if (direction.equals("walk_up")) {
                 x = wx;
@@ -117,17 +128,42 @@ public class Character extends MovingEntity {
                 y = wy;
             }
             movesLeft -= change;
-//            animate.setX(x);
-//            animate.setY(y);
             walk(x, y);
-//            setWorldCoordinates(new Vector(x, y));
         }
         else {
             canMove = true;
-//            System.out.printf("Collision? x, y:  %s, %s\n", animate.getX() - 16, animate.getY() - 16);
-//            System.out.println();
         }
     }
+
+    /*
+    Changes the screen origin if the player is in range
+     */
+    private void changeOrigin() {
+        // calculate players distance to up, down, left, right borders of screen
+        int x = (int) animate.getX();
+        int y = (int) animate.getY();
+        x = x/dc.tilesize;
+        y = y/dc.tilesize;
+        System.out.printf("%s, %s\n", x, y);
+        int buffer = 5;
+
+        if (screenOrigin > buffer) {
+            if (x - screenOrigin < buffer || y - screenOrigin < buffer) {
+                System.out.println("Changing Origin");
+                screenOrigin -= buffer;
+                screenEnd -= buffer;
+            }
+        }
+
+        else if (dc.height - y < buffer || dc.width - x < buffer) {
+            System.out.println("Changing Origin 2");
+            screenOrigin += buffer;
+            screenEnd += buffer;
+        }
+
+
+    }
+
 
     /*
     Move the character based on the keystrokes given

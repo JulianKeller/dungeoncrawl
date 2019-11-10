@@ -74,7 +74,7 @@ public class RenderMap extends Entity {
     }
 
     // Draw the 2D map to the screen
-    public static void displayMap(Main dc) {
+    public static void setMap(Main dc, int origin) {
         int x, y;
         for (int i = 0; i < dc.map.length; i++) {
             for (int j = 0; j < dc.map[i].length; j++) {
