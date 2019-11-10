@@ -98,7 +98,7 @@ public class Character extends MovingEntity {
         float wx = wc.getX();
         float wy = wc.getY();
         float x = 0, y = 0;
-        int change = 1;
+        int change = 2;
         if (movesLeft > 0) {
             if (direction.equals("walk_up")) {
                 x = wx;
@@ -117,15 +117,10 @@ public class Character extends MovingEntity {
                 y = wy;
             }
             movesLeft -= change;
-//            animate.setX(x);
-//            animate.setY(y);
             walk(x, y);
-//            setWorldCoordinates(new Vector(x, y));
         }
         else {
             canMove = true;
-//            System.out.printf("Collision? x, y:  %s, %s\n", animate.getX() - 16, animate.getY() - 16);
-//            System.out.println();
         }
     }
 
