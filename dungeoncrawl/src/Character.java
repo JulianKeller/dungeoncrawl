@@ -110,7 +110,7 @@ public class Character extends MovingEntity {
         int change = moveSpeed;
 
         // TODO check players distance from edges of the screen
-        changeOrigin();
+//        changeOrigin();
 
         if (movesLeft > 0) {
             if (direction.equals("walk_up")) {
