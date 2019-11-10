@@ -4,7 +4,8 @@
 **[ 3 ]** Create Enemy Class<br>
 **[ 4 ]** Create a simple client/server network<br>
 **[ 5 ]** Convert to a multithreaded network.<br>
-## PENDING ISSUES ##
 **[ 6 ]** Work on Client sending keystrokes and Server response to them<br>
+## PENDING ISSUES ##
 **[ 7 ]** Use a dumb client model<br>
 **[ 8 ]** Test connections on lab machine<br> 
+**[ 9 ]** Integrate my network into the game<br>
