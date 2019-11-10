@@ -178,7 +178,8 @@ public class Character extends MovingEntity {
             else {
                 animate.start();
             }
-            if (collision()) {
+            // check for collisions with the wall
+            if (collision() && dc.collisions) {
                 canMove = true;
                 return;
             }

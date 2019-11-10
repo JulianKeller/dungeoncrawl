@@ -11,6 +11,8 @@ import org.newdawn.slick.state.StateBasedGame;
 public class Level1 extends BasicGameState {
     private Boolean paused;
     Character knight;
+    int width;
+    int height;
     
     private ArrayList<Item> itemsToRender;
 
@@ -23,6 +25,8 @@ public class Level1 extends BasicGameState {
     public void enter(GameContainer container, StateBasedGame game) {
         Main dc = (Main) game;
         paused = false;
+        width = dc.ScreenWidth/dc.tilesize;
+        height = dc.ScreenHeight/dc.tilesize;
 
 //        dc.map = RenderMap.getDebugMap(dc);
         try {
@@ -65,8 +69,12 @@ public class Level1 extends BasicGameState {
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
         // render tiles
-        for (int i = 0; i < dc.mapTiles.length; i++) {
-            for (int j = 0; j < dc.mapTiles[0].length; j++) {
+        // TODO only render
+        int origin = 0;     // TODO this is equal to the players offset
+        int h = height + origin;
+        int w = width + origin;
+        for (int i = origin; i < h; i++) {
+            for (int j = origin; j < w; j++) {
                 if (dc.mapTiles[i][j] == null)
                     continue;
                 dc.mapTiles[i][j].render(g);
