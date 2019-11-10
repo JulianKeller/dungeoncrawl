@@ -75,8 +75,6 @@ public class Level1 extends BasicGameState {
 //        int origin = knight.screenOrigin;     // TODO this is equal to the players offset
 //        int h = dc.height + origin;
 //        int w = dc.width + origin;
-//        for (int i = origin; i < h; i++) {
-//            for (int j = origin; j < w; j++) {
         for (int i = 0; i < dc.map.length; i++) {
             for (int j = 0; j < dc.map[i].length; j++) {
                 if (dc.mapTiles[i][j] == null)

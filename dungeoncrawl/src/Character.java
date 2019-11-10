@@ -36,7 +36,7 @@ public class Character extends MovingEntity {
         direction = "walk_down";
         animate.selectAnimation(direction);
         animate.stop();
-        System.out.printf("Start Position %s, %s", wx, wy);
+//        System.out.printf("Start Position %s, %s", wx, wy);
         origin = new Vector(0, 0);
         screenOrigin = 0;
         screenEnd = screenOrigin + dc.width;
@@ -157,15 +157,15 @@ public class Character extends MovingEntity {
 //        System.out.println(oy - y < buffer);
         // ox > 0 &&
         if (x - ox < buffer) {
-            System.out.println("original Origin " + origin);
-//            origin.setX(ox + buffer);
-            System.out.println("Origin Updated: " + origin);
+//            System.out.println("original Origin " + origin);
+////            origin.setX(ox + buffer);
+//            System.out.println("Origin Updated: " + origin);
             origin = new Vector(ox + buffer, oy);
         }
         else if (y - oy < buffer) {
-            System.out.println("original Origin " + origin);
-//            origin.setY(oy + buffer);
-            System.out.println("Origin Updated: " + origin);
+//            System.out.println("original Origin " + origin);
+////            origin.setY(oy + buffer);
+//            System.out.println("Origin Updated: " + origin);
             origin = new Vector(ox, oy + buffer);
         }
 
