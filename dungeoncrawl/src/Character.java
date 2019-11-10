@@ -124,8 +124,8 @@ public class Character extends MovingEntity {
         }
         else {
             canMove = true;
-            System.out.printf("Collision? x, y:  %s, %s\n", animate.getX() - 16, animate.getY() - 16);
-            System.out.println();
+//            System.out.printf("Collision? x, y:  %s, %s\n", animate.getX() - 16, animate.getY() - 16);
+//            System.out.println();
         }
     }
 
@@ -169,7 +169,6 @@ public class Character extends MovingEntity {
             y = wc.getY();
         }
         if (movement != null) {
-//            collision(x, y);
             canMove = false;
             movesLeft = dc.tilesize;      // -1 because we walk once before the update method
             if (!movement.equals(direction)) {
@@ -179,15 +178,25 @@ public class Character extends MovingEntity {
             else {
                 animate.start();
             }
+            if (collision()) {
+                canMove = true;
+                return;
+            }
             update();
         }
     }
 
 
-    // check if there is a collision at the next x, y
-    public boolean collision(float x, float y) {
+    /*
+    check if there is a collision at the next x, y with the wall
+    returns true if there is a collision, false otherwise
+     */
+    public boolean collision() {
         int len = dc.map.length;
         int width = dc.map[0].length;
+        int x = (int) animate.getX();
+        int y = (int) animate.getY();
+//        System.out.printf("Position x, y:  %s, %s --> %s, %s\n", x, y, x/dc.tilesize, y/dc.tilesize);
         if (direction.equals("walk_up")) {
             y -= dc.tilesize;
         }
@@ -201,11 +210,11 @@ public class Character extends MovingEntity {
             x += dc.tilesize;
         }
 //        System.out.printf("this x, this y:  %s, %s\n", this.getX(), this.getY());
-        System.out.printf("Collision? x, y:  %s, %s\n", animate.getX(), animate.getY());
-//        System.out.printf("Collision? x, y:  %s, %s\n", x/dc.tilesize, y/dc.tilesize);
-//        System.out.printf("x, y:  %s, %s\n",  x/dc.tilesize, y/dc.offset);
-//        System.out.printf("len %s, width %s\n", len, width);
-        return true;
+//        System.out.printf("Collision? x, y:  %s, %s", x, y);
+        x = x/dc.tilesize;
+        y = y/dc.tilesize;
+//        System.out.printf(" -->  %s, %s\n\n", x, y);
+        return (dc.map[y][x] != 0);
     }
 
 
