@@ -16,6 +16,7 @@ public class Character extends MovingEntity {
     int screenOrigin;
     int screenEnd;
     int moveSpeed;
+    Vector origin;
 
     /**
      * Create a new Character (wx, wy)
@@ -36,6 +37,7 @@ public class Character extends MovingEntity {
         animate.selectAnimation(direction);
         animate.stop();
         System.out.printf("Start Position %s, %s", wx, wy);
+        origin = new Vector(0, 0);
         screenOrigin = 0;
         screenEnd = screenOrigin + dc.width;
         setSpeed(25);
@@ -138,28 +140,42 @@ public class Character extends MovingEntity {
     /*
     Changes the screen origin if the player is in range
      */
+    // TODO screen origin only changes in the x or y direction, not both, this is not currently working
     private void changeOrigin() {
         // calculate players distance to up, down, left, right borders of screen
         int x = (int) animate.getX();
         int y = (int) animate.getY();
         x = x/dc.tilesize;
         y = y/dc.tilesize;
-        System.out.printf("%s, %s\n", x, y);
+//        System.out.printf("%s, %s\n", x, y);
         int buffer = 5;
+        float ox = origin.getX()/dc.tilesize;
+        float oy = origin.getY()/dc.tilesize;
 
-        if (screenOrigin > buffer) {
-            if (x - screenOrigin < buffer || y - screenOrigin < buffer) {
-                System.out.println("Changing Origin");
-                screenOrigin -= buffer;
-                screenEnd -= buffer;
-            }
+
+//        System.out.println(x - ox < buffer);
+//        System.out.println(oy - y < buffer);
+        // ox > 0 &&
+        if (x - ox < buffer) {
+            System.out.println("original Origin " + origin);
+//            origin.setX(ox + buffer);
+            System.out.println("Origin Updated: " + origin);
+            origin = new Vector(ox + buffer, oy);
+        }
+        else if (y - oy < buffer) {
+            System.out.println("original Origin " + origin);
+//            origin.setY(oy + buffer);
+            System.out.println("Origin Updated: " + origin);
+            origin = new Vector(ox, oy + buffer);
         }
 
-        else if (dc.height - y < buffer || dc.width - x < buffer) {
-            System.out.println("Changing Origin 2");
-            screenOrigin += buffer;
-            screenEnd += buffer;
-        }
+
+//        else if (ox ) {
+//            System.out.println("Changing Origin 2");
+//            screenOrigin += buffer;
+//            screenEnd += buffer;
+//        }
+
 
 
     }
@@ -228,12 +244,13 @@ public class Character extends MovingEntity {
     check if there is a collision at the next x, y with the wall
     returns true if there is a collision, false otherwise
      */
+    // TODO this method needs to be adjusted for the screen coordinates
     public boolean collision() {
         int len = dc.map.length;
         int width = dc.map[0].length;
-        int x = (int) animate.getX();
-        int y = (int) animate.getY();
-//        System.out.printf("Position x, y:  %s, %s --> %s, %s\n", x, y, x/dc.tilesize, y/dc.tilesize);
+        int x = (int) animate.getX() + (dc.tilesize * screenOrigin);
+        int y = (int) animate.getY() + (dc.tilesize * screenOrigin);
+        System.out.printf("Position x, y:  %s, %s --> %s, %s\n", x, y, x/dc.tilesize, y/dc.tilesize);
         if (direction.equals("walk_up")) {
             y -= dc.tilesize;
         }

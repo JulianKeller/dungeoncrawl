@@ -11,6 +11,7 @@ import org.newdawn.slick.state.StateBasedGame;
 public class Level1 extends BasicGameState {
     private Boolean paused;
     Character knight;
+    Vector currentOrigin;
     
     private ArrayList<Item> itemsToRender;
 
@@ -34,7 +35,7 @@ public class Level1 extends BasicGameState {
             e.printStackTrace();
         }
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
-        RenderMap.setMap(dc, 0);                   // renders the map Tiles
+
 
         // TODO can be removed. Just here to display potions
 //        dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
@@ -51,6 +52,8 @@ public class Level1 extends BasicGameState {
         float wx = (dc.tilesize * 4) - dc.offset;// - dc.xOffset;
         float wy = (dc.tilesize * 4) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
         knight = new Character(dc, wx, wy, "knight_iron", 1);
+        currentOrigin = knight.origin;
+        RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
     }
 
 
@@ -69,11 +72,13 @@ public class Level1 extends BasicGameState {
         Main dc = (Main) game;
         // render tiles
         // TODO only render in the screen
-        int origin = knight.screenOrigin;     // TODO this is equal to the players offset
-        int h = dc.height + origin;
-        int w = dc.width + origin;
-        for (int i = origin; i < h; i++) {
-            for (int j = origin; j < w; j++) {
+//        int origin = knight.screenOrigin;     // TODO this is equal to the players offset
+//        int h = dc.height + origin;
+//        int w = dc.width + origin;
+//        for (int i = origin; i < h; i++) {
+//            for (int j = origin; j < w; j++) {
+        for (int i = 0; i < dc.map.length; i++) {
+            for (int j = 0; j < dc.map[i].length; j++) {
                 if (dc.mapTiles[i][j] == null)
                     continue;
                 dc.mapTiles[i][j].render(g);
@@ -113,6 +118,10 @@ public class Level1 extends BasicGameState {
             return;
         }
         knight.move(getKeystroke(input));
+        if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
+            RenderMap.setMap(dc, knight.origin);
+            currentOrigin = knight.origin;
+        }
     }
 
 
