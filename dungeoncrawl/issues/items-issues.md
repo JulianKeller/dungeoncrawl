@@ -2,6 +2,7 @@
 [5] Update/test player interactions with items
 [8] Add images to items
 [9] Update give/take methods to work with current codebase
+[10] fix file not found exception on windows
 
 ##Resolved Issues##
 [1] Create database schema to hold items and player inventories
