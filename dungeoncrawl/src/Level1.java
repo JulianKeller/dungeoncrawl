@@ -14,6 +14,10 @@ public class Level1 extends BasicGameState {
     Vector currentOrigin;
     
     private ArrayList<Item> itemsToRender;
+    
+    //array of messages to print to the screen
+    private String[] messagebox;
+    private int messages = 2; //number of messages printed at one time
 
     @Override
     public int getID() {
@@ -26,6 +30,8 @@ public class Level1 extends BasicGameState {
         paused = false;
         dc.width = dc.ScreenWidth/dc.tilesize;
         dc.height = dc.ScreenHeight/dc.tilesize;
+        
+        messagebox = new String[messages]; //display four messages at a time
 
 
 //        dc.map = RenderMap.getDebugMap(dc);
@@ -64,12 +70,22 @@ public class Level1 extends BasicGameState {
 
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
+    	messagebox = new String[messages]; //display four messages at a time
     	//plant some items on the level
 		Main.im.plant(5);
     	
     	//then restore the visible items from the world
     	//TODO: make the restoration boundary cover only the screen area + a buffer
     	itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
+    }
+    
+    public void addMessage(String message){
+    	//add a message to the first index of the message box
+    	//  and shift everything else down
+    	for( int i = messagebox.length-1; i > 0; i-- ){
+    		messagebox[i] = messagebox[i-1];
+    	}
+    	messagebox[0] = message;
     }
 
     @Override
@@ -113,6 +129,15 @@ public class Level1 extends BasicGameState {
         knight.animate.render(g);
         
         
+        //render messages
+        for( int i = 0; i < messagebox.length; i++ ){
+        	if( messagebox[i] == null || messagebox[i] == "" ){
+        		break;
+        	}
+        	g.drawString(messagebox[i], 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
+        }
+        
+        
         
     }
 
@@ -141,7 +166,7 @@ public class Level1 extends BasicGameState {
         	
 	        Item i = Main.im.getItemAt(aniPos);
 	        if( i != null ){
-	        	//System.out.println("hit item");
+	        	addMessage("Picked up " + i.getMaterial() + " " +i.getType() + " of " + i.getEffect() + ".");
 	        	//give removes item from the world's inventory
 	        	//  and adds it to the player's inventory
 	        	Main.im.give(i.getID(), ch.getPid());
