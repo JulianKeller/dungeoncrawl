@@ -1,5 +1,8 @@
 import java.util.Random;
 
+import org.newdawn.slick.Image;
+
+import jig.ResourceManager;
 import jig.Vector;
 
 public class Item extends StationaryObject{
@@ -12,6 +15,7 @@ public class Item extends StationaryObject{
 	private String material;	//  the player class will handle the actual effects of items
 	private boolean cursed;		//whether the item is cursed
 	private boolean identified; //whether the player knows the item's properties
+	private Image image;
 	
 	private Random rand;
 	
@@ -67,9 +71,31 @@ public class Item extends StationaryObject{
 		
 		//all items start unidentified
 		identified = false;
+		
+		//get an image based on item type
+		if( type.equals("Potion") ){
+			int r = rand.nextInt(5);
+			switch( r ){
+			case 0:
+				this.image = ResourceManager.getImage(Main.POTION_BLUE);
+				break;
+			case 1:
+				this.image = ResourceManager.getImage(Main.POTION_ORANGE);
+				break;
+			case 2:
+				this.image = ResourceManager.getImage(Main.POTION_PINK);
+				break;
+			case 3:
+				this.image = ResourceManager.getImage(Main.POTION_RED);
+				break;
+			case 4:
+				this.image = ResourceManager.getImage(Main.POTION_YELLOW);
+				break;
+			}
+		}
 	}
 	
-	public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified){
+	public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image){
 		super(wc, locked);
 		//create item with given properties
 		this.id = id;
@@ -79,6 +105,7 @@ public class Item extends StationaryObject{
 		this.material = material;
 		this.cursed = cursed;
 		this.identified = identified;
+		this.image = image;
 	}
 	
 	
