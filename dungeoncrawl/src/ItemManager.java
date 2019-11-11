@@ -86,4 +86,21 @@ public class ItemManager {
 		return items;
 	}
 	
+	/**
+	 * Returns the item on the given tile or null if tile is empty.
+	 * Works with world/tile coordinates, not screen coordinates. 
+	 * @param tile
+	 * @return null or the item on the tile
+	 */
+	public Item getItemAt(Vector tile){
+		for( Item itm : worldItems ){
+			if( itm.getWorldCoordinates().getX() == tile.getX() ){
+				if( itm.getWorldCoordinates().getY() == tile.getY() ){
+					return itm;
+				}
+			}
+		}
+		return null;
+	}
+	
 }
