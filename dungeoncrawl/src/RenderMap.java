@@ -24,7 +24,12 @@ public class RenderMap extends Entity {
 //            f = new File("mapGen/maps");
 //        }
 
-        File f = new File("dungeoncrawl/src/maps");
+        File f;
+        if( System.getProperty("os.name").toLowerCase().contains("windows")){
+        	f = new File("src/maps");
+        }else{
+        	f = new File("dungeoncrawl/src/maps");
+        }
         Random r = new Random();
         int rand = r.nextInt(100);
         String filepath = f.getAbsolutePath() + "/map" + rand + ".txt";
