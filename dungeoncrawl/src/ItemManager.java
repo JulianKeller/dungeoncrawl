@@ -19,15 +19,13 @@ public class ItemManager {
 		for( Item i : worldItems ){
 			if( i.getID() == itemID ){
 				//add to the player's inventory
-				/*
-				for( Player p : game.players){
-					if( p.getID() == playerID ){
-						p.getInventory().add(i);
+				for( Character c : game.characters ){
+					if( c.getPid() == playerID ){
+						c.addItem(i);
 						worldItems.remove(i);
 						return;
 					}
 				}
-				*/
 			}
 		}
 
