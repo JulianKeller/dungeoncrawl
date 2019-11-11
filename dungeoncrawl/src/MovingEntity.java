@@ -73,8 +73,14 @@ public class MovingEntity extends Entity {
      * Removes an item from the MovingEntity's Inventory
      * @param i_id id of the item to be removed.
      */
-    public void discardItem(int i_id){
-        inventory.removeIf(item -> item.getID() == i_id);
+    public Item discardItem(int i_id){
+    	for( int i = 0; i < inventory.size(); i++ ){
+    		if( inventory.get(i).getID() == i_id ){
+    			return inventory.remove(i);
+    		}
+    	}
+    	return null;
+        //inventory.removeIf(item -> item.getID() == i_id);
     }
 
     /**
