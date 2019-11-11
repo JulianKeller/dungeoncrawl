@@ -4,16 +4,14 @@ import jig.Vector;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.newdawn.slick.Color;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 public class Level1 extends BasicGameState {
     private Boolean paused;
+    Character knight;
+    Vector currentOrigin;
     
     private ArrayList<Item> itemsToRender;
 
@@ -26,26 +24,36 @@ public class Level1 extends BasicGameState {
     public void enter(GameContainer container, StateBasedGame game) {
         Main dc = (Main) game;
         paused = false;
+        dc.width = dc.ScreenWidth/dc.tilesize;
+        dc.height = dc.ScreenHeight/dc.tilesize;
 
+
+//        dc.map = RenderMap.getDebugMap(dc);
         try {
             dc.map = RenderMap.getRandomMap(dc);        // grab a randomly generated map
         } catch (IOException e) {
             e.printStackTrace();
         }
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
-        RenderMap.displayMap(dc);                   // renders the map Tiles
+
 
         // TODO can be removed. Just here to display potions
-        dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
-        dc.potions[10][10] = new Potion(10 * dc.tileH + dc.tileH/2, 10 * dc.tileW + dc.tileW/2, "health");
-        dc.potions[10][4] = new Potion(10 * dc.tileH + dc.tileH/2, 4 * dc.tileW + dc.tileW/2, "manna");
-        dc.potions[10][8] = new Potion(10 * dc.tileH + dc.tileH/2, 8 * dc.tileW + dc.tileW/2, "fire");
-        dc.potions[10][2] = new Potion(10 * dc.tileH + dc.tileH/2, 2 * dc.tileW + dc.tileW/2, "strength");
-        dc.potions[10][6] = new Potion(10 * dc.tileH + dc.tileH/2, 6 * dc.tileW + dc.tileW/2, "invisibility");
+//        dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
+//        dc.potions[10][10] = new Potion(10 * dc.tilesize + dc.tilesize/2, 10 * dc.tilesize + dc.tilesize/2, "health");
+//        dc.potions[10][4] = new Potion(10 * dc.tilesize + dc.tilesize/2, 4 * dc.tilesize + dc.tilesize/2, "manna");
+//        dc.potions[10][8] = new Potion(10 * dc.tilesize + dc.tilesize/2, 8 * dc.tilesize + dc.tilesize/2, "fire");
+//        dc.potions[10][2] = new Potion(10 * dc.tilesize + dc.tilesize/2, 2 * dc.tilesize + dc.tilesize/2, "strength");
+//        dc.potions[10][6] = new Potion(10 * dc.tilesize + dc.tilesize/2, 6 * dc.tilesize + dc.tilesize/2, "invisibility");
 
         // TODO can be removed, here to demo animations/characters
         dc.animations = new ArrayList<>(200);
-        AnimateEntity.testAllCharacterAnimations(dc);
+//        AnimateEntity.testAllCharacterAnimations(dc);
+
+        float wx = (dc.tilesize * 4) - dc.offset;// - dc.xOffset;
+        float wy = (dc.tilesize * 4) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
+        knight = new Character(dc, wx, wy, "knight_iron", 1);
+        currentOrigin = knight.origin;
+        RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
     }
 
 
@@ -63,8 +71,12 @@ public class Level1 extends BasicGameState {
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
         // render tiles
-        for (int i = 0; i < dc.mapTiles.length; i++) {
-            for (int j = 0; j < dc.mapTiles[0].length; j++) {
+        // TODO only render in the screen
+//        int origin = knight.screenOrigin;     // TODO this is equal to the players offset
+//        int h = dc.height + origin;
+//        int w = dc.width + origin;
+        for (int i = 0; i < dc.map.length; i++) {
+            for (int j = 0; j < dc.map[i].length; j++) {
                 if (dc.mapTiles[i][j] == null)
                     continue;
                 dc.mapTiles[i][j].render(g);
@@ -77,22 +89,19 @@ public class Level1 extends BasicGameState {
         	//System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
         	//TODO: draw item images
         	//for now, use ovals
-        	g.drawOval((i.getWorldCoordinates().getX()*dc.tileW)+(dc.tileW/2), (i.getWorldCoordinates().getY()*dc.tileH)+(dc.tileH/2), 4, 4);
+        	g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
         }
 
         // render potions
-        for (int i = 0; i < dc.potions.length; i++) {
-            for (int j = 0; j < dc.potions[0].length; j++) {
-                if (dc.potions[i][j] == null)
-                    continue;
-                dc.potions[i][j].render(g);
-            }
-        }
+//        for (int i = 0; i < dc.potions.length; i++) {
+//            for (int j = 0; j < dc.potions[0].length; j++) {
+//                if (dc.potions[i][j] == null)
+//                    continue;
+//                dc.potions[i][j].render(g);
+//            }
+//        }
 
-        // display the animated entities
-        for (AnimateEntity a : dc.animations) {
-            a.render(g);
-        }
+        knight.animate.render(g);
     }
 
 
@@ -106,6 +115,11 @@ public class Level1 extends BasicGameState {
         if (paused) {
             return;
         }
+        knight.move(getKeystroke(input));
+        if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
+            RenderMap.setMap(dc, knight.origin);
+            currentOrigin = knight.origin;
+        }
     }
 
 
@@ -115,5 +129,28 @@ public class Level1 extends BasicGameState {
             paused = !paused;
         }
     }
+
+
+    /*
+    get the key being pressed, returns a string
+     */
+    public String getKeystroke(Input input) {
+        String ks = null;
+        if (input.isKeyDown(Input.KEY_W)) {
+            ks = "w";
+        }
+        else if (input.isKeyDown(Input.KEY_S)) {
+            ks = "s";
+        }
+        else if (input.isKeyDown(Input.KEY_A)) {
+            ks = "a";
+        }
+        else if (input.isKeyDown(Input.KEY_D)) {
+            ks = "d";
+        }
+        return ks;
+    }
+
+
 
 }

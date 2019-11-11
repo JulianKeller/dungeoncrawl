@@ -1,3 +1,6 @@
+## Current Issue
+[17] - get scrolling and player movement
+
 ## Open Issues ##
 [3] - Draw Armor
         Leather
@@ -30,6 +33,7 @@
 [12] - update floor tiles
 [13] - update wall tiles
 [15] - render multiple random maps and save them
+[16] - fix map loading file error
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
