@@ -139,7 +139,7 @@ public class Main extends StateBasedGame {
         yOffset = tilesize + doubleOffset/2;
         collisions = true;
 
-
+        characters = new ArrayList<Character>();
 
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);    // set a rectangle
     }

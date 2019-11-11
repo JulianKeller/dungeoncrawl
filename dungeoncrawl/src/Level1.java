@@ -57,6 +57,8 @@ public class Level1 extends BasicGameState {
         
         currentOrigin = knight.origin;
         RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
+        
+        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
 
 
@@ -109,6 +111,9 @@ public class Level1 extends BasicGameState {
 //        }
 
         knight.animate.render(g);
+        
+        
+        
     }
 
 
@@ -126,6 +131,24 @@ public class Level1 extends BasicGameState {
         if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
             RenderMap.setMap(dc, knight.origin);
             currentOrigin = knight.origin;
+        }
+        
+        //check if a character has hit an item
+        for( Character ch : dc.characters ){
+        	float x = (ch.animate.getX()/dc.tilesize);
+        	float y = (ch.animate.getY()/dc.tilesize);
+        	Vector aniPos = new Vector((int)x, (int)y);
+        	
+	        Item i = Main.im.getItemAt(aniPos);
+	        if( i != null ){
+	        	//System.out.println("hit item");
+	        	//give removes item from the world's inventory
+	        	//  and adds it to the player's inventory
+	        	Main.im.give(i.getID(), ch.getPid());
+	        	
+	        	//stop rendering the item
+	        	itemsToRender.remove(i);
+	        }
         }
     }
 
