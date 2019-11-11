@@ -118,6 +118,8 @@ public class Main extends StateBasedGame {
     public static ItemManager im;
     Entity[][] potions;
     ArrayList<AnimateEntity> animations;
+    
+    public ArrayList<Character> characters;
 
 
     /**
