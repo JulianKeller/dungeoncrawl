@@ -37,6 +37,13 @@ def printResultArray( array ):
 		print(f'{i},')
 	print(']\n')
 
+def saveResult(array, count):
+	with open(f'maps/map{count}.txt', 'w') as fp:
+		for row in array:
+			for i in row:
+				fp.write(f'{str(i)} ')
+			fp.write('\n')
+
 
 def makeRoom(y, x, w, h, level):
 	#make a room with the given dimensions
@@ -200,16 +207,19 @@ def generateRoomsAndHallways(maxx, maxy):
 
 					for thing in room[1]:
 						closed.append(thing)
-	print2Array(level)
-	print()
-	printResultArray(level)
+	# print2Array(level)
+	# print()
+	# printResultArray(level)
+	return level
 
 
 
 
 if __name__ == '__main__':
 	start = timeit.default_timer()
-	generateRoomsAndHallways(32, 21)
+	for i in range(1000):
+		lvl = generateRoomsAndHallways(80, 48)
+		saveResult(lvl, i)
 	print(f'Run Time: {timeit.default_timer() - start:.2} seconds')
 
 

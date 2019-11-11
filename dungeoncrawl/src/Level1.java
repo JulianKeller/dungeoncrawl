@@ -1,13 +1,19 @@
 import jig.Entity;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
+import jig.Vector;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 public class Level1 extends BasicGameState {
     private Boolean paused;
+    Character knight;
+    Vector currentOrigin;
+    
+    private ArrayList<Item> itemsToRender;
 
     @Override
     public int getID() {
@@ -18,137 +24,96 @@ public class Level1 extends BasicGameState {
     public void enter(GameContainer container, StateBasedGame game) {
         Main dc = (Main) game;
         paused = false;
+        dc.width = dc.ScreenWidth/dc.tilesize;
+        dc.height = dc.ScreenHeight/dc.tilesize;
 
-        // 32 x 21 map
-        dc.map = new int[][] {
-                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                {1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1},
-                {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1},
-                {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1},
-                {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1},
-                {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
-                {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
-                {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
-                {1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-                {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1},
-                {1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1},
-                {1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1},
-                {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1},
-                {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                };
 
-        // 10x10 map
-//        dtc.map = new int[][] {
-//                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-//                {1, 1, 0, 1, 1, 1, 1, 1, 0, 1},
-//                {1, 1, 0, 1, 1, 1, 1, 0, 0, 1},
-//                {1, 1, 0, 1, 0, 0, 0, 0, 0, 1},
-//                {1, 1, 0, 1, 1, 1, 1, 0, 1, 1},
-//                {1, 1, 0, 1, 1, 1, 1, 0, 0, 1},
-//                {1, 1, 0, 1, 1, 1, 1, 0, 1, 1},
-//                {1, 1, 1, 1, 0, 0, 0, 0, 0, 1},
-//                {1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-//                {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},};
-
-        dc.entities = new Entity[dc.map.length][dc.map[0].length];
-
-//        displayISOmap(dc);
-        display2Dmap(dc);
-    }
-
-    // draw an isometric map
-    public void displayISOmap(Main dc) {
-        dc.tileH = 17;
-        dc.tileW = 34;
-        int x = 0, y = 0;
-        for (int i = 0; i < dc.map.length; i++) {
-            for (int j = 0; j < dc.map[i].length; j++) {
-                if (i == j) {
-                    x = dc.ScreenWidth/2 + i * dc.tileW/2;
-                    y = dc.tileW * i + j * dc.tileH + dc.tileH;
-                }
-                else if (i < j) {
-                    x = dc.ScreenWidth/2 + dc.tileW/2 * i;
-                    y = dc.tileH * j;
-                }
-                else if (i > j) {
-                    x = dc.ScreenWidth/2 - i * dc.tileW/2 - dc.tileW/2;
-                    y = dc.tileH * i + j * dc.tileH/2 + dc.tileH;
-                }
-
-                if (dc.map[i][j] == 1) {
-                    dc.entities[i][j] = new Wall(x, y, "iso");
-
-                }
-                else if (dc.map[i][j] == 0) {
-                    dc.entities[i][j] = new Floor(x, y, "iso");
-                }
-            }
+//        dc.map = RenderMap.getDebugMap(dc);
+        try {
+            dc.map = RenderMap.getRandomMap(dc);        // grab a randomly generated map
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
+        dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
 
-    // Draw the 2D map
-    public void display2Dmap(Main dc) {
-        dc.tileH = 32;
-        dc.tileW = 32;
-        System.out.printf("rows: %s, cols: %s\n", dc.map.length, dc.map[0].length);
-        int x, y;
-        for (int i = 0; i < dc.map.length; i++) {
-            for (int j = 0; j < dc.map[i].length; j++) {
-                x = j * dc.tileH + dc.tileH/2;        // columns
-                y = i * dc.tileW + dc.tileW/2;        // rows
-                // WALL
-                if (dc.map[i][j] == 1) {
-                    if (i+1 >= dc.map.length) {
-                        dc.entities[i][j] = new Wall(x, y, "top");
-                    }
-                    else if (dc.map[i+1][j] == 0) {
-                        dc.entities[i][j] = new Wall(x, y, "border");
-                    }
-                    else if (dc.map[i+1][j] == 1) {
-                        dc.entities[i][j] = new Wall(x, y, "top");
-                    }
-                }
-                else if (dc.map[i][j] == 0) {
-                    if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
-                        dc.entities[i][j] = new Floor(x, y, "shadow");
-                    }
-                    else if (j-1 > 0 && dc.map[i][j-1] == 1) {
-                        dc.entities[i][j] = new Floor(x, y, "shadow_right");
-                    }
-                    else {
-                        dc.entities[i][j] = new Floor(x, y, "normal");
-                    }
 
-                }
-            }
-        }
+        // TODO can be removed. Just here to display potions
+//        dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
+//        dc.potions[10][10] = new Potion(10 * dc.tilesize + dc.tilesize/2, 10 * dc.tilesize + dc.tilesize/2, "health");
+//        dc.potions[10][4] = new Potion(10 * dc.tilesize + dc.tilesize/2, 4 * dc.tilesize + dc.tilesize/2, "manna");
+//        dc.potions[10][8] = new Potion(10 * dc.tilesize + dc.tilesize/2, 8 * dc.tilesize + dc.tilesize/2, "fire");
+//        dc.potions[10][2] = new Potion(10 * dc.tilesize + dc.tilesize/2, 2 * dc.tilesize + dc.tilesize/2, "strength");
+//        dc.potions[10][6] = new Potion(10 * dc.tilesize + dc.tilesize/2, 6 * dc.tilesize + dc.tilesize/2, "invisibility");
+
+        // TODO can be removed, here to demo animations/characters
+        dc.animations = new ArrayList<>(200);
+//        AnimateEntity.testAllCharacterAnimations(dc);
+
+        float wx = (dc.tilesize * 4) - dc.offset;// - dc.xOffset;
+        float wy = (dc.tilesize * 4) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
+        knight = new Character(dc, wx, wy, "knight_iron", 1);
+        
+        dc.characters.add(knight);
+        
+        currentOrigin = knight.origin;
+        RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
+        
+        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
 
 
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
+    	//plant some items on the level
+		Main.im.plant(5);
+    	
+    	//then restore the visible items from the world
+    	//TODO: make the restoration boundary cover only the screen area + a buffer
+    	itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-        Main dtc = (Main) game;
-//        g.drawImage(ResourceManager.getImage(Game.LEVEL_BACKGROUND), 0, 0);
-        for (int i = 0; i < dtc.entities.length; i++) {
-            for (int j = 0; j < dtc.entities[0].length; j++) {
-                if (dtc.entities[i][j] == null)
+        Main dc = (Main) game;
+        // render tiles
+        // TODO only render in the screen
+//        int origin = knight.screenOrigin;     // TODO this is equal to the players offset
+//        int h = dc.height + origin;
+//        int w = dc.width + origin;
+        for (int i = 0; i < dc.map.length; i++) {
+            for (int j = 0; j < dc.map[i].length; j++) {
+                if (dc.mapTiles[i][j] == null)
                     continue;
-                dtc.entities[i][j].render(g);
+                dc.mapTiles[i][j].render(g);
             }
         }
+        
+        //render all visible items
+        g.setColor(Color.red);
+        for( Item i : itemsToRender){
+        	//System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
+        	//TODO: draw item images
+        	//for now, use ovals
+        	g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
+        	
+        	i.setPosition((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2));
+        	i.render(g);
+        	
+        }
 
+        // render potions
+//        for (int i = 0; i < dc.potions.length; i++) {
+//            for (int j = 0; j < dc.potions[0].length; j++) {
+//                if (dc.potions[i][j] == null)
+//                    continue;
+//                dc.potions[i][j].render(g);
+//            }
+//        }
+
+        knight.animate.render(g);
+        
+        
+        
     }
 
 
@@ -156,11 +121,34 @@ public class Level1 extends BasicGameState {
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         Input input = container.getInput();
-        Main dtc = (Main) game;
-        Cheats.enableCheats(dtc, input);
+        Main dc = (Main) game;
+        Cheats.enableCheats(dc, input);
         pause(input);
         if (paused) {
             return;
+        }
+        knight.move(getKeystroke(input));
+        if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
+            RenderMap.setMap(dc, knight.origin);
+            currentOrigin = knight.origin;
+        }
+        
+        //check if a character has hit an item
+        for( Character ch : dc.characters ){
+        	float x = (ch.animate.getX()/dc.tilesize);
+        	float y = (ch.animate.getY()/dc.tilesize);
+        	Vector aniPos = new Vector((int)x, (int)y);
+        	
+	        Item i = Main.im.getItemAt(aniPos);
+	        if( i != null ){
+	        	//System.out.println("hit item");
+	        	//give removes item from the world's inventory
+	        	//  and adds it to the player's inventory
+	        	Main.im.give(i.getID(), ch.getPid());
+	        	
+	        	//stop rendering the item
+	        	itemsToRender.remove(i);
+	        }
         }
     }
 
@@ -171,5 +159,28 @@ public class Level1 extends BasicGameState {
             paused = !paused;
         }
     }
+
+
+    /*
+    get the key being pressed, returns a string
+     */
+    public String getKeystroke(Input input) {
+        String ks = null;
+        if (input.isKeyDown(Input.KEY_W)) {
+            ks = "w";
+        }
+        else if (input.isKeyDown(Input.KEY_S)) {
+            ks = "s";
+        }
+        else if (input.isKeyDown(Input.KEY_A)) {
+            ks = "a";
+        }
+        else if (input.isKeyDown(Input.KEY_D)) {
+            ks = "d";
+        }
+        return ks;
+    }
+
+
 
 }
