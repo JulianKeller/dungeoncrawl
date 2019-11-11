@@ -137,6 +137,11 @@ public class Item extends StationaryObject{
 		return image;
 	}
 	
+	//setter functions
+	public void setOID( int oid ){
+		this.oid = oid;
+	}
+	
 	//render function
 	public void render(Graphics g){
 		if( image != null ){

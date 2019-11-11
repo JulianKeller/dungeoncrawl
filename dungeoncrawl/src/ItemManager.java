@@ -34,22 +34,21 @@ public class ItemManager {
 	public void take(int itemID, int playerID, Vector wc){
 		//take an item from the player and place it at the given coordinates
 		// unless the coordinate is null
-		/*
-		for( Player p : game.players ){
-			if( p.getID() == playerID ){
-				for( Item i : p.getInventory() ){
-					if( i.getID() == itemID ){
-						p.getInvetory().remove(i);
-						
-						//if the wc is not null, place the item on the world
-						if( wc != null ){
-							i.setWorldCoordinates(wc);
-						}
-					}
+		for( Character c : game.characters ){
+			if( c.getPid() == playerID ){
+				Item i = c.discardItem(itemID);
+				
+				
+				
+				//if the wc is not null, place the item on the world
+				if( wc != null ){
+					i.setWorldCoordinates(wc);
+					//set the owner to the world
+					i.setOID(0);
+					worldItems.add(i);
 				}
 			}
 		}
-		*/
 	}
 	
 	private int currentItemID = 0;
