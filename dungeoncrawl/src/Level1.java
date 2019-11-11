@@ -90,6 +90,10 @@ public class Level1 extends BasicGameState {
         	//TODO: draw item images
         	//for now, use ovals
         	g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
+        	
+        	i.setPosition((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2));
+        	i.render(g);
+        	
         }
 
         // render potions

@@ -1,5 +1,6 @@
 import java.util.Random;
 
+import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 
 import jig.ResourceManager;
@@ -30,7 +31,8 @@ public class Item extends StationaryObject{
 		this.oid = oid;
 		
 		//first get the item type
-		this.type = Main.ItemTypes[ rand.nextInt(Main.ItemTypes.length) ];
+		//this.type = Main.ItemTypes[ rand.nextInt(Main.ItemTypes.length) ];
+		this.type = "Potion";
 		
 		//choose materials from the appropriate list
 		if( type.equals("Sword") ){
@@ -130,5 +132,16 @@ public class Item extends StationaryObject{
 	}
 	public boolean isIdentified(){
 		return identified;
+	}
+	public Image getImage(){
+		return image;
+	}
+	
+	//render function
+	public void render(Graphics g){
+		if( image != null ){
+			addImage(image);
+		}
+		super.render(g);
 	}
 }
