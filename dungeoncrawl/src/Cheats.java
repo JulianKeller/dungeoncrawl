@@ -2,16 +2,16 @@ import org.newdawn.slick.Input;
 
 public class Cheats {
 
-    public static void enableCheats(Main dtc, Input input) {
+    public static void enableCheats(Main dc, Input input) {
         // show the path of dijkstra
         if (input.isKeyPressed(Input.KEY_1)) {
-            dtc.enterState(Main.LEVEL1);
+            dc.enterState(Main.LEVEL1);
         }
 //        else if (input.isKeyPressed(Input.KEY_2)) {
 //            dtc.enterState(Game.LEVEL2);
 //        }
         else if (input.isKeyPressed(Input.KEY_3)) {
-            dtc.enterState(Main.STARTUPSTATE);
+            dc.enterState(Main.STARTUPSTATE);
         }
 //                else if (input.isKeyPressed(Input.KEY_4)) {
 //            dtc.enterState(Game.GAMEOVER);
@@ -25,8 +25,8 @@ public class Cheats {
 //        else if (input.isKeyPressed(Input.KEY_7)) {
 //            dtc.infiniteLives = !dtc.infiniteLives;
 //        }
-//        else if (input.isKeyPressed(Input.KEY_8)) {
-//            dtc.soundoff = !dtc.soundoff;
-//        }
+        else if (input.isKeyPressed(Input.KEY_C)) {
+            dc.collisions = !dc.collisions;
+        }
     }
 }

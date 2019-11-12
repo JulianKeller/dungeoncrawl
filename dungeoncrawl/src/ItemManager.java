@@ -19,15 +19,13 @@ public class ItemManager {
 		for( Item i : worldItems ){
 			if( i.getID() == itemID ){
 				//add to the player's inventory
-				/*
-				for( Player p : game.players){
-					if( p.getID() == playerID ){
-						p.getInventory().add(i);
+				for( Character c : game.characters ){
+					if( c.getPid() == playerID ){
+						c.addItem(i);
 						worldItems.remove(i);
 						return;
 					}
 				}
-				*/
 			}
 		}
 
@@ -36,29 +34,28 @@ public class ItemManager {
 	public void take(int itemID, int playerID, Vector wc){
 		//take an item from the player and place it at the given coordinates
 		// unless the coordinate is null
-		/*
-		for( Player p : game.players ){
-			if( p.getID() == playerID ){
-				for( Item i : p.getInventory() ){
-					if( i.getID() == itemID ){
-						p.getInvetory().remove(i);
-						
-						//if the wc is not null, place the item on the world
-						if( wc != null ){
-							i.setWorldCoordinates(wc);
-						}
-					}
+		for( Character c : game.characters ){
+			if( c.getPid() == playerID ){
+				Item i = c.discardItem(itemID);
+				
+				
+				
+				//if the wc is not null, place the item on the world
+				if( wc != null ){
+					i.setWorldCoordinates(wc);
+					//set the owner to the world
+					i.setOID(0);
+					worldItems.add(i);
 				}
 			}
 		}
-		*/
 	}
 	
 	private int currentItemID = 0;
 	
 	public void plant(int numItems){
-		int maxx = game.ScreenWidth/game.tileW;
-		int maxy = game.ScreenHeight/game.tileH;
+		int maxx = game.ScreenWidth/game.tilesize;
+		int maxy = game.ScreenHeight/game.tilesize;
 		
 		rand.setSeed(System.nanoTime());
 		
@@ -87,6 +84,23 @@ public class ItemManager {
 			}
 		}
 		return items;
+	}
+	
+	/**
+	 * Returns the item on the given tile or null if tile is empty.
+	 * Works with world/tile coordinates, not screen coordinates. 
+	 * @param tile
+	 * @return null or the item on the tile
+	 */
+	public Item getItemAt(Vector tile){
+		for( Item itm : worldItems ){
+			if( itm.getWorldCoordinates().getX() == tile.getX() ){
+				if( itm.getWorldCoordinates().getY() == tile.getY() ){
+					return itm;
+				}
+			}
+		}
+		return null;
 	}
 	
 }
