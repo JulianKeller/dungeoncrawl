@@ -19,12 +19,13 @@ public class Client extends BasicGame {
     private boolean keyPressed;
     private String keystroke;
 
-    public Client(String title, int width, int height, DataInputStream dis, DataOutputStream dos){
+    public Client(String title, int width, int height, Socket socket, DataInputStream dis, DataOutputStream dos){
         super(title);
         ScreenWidth = width;
         ScreenHeight = height;
         this.dis = dis;
         this.dos = dos;
+        this.socket = socket;
 
     }
 
@@ -78,7 +79,7 @@ public class Client extends BasicGame {
 
     }
     public static void main(String [] args){
-        Socket socket;
+        Socket socket = null;
         DataInputStream dis = null;
         DataOutputStream dos = null;
         try {
@@ -100,7 +101,7 @@ public class Client extends BasicGame {
         AppGameContainer app;
         try {
             app = new AppGameContainer(new Client("Client/Server Demo", 1280,768,
-            dis,dos));
+            socket,dis,dos));
             app.setDisplayMode(1280, 768, false);
             app.setVSync(true);
             app.start();

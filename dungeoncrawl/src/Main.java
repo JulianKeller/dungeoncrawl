@@ -1,6 +1,10 @@
 import jig.Entity;
 import jig.ResourceManager;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.sql.SQLException;
 
 import org.newdawn.slick.AppGameContainer;
@@ -12,6 +16,11 @@ import java.util.ArrayList;
 
 
 public class Main extends StateBasedGame {
+    // Server items
+    public final Socket socket;
+    public final DataInputStream dis;
+    public final DataOutputStream dos;
+
     // Game States
     public static final int STARTUPSTATE = 0;
     public static final int LEVEL1 = 1;
@@ -127,7 +136,7 @@ public class Main extends StateBasedGame {
      *
      * @param title The name of the game
      */
-    public Main(String title, int width, int height) {
+    public Main(String title, int width, int height, Socket socket, DataInputStream dis, DataOutputStream dos) {
         super(title);
         ScreenWidth = width;
         ScreenHeight = height;
@@ -138,6 +147,9 @@ public class Main extends StateBasedGame {
         xOffset = tilesize - doubleOffset;
         yOffset = tilesize + doubleOffset/2;
         collisions = true;
+        this.socket = socket;
+        this.dis = dis;
+        this.dos = dos;
 
         characters = new ArrayList<Character>();
 
@@ -207,7 +219,27 @@ public class Main extends StateBasedGame {
     }
 
     public static void main(String[] args) {
-    	Main game = new Main("Dungeon Crawl", 1280, 768);
+        // Setting up the connection to the server
+        Socket socket = null;
+        DataInputStream dis = null;
+        DataOutputStream dos = null;
+        try {
+            byte [] ipAddr = new byte[] {127,0,0,1};
+
+            // getting localhost ip
+            InetAddress ip = InetAddress.getByAddress(ipAddr);
+
+            // establish the connection with server port 5000
+            socket = new Socket(ip, 5000);
+
+            // obtaining input and out streams
+            dis = new DataInputStream(socket.getInputStream());
+            dos = new DataOutputStream(socket.getOutputStream());
+
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    	Main game = new Main("Dungeon Crawl", 1280, 768, socket, dis, dos);
     	im = new ItemManager(game);
         AppGameContainer app;
         try {
