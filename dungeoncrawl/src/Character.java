@@ -110,7 +110,7 @@ public class Character extends MovingEntity {
         int change = moveSpeed;
 
         // TODO check players distance from edges of the screen
-//        changeOrigin();
+        changeOrigin();
 
         if (movesLeft > 0) {
             if (direction.equals("walk_up")) {
@@ -143,41 +143,25 @@ public class Character extends MovingEntity {
     // TODO screen origin only changes in the x or y direction, not both, this is not currently working
     private void changeOrigin() {
         // calculate players distance to up, down, left, right borders of screen
-        int x = (int) animate.getX();
-        int y = (int) animate.getY();
-        x = x/dc.tilesize;
-        y = y/dc.tilesize;
+        int px = (int) animate.getX();
+        int py = (int) animate.getY();
+        px = px/dc.tilesize;
+        py = py/dc.tilesize;
 //        System.out.printf("%s, %s\n", x, y);
         int buffer = 5;
-        float ox = origin.getX()/dc.tilesize;
-        float oy = origin.getY()/dc.tilesize;
+        // TODo instead I want the screen width/height
+        int w = dc.ScreenWidth/dc.tilesize;
+        int h = dc.ScreenHeight/dc.tilesize;
 
+        int ox = (int) origin.getX()/dc.tilesize;
+        int oy = (int) origin.getY()/dc.tilesize;
 
-//        System.out.println(x - ox < buffer);
-//        System.out.println(oy - y < buffer);
-        // ox > 0 &&
-        if (x - ox < buffer) {
-//            System.out.println("original Origin " + origin);
-////            origin.setX(ox + buffer);
-//            System.out.println("Origin Updated: " + origin);
-            origin = new Vector(ox + buffer, oy);
-        }
-        else if (y - oy < buffer) {
-//            System.out.println("original Origin " + origin);
-////            origin.setY(oy + buffer);
-//            System.out.println("Origin Updated: " + origin);
+        System.out.printf("%s -  %s = %s\n", py, h,  py - h);
+        if (py - h < buffer) {
+            System.out.println("original Origin " + origin);
             origin = new Vector(ox, oy + buffer);
+            System.out.println("Origin Updated: " + origin);
         }
-
-
-//        else if (ox ) {
-//            System.out.println("Changing Origin 2");
-//            screenOrigin += buffer;
-//            screenEnd += buffer;
-//        }
-
-
-
     }
 
 
