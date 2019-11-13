@@ -3,6 +3,8 @@ import jig.Vector;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.net.*;
+import java.io.*;
 
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
@@ -12,6 +14,10 @@ public class Level1 extends BasicGameState {
     private Boolean paused;
     Character knight;
     Vector currentOrigin;
+    Socket socket;
+    ObjectInputStream dis;
+    ObjectOutputStream dos;
+
     
     private final int messageTimer = 2000;
     
@@ -43,12 +49,38 @@ public class Level1 extends BasicGameState {
         
         messagebox = new Message[messages]; //display four messages at a time
 
+        // TODO This section is the original map generator.
+        if(Main.localMode) {
+            dc.map = RenderMap.getDebugMap(dc);
+            try {
+                dc.map = RenderMap.getRandomMap();        // grab a randomly generated map
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // Server sockets for reading/writing to server.
+            this.socket = dc.socket;
+            this.dis = dc.dis;
+            this.dos = dc.dos;
 
-//        dc.map = RenderMap.getDebugMap(dc);
-        try {
-            dc.map = RenderMap.getRandomMap(dc);        // grab a randomly generated map
-        } catch (IOException e) {
-            e.printStackTrace();
+            dc.width = dc.ScreenWidth / dc.tilesize;
+            dc.height = dc.ScreenHeight / dc.tilesize;
+            // TODO this section requires that you run the server prior to Main.
+            // Grab the map from the Server
+            try {
+                Integer[][] mapData = (Integer[][]) this.dis.readObject();
+                // Convert it into an 2d int array
+                dc.map = new int[mapData.length][mapData[0].length];
+                for (int i = 0; i < mapData.length; i++) {
+                    for (int j = 0; j < mapData[i].length; j++) {
+                        dc.map[i][j] = mapData[i][j];
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
 
