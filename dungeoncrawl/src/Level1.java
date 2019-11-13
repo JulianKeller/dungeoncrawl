@@ -13,10 +13,12 @@ public class Level1 extends BasicGameState {
     Character knight;
     Vector currentOrigin;
     
+    private final int messageTimer = 2000;
+    
     private ArrayList<Item> itemsToRender;
     
     private class Message{
-    	protected int timer = 10000;
+    	protected int timer = messageTimer;
     	protected String text;
     	protected Message(String text){
     		this.text = text;
@@ -95,6 +97,7 @@ public class Level1 extends BasicGameState {
     	}
     	messagebox[0] = new Message(message);
     }
+    
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
@@ -142,8 +145,13 @@ public class Level1 extends BasicGameState {
         	if( messagebox[i] == null || messagebox[i].text == "" ){
         		break;
         	}
+        	Color tmp = g.getColor();
+        	//make the messages fade away based on their timers
+        	g.setColor(new Color(255, 0, 0, (float) messagebox[i].timer/messageTimer));
         	g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
+        	g.setColor(tmp);
         }
+        
         
         
         
