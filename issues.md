@@ -9,6 +9,7 @@
 **[ 7 ]** Use a dumb client model<br>
 **[ 8 ]** Test connections on lab machine<br> 
 **[ 9 ]** Render maps from the server to the client<br>
-**[10]** Work on character movement in Client/Server<br>
-**[ 10 ]** Get the server to send coordinates to client to
+**[ 10 ]** Work on character movement in Client/Server<br>
+**[ 11 ]** Get the server to send coordinates to client to
 move the player<br>
+**[ 12 ]** Have the server/client properly close all connections<br>
