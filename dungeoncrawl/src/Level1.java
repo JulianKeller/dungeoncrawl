@@ -19,7 +19,21 @@ public class Level1 extends BasicGameState {
     ObjectOutputStream dos;
 
     
+    private final int messageTimer = 2000;
+    
     private ArrayList<Item> itemsToRender;
+    
+    private class Message{
+    	protected int timer = messageTimer;
+    	protected String text;
+    	protected Message(String text){
+    		this.text = text;
+    	}
+    }
+    
+    //array of messages to print to the screen
+    private Message[] messagebox;
+    private int messages = 4; //number of messages printed at one time
 
     @Override
     public int getID() {
@@ -32,6 +46,8 @@ public class Level1 extends BasicGameState {
         paused = false;
         dc.width = dc.ScreenWidth/dc.tilesize;
         dc.height = dc.ScreenHeight/dc.tilesize;
+        
+        messagebox = new Message[messages]; //display four messages at a time
 
 
 //        dc.map = RenderMap.getDebugMap(dc);
@@ -92,6 +108,7 @@ public class Level1 extends BasicGameState {
 
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
+    	messagebox = new Message[messages]; //display four messages at a time
     	//plant some items on the level
 		Main.im.plant(5);
     	
@@ -99,6 +116,16 @@ public class Level1 extends BasicGameState {
     	//TODO: make the restoration boundary cover only the screen area + a buffer
     	itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
+    
+    public void addMessage(String message){
+    	//add a message to the first index of the message box
+    	//  and shift everything else down
+    	for( int i = messagebox.length-1; i > 0; i-- ){
+    		messagebox[i] = messagebox[i-1];
+    	}
+    	messagebox[0] = new Message(message);
+    }
+    
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
@@ -141,7 +168,26 @@ public class Level1 extends BasicGameState {
         knight.animate.render(g);
         
         
-        
+        //render messages
+        for( Message m : messagebox ){
+        	if( m != null ){
+                g.setColor(new Color(0, 0, 0, 0.5f));
+                g.fillRoundRect(25, dc.ScreenHeight-(20 * messagebox.length), 400, 20 * messagebox.length, 0);
+                g.setColor(Color.red);
+                break;
+        	}
+        }
+
+        for( int i = 0; i < messagebox.length; i++ ){
+        	if( messagebox[i] == null || messagebox[i].text == "" ){
+        		break;
+        	}
+        	Color tmp = g.getColor();
+        	//make the messages fade away based on their timers
+        	g.setColor(new Color(255, 0, 0, (float) (messagebox[i].timer*2)/messageTimer));
+        	g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
+        	g.setColor(tmp);
+        }
     }
 
 
@@ -169,7 +215,7 @@ public class Level1 extends BasicGameState {
         	
 	        Item i = Main.im.getItemAt(aniPos);
 	        if( i != null ){
-	        	//System.out.println("hit item");
+	        	addMessage("Picked up " + i.getMaterial() + " " +i.getType() + " of " + i.getEffect() + ".");
 	        	//give removes item from the world's inventory
 	        	//  and adds it to the player's inventory
 	        	Main.im.give(i.getID(), ch.getPid());
@@ -177,6 +223,18 @@ public class Level1 extends BasicGameState {
 	        	//stop rendering the item
 	        	itemsToRender.remove(i);
 	        }
+        }
+        
+        //update message timers
+        for( int i = 0; i < messagebox.length; i++ ){
+        	if( messagebox[i] == null ){
+        		break;
+        	}
+        	if( messagebox[i].timer <= 0 ){
+        		messagebox[i] = null;
+        	}else{
+        		messagebox[i].timer -= delta;
+        	}
         }
     }
 
