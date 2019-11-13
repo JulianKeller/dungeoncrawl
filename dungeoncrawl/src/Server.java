@@ -14,18 +14,12 @@ public class Server {
     public static ArrayList<LevelServer> clients;
     private final int [][] map;
 
-
     public Server() throws IOException{
         // server is listening on port 5000
         ServerSocket ss = new ServerSocket(5000);
         clients = new ArrayList<LevelServer>(4);
         map = RenderMap.getRandomMap();
-        Integer [][] iMap = new Integer[map.length][map[0].length];
-        for(int i = 0; i < map.length; i++){
-            for(int j=0; j < map[i].length; j++){
-                iMap[i][j] = map[i][j];
-            }
-        }
+        Integer [][] iMap = convertMap();
         // infinite loop for getting client request
         while(true){
             Socket s = null;
@@ -53,6 +47,20 @@ public class Server {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * Converts the map to an Integer object for transport
+     * @return newMap
+     */
+    private Integer [][] convertMap(){
+        Integer [][] newMap = new Integer[map.length][map[0].length];
+        for(int i = 0; i < map.length; i++){
+            for(int j=0; j < map[i].length; j++){
+                newMap[i][j] = map[i][j];
+            }
+        }
+        return newMap;
     }
     public static void main(String [] args) throws IOException {
         new Server();
