@@ -11,7 +11,8 @@ import org.newdawn.slick.state.StateBasedGame;
 public class Level1 extends BasicGameState {
     private Boolean paused;
     Character knight;
-    Vector currentOrigin;
+    int currentOX;
+    int currentOY;
     
     private ArrayList<Item> itemsToRender;
 
@@ -55,8 +56,10 @@ public class Level1 extends BasicGameState {
         
         dc.characters.add(knight);
         
-        currentOrigin = knight.origin;
-        RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
+//        currentOrigin = knight.origin;
+        RenderMap.setMap(dc, knight.ox, knight.oy);                   // renders the map Tiles
+        currentOX = knight.ox;
+        currentOY = knight.oy;
         
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
@@ -111,9 +114,6 @@ public class Level1 extends BasicGameState {
 //        }
 
         knight.animate.render(g);
-        
-        
-        
     }
 
 
@@ -127,13 +127,14 @@ public class Level1 extends BasicGameState {
         if (paused) {
             return;
         }
+
         knight.move(getKeystroke(input));
-        RenderMap.setMap(dc, knight.origin);
 //        System.out.println("Current: " + currentOrigin + " New: " + knight.origin);
-//        if (!currentOrigin.getX().equals(knight.origin.getX()) && currentOrigin.getY() != knight.origin.getY()) {
-//            RenderMap.setMap(dc, knight.origin);
-//            currentOrigin = knight.origin;
-//        }
+        if (currentOX != knight.ox || currentOY != knight.oy) {
+            RenderMap.setMap(dc, knight.ox, knight.oy);
+            currentOX = knight.ox;
+            currentOY = knight.oy;
+        }
         
         //check if a character has hit an item
         for( Character ch : dc.characters ){

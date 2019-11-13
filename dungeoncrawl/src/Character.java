@@ -1,4 +1,5 @@
 import jig.Vector;
+import org.lwjgl.Sys;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Input;
 
@@ -16,7 +17,9 @@ public class Character extends MovingEntity {
     int screenOrigin;
     int screenEnd;
     int moveSpeed;
-    Vector origin;
+//    Vector origin;
+    int ox;     // origin x
+    int oy;     // origin y
 
     /**
      * Create a new Character (wx, wy)
@@ -37,7 +40,9 @@ public class Character extends MovingEntity {
         animate.selectAnimation(direction);
         animate.stop();
 //        System.out.printf("Start Position %s, %s", wx, wy);
-        origin = new Vector(0, 0);
+//        origin = new Vector(0, 0);
+        ox = 0;
+        oy = 0;
         screenOrigin = 0;
         screenEnd = screenOrigin + dc.width;
         setSpeed(25);
@@ -110,7 +115,7 @@ public class Character extends MovingEntity {
         int change = moveSpeed;
 
         // TODO check players distance from edges of the screen
-        changeOrigin();
+
 
         if (movesLeft > 0) {
             if (direction.equals("walk_up")) {
@@ -134,11 +139,14 @@ public class Character extends MovingEntity {
         }
         else {
             canMove = true;
+            changeOrigin();
         }
     }
 
     /*
     Changes the screen origin if the player is in range
+    Note: Not using the Vector class as we don't want to pass classes around AND
+    it refused to update it's values when using the setX function.
      */
     // TODO screen origin only changes in the x or y direction, not both, this is not currently working
     private void changeOrigin() {
@@ -150,18 +158,38 @@ public class Character extends MovingEntity {
 //        System.out.printf("%s, %s\n", x, y);
         int buffer = 5;
         // TODo instead I want the screen width/height
-        int w = dc.ScreenWidth/dc.tilesize;
-        int h = dc.ScreenHeight/dc.tilesize;
+        int width = dc.ScreenWidth/dc.tilesize;
+        int height = dc.ScreenHeight/dc.tilesize;
+        System.out.println("Playing Moving: " + direction);
 
-        int ox = (int) origin.getX()/dc.tilesize;
-        int oy = (int) origin.getY()/dc.tilesize;
-
-//        System.out.printf("%s -  %s = %s\n", py, h,  py - h);
-        if (py - h < buffer) {
-            System.out.println("original Origin " + origin);
-            origin = new Vector(ox, oy + 1);
-            System.out.println("Origin Updated: " + origin);
+        // move screen down
+        // TODO move the screen only once, not a ton
+        if (Math.abs(py - height) < buffer && direction.equals("walk_down")) {
+            System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
+            System.out.println("Moving Down");
+            if (oy + 1 < height)
+                oy++;
         }
+        else if (Math.abs(0 - py) < buffer && direction.equals("walk_up")) {
+            System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
+            System.out.println("Moving UP");
+            if (oy - 1 > 0)
+                oy--;
+        }
+
+        else if (Math.abs(px - width) < buffer && direction.equals("walk_right")) {
+            System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
+            System.out.println("Moving right");
+            if (ox + 1 < width)
+                ox++;
+        }
+        else if (Math.abs(0 - px) < buffer && direction.equals("walk_left")) {
+            System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
+            System.out.println("Moving left");
+            if (ox - 1 > 0)
+                ox--;
+        }
+
     }
 
 

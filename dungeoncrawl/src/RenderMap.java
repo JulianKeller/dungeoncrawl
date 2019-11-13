@@ -94,15 +94,10 @@ public class RenderMap extends Entity {
  */
 
     // Draw the 2D map to the screen
-    public static void setMap(Main dc, Vector origin) {
-        System.out.println("Setting new Map Layout:" + origin);
+    public static void setMap(Main dc, int ox, int oy) {
+//        System.out.println("Setting new Map Layout:" + origin);
         int x, y;
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
-        int ox = (int) origin.getX();
-        int oy = (int) origin.getY();
-        //
-//        for (int i = 0; i < dc.map.length; i++) {
-//            for (int j = 0; j < dc.map[i].length; j++) {
         // todo offset the i and j values based on origin offest
         for (int i = 0 + oy; i < dc.height + oy; i++) {
             for (int j = 0 + ox; j < dc.width + ox; j++) {
