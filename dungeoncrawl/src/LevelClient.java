@@ -54,7 +54,6 @@ public class LevelClient extends BasicGameState {
         float wx = (dc.tilesize * 4) - dc.offset;// - dc.xOffset;
         float wy = (dc.tilesize * 4) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
         knight = new Character(dc,wx,wy,"knight_iron",1);
-
         currentOrigin = knight.origin;
 
         RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles

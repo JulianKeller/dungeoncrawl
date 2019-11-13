@@ -1,7 +1,6 @@
 import jig.Vector;
 import java.io.*;
 import java.net.*;
-import java.util.Iterator;
 
 /*
  * Server implementation of the level, created by Tyler Higgins
@@ -29,6 +28,7 @@ public class LevelServer extends Thread{
         clientId = id;
 
     }
+    // This is what is called when the main server function invokes start().
     @Override
     public void run(){
         String inputCode;
