@@ -1,17 +1,23 @@
-import jig.Entity;
-import jig.Vector;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
-import org.newdawn.slick.*;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+
+import jig.Entity;
+import jig.Vector;
 
 public class Level1 extends BasicGameState {
     private Boolean paused;
     Character knight;
     Vector currentOrigin;
+    private Random rand;
     
     private final int messageTimer = 2000;
     
@@ -54,14 +60,11 @@ public class Level1 extends BasicGameState {
         //*/
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
 
-        float wx = (dc.tilesize * 4) - dc.offset;// - dc.xOffset;
-        float wy = (dc.tilesize * 4) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
-        knight = new Character(dc, wx, wy, "knight_iron", 1);
+
         
-        dc.characters.add(knight);
+
         
-        currentOrigin = knight.origin;
-        RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
+  
         
         int[][] rotatedMap = new int[dc.map[0].length][dc.map.length];
         for( int i = 0; i < dc.map.length; i++ ){
@@ -74,6 +77,47 @@ public class Level1 extends BasicGameState {
         
         Main.im.plant(5, rotatedMap);
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
+        
+        //find a tile with no walls in its horizontal adjacencies
+        rand = new Random();
+        rand.setSeed(System.nanoTime());
+        int row = rand.nextInt(rotatedMap.length);
+        int col = rand.nextInt(rotatedMap[row].length);
+        
+        while( wallAdjacent( row, col, rotatedMap ) || row > dc.ScreenHeight/dc.tilesize || col > dc.ScreenWidth/dc.tilesize ){
+        	row = rand.nextInt(rotatedMap.length);
+            col = rand.nextInt(rotatedMap[row].length);
+        }
+        
+        float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
+        float wy = (dc.tilesize * row) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
+        
+        knight = new Character(dc, wx, wy, "knight_iron", 1);
+        System.out.println("knight spawned at "+ col +", "+row);
+        dc.characters.add(knight);
+        
+        currentOrigin = knight.origin;
+        RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
+    }
+    
+    private boolean wallAdjacent(int row, int col, int[][] map){
+    	//check if there is a wall or map edge in a horizontally adjacent tile
+    	try{
+	    	if( map[row-1][col] == 1 ){
+	    		return true;
+	    	}else if( map[row+1][col] == 1 ){
+	    		return true;
+	    	}else if( map[row][col-1] == 1 ){
+	    		return true;
+	    	}else if( map[row][col+1] == 1 ){
+	    		return true;
+	    	}else if( map[row][col] == 1 ){
+	    		return true;
+	    	}
+    	}catch(ArrayIndexOutOfBoundsException ex){
+    		return true;
+    	}
+    	return false;
     }
 
 
@@ -157,13 +201,15 @@ public class Level1 extends BasicGameState {
         	g.setColor(tmp);
         }
         
-        
+        //print the tile values on the screen
+        /*
         for( int i = 0; i < dc.map.length; i++ ){
         	for( int j = 0; j < dc.map[i].length; j++ ){
         		g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
         		//i is y, j is x
         	}
         }
+        */
         
     }
 
