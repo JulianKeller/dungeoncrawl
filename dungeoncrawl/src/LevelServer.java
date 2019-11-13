@@ -7,12 +7,11 @@ import java.net.*;
  *
  */
 public class LevelServer extends Thread{
-    // map holds the map, characterCoord holds the characters coordinates.
-    private Integer [][] map;
-    private Socket socket;
-    private ObjectInputStream dis;
-    private ObjectOutputStream dos;
-    private int clientId;
+    private Integer [][] map;           // Holds the 2d map file
+    private Socket socket;             // holds the socket
+    private ObjectInputStream dis;     // holds the input stream
+    private ObjectOutputStream dos;    // output stream
+    private int clientId;              // clientid is based on port number
 
     /**
      * creates a new map and character
