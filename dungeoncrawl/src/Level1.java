@@ -44,26 +44,15 @@ public class Level1 extends BasicGameState {
         messagebox = new Message[messages]; //display four messages at a time
 
 
-//        dc.map = RenderMap.getDebugMap(dc);
+        //dc.map = RenderMap.getDebugMap(dc);
+        ///*
         try {
             dc.map = RenderMap.getRandomMap(dc);        // grab a randomly generated map
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //*/
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
-
-
-        // TODO can be removed. Just here to display potions
-//        dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
-//        dc.potions[10][10] = new Potion(10 * dc.tilesize + dc.tilesize/2, 10 * dc.tilesize + dc.tilesize/2, "health");
-//        dc.potions[10][4] = new Potion(10 * dc.tilesize + dc.tilesize/2, 4 * dc.tilesize + dc.tilesize/2, "manna");
-//        dc.potions[10][8] = new Potion(10 * dc.tilesize + dc.tilesize/2, 8 * dc.tilesize + dc.tilesize/2, "fire");
-//        dc.potions[10][2] = new Potion(10 * dc.tilesize + dc.tilesize/2, 2 * dc.tilesize + dc.tilesize/2, "strength");
-//        dc.potions[10][6] = new Potion(10 * dc.tilesize + dc.tilesize/2, 6 * dc.tilesize + dc.tilesize/2, "invisibility");
-
-        // TODO can be removed, here to demo animations/characters
-        dc.animations = new ArrayList<>(200);
-//        AnimateEntity.testAllCharacterAnimations(dc);
 
         float wx = (dc.tilesize * 4) - dc.offset;// - dc.xOffset;
         float wy = (dc.tilesize * 4) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
@@ -74,17 +63,24 @@ public class Level1 extends BasicGameState {
         currentOrigin = knight.origin;
         RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
         
+        int[][] rotatedMap = new int[dc.map[0].length][dc.map.length];
+        for( int i = 0; i < dc.map.length; i++ ){
+        	for( int j = 0; j < dc.map[i].length; j++ ){
+        		//g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
+        		//i is y, j is x
+        		rotatedMap[j][i] = dc.map[i][j];
+        	}
+        }
+        
+        Main.im.plant(5, rotatedMap);
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
 
 
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
-    	messagebox = new Message[messages]; //display four messages at a time
-    	//plant some items on the level
-		Main.im.plant(5);
-    	
-    	//then restore the visible items from the world
+    	messagebox = new Message[messages];
+
     	//TODO: make the restoration boundary cover only the screen area + a buffer
     	itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
@@ -121,7 +117,7 @@ public class Level1 extends BasicGameState {
         	//System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
         	//TODO: draw item images
         	//for now, use ovals
-        	g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
+        	//g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
         	
         	i.setPosition((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2));
         	i.render(g);
@@ -160,6 +156,15 @@ public class Level1 extends BasicGameState {
         	g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
         	g.setColor(tmp);
         }
+        
+        
+        for( int i = 0; i < dc.map.length; i++ ){
+        	for( int j = 0; j < dc.map[i].length; j++ ){
+        		g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
+        		//i is y, j is x
+        	}
+        }
+        
     }
 
 

@@ -53,17 +53,29 @@ public class ItemManager {
 	
 	private int currentItemID = 0;
 	
-	public void plant(int numItems){
-		int maxx = game.ScreenWidth/game.tilesize;
-		int maxy = game.ScreenHeight/game.tilesize;
+	public void plant(int numItems, int[][] map){
+		int maxcol = game.ScreenWidth/game.tilesize;
+		int maxrow = game.ScreenHeight/game.tilesize;
 		
 		rand.setSeed(System.nanoTime());
 		
+		//int[][] potionAt = new int[game.map.length][game.map.length];
+		
+		
 		while( numItems > 0 ){
-			Vector wc = new Vector( rand.nextInt(maxx), rand.nextInt(maxy) );
+			
+			int col = rand.nextInt(maxcol);
+			int row = rand.nextInt(maxrow);
+			//Vector wc = new Vector( rand.nextInt(maxx), rand.nextInt(maxy) );
+			while( map[row][col] == 1 ){
+				col = rand.nextInt(maxcol);
+				row = rand.nextInt(maxrow);
+			}
+			Vector wc = new Vector( row, col );
 			
 			//create a random item at the given position
 			worldItems.add(new Item(wc, false, currentItemID, 0));
+			
 			
 			currentItemID++;
 			
