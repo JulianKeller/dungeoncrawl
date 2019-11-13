@@ -15,8 +15,16 @@ public class Level1 extends BasicGameState {
     
     private ArrayList<Item> itemsToRender;
     
+    private class Message{
+    	protected int timer = 10000;
+    	protected String text;
+    	protected Message(String text){
+    		this.text = text;
+    	}
+    }
+    
     //array of messages to print to the screen
-    private String[] messagebox;
+    private Message[] messagebox;
     private int messages = 2; //number of messages printed at one time
 
     @Override
@@ -31,7 +39,7 @@ public class Level1 extends BasicGameState {
         dc.width = dc.ScreenWidth/dc.tilesize;
         dc.height = dc.ScreenHeight/dc.tilesize;
         
-        messagebox = new String[messages]; //display four messages at a time
+        messagebox = new Message[messages]; //display four messages at a time
 
 
 //        dc.map = RenderMap.getDebugMap(dc);
@@ -70,7 +78,7 @@ public class Level1 extends BasicGameState {
 
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
-    	messagebox = new String[messages]; //display four messages at a time
+    	messagebox = new Message[messages]; //display four messages at a time
     	//plant some items on the level
 		Main.im.plant(5);
     	
@@ -85,7 +93,7 @@ public class Level1 extends BasicGameState {
     	for( int i = messagebox.length-1; i > 0; i-- ){
     		messagebox[i] = messagebox[i-1];
     	}
-    	messagebox[0] = message;
+    	messagebox[0] = new Message(message);
     }
 
     @Override
@@ -131,10 +139,10 @@ public class Level1 extends BasicGameState {
         
         //render messages
         for( int i = 0; i < messagebox.length; i++ ){
-        	if( messagebox[i] == null || messagebox[i] == "" ){
+        	if( messagebox[i] == null || messagebox[i].text == "" ){
         		break;
         	}
-        	g.drawString(messagebox[i], 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
+        	g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
         }
         
         
@@ -174,6 +182,18 @@ public class Level1 extends BasicGameState {
 	        	//stop rendering the item
 	        	itemsToRender.remove(i);
 	        }
+        }
+        
+        //update message timers
+        for( int i = 0; i < messagebox.length; i++ ){
+        	if( messagebox[i] == null ){
+        		break;
+        	}
+        	if( messagebox[i].timer <= 0 ){
+        		messagebox[i] = null;
+        	}else{
+        		messagebox[i].timer -= delta;
+        	}
         }
     }
 
