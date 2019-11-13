@@ -156,10 +156,10 @@ public class Character extends MovingEntity {
         int ox = (int) origin.getX()/dc.tilesize;
         int oy = (int) origin.getY()/dc.tilesize;
 
-        System.out.printf("%s -  %s = %s\n", py, h,  py - h);
+//        System.out.printf("%s -  %s = %s\n", py, h,  py - h);
         if (py - h < buffer) {
             System.out.println("original Origin " + origin);
-            origin = new Vector(ox, oy + buffer);
+            origin = new Vector(ox, oy + 1);
             System.out.println("Origin Updated: " + origin);
         }
     }

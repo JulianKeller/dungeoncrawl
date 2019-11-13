@@ -128,10 +128,12 @@ public class Level1 extends BasicGameState {
             return;
         }
         knight.move(getKeystroke(input));
-        if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
-            RenderMap.setMap(dc, knight.origin);
-            currentOrigin = knight.origin;
-        }
+        RenderMap.setMap(dc, knight.origin);
+//        System.out.println("Current: " + currentOrigin + " New: " + knight.origin);
+//        if (!currentOrigin.getX().equals(knight.origin.getX()) && currentOrigin.getY() != knight.origin.getY()) {
+//            RenderMap.setMap(dc, knight.origin);
+//            currentOrigin = knight.origin;
+//        }
         
         //check if a character has hit an item
         for( Character ch : dc.characters ){

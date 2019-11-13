@@ -100,36 +100,39 @@ public class RenderMap extends Entity {
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         int ox = (int) origin.getX();
         int oy = (int) origin.getY();
+        //
 //        for (int i = 0; i < dc.map.length; i++) {
 //            for (int j = 0; j < dc.map[i].length; j++) {
-        for (int i = 0; i < dc.height; i++) {
-            for (int j = 0; j < dc.width; j++) {
-                x = j * dc.tilesize + dc.tilesize/2;        // columns
-                y = i * dc.tilesize + dc.tilesize/2;        // rows
+        // todo offset the i and j values based on origin offest
+        for (int i = 0 + oy; i < dc.height + oy; i++) {
+            for (int j = 0 + ox; j < dc.width + ox; j++) {
+                // TODO adjust i and j based on the offset in the origin
+                x = (j - ox) * dc.tilesize + dc.tilesize/2;        // columns
+                y = (i - oy) * dc.tilesize + dc.tilesize/2;        // rows
                 // WALLs
-                if (dc.map[i+ox][j+oy] == 1) {
+                if (dc.map[i][j] == 1) {
                     if (i+1 >= dc.map.length) {
                         dc.mapTiles[i][j] = new Wall(x, y, "top");
                     }
-                    else if (dc.map[i+ox+1][j+oy] == 0) {
+                    else if (dc.map[i+1][j] == 0) {
                         dc.mapTiles[i][j] = new Wall(x, y, "border");
                     }
-                    else if (dc.map[i+ox+1][j+oy] == 1) {
+                    else if (dc.map[i+1][j] == 1) {
                         dc.mapTiles[i][j] = new Wall(x, y, "top");
                     }
                 }
                 // FLOORs
-                else if (dc.map[i+ox][j+oy] == 0) {
-                    if (dc.map[i+ox+1][j+oy] == 1 && dc.map[i+ox][j-1+oy] == 1) {
+                else if (dc.map[i][j] == 0) {
+                    if (dc.map[i+1][j] == 1 && dc.map[i][j-1] == 1) {
                         dc.mapTiles[i][j] = new Floor(x, y, "shadow_double");
                     }
-                    else if (i+1 < dc.map.length && dc.map[i+ox+1][j+oy] == 1) {
+                    else if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
                         dc.mapTiles[i][j] = new Floor(x, y, "shadow");
                     }
-                    else if (j-1 >= 0 && dc.map[i+ox][j-1+oy] == 1) {
+                    else if (j-1 >= 0 && dc.map[i][j-1] == 1) {
                         dc.mapTiles[i][j] = new Floor(x, y, "shadow_right");
                     }
-                    else if (j-1 > 0 && i+1 < dc.map[i].length && dc.map[i+ox+1][j-1+oy] == 1) {
+                    else if (j-1 > 0 && i+1 < dc.map[i].length && dc.map[i+1][j-1] == 1) {
                         dc.mapTiles[i][j] = new Floor(x, y, "shadow_corner");
                     }
                     else {
