@@ -33,9 +33,9 @@ public class StartUpState extends BasicGameState {
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         Input input = container.getInput();
         Main dc = (Main) game;
-        dc.enterState(Main.LEVELCLIENT);
+        dc.enterState(Main.LEVEL1);
         if (input.isKeyPressed(Input.KEY_SPACE)) {
-            dc.enterState(Main.LEVELCLIENT);
+            dc.enterState(Main.LEVEL1);
         }
         Cheats.enableCheats(dc, input);
     }

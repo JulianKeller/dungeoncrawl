@@ -37,7 +37,7 @@ public class Server {
                 System.out.println("Assigning new thread for this client");
 
                 // Create a new thread object
-                LevelServer t = new LevelServer(s,dis,dos,clients.size(), iMap);
+                LevelServer t = new LevelServer(s,dis,dos,s.getPort(), iMap);
                 clients.add(t);
 
                 // Invoking the start() method

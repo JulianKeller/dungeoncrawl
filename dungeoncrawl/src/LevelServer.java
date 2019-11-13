@@ -9,7 +9,6 @@ import java.net.*;
 public class LevelServer extends Thread{
     // map holds the map, characterCoord holds the characters coordinates.
     private Integer [][] map;
-    private Vector characterCoord;
     private Socket socket;
     private ObjectInputStream dis;
     private ObjectOutputStream dos;
@@ -21,7 +20,6 @@ public class LevelServer extends Thread{
     public LevelServer(Socket socket, ObjectInputStream dis, ObjectOutputStream dos, int id, Integer [][]map){
 
         this.map = map;
-        characterCoord = new Vector(0,0);
         this.socket = socket;
         this.dis = dis;
         this.dos = dos;
@@ -77,20 +75,8 @@ public class LevelServer extends Thread{
             e.printStackTrace();
         }
     }
-    public void setCharacterCoord(Vector c){
-        characterCoord = c;
 
-    }
     public int getClientId(){
         return clientId;
-    }
-    public float characterCoordx(){
-        return characterCoord.getX();
-    }
-    public float characterCoordy(){
-        return characterCoord.getY();
-    }
-    public Vector getCharacterCoord(){
-        return characterCoord;
     }
 }

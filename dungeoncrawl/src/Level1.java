@@ -3,6 +3,8 @@ import jig.Vector;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.net.*;
+import java.io.*;
 
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
@@ -12,12 +14,16 @@ public class Level1 extends BasicGameState {
     private Boolean paused;
     Character knight;
     Vector currentOrigin;
+    Socket socket;
+    ObjectInputStream dis;
+    ObjectOutputStream dos;
+
     
     private ArrayList<Item> itemsToRender;
 
     @Override
     public int getID() {
-        return -1;//Main.LEVEL1;
+        return Main.LEVEL1;
     }
 
     @Override
@@ -29,9 +35,31 @@ public class Level1 extends BasicGameState {
 
 
 //        dc.map = RenderMap.getDebugMap(dc);
+//        try {
+//            dc.map = RenderMap.getRandomMap();        // grab a randomly generated map
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        // Server sockets for reading/writing to server.
+        this.socket = dc.socket;
+        this.dis = dc.dis;
+        this.dos = dc.dos;
+
+        dc.width = dc.ScreenWidth/dc.tilesize;
+        dc.height = dc.ScreenHeight/dc.tilesize;
+        // Grab the map from the Server
         try {
-            dc.map = RenderMap.getRandomMap();        // grab a randomly generated map
-        } catch (IOException e) {
+            Integer[][] mapData = (Integer[][])this.dis.readObject();
+            // Convert it into an 2d int array
+            dc.map = new int[mapData.length][mapData[0].length];
+            for(int i = 0; i < mapData.length; i++) {
+                for (int j = 0; j < mapData[i].length; j++) {
+                    dc.map[i][j] = mapData[i][j];
+                }
+            }
+        }catch(IOException e){
+            e.printStackTrace();
+        }catch(ClassNotFoundException e){
             e.printStackTrace();
         }
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles

@@ -20,7 +20,7 @@ public class Main extends StateBasedGame {
 
     // Game States
     public static final int STARTUPSTATE = 0;
-    public static final int LEVELCLIENT = 1;
+    public static final int LEVEL1 = 1;
     public static final int LEVEL2 = 2;
     public static final int GAMEOVER = 3;
     public static final int GAMEWON = 4;
@@ -156,7 +156,7 @@ public class Main extends StateBasedGame {
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
         addState(new StartUpState());
-        addState(new LevelClient());
+        addState(new Level1());
         addState(new GameOver());
 
         // load images
