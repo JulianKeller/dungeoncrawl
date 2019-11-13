@@ -5,7 +5,7 @@ public class Cheats {
     public static void enableCheats(Main dc, Input input) {
         // show the path of dijkstra
         if (input.isKeyPressed(Input.KEY_1)) {
-            dc.enterState(Main.LEVEL1);
+            dc.enterState(Main.LEVELCLIENT);
         }
 //        else if (input.isKeyPressed(Input.KEY_2)) {
 //            dtc.enterState(Game.LEVEL2);

@@ -8,6 +8,7 @@
 ## PENDING ISSUES ##
 **[ 7 ]** Use a dumb client model<br>
 **[ 8 ]** Test connections on lab machine<br> 
-**[ 9 ]** Integrate my network into the game<br>
+**[ 9 ]** Render maps from the server to the client<br>
+**[10]** Work on character movement in Client/Server<br>
 **[ 10 ]** Get the server to send coordinates to client to
 move the player<br>
