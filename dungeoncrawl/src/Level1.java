@@ -27,7 +27,7 @@ public class Level1 extends BasicGameState {
     
     //array of messages to print to the screen
     private Message[] messagebox;
-    private int messages = 2; //number of messages printed at one time
+    private int messages = 4; //number of messages printed at one time
 
     @Override
     public int getID() {
@@ -141,20 +141,25 @@ public class Level1 extends BasicGameState {
         
         
         //render messages
+        for( Message m : messagebox ){
+        	if( m != null ){
+                g.setColor(new Color(0, 0, 0, 0.5f));
+                g.fillRoundRect(25, dc.ScreenHeight-(20 * messagebox.length), 400, 20 * messagebox.length, 0);
+                g.setColor(Color.red);
+                break;
+        	}
+        }
+
         for( int i = 0; i < messagebox.length; i++ ){
         	if( messagebox[i] == null || messagebox[i].text == "" ){
         		break;
         	}
         	Color tmp = g.getColor();
         	//make the messages fade away based on their timers
-        	g.setColor(new Color(255, 0, 0, (float) messagebox[i].timer/messageTimer));
+        	g.setColor(new Color(255, 0, 0, (float) (messagebox[i].timer*2)/messageTimer));
         	g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
         	g.setColor(tmp);
         }
-        
-        
-        
-        
     }
 
 
