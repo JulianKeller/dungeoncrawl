@@ -215,6 +215,22 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(ICE_ELF);
     }
 
+    // Send close to the server and close connections before exiting.
+    @Override
+    public boolean closeRequested(){
+        try {
+            dos.writeUTF("Exit");
+            dos.flush();
+            socket.close();
+            dos.close();
+            dis.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        System.exit(0);
+        return false;
+    }
+
     public static void main(String[] args) {
         // Setting up the connection to the server
         Socket socket = null;

@@ -32,14 +32,24 @@ public class LevelServer extends Thread{
     public void run(){
         String inputCode;
         sendMap();
-        while(true){
-            try {
-                inputCode = dis.readUTF();
-
-            }catch(IOException e){
-                e.printStackTrace();
+        try {
+            while (true) {
+                try {
+                    inputCode = dis.readUTF();
+                    if (inputCode.equals("Exit")) {
+                        break;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+            socket.close();
+            dos.close();
+            dis.close();
+        }catch(IOException e){
+            e.printStackTrace();
         }
+
     }
     public Integer [][]getMap(){
         return map;
