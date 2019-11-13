@@ -49,13 +49,14 @@ public class Level1 extends BasicGameState {
         
         messagebox = new Message[messages]; //display four messages at a time
 
-
+        // TODO This section is the original map generator.
 //        dc.map = RenderMap.getDebugMap(dc);
 //        try {
 //            dc.map = RenderMap.getRandomMap();        // grab a randomly generated map
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
+        // TODO this section requires that you run the server prior to Main.
         // Server sockets for reading/writing to server.
         this.socket = dc.socket;
         this.dis = dc.dis;
