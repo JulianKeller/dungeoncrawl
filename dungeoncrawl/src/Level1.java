@@ -17,7 +17,7 @@ public class Level1 extends BasicGameState {
 
     @Override
     public int getID() {
-        return Main.LEVEL1;
+        return -1;//Main.LEVEL1;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class Level1 extends BasicGameState {
 
 //        dc.map = RenderMap.getDebugMap(dc);
         try {
-            dc.map = RenderMap.getRandomMap(dc);        // grab a randomly generated map
+            dc.map = RenderMap.getRandomMap();        // grab a randomly generated map
         } catch (IOException e) {
             e.printStackTrace();
         }

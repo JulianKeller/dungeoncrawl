@@ -1,11 +1,8 @@
 import jig.Entity;
 import jig.ResourceManager;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.sql.SQLException;
+import java.io.*;
+import java.net.*;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
@@ -18,12 +15,12 @@ import java.util.ArrayList;
 public class Main extends StateBasedGame {
     // Server items
     public final Socket socket;
-    public final DataInputStream dis;
-    public final DataOutputStream dos;
+    public final ObjectInputStream dis;
+    public final ObjectOutputStream dos;
 
     // Game States
     public static final int STARTUPSTATE = 0;
-    public static final int LEVEL1 = 1;
+    public static final int LEVELCLIENT = 1;
     public static final int LEVEL2 = 2;
     public static final int GAMEOVER = 3;
     public static final int GAMEWON = 4;
@@ -136,7 +133,7 @@ public class Main extends StateBasedGame {
      *
      * @param title The name of the game
      */
-    public Main(String title, int width, int height, Socket socket, DataInputStream dis, DataOutputStream dos) {
+    public Main(String title, int width, int height, Socket socket, ObjectInputStream dis, ObjectOutputStream dos) {
         super(title);
         ScreenWidth = width;
         ScreenHeight = height;
@@ -159,7 +156,7 @@ public class Main extends StateBasedGame {
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
         addState(new StartUpState());
-        addState(new Level1());
+        addState(new LevelClient());
         addState(new GameOver());
 
         // load images
@@ -221,8 +218,8 @@ public class Main extends StateBasedGame {
     public static void main(String[] args) {
         // Setting up the connection to the server
         Socket socket = null;
-        DataInputStream dis = null;
-        DataOutputStream dos = null;
+        ObjectInputStream dis = null;
+        ObjectOutputStream dos = null;
         try {
             byte [] ipAddr = new byte[] {127,0,0,1};
 
@@ -233,8 +230,8 @@ public class Main extends StateBasedGame {
             socket = new Socket(ip, 5000);
 
             // obtaining input and out streams
-            dis = new DataInputStream(socket.getInputStream());
-            dos = new DataOutputStream(socket.getOutputStream());
+            dis = new ObjectInputStream(socket.getInputStream());
+            dos = new ObjectOutputStream(socket.getOutputStream());
 
         } catch(Exception e){
             e.printStackTrace();
