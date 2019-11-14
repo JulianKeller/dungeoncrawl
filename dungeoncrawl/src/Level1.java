@@ -50,34 +50,37 @@ public class Level1 extends BasicGameState {
         messagebox = new Message[messages]; //display four messages at a time
 
         // TODO This section is the original map generator.
-//        dc.map = RenderMap.getDebugMap(dc);
-//        try {
-//            dc.map = RenderMap.getRandomMap();        // grab a randomly generated map
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-        // TODO this section requires that you run the server prior to Main.
-        // Server sockets for reading/writing to server.
-        this.socket = dc.socket;
-        this.dis = dc.dis;
-        this.dos = dc.dos;
-
-        dc.width = dc.ScreenWidth/dc.tilesize;
-        dc.height = dc.ScreenHeight/dc.tilesize;
-        // Grab the map from the Server
-        try {
-            Integer[][] mapData = (Integer[][])this.dis.readObject();
-            // Convert it into an 2d int array
-            dc.map = new int[mapData.length][mapData[0].length];
-            for(int i = 0; i < mapData.length; i++) {
-                for (int j = 0; j < mapData[i].length; j++) {
-                    dc.map[i][j] = mapData[i][j];
-                }
+        if(Main.localMode) {
+            dc.map = RenderMap.getDebugMap(dc);
+            try {
+                dc.map = RenderMap.getRandomMap();        // grab a randomly generated map
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }catch(IOException e){
-            e.printStackTrace();
-        }catch(ClassNotFoundException e){
-            e.printStackTrace();
+        } else {
+            // Server sockets for reading/writing to server.
+            this.socket = dc.socket;
+            this.dis = dc.dis;
+            this.dos = dc.dos;
+
+            dc.width = dc.ScreenWidth / dc.tilesize;
+            dc.height = dc.ScreenHeight / dc.tilesize;
+            // TODO this section requires that you run the server prior to Main.
+            // Grab the map from the Server
+            try {
+                Integer[][] mapData = (Integer[][]) this.dis.readObject();
+                // Convert it into an 2d int array
+                dc.map = new int[mapData.length][mapData[0].length];
+                for (int i = 0; i < mapData.length; i++) {
+                    for (int j = 0; j < mapData[i].length; j++) {
+                        dc.map[i][j] = mapData[i][j];
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
 

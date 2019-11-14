@@ -16,7 +16,6 @@ public class RenderMap extends Entity {
 
     // grabs a random map and returns it as a 2d array
     public static int[][] getRandomMap() throws IOException {
-
 //        File f;
 //        if( System.getProperty("os.name").toLowerCase().contains("mac") ){
 //            //if this is running on mac os

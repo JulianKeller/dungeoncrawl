@@ -17,6 +17,8 @@ public class Main extends StateBasedGame {
     public final Socket socket;
     public final ObjectInputStream dis;
     public final ObjectOutputStream dos;
+    public static boolean localMode = true;
+
 
     // Game States
     public static final int STARTUPSTATE = 0;
@@ -218,14 +220,16 @@ public class Main extends StateBasedGame {
     // Send close to the server and close connections before exiting.
     @Override
     public boolean closeRequested(){
-        try {
-            dos.writeUTF("Exit");
-            dos.flush();
-            socket.close();
-            dos.close();
-            dis.close();
-        }catch(IOException e){
-            e.printStackTrace();
+        if(!localMode) {
+            try {
+                dos.writeUTF("Exit");
+                dos.flush();
+                socket.close();
+                dos.close();
+                dis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         System.exit(0);
         return false;
@@ -236,21 +240,23 @@ public class Main extends StateBasedGame {
         Socket socket = null;
         ObjectInputStream dis = null;
         ObjectOutputStream dos = null;
-        try {
-            byte [] ipAddr = new byte[] {127,0,0,1};
+        if(!localMode) {
+            try {
+                byte[] ipAddr = new byte[]{127, 0, 0, 1};
 
-            // getting localhost ip
-            InetAddress ip = InetAddress.getByAddress(ipAddr);
+                // getting localhost ip
+                InetAddress ip = InetAddress.getByAddress(ipAddr);
 
-            // establish the connection with server port 5000
-            socket = new Socket(ip, 5000);
+                // establish the connection with server port 5000
+                socket = new Socket(ip, 5000);
 
-            // obtaining input and out streams
-            dis = new ObjectInputStream(socket.getInputStream());
-            dos = new ObjectOutputStream(socket.getOutputStream());
+                // obtaining input and out streams
+                dis = new ObjectInputStream(socket.getInputStream());
+                dos = new ObjectOutputStream(socket.getOutputStream());
 
-        } catch(Exception e){
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     	Main game = new Main("Dungeon Crawl", 1280, 768, socket, dis, dos);
     	im = new ItemManager(game);

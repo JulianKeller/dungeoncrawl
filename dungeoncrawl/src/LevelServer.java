@@ -25,7 +25,9 @@ public class LevelServer extends Thread{
         clientId = id;
 
     }
-    // This is what is called when the main server function invokes start().
+    /**
+     * This is what is called when the main server function invokes start().
+     */
     @Override
     public void run(){
         String inputCode;
