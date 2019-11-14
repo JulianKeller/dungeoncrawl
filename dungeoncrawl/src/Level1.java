@@ -17,6 +17,7 @@ public class Level1 extends BasicGameState {
     Socket socket;
     ObjectInputStream dis;
     ObjectOutputStream dos;
+    String serverMessage;
 
     
     private final int messageTimer = 2000;
@@ -42,6 +43,7 @@ public class Level1 extends BasicGameState {
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) {
+        serverMessage = "";
         Main dc = (Main) game;
         paused = false;
         dc.width = dc.ScreenWidth/dc.tilesize;
@@ -100,6 +102,15 @@ public class Level1 extends BasicGameState {
         float wx = (dc.tilesize * 4) - dc.offset;// - dc.xOffset;
         float wy = (dc.tilesize * 4) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
         knight = new Character(dc, wx, wy, "knight_iron", 1);
+        String coord = wx + " " + wy;
+        if(!Main.localMode) {
+            try {
+                dos.writeUTF(coord);
+                dos.flush();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
         
         dc.characters.add(knight);
         
@@ -206,9 +217,14 @@ public class Level1 extends BasicGameState {
             return;
         }
         knight.move(getKeystroke(input));
-        if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
-            RenderMap.setMap(dc, knight.origin);
-            currentOrigin = knight.origin;
+        if(!Main.localMode){
+            getNewPlayerCoord();
+        }
+        if(Main.localMode) {
+            if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
+                RenderMap.setMap(dc, knight.origin);
+                currentOrigin = knight.origin;
+            }
         }
         
         //check if a character has hit an item
@@ -255,7 +271,7 @@ public class Level1 extends BasicGameState {
     get the key being pressed, returns a string
      */
     public String getKeystroke(Input input) {
-        String ks = null;
+        String ks = "";
         if (input.isKeyDown(Input.KEY_W)) {
             ks = "w";
         }
@@ -268,9 +284,33 @@ public class Level1 extends BasicGameState {
         else if (input.isKeyDown(Input.KEY_D)) {
             ks = "d";
         }
+        if(!Main.localMode){
+            try{
+                dos.writeUTF(ks);
+                dos.flush();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
         return ks;
     }
 
+    /**
+     * Reads the new player coordinates and walks the player accordingly.
+     */
+    public void getNewPlayerCoord(){
+        if(!Main.localMode) {
+            try {
+                serverMessage = dis.readUTF();
+                if (!serverMessage.equals("")) {
+                    knight.walk(Float.parseFloat
+                            (serverMessage.split(" ")[0]), Float.parseFloat(serverMessage.split(" ")[1]));
+                }
 
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }

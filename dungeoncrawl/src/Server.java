@@ -12,7 +12,12 @@ import java.util.ArrayList;
 public class Server {
     // setting up server class to be starting up in Main.java
     public static ArrayList<LevelServer> clients;
-    private final int [][] map;
+    public static int [][] map;
+    public static final int tilesize = 32;
+    public static final int offset = tilesize/2;
+    public static final int doubleOffset = offset/2;
+    public static final int xOffset = tilesize - doubleOffset;
+    public static final int yOffset = tilesize + doubleOffset/2;
 
     public Server() throws IOException{
         // server is listening on port 5000

@@ -17,7 +17,7 @@ public class Main extends StateBasedGame {
     public final Socket socket;
     public final ObjectInputStream dis;
     public final ObjectOutputStream dos;
-    public static boolean localMode = true;
+    public static boolean localMode = false;
 
 
     // Game States
