@@ -19,6 +19,8 @@ public class Level1 extends BasicGameState {
     Vector currentOrigin;
     private Random rand;
     
+    private int[][] rotatedMap;
+    
     private final int messageTimer = 2000;
     
     private ArrayList<Item> itemsToRender;
@@ -66,7 +68,8 @@ public class Level1 extends BasicGameState {
         
   
         
-        int[][] rotatedMap = new int[dc.map[0].length][dc.map.length];
+        //rotated map verified correct
+        rotatedMap = new int[dc.map[0].length][dc.map.length];
         for( int i = 0; i < dc.map.length; i++ ){
         	for( int j = 0; j < dc.map[i].length; j++ ){
         		//g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
@@ -81,19 +84,20 @@ public class Level1 extends BasicGameState {
         //find a tile with no walls in its horizontal adjacencies
         rand = new Random();
         rand.setSeed(System.nanoTime());
-        int row = rand.nextInt(rotatedMap.length);
-        int col = rand.nextInt(rotatedMap[row].length);
         
-        while( wallAdjacent( row, col, rotatedMap ) || row > dc.ScreenHeight/dc.tilesize || col > dc.ScreenWidth/dc.tilesize ){
-        	row = rand.nextInt(rotatedMap.length);
-            col = rand.nextInt(rotatedMap[row].length);
-        }
+        int row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
+		int col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
+
+		while( dc.map[row][col] == 1 || wallAdjacent(row, col, dc.map) ){
+			//spawn on a floor tile with 4 adjacent floor tiles
+	        row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
+			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
+		}
         
         float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
         float wy = (dc.tilesize * row) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
         
         knight = new Character(dc, wx, wy, "knight_iron", 1);
-        System.out.println("knight spawned at "+ col +", "+row);
         dc.characters.add(knight);
         
         currentOrigin = knight.origin;
@@ -202,14 +206,24 @@ public class Level1 extends BasicGameState {
         }
         
         //print the tile values on the screen
-        /*
+        ///*
         for( int i = 0; i < dc.map.length; i++ ){
         	for( int j = 0; j < dc.map[i].length; j++ ){
         		g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
         		//i is y, j is x
         	}
         }
-        */
+        //*/
+        
+        /*
+        if( rotatedMap != null ){
+        	for( int i = 0; i < rotatedMap.length; i++ ){
+        		for( int j = 0; j < rotatedMap[i].length; j++ ){
+        			g.drawString(""+rotatedMap[i][j], i*dc.tilesize, j*dc.tilesize);
+        		}
+        	}
+        }
+        //*/
         
     }
 
