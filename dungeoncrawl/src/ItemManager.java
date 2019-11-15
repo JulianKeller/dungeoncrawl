@@ -21,6 +21,10 @@ public class ItemManager {
 		rand = new Random();
 		
 		identifiedPotionEffects = new String[uniquePotions];
+		//populate this list ahead of time
+		for( int i = 0; i < uniquePotions; i++ ){
+			identifiedPotionEffects[i] = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length)];
+		}
 	}
 	
 	public void give(int itemID, int playerID){
@@ -89,50 +93,20 @@ public class ItemManager {
 			//0: blue, 1: orange, 2: pink, 3: red, 4: yellow
 			if( i.getType().equals("Potion") ){
 				if( i.getMaterial().equals("Blue") ){
-					if( identifiedPotionEffects[0] == null ){
-						//pick randomly, update list
-						i.setEffect(Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ]);
-						identifiedPotionEffects[0] = i.getEffect();
-					}else{
-						//use the stored effect
-						i.setEffect(identifiedPotionEffects[0]);
-					}
+					//use the stored effect
+					i.setEffect(identifiedPotionEffects[0]);
 				}else if( i.getMaterial().equals("Orange")){
-					if( identifiedPotionEffects[1] == null ){
-						//pick randomly, update list
-						i.setEffect(Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ]);
-						identifiedPotionEffects[1] = i.getEffect();
-					}else{
-						//use the stored effect
-						i.setEffect(identifiedPotionEffects[1]);
-					}
+					//use the stored effect
+					i.setEffect(identifiedPotionEffects[1]);
 				}else if( i.getMaterial().equals("Pink")){
-					if( identifiedPotionEffects[2] == null ){
-						//pick randomly, update list
-						i.setEffect(Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ]);
-						identifiedPotionEffects[2] = i.getEffect();
-					}else{
-						//use the stored effect
-						i.setEffect(identifiedPotionEffects[2]);
-					}
+					//use the stored effect
+					i.setEffect(identifiedPotionEffects[2]);
 				}else if( i.getMaterial().equals("Red")){
-					if( identifiedPotionEffects[3] == null ){
-						//pick randomly, update list
-						i.setEffect(Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ]);
-						identifiedPotionEffects[3] = i.getEffect();
-					}else{
-						//use the stored effect
-						i.setEffect(identifiedPotionEffects[3]);
-					}
+					//use the stored effect
+					i.setEffect(identifiedPotionEffects[3]);
 				}else if( i.getMaterial().equals("Yellow") ){
-					if( identifiedPotionEffects[4] == null ){
-						//pick randomly, update list
-						i.setEffect(Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ]);
-						identifiedPotionEffects[4] = i.getEffect();
-					}else{
-						//use the stored effect
-						i.setEffect(identifiedPotionEffects[4]);
-					}
+					//use the stored effect
+					i.setEffect(identifiedPotionEffects[4]);
 				}else{
 					//this would suggest that the list of potion colors in this class
 					//  is incomplete
