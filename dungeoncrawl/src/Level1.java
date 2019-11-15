@@ -217,28 +217,7 @@ public class Level1 extends BasicGameState {
         //display player inventory
         //use the knight for now
         if( displayInventory ){
-        	ArrayList<Item> inv = knight.getInventory();
-        	Color tmp = g.getColor();
-        	g.setColor(new Color(0, 0, 0, 0.5f));
-        	
-        	//create a rectangle that can fit all the player's items with 4 items per row
-        	g.fillRoundRect(dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8, 0);
-        	
-        	g.setColor(Color.white);
-        	g.drawString("Inventory", dc.tilesize + 10, dc.tilesize + 10);
-        	
-        	if( inv.size() != 0 ){
-	        	int row = 2;
-	        	int col = 1;
-	        	for( int i = 0; i < inv.size(); i++ ){
-	        		g.drawImage(inv.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
-	        		col++;
-	        		if( i > 4 && i % 4 == 0 ){
-	        			row++;
-	        			col = 1;
-	        		}
-	        	}
-        	}
+        	renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8, knight.getInventory());
         }
         
         
@@ -262,6 +241,31 @@ public class Level1 extends BasicGameState {
         }
         //*/
         
+    }
+    
+    private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height, ArrayList<Item> items){
+    	Color tmp = g.getColor();
+    	g.setColor(new Color(0, 0, 0, 0.5f));
+    	
+    	//create a rectangle that can fit all the player's items with 4 items per row
+    	g.fillRoundRect(dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8, 0);
+    	
+    	g.setColor(Color.white);
+    	g.drawString("Inventory", dc.tilesize + 10, dc.tilesize + 10);
+    	
+    	if( items.size() != 0 ){
+        	int row = 2;
+        	int col = 1;
+        	for( int i = 0; i < items.size(); i++ ){
+        		g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
+        		col++;
+        		if( i > 4 && i % 4 == 0 ){
+        			row++;
+        			col = 1;
+        		}
+        	}
+    	}
+    	g.setColor(tmp);
     }
 
 
