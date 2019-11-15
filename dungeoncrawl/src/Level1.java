@@ -45,44 +45,44 @@ public class Level1 extends BasicGameState {
     public void enter(GameContainer container, StateBasedGame game) {
         serverMessage = "";
         Main dc = (Main) game;
+        if(dc.socket == null){
+            System.out.println("ERROR: Make sure you start the server before starting the client!");
+            System.exit(1);
+        }
         paused = false;
         dc.width = dc.ScreenWidth/dc.tilesize;
         dc.height = dc.ScreenHeight/dc.tilesize;
         
         messagebox = new Message[messages]; //display four messages at a time
 
-        // TODO This section is the original map generator.
-        if(Main.localMode) {
-            dc.map = RenderMap.getDebugMap(dc);
-            try {
-                dc.map = RenderMap.getRandomMap();        // grab a randomly generated map
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            // Server sockets for reading/writing to server.
-            this.socket = dc.socket;
-            this.dis = dc.dis;
-            this.dos = dc.dos;
+            // TODO This section is the original map generator.
+//            dc.map = RenderMap.getDebugMap(dc);
+//            try {
+//                dc.map = RenderMap.getRandomMap();        // grab a randomly generated map
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            // Server sockets for reading/writing to server.
+        this.socket = dc.socket;
+        this.dis = dc.dis;
+        this.dos = dc.dos;
 
-            dc.width = dc.ScreenWidth / dc.tilesize;
-            dc.height = dc.ScreenHeight / dc.tilesize;
-            // TODO this section requires that you run the server prior to Main.
-            // Grab the map from the Server
-            try {
-                Integer[][] mapData = (Integer[][]) this.dis.readObject();
-                // Convert it into an 2d int array
-                dc.map = new int[mapData.length][mapData[0].length];
-                for (int i = 0; i < mapData.length; i++) {
-                    for (int j = 0; j < mapData[i].length; j++) {
-                        dc.map[i][j] = mapData[i][j];
-                    }
+        dc.width = dc.ScreenWidth / dc.tilesize;
+        dc.height = dc.ScreenHeight / dc.tilesize;
+        // TODO this section requires that you run the server prior to Main.
+        // Grab the map from the Server
+        try {
+            Integer[][] mapData = (Integer[][]) this.dis.readObject();
+            // Convert it into an 2d int array
+            dc.map = new int[mapData.length][mapData[0].length];
+            for (int i = 0; i < mapData.length; i++) {
+                for (int j = 0; j < mapData[i].length; j++) {
+                    dc.map[i][j] = mapData[i][j];
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
 
@@ -103,13 +103,11 @@ public class Level1 extends BasicGameState {
         float wy = (dc.tilesize * 4) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
         knight = new Character(dc, wx, wy, "knight_iron", 1);
         String coord = wx + " " + wy;
-        if(!Main.localMode) {
-            try {
-                dos.writeUTF(coord);
-                dos.flush();
-            }catch(IOException e){
-                e.printStackTrace();
-            }
+        try {
+            dos.writeUTF(coord);
+            dos.flush();
+        }catch(IOException e){
+            e.printStackTrace();
         }
         
         dc.characters.add(knight);
@@ -216,16 +214,18 @@ public class Level1 extends BasicGameState {
         if (paused) {
             return;
         }
-        knight.move(getKeystroke(input));
-        if(!Main.localMode){
-            getNewPlayerCoord();
-        }
-        if(Main.localMode) {
-            if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
-                RenderMap.setMap(dc, knight.origin);
-                currentOrigin = knight.origin;
-            }
-        }
+
+//        knight.move(getKeystroke(input));
+
+        getKeystroke(input);
+        getNewPlayerCoord();
+
+
+
+//      if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
+//            RenderMap.setMap(dc, knight.origin);
+//            currentOrigin = knight.origin;
+//      }
         
         //check if a character has hit an item
         for( Character ch : dc.characters ){
@@ -284,13 +284,11 @@ public class Level1 extends BasicGameState {
         else if (input.isKeyDown(Input.KEY_D)) {
             ks = "d";
         }
-        if(!Main.localMode){
-            try{
-                dos.writeUTF(ks);
-                dos.flush();
-            }catch(IOException e){
-                e.printStackTrace();
-            }
+        try{
+            dos.writeUTF(ks);
+            dos.flush();
+        }catch(IOException e){
+            e.printStackTrace();
         }
         return ks;
     }
@@ -299,17 +297,16 @@ public class Level1 extends BasicGameState {
      * Reads the new player coordinates and walks the player accordingly.
      */
     public void getNewPlayerCoord(){
-        if(!Main.localMode) {
-            try {
-                serverMessage = dis.readUTF();
-                if (!serverMessage.equals("")) {
-                    knight.walk(Float.parseFloat
-                            (serverMessage.split(" ")[0]), Float.parseFloat(serverMessage.split(" ")[1]));
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            serverMessage = dis.readUTF();
+            if (!serverMessage.equals("")) {
+                System.out.println("Server says: Move valid.  New coordinates: "+ serverMessage);
+                knight.update();
+            } else{
+                System.out.println("Server says: Move invalid/No Button Pressed.");
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

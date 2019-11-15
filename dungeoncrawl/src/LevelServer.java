@@ -2,23 +2,18 @@ import jig.Vector;
 import java.io.*;
 import java.net.*;
 
-/*
- * Server implementation of the level, created by Tyler Higgins
- *
- */
 public class LevelServer extends Thread{
     private Integer [][] map;           // Holds the 2d map file
     private Socket socket;             // holds the socket
     private ObjectInputStream dis;     // holds the input stream
     private ObjectOutputStream dos;    // output stream
     private int clientId;              // clientid is based on port number
-    private Vector playerCoord;
+    private Vector playerCoord;        // stores the current coordinates of the player.
 
     /**
      * creates a new map and character
      */
     public LevelServer(Socket socket, ObjectInputStream dis, ObjectOutputStream dos, int id, Integer [][]map){
-
         this.map = map;
         this.socket = socket;
         this.dis = dis;
@@ -45,8 +40,9 @@ public class LevelServer extends Thread{
                     if (inputCode.equals("Exit")) {
                         break;
                     }
-                    switch(inputCode){
-                        case "w":
+                    // Switch based on client's input.
+                    switch(inputCode){  // for each direction, first check for a collision, if so don't update
+                        case "w": //w     // otherwise update.
                             if(collision(inputCode)){
                                 dos.writeUTF("");
                             } else{
@@ -90,7 +86,7 @@ public class LevelServer extends Thread{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
+            } // end infinite loop
             // Close all connections
             dos.flush();
             socket.close();
@@ -124,6 +120,11 @@ public class LevelServer extends Thread{
         }
     }
 
+    /**
+     * This method retrieves the player coordinates in screen coordinates to the
+     * server to store. (This will probably be changed to convert to screen coordinates
+     * and send back to the client later).
+     */
     public void getPlayerCoord(){
         String coords = "";
         String x;
@@ -142,11 +143,12 @@ public class LevelServer extends Thread{
         return clientId;
     }
 
-    /*
-check if there is a collision at the next x, y with the wall
-returns true if there is a collision, false otherwise
- */
+    /**
+      * check if there is a collision at the next x, y with the wall
+      * returns true if there is a collision, false otherwise
+     */
     // TODO this method needs to be adjusted for the screen coordinates
+    // NOTE: This method was modified from Character.collision().
     public boolean collision(String direction) {
         int x = (int) playerCoord.getX();
         int y = (int) playerCoord.getY();
