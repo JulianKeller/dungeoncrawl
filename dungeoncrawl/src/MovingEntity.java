@@ -70,6 +70,9 @@ public class MovingEntity extends Entity {
 
     public void addItem(Item i){
         inventory.add(i);
+        if( i.isIdentified() ){
+        	codex.add(i);
+        }
     }
 
     /**
@@ -203,6 +206,9 @@ public class MovingEntity extends Entity {
     
     public ArrayList<Item> getInventory(){
     	return inventory;
+    }
+    public ArrayList<Item> getCodex(){
+    	return codex;
     }
 
     public void setPosition(Vector p){

@@ -25,8 +25,9 @@ public class Level1 extends BasicGameState {
     
     private ArrayList<Item> itemsToRender;
     
-    //whether to display player inventory on the screen
+    //whether to display player inventory/codex on the screen
     private boolean displayInventory = false;
+    private boolean displayCodex = false;
     
     private class Message{
     	protected int timer = messageTimer;
@@ -217,7 +218,41 @@ public class Level1 extends BasicGameState {
         //display player inventory
         //use the knight for now
         if( displayInventory ){
-        	renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8, knight.getInventory());
+        	renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
+        	ArrayList<Item> items = knight.getInventory();
+        	if( items.size() != 0 ){
+            	int row = 2;
+            	int col = 1;
+            	for( int i = 0; i < items.size(); i++ ){
+            		g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
+            		col++;
+            		if( i > 4 && i % 4 == 0 ){
+            			row++;
+            			col = 1;
+            		}
+            	}
+        	}
+        }
+        if( displayCodex ){
+        	//display this box next to the item box
+        	//  if it is open
+        	int x = dc.tilesize;
+        	if( displayInventory ){
+        		x *= 4;
+        	}
+        	
+        	renderItemBox(dc, g, "Codex", x, dc.tilesize, dc.tilesize * 10, dc.tilesize*8);
+        	
+        	ArrayList<Item> items = knight.getCodex();
+        	int row = 2;
+        	for( Item i : items ){
+        		g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
+        		Color tmp = g.getColor();
+        		g.setColor(Color.white);
+        		g.drawString(i.getMaterial()+" "+i.getType()+" of "+i.getEffect(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
+        		g.setColor(tmp);
+        		row++;
+        	}
         }
         
         
@@ -243,28 +278,17 @@ public class Level1 extends BasicGameState {
         
     }
     
-    private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height, ArrayList<Item> items){
+    private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
     	Color tmp = g.getColor();
     	g.setColor(new Color(0, 0, 0, 0.5f));
     	
     	//create a rectangle that can fit all the player's items with 4 items per row
-    	g.fillRoundRect(dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8, 0);
+    	g.fillRoundRect(dc.tilesize, dc.tilesize, width, height, 0);
     	
     	g.setColor(Color.white);
-    	g.drawString("Inventory", dc.tilesize + 10, dc.tilesize + 10);
+    	g.drawString(title, dc.tilesize + 10, dc.tilesize + 10);
     	
-    	if( items.size() != 0 ){
-        	int row = 2;
-        	int col = 1;
-        	for( int i = 0; i < items.size(); i++ ){
-        		g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
-        		col++;
-        		if( i > 4 && i % 4 == 0 ){
-        			row++;
-        			col = 1;
-        		}
-        	}
-    	}
+
     	g.setColor(tmp);
     }
 
@@ -287,6 +311,11 @@ public class Level1 extends BasicGameState {
         
         if( input.isKeyPressed(Input.KEY_I) ){
         	displayInventory = !displayInventory;
+        	displayCodex = false;
+        }
+        if( input.isKeyPressed(Input.KEY_O) ){
+        	displayCodex = !displayCodex;
+        	displayInventory = false;
         }
         
         //check if a character has hit an item
