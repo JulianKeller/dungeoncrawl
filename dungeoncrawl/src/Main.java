@@ -1,7 +1,8 @@
 import jig.Entity;
 import jig.ResourceManager;
 
-import java.sql.SQLException;
+import java.io.*;
+import java.net.*;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
@@ -12,6 +13,12 @@ import java.util.ArrayList;
 
 
 public class Main extends StateBasedGame {
+    // Server items
+    public final Socket socket;
+    public final ObjectInputStream dis;
+    public final ObjectOutputStream dos;
+    public static boolean localMode = false;
+
     // Game States
     public static final int STARTUPSTATE = 0;
     public static final int LEVEL1 = 1;
@@ -127,7 +134,7 @@ public class Main extends StateBasedGame {
      *
      * @param title The name of the game
      */
-    public Main(String title, int width, int height) {
+    public Main(String title, int width, int height, Socket socket, ObjectInputStream dis, ObjectOutputStream dos) {
         super(title);
         ScreenWidth = width;
         ScreenHeight = height;
@@ -138,6 +145,9 @@ public class Main extends StateBasedGame {
         xOffset = tilesize - doubleOffset;
         yOffset = tilesize + doubleOffset/2;
         collisions = true;
+        this.socket = socket;
+        this.dis = dis;
+        this.dos = dos;
 
         characters = new ArrayList<Character>();
 
@@ -206,8 +216,48 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(ICE_ELF);
     }
 
+    // Send close to the server and close connections before exiting.
+    @Override
+    public boolean closeRequested(){
+        if(!localMode) {
+            try {
+                dos.writeUTF("Exit");
+                dos.flush();
+                socket.close();
+                dos.close();
+                dis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        System.exit(0);
+        return false;
+    }
+
     public static void main(String[] args) {
-    	Main game = new Main("Dungeon Crawl", 1280, 768);
+        // Setting up the connection to the server
+        Socket socket = null;
+        ObjectInputStream dis = null;
+        ObjectOutputStream dos = null;
+        if(!localMode) {
+            try {
+                byte[] ipAddr = new byte[]{127, 0, 0, 1};
+
+                // getting localhost ip
+                InetAddress ip = InetAddress.getByAddress(ipAddr);
+
+                // establish the connection with server port 5000
+                socket = new Socket(ip, 5000);
+
+                // obtaining input and out streams
+                dis = new ObjectInputStream(socket.getInputStream());
+                dos = new ObjectOutputStream(socket.getOutputStream());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    	Main game = new Main("Dungeon Crawl", 1280, 768, socket, dis, dos);
     	im = new ItemManager(game);
         AppGameContainer app;
         try {

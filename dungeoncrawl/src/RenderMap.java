@@ -15,7 +15,7 @@ This class exists for the purpose of rendering the floors and walls of the map.
 public class RenderMap extends Entity {
 
     // grabs a random map and returns it as a 2d array
-    public static int[][] getRandomMap(Main dc) throws IOException {
+    public static int[][] getRandomMap() throws IOException {
 //        File f;
 //        if( System.getProperty("os.name").toLowerCase().contains("mac") ){
 //            //if this is running on mac os
@@ -33,7 +33,7 @@ public class RenderMap extends Entity {
         Random r = new Random();
         int rand = r.nextInt(100);
         String filepath = f.getAbsolutePath() + "/map" + rand + ".txt";
-        System.out.println(filepath);
+        System.out.println("Loading Map: " + "map" + rand + ".txt");
         return loadMapFromFile(Paths.get(filepath));
     }
 
