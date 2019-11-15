@@ -25,6 +25,9 @@ public class Level1 extends BasicGameState {
     
     private ArrayList<Item> itemsToRender;
     
+    //whether to display player inventory on the screen
+    private boolean displayInventory = false;
+    
     private class Message{
     	protected int timer = messageTimer;
     	protected String text;
@@ -211,6 +214,34 @@ public class Level1 extends BasicGameState {
         	g.setColor(tmp);
         }
         
+        //display player inventory
+        //use the knight for now
+        if( displayInventory ){
+        	ArrayList<Item> inv = knight.getInventory();
+        	Color tmp = g.getColor();
+        	g.setColor(new Color(0, 0, 0, 0.5f));
+        	
+        	//create a rectangle that can fit all the player's items with 4 items per row
+        	g.fillRoundRect(dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8, 0);
+        	
+        	g.setColor(Color.white);
+        	g.drawString("Inventory", dc.tilesize + 10, dc.tilesize + 10);
+        	
+        	if( inv.size() != 0 ){
+	        	int row = 2;
+	        	int col = 1;
+	        	for( int i = 0; i < inv.size(); i++ ){
+	        		g.drawImage(inv.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
+	        		col++;
+	        		if( i > 4 && i % 4 == 0 ){
+	        			row++;
+	        			col = 1;
+	        		}
+	        	}
+        	}
+        }
+        
+        
         //print the tile values on the screen
         /*
         for( int i = 0; i < dc.map.length; i++ ){
@@ -248,6 +279,10 @@ public class Level1 extends BasicGameState {
         if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
             RenderMap.setMap(dc, knight.origin);
             currentOrigin = knight.origin;
+        }
+        
+        if( input.isKeyPressed(Input.KEY_I) ){
+        	displayInventory = !displayInventory;
         }
         
         //check if a character has hit an item

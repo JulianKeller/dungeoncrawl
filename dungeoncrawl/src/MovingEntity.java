@@ -200,6 +200,10 @@ public class MovingEntity extends Entity {
     public int getPid(){
         return pid;
     }
+    
+    public ArrayList<Item> getInventory(){
+    	return inventory;
+    }
 
     public void setPosition(Vector p){
         position = p;
