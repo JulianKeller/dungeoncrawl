@@ -14,3 +14,5 @@
 **[ 10 ]** Work on character movement in Client/Server<br>
 **[ 11 ]** Get the server to send coordinates to client to
 move the player<br>
+**[ 12 ]** Migrate Character class onto server.  It may help with
+movement<br>
