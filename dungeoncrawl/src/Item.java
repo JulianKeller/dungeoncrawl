@@ -56,8 +56,8 @@ public class Item extends StationaryObject{
 			this.effect = Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ];
 		}else if( type.equals("Glove") ){
 			this.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
-		}else if( type.equals("Potion") ){
-			this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
+		/*}else if( type.equals("Potion") ){
+			this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];*/
 		}else if( type.equals("Arrow") ){
 			this.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
 		}else{
@@ -72,7 +72,8 @@ public class Item extends StationaryObject{
 		}
 		
 		//all items start unidentified
-		identified = false;
+		//TODO: reset to false before final release
+		identified = true;
 		
 		//get an image based on item type
 		if( type.equals("Potion") ){
@@ -148,6 +149,9 @@ public class Item extends StationaryObject{
 	}
 	public void identify(){
 		this.identified = true;
+	}
+	public void setEffect( String effect ){
+		this.effect = effect;
 	}
 	
 	//render function

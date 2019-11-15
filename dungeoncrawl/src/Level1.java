@@ -78,7 +78,13 @@ public class Level1 extends BasicGameState {
         	}
         }
         
-        Main.im.plant(5, rotatedMap);
+        try {
+			Main.im.plant(5, rotatedMap);
+		} catch (SlickException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
         
         //find a tile with no walls in its horizontal adjacencies

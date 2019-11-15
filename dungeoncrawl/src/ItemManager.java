@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.newdawn.slick.SlickException;
+
 import jig.Vector;
 public class ItemManager {  
 
@@ -8,10 +10,17 @@ public class ItemManager {
 	private Main game;
 	private Random rand;
 	
+	private final int uniquePotions = 5; //the number of different potion images
+	
+	//0: blue, 1: orange, 2: pink, 3: red, 4: yellow
+	private String[] identifiedPotionEffects;
+	
 	public ItemManager(Main game){
 		worldItems = new ArrayList<Item>();
 		this.game = game;
 		rand = new Random();
+		
+		identifiedPotionEffects = new String[uniquePotions];
 	}
 	
 	public void give(int itemID, int playerID){
@@ -53,7 +62,7 @@ public class ItemManager {
 	
 	private int currentItemID = 0;
 	
-	public void plant(int numItems, int[][] map){
+	public void plant(int numItems, int[][] map) throws SlickException{
 		int maxcol = game.ScreenWidth/game.tilesize;
 		int maxrow = game.ScreenHeight/game.tilesize;
 		
@@ -74,8 +83,64 @@ public class ItemManager {
 			Vector wc = new Vector( row, col );
 			
 			//create a random item at the given position
-			worldItems.add(new Item(wc, false, currentItemID, 0));
+			Item i = new Item(wc, false, currentItemID, 0);
 			
+			//check if the item is a potion and set its effect
+			//0: blue, 1: orange, 2: pink, 3: red, 4: yellow
+			if( i.getType().equals("Potion") ){
+				if( i.getMaterial().equals("Blue") ){
+					if( identifiedPotionEffects[0] == null ){
+						//pick randomly, update list
+						i.setEffect(Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ]);
+						identifiedPotionEffects[0] = i.getEffect();
+					}else{
+						//use the stored effect
+						i.setEffect(identifiedPotionEffects[0]);
+					}
+				}else if( i.getMaterial().equals("Orange")){
+					if( identifiedPotionEffects[1] == null ){
+						//pick randomly, update list
+						i.setEffect(Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ]);
+						identifiedPotionEffects[1] = i.getEffect();
+					}else{
+						//use the stored effect
+						i.setEffect(identifiedPotionEffects[1]);
+					}
+				}else if( i.getMaterial().equals("Pink")){
+					if( identifiedPotionEffects[2] == null ){
+						//pick randomly, update list
+						i.setEffect(Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ]);
+						identifiedPotionEffects[2] = i.getEffect();
+					}else{
+						//use the stored effect
+						i.setEffect(identifiedPotionEffects[2]);
+					}
+				}else if( i.getMaterial().equals("Red")){
+					if( identifiedPotionEffects[3] == null ){
+						//pick randomly, update list
+						i.setEffect(Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ]);
+						identifiedPotionEffects[3] = i.getEffect();
+					}else{
+						//use the stored effect
+						i.setEffect(identifiedPotionEffects[3]);
+					}
+				}else if( i.getMaterial().equals("Yellow") ){
+					if( identifiedPotionEffects[4] == null ){
+						//pick randomly, update list
+						i.setEffect(Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ]);
+						identifiedPotionEffects[4] = i.getEffect();
+					}else{
+						//use the stored effect
+						i.setEffect(identifiedPotionEffects[4]);
+					}
+				}else{
+					//this would suggest that the list of potion colors in this class
+					//  is incomplete
+					throw new SlickException("Error: invalid potion color.");
+				}
+			}
+			
+			worldItems.add(i);
 			
 			currentItemID++;
 			
