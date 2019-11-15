@@ -98,7 +98,7 @@ public class Character extends MovingEntity {
         }
     }
 
-    /**
+    /**x
      * Retrieves the character for the character type.
      * @return type
      */
@@ -201,8 +201,11 @@ public class Character extends MovingEntity {
         // keep the character fixed to the grid
         if (!canMove) {
             update();
+//            changeOrigin();
             return;
         }
+
+
 
         String movement = null;
         float distance = 1f;
@@ -306,6 +309,5 @@ public class Character extends MovingEntity {
 //        System.out.printf("Walk Coordinates %s, %s\n\n", x, y);
         animate.setPosition(x, y);
         setWorldCoordinates(x, y);
-
     }
 }
