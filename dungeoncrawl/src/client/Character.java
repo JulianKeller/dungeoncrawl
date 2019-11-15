@@ -1,3 +1,5 @@
+package client;
+
 import jig.Vector;
 import org.newdawn.slick.Animation;
 
@@ -20,11 +22,11 @@ public class Character extends MovingEntity {
     int oy;     // origin y
 
     /**
-     * Create a new Character (wx, wy)
+     * Create a new client.Character (wx, wy)
      * @param wx world coordinates x
      * @param wy world coordinats y
      * @param type 'K'night, 'M'age, 'A'rcher, 'T'ank
-     * @param id id for MovingEntity
+     * @param id id for client.MovingEntity
      */
     public Character(Main dc, final float wx, final float wy, String type, int id) {
         super(wx, wy, id);
@@ -44,10 +46,10 @@ public class Character extends MovingEntity {
     }
 
     /**
-     * Create a new Character (Vector)
+     * Create a new client.Character (Vector)
      * @param wc world coordinates Vector
      * @param type 'K'night, 'M'age, 'A'rcher, 'T'ank
-     * @param id id for MovingEntity
+     * @param id id for client.MovingEntity
      */
     public Character(Vector wc, String type, int id) {
         super(wc, id);
@@ -56,7 +58,7 @@ public class Character extends MovingEntity {
     }
 
     /**
-     * Sets Character HP, AP, and Mana based on type given.
+     * Sets client.Character HP, AP, and Mana based on type given.
      */
     private void setStats(){
         switch (type){
@@ -87,7 +89,7 @@ public class Character extends MovingEntity {
                 setSpeed(25);
                 break;
             default:
-                System.out.println("ERROR: No matching Character type specified.\n");
+                System.out.println("ERROR: No matching client.Character type specified.\n");
                 break;
         }
     }

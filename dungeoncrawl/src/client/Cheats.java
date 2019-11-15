@@ -1,3 +1,5 @@
+package client;
+
 import org.newdawn.slick.Input;
 
 public class Cheats {

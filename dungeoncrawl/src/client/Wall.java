@@ -1,8 +1,10 @@
+package client;
+
 import jig.Entity;
 import jig.ResourceManager;
 
 /*
-This class creates a Floor tile Entity with the correct image
+This class creates a client.Floor tile Entity with the correct image
  */
 public class Wall extends Entity {
 

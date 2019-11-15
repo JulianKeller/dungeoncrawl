@@ -13,10 +13,10 @@
         Gold Sword
 
 [5] - Draw Arrows
-        Normal Arrow (infinite)
+        Normal client.Arrow (infinite)
         Flaming Arrows
-        Poisoned Arrow
-        Ice Arrow
+        Poisoned client.Arrow
+        Ice client.Arrow
 
 [6] - Draw Staffs
         Ruby Staff
@@ -34,6 +34,7 @@
 [13] - update wall tiles
 [15] - render multiple random maps and save them
 [16] - fix map loading file error
+[18] - refactor to client/server directories
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
