@@ -13,7 +13,7 @@ import org.newdawn.slick.Animation;
 /**
  * A class representing a characters movement.
  */
-class AnimateEntity extends Entity {
+public class AnimateEntity extends Entity {
     public Animation animation;
     private String action;
     private String sprite;
