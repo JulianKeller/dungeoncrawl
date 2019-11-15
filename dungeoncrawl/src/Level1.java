@@ -206,7 +206,7 @@ public class Level1 extends BasicGameState {
         }
         
         //print the tile values on the screen
-        ///*
+        /*
         for( int i = 0; i < dc.map.length; i++ ){
         	for( int j = 0; j < dc.map[i].length; j++ ){
         		g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
@@ -252,7 +252,11 @@ public class Level1 extends BasicGameState {
         	
 	        Item i = Main.im.getItemAt(aniPos);
 	        if( i != null ){
-	        	addMessage("Picked up " + i.getMaterial() + " " +i.getType() + " of " + i.getEffect() + ".");
+	        	if( i.isIdentified() ){
+	        		addMessage("Picked up " + i.getMaterial() + " " +i.getType() + " of " + i.getEffect() + ".");
+	        	}else{
+	        		addMessage("Picked up unidentified "+i.getType().toLowerCase()+".");
+	        	}
 	        	//give removes item from the world's inventory
 	        	//  and adds it to the player's inventory
 	        	Main.im.give(i.getID(), ch.getPid());
