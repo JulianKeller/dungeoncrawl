@@ -224,28 +224,14 @@ public class Level1 extends BasicGameState {
             return;
         }
 
-
         knight.move(getKeystroke(input));
-//        System.out.println("Current: " + currentOrigin + " New: " + knight.origin);
         if (currentOX != knight.ox || currentOY != knight.oy) {
             RenderMap.setMap(dc, knight.ox, knight.oy);
             currentOX = knight.ox;
             currentOY = knight.oy;
         }
 
-//        knight.move(getKeystroke(input));
 
-        getKeystroke(input);
-        getNewPlayerCoord();
-
-
-
-//      if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
-//            RenderMap.setMap(dc, knight.origin);
-//            currentOrigin = knight.origin;
-//      }
-
-        
         //check if a character has hit an item
         for( Character ch : dc.characters ){
         	float x = (ch.animate.getX()/dc.tilesize);
@@ -314,19 +300,19 @@ public class Level1 extends BasicGameState {
 
     /**
      * Reads the new player coordinates and walks the player accordingly.
-     */
-    public void getNewPlayerCoord(){
-        try {
-            serverMessage = dis.readUTF();
-            if (!serverMessage.equals("")) {
-//                System.out.println("Server says: Move valid.  New coordinates: "+ serverMessage);
-                knight.update();
-            } else{
-//                System.out.println("Server says: Move invalid/No Button Pressed.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//     */
+//    public void getNewPlayerCoord(){
+//        try {
+//            serverMessage = dis.readUTF();
+//            if (!serverMessage.equals("")) {
+////                System.out.println("Server says: Move valid.  New coordinates: "+ serverMessage);
+//                knight.moveSmoothTranslationHelper();
+//            } else{
+////                System.out.println("Server says: Move invalid/No Button Pressed.");
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 }
