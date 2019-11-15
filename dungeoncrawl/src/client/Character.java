@@ -174,6 +174,10 @@ public class Character extends MovingEntity {
         float wy = wc.getY();
         float x = 0, y = 0;
         int change = moveSpeed;
+        if (changeOrigin()) {
+            movesLeft = 0;
+            return;
+        }
 
         if (movesLeft > 0) {
             switch (direction) {
@@ -199,7 +203,7 @@ public class Character extends MovingEntity {
         }
         else {
             canMove = true;
-            changeOrigin();
+//            changeOrigin();
         }
     }
 
@@ -208,15 +212,20 @@ public class Character extends MovingEntity {
     Note: Not using the Vector class as we don't want to pass classes around AND
     it refused to update it's values when using the setX function.
      */
-    // TODO screen origin only changes in the x or y direction, not both, this is not currently working
-    private void changeOrigin() {
+    /* TODO
+        - screen origin only changes in the x or y direction, not both, this is not currently working
+        - if character is within buffer of screen edge, enable animation, but player doesn't move
+        - players position stays the same, but the players origin changes
+
+     */
+    private boolean changeOrigin() {
         // calculate players distance to up, down, left, right borders of screen
         int px = (int) animate.getX();
         int py = (int) animate.getY();
         px = px/dc.tilesize;
         py = py/dc.tilesize;
         int buffer = 5;
-        // TODo instead I want the screen width/height
+        boolean inbuffer = false;
         int width = dc.ScreenWidth/dc.tilesize;
         int height = dc.ScreenHeight/dc.tilesize;
 
@@ -224,24 +233,35 @@ public class Character extends MovingEntity {
         if (Math.abs(py - height) < buffer && direction.equals("walk_down")) {
             System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
             if (oy + 1 < height)
+                inbuffer = true;
                 oy++;
         }
+        // move screen up
         else if (Math.abs(0 - py) < buffer && direction.equals("walk_up")) {
             System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
             if (oy - 1 > 0)
+                inbuffer = true;
                 oy--;
         }
-
+        // move screen right
         else if (Math.abs(px - width) < buffer && direction.equals("walk_right")) {
             System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
             if (ox + 1 < width)
+                inbuffer = true;
                 ox++;
         }
+        // move screen left
         else if (Math.abs(0 - px) < buffer && direction.equals("walk_left")) {
             System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
             if (ox - 1 > 0)
+                inbuffer = true;
                 ox--;
         }
+
+        if (inbuffer) {
+            return true;
+        }
+        return false;
     }
 
 

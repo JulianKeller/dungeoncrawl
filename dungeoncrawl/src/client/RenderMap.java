@@ -17,14 +17,6 @@ public class RenderMap extends Entity {
 
     // grabs a random map and returns it as a 2d array
     public static int[][] getRandomMap() throws IOException {
-//        File f;
-//        if( System.getProperty("os.name").toLowerCase().contains("mac") ){
-//            //if this is running on mac os
-//            f = new File("dungeoncrawl/mapGen/maps");
-//        }else{
-//            f = new File("mapGen/maps");
-//        }
-
         File f;
         if( System.getProperty("os.name").toLowerCase().contains("windows")){
         	f = new File("src/maps");
@@ -80,19 +72,6 @@ public class RenderMap extends Entity {
                 .toArray(int[][]::new);                 // add the array to a 2d array
     }
 
-/*
-    int origin = knight.screenOrigin;     // TODO this is equal to the players offset
-    int h = dc.height + origin;
-    int w = dc.width + origin;
-        for (int i = origin; i < h; i++) {
-        for (int j = origin; j < w; j++) {
-            if (dc.mapTiles[i][j] == null)
-                continue;
-            dc.mapTiles[i][j].render(g);
-        }
-    }
-
- */
 
     // Draw the 2D map to the screen
     public static void setMap(Main dc, int ox, int oy) {
