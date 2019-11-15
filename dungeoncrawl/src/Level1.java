@@ -13,6 +13,10 @@ import org.newdawn.slick.state.StateBasedGame;
 public class Level1 extends BasicGameState {
     private Boolean paused;
     Character knight;
+
+    int currentOX;
+    int currentOY;
+
     Vector currentOrigin;
     Socket socket;
     ObjectInputStream dis;
@@ -21,6 +25,7 @@ public class Level1 extends BasicGameState {
 
     
     private final int messageTimer = 2000;
+
     
     private ArrayList<Item> itemsToRender;
     
@@ -99,8 +104,8 @@ public class Level1 extends BasicGameState {
         dc.animations = new ArrayList<>(200);
 //        AnimateEntity.testAllCharacterAnimations(dc);
 
-        float wx = (dc.tilesize * 4) - dc.offset;// - dc.xOffset;
-        float wy = (dc.tilesize * 4) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
+        float wx = (dc.tilesize * 20) - dc.offset;// - dc.xOffset;
+        float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
         knight = new Character(dc, wx, wy, "knight_iron", 1);
         String coord = wx + " " + wy;
         try {
@@ -112,8 +117,10 @@ public class Level1 extends BasicGameState {
         
         dc.characters.add(knight);
         
-        currentOrigin = knight.origin;
-        RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
+//        currentOrigin = knight.origin;
+        RenderMap.setMap(dc, knight.ox, knight.oy);                   // renders the map Tiles
+        currentOX = knight.ox;
+        currentOY = knight.oy;
         
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
@@ -179,6 +186,7 @@ public class Level1 extends BasicGameState {
 //        }
 
         knight.animate.render(g);
+
         
         
         //render messages
@@ -201,6 +209,7 @@ public class Level1 extends BasicGameState {
         	g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
         	g.setColor(tmp);
         }
+
     }
 
 
@@ -215,18 +224,14 @@ public class Level1 extends BasicGameState {
             return;
         }
 
-//        knight.move(getKeystroke(input));
+        knight.move(getKeystroke(input));
+        if (currentOX != knight.ox || currentOY != knight.oy) {
+            RenderMap.setMap(dc, knight.ox, knight.oy);
+            currentOX = knight.ox;
+            currentOY = knight.oy;
+        }
 
-        getKeystroke(input);
-        getNewPlayerCoord();
 
-
-
-//      if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
-//            RenderMap.setMap(dc, knight.origin);
-//            currentOrigin = knight.origin;
-//      }
-        
         //check if a character has hit an item
         for( Character ch : dc.characters ){
         	float x = (ch.animate.getX()/dc.tilesize);
@@ -295,19 +300,19 @@ public class Level1 extends BasicGameState {
 
     /**
      * Reads the new player coordinates and walks the player accordingly.
-     */
-    public void getNewPlayerCoord(){
-        try {
-            serverMessage = dis.readUTF();
-            if (!serverMessage.equals("")) {
-                System.out.println("Server says: Move valid.  New coordinates: "+ serverMessage);
-                knight.update();
-            } else{
-                System.out.println("Server says: Move invalid/No Button Pressed.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//     */
+//    public void getNewPlayerCoord(){
+//        try {
+//            serverMessage = dis.readUTF();
+//            if (!serverMessage.equals("")) {
+////                System.out.println("Server says: Move valid.  New coordinates: "+ serverMessage);
+//                knight.moveSmoothTranslationHelper();
+//            } else{
+////                System.out.println("Server says: Move invalid/No Button Pressed.");
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 }

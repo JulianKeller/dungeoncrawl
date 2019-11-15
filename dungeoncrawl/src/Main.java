@@ -17,7 +17,7 @@ public class Main extends StateBasedGame {
     public final Socket socket;
     public final ObjectInputStream dis;
     public final ObjectOutputStream dos;
-
+    public static boolean localMode = false;
 
     // Game States
     public static final int STARTUPSTATE = 0;
@@ -100,16 +100,16 @@ public class Main extends StateBasedGame {
     int[][] map;
     Entity[][] mapTiles;
     boolean collisions;
-
+    
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
-
+    
     //item materials
     public static final String[] ArmorMaterials = {"Leather", "Iron", "Turtle Shell"};
     public static final String[] SwordMaterials = {"Wooden", "Iron", "Gold"};
     public static final String[] StaffMaterials = {"Ruby", "Emerald", "Amethyst"};
     public static final String[] GloveMaterials = {"Leather", "Iron", "Gold"};
-
+    
     //item effects
     public static final String[] PotionEffects = {"Healing", "Strength", "Flame", "Mana", "Invisibility"};
     public static final String[] ArrowEffects = {"Flaming", "Poisoned", "Ice"};
@@ -117,15 +117,15 @@ public class Main extends StateBasedGame {
     public static final String[] ArmorEffects = {"Stench", "Iron Skin", "Thorns", "Swiftness"};
     public static final String[] SwordEffects = {"Fright", "Might", "Flame", "Ice"};
     public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection"};
-
+    
     //displayed item name should be of the form "material type of effect" using whatever fields are filled in
-
-
+    
+    
     // create an item manager
     public static ItemManager im;
     Entity[][] potions;
     ArrayList<AnimateEntity> animations;
-
+    
     public ArrayList<Character> characters;
 
 
@@ -219,14 +219,16 @@ public class Main extends StateBasedGame {
     // Send close to the server and close connections before exiting.
     @Override
     public boolean closeRequested(){
-        try {
-            dos.writeUTF("Exit");
-            dos.flush();
-            socket.close();
-            dos.close();
-            dis.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(!localMode) {
+            try {
+                dos.writeUTF("Exit");
+                dos.flush();
+                socket.close();
+                dos.close();
+                dis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         System.exit(0);
         return false;
@@ -237,21 +239,23 @@ public class Main extends StateBasedGame {
         Socket socket = null;
         ObjectInputStream dis = null;
         ObjectOutputStream dos = null;
-        try {
-            byte[] ipAddr = new byte[]{127, 0, 0, 1};
+        if(!localMode) {
+            try {
+                byte[] ipAddr = new byte[]{127, 0, 0, 1};
 
-            // getting localhost ip
-            InetAddress ip = InetAddress.getByAddress(ipAddr);
+                // getting localhost ip
+                InetAddress ip = InetAddress.getByAddress(ipAddr);
 
-            // establish the connection with server port 5000
-            socket = new Socket(ip, 5000);
+                // establish the connection with server port 5000
+                socket = new Socket(ip, 5000);
 
-            // obtaining input and out streams
-            dis = new ObjectInputStream(socket.getInputStream());
-            dos = new ObjectOutputStream(socket.getOutputStream());
+                // obtaining input and out streams
+                dis = new ObjectInputStream(socket.getInputStream());
+                dos = new ObjectOutputStream(socket.getOutputStream());
 
-        } catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+            }
         }
     	Main game = new Main("Dungeon Crawl", 1280, 768, socket, dis, dos);
     	im = new ItemManager(game);
