@@ -80,18 +80,23 @@ public class Item extends StationaryObject{
 			switch( r ){
 			case 0:
 				this.image = ResourceManager.getImage(Main.POTION_BLUE);
+				this.material = "Blue";
 				break;
 			case 1:
 				this.image = ResourceManager.getImage(Main.POTION_ORANGE);
+				this.material = "Orange";
 				break;
 			case 2:
 				this.image = ResourceManager.getImage(Main.POTION_PINK);
+				this.material = "Pink";
 				break;
 			case 3:
 				this.image = ResourceManager.getImage(Main.POTION_RED);
+				this.material = "Red";
 				break;
 			case 4:
 				this.image = ResourceManager.getImage(Main.POTION_YELLOW);
+				this.material = "Yellow";
 				break;
 			}
 		}
