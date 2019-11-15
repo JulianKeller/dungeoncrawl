@@ -141,6 +141,9 @@ public class Item extends StationaryObject{
 	public void setOID( int oid ){
 		this.oid = oid;
 	}
+	public void identify(){
+		this.identified = true;
+	}
 	
 	//render function
 	public void render(Graphics g){

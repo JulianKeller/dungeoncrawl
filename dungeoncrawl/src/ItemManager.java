@@ -31,12 +31,12 @@ public class ItemManager {
 
 	}
 	
-	public void take(int itemID, int playerID, Vector wc){
+	public void take(int itemID, int playerID, Vector wc, boolean use){
 		//take an item from the player and place it at the given coordinates
 		// unless the coordinate is null
 		for( Character c : game.characters ){
 			if( c.getPid() == playerID ){
-				Item i = c.discardItem(itemID);
+				Item i = c.discardItem(itemID, use);
 				
 				
 				

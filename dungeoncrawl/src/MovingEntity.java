@@ -16,6 +16,7 @@ public class MovingEntity extends Entity {
     private int speed;
     private int pid;
     private ArrayList<Item> inventory;
+    private ArrayList<Item> codex; //list of identified items
     private Item [] equipped;
     private Vector position;
 
@@ -36,6 +37,8 @@ public class MovingEntity extends Entity {
         equipped = new Item[4];
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
+        
+        codex = new ArrayList<Item>();
 
         Vector wc = getWorldCoordinates();
 //        System.out.printf("\nGiven ME World Coordinates %s, %s\n", wx, wy);
@@ -73,9 +76,15 @@ public class MovingEntity extends Entity {
      * Removes an item from the MovingEntity's Inventory
      * @param i_id id of the item to be removed.
      */
-    public Item discardItem(int i_id){
+    public Item discardItem(int i_id, boolean use){
     	for( int i = 0; i < inventory.size(); i++ ){
     		if( inventory.get(i).getID() == i_id ){
+    			if( use ){
+    				//if the player is using this item, identify it
+    				//  and add to the codex
+    				inventory.get(i).identify();
+    				codex.add(inventory.get(i));
+    			}
     			return inventory.remove(i);
     		}
     	}
