@@ -1,3 +1,5 @@
+package client;
+
 import jig.Entity;
 import jig.ResourceManager;
 

@@ -1,3 +1,5 @@
+package client;
+
 import jig.Entity;
 import jig.Vector;
 
@@ -61,20 +63,20 @@ public class Level1 extends BasicGameState {
         messagebox = new Message[messages]; //display four messages at a time
 
             // TODO This section is the original map generator.
-//            dc.map = RenderMap.getDebugMap(dc);
+//            dc.map = client.RenderMap.getDebugMap(dc);
 //            try {
-//                dc.map = RenderMap.getRandomMap();        // grab a randomly generated map
+//                dc.map = client.RenderMap.getRandomMap();        // grab a randomly generated map
 //            } catch (IOException e) {
 //                e.printStackTrace();
-//            // Server sockets for reading/writing to server.
+//            // server.Server sockets for reading/writing to server.
         this.socket = dc.socket;
         this.dis = dc.dis;
         this.dos = dc.dos;
 
         dc.width = dc.ScreenWidth / dc.tilesize;
         dc.height = dc.ScreenHeight / dc.tilesize;
-        // TODO this section requires that you run the server prior to Main.
-        // Grab the map from the Server
+        // TODO this section requires that you run the server prior to client.Main.
+        // Grab the map from the server.Server
         try {
             Integer[][] mapData = (Integer[][]) this.dis.readObject();
             // Convert it into an 2d int array
@@ -94,15 +96,15 @@ public class Level1 extends BasicGameState {
 
         // TODO can be removed. Just here to display potions
 //        dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
-//        dc.potions[10][10] = new Potion(10 * dc.tilesize + dc.tilesize/2, 10 * dc.tilesize + dc.tilesize/2, "health");
-//        dc.potions[10][4] = new Potion(10 * dc.tilesize + dc.tilesize/2, 4 * dc.tilesize + dc.tilesize/2, "manna");
-//        dc.potions[10][8] = new Potion(10 * dc.tilesize + dc.tilesize/2, 8 * dc.tilesize + dc.tilesize/2, "fire");
-//        dc.potions[10][2] = new Potion(10 * dc.tilesize + dc.tilesize/2, 2 * dc.tilesize + dc.tilesize/2, "strength");
-//        dc.potions[10][6] = new Potion(10 * dc.tilesize + dc.tilesize/2, 6 * dc.tilesize + dc.tilesize/2, "invisibility");
+//        dc.potions[10][10] = new client.Potion(10 * dc.tilesize + dc.tilesize/2, 10 * dc.tilesize + dc.tilesize/2, "health");
+//        dc.potions[10][4] = new client.Potion(10 * dc.tilesize + dc.tilesize/2, 4 * dc.tilesize + dc.tilesize/2, "manna");
+//        dc.potions[10][8] = new client.Potion(10 * dc.tilesize + dc.tilesize/2, 8 * dc.tilesize + dc.tilesize/2, "fire");
+//        dc.potions[10][2] = new client.Potion(10 * dc.tilesize + dc.tilesize/2, 2 * dc.tilesize + dc.tilesize/2, "strength");
+//        dc.potions[10][6] = new client.Potion(10 * dc.tilesize + dc.tilesize/2, 6 * dc.tilesize + dc.tilesize/2, "invisibility");
 
         // TODO can be removed, here to demo animations/characters
         dc.animations = new ArrayList<>(200);
-//        AnimateEntity.testAllCharacterAnimations(dc);
+//        client.AnimateEntity.testAllCharacterAnimations(dc);
 
         float wx = (dc.tilesize * 20) - dc.offset;// - dc.xOffset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
@@ -305,10 +307,10 @@ public class Level1 extends BasicGameState {
 //        try {
 //            serverMessage = dis.readUTF();
 //            if (!serverMessage.equals("")) {
-////                System.out.println("Server says: Move valid.  New coordinates: "+ serverMessage);
+////                System.out.println("server.Server says: Move valid.  New coordinates: "+ serverMessage);
 //                knight.moveSmoothTranslationHelper();
 //            } else{
-////                System.out.println("Server says: Move invalid/No Button Pressed.");
+////                System.out.println("server.Server says: Move invalid/No Button Pressed.");
 //            }
 //        } catch (IOException e) {
 //            e.printStackTrace();

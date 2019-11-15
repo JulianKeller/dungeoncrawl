@@ -1,3 +1,5 @@
+package client;
+
 import jig.Entity;
 import jig.ResourceManager;
 
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 
 
 public class Main extends StateBasedGame {
-    // Server items
+    // server.Server items
     public final Socket socket;
     public final ObjectInputStream dis;
     public final ObjectOutputStream dos;
@@ -102,7 +104,7 @@ public class Main extends StateBasedGame {
     boolean collisions;
     
     //item types
-    public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
+    public static final String[] ItemTypes = {"client.Potion", "Armor", "Sword", "client.Arrow", "Staff", "Glove"};
     
     //item materials
     public static final String[] ArmorMaterials = {"Leather", "Iron", "Turtle Shell"};

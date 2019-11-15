@@ -1,8 +1,10 @@
-/*
- * Multithreaded Server Example from GeeksforGeeks.org
+package server;/*
+ * Multithreaded server.Server Example from GeeksforGeeks.org
  * https://www.geeksforgeeks.org/introducing-threads-socket-programming-java/
  *
  */
+
+import client.RenderMap;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 
 
 public class Server {
-    // setting up server class to be starting up in Main.java
+    // setting up server class to be starting up in client.Main.java
     public static ArrayList<LevelServer> clients;                    // This holds the number of clients connected.
     public static int [][] map;                                     // This holds the world map
     public static final int tilesize = 32;                          // Tile size of the map

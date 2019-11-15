@@ -1,3 +1,5 @@
+package server;
+
 import jig.Vector;
 import java.io.*;
 import java.net.*;
@@ -148,7 +150,7 @@ public class LevelServer extends Thread{
       * returns true if there is a collision, false otherwise
      */
     // TODO this method needs to be adjusted for the screen coordinates
-    // NOTE: This method was modified from Character.collision().
+    // NOTE: This method was modified from client.Character.collision().
     public boolean collision(String direction) {
         int x = (int) playerCoord.getX();
         int y = (int) playerCoord.getY();

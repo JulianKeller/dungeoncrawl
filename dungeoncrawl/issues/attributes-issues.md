@@ -13,10 +13,10 @@
         Gold Sword
 
 [5] - Draw Arrows
-        Normal Arrow (infinite)
+        Normal client.Arrow (infinite)
         Flaming Arrows
-        Poisoned Arrow
-        Ice Arrow
+        Poisoned client.Arrow
+        Ice client.Arrow
 
 [6] - Draw Staffs
         Ruby Staff

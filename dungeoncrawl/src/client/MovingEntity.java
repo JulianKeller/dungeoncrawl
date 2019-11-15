@@ -1,8 +1,7 @@
+package client;
+
 import jig.Entity;
-import jig.ResourceManager;
 import jig.Vector;
-import org.newdawn.slick.Animation;
-import org.newdawn.slick.Input;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,7 +69,7 @@ public class MovingEntity extends Entity {
     }
 
     /**
-     * Removes an item from the MovingEntity's Inventory
+     * Removes an item from the client.MovingEntity's Inventory
      * @param i_id id of the item to be removed.
      */
     public Item discardItem(int i_id){
@@ -84,7 +83,7 @@ public class MovingEntity extends Entity {
     }
 
     /**
-     * Equips an item from the MovingEntity's inventory
+     * Equips an item from the client.MovingEntity's inventory
      * @param i_id id of the item to be equipped.
      * @param slot slot to be placed in inventory (0 and 1 for right and left hand,
      *             gloves, armor, and potions will be automatically
@@ -98,7 +97,7 @@ public class MovingEntity extends Entity {
                     case "Sword":
                     case "Shield":
                     case "Staff":
-                    case "Arrow":
+                    case "client.Arrow":
                         if(slot > 1 || slot < 0){
                             System.out.println("Invalid slot.");
                             break;
@@ -126,7 +125,7 @@ public class MovingEntity extends Entity {
                             inventory.add(temp);
                         }
                         break;
-                    case "Potion":
+                    case "client.Potion":
                         if(equipped[4] != null){
                             Item temp = equipped[2];
                             equipped[4] = item;
@@ -143,7 +142,7 @@ public class MovingEntity extends Entity {
     }
 
     /**
-     * Unequips the item from MovingEntity's equipped list and places it in inventory.
+     * Unequips the item from client.MovingEntity's equipped list and places it in inventory.
      * @param slot the equipped slot number to remove.
      */
     public void unequipItem(int slot){
@@ -181,7 +180,7 @@ public class MovingEntity extends Entity {
         speed = sp;
     }
     /**
-     * Retreive MovingEntity's speed
+     * Retreive client.MovingEntity's speed
      * @return speed
      */
     public int getSpeed(){
@@ -210,7 +209,7 @@ public class MovingEntity extends Entity {
         setWorldCoordinates(new Vector(x, y));
     }
     /**
-     * Returns the MovingEntity's current world coordinates.
+     * Returns the client.MovingEntity's current world coordinates.
      * @return Vector world coordinates
      */
     public Vector getWorldCoordinates(){

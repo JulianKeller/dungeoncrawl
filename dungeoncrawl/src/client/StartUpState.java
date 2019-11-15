@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+package client;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;

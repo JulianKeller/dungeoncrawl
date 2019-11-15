@@ -1,3 +1,5 @@
+package client;
+
 import java.util.Random;
 
 import org.newdawn.slick.Graphics;
@@ -31,8 +33,8 @@ public class Item extends StationaryObject{
 		this.oid = oid;
 		
 		//first get the item type
-		//this.type = Main.ItemTypes[ rand.nextInt(Main.ItemTypes.length) ];
-		this.type = "Potion";
+		//this.type = client.Main.ItemTypes[ rand.nextInt(client.Main.ItemTypes.length) ];
+		this.type = "client.Potion";
 		
 		//choose materials from the appropriate list
 		if( type.equals("Sword") ){
@@ -56,9 +58,9 @@ public class Item extends StationaryObject{
 			this.effect = Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ];
 		}else if( type.equals("Glove") ){
 			this.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
-		}else if( type.equals("Potion") ){
+		}else if( type.equals("client.Potion") ){
 			this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
-		}else if( type.equals("Arrow") ){
+		}else if( type.equals("client.Arrow") ){
 			this.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
 		}else{
 			this.effect = "";
@@ -75,7 +77,7 @@ public class Item extends StationaryObject{
 		identified = false;
 		
 		//get an image based on item type
-		if( type.equals("Potion") ){
+		if( type.equals("client.Potion") ){
 			int r = rand.nextInt(5);
 			switch( r ){
 			case 0:
