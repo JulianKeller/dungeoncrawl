@@ -4,15 +4,23 @@
  *
  */
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 
 
 public class Server {
     // setting up server class to be starting up in Main.java
-    public static ArrayList<LevelServer> clients;
-    private final int [][] map;
+    public static ArrayList<LevelServer> clients;                    // This holds the number of clients connected.
+    public static int [][] map;                                     // This holds the world map
+    public static final int tilesize = 32;                          // Tile size of the map
+    public static final int offset = tilesize/2;                    // offset
+    public static final int doubleOffset = offset/2;               // double offset
+    public static final int xOffset = tilesize - doubleOffset;      //x offset
+    public static final int yOffset = tilesize + doubleOffset/2;    // y offset
 
     public Server() throws IOException{
         // server is listening on port 5000
