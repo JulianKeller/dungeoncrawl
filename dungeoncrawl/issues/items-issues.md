@@ -1,7 +1,6 @@
 ##Open Issues##
 [5] Update/test player interactions with items
 [12] Add images for items besides potions
-[14] Create player codex, a list of identified items
 [15] Check codex when spawning items
 
 ##Resolved Issues##
@@ -16,3 +15,4 @@
 [10] fix file not found exception on windows
 [11] Fix items spawning on walls
 [13] Add message box that displays item pickups
+[14] Create player codex, a list of identified items
