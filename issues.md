@@ -8,11 +8,6 @@
 **[ 12 ]** Have the server/client properly close all connections<br>
 
 ## PENDING ISSUES ##
-**[ 7 ]** Use a dumb client model<br>
-**[ 8 ]** Test connections on lab machine<br> 
-**[ 9 ]** Render maps from the server to the client<br>
-**[ 10 ]** Work on character movement in Client/Server<br>
-**[ 11 ]** Get the server to send coordinates to client to
-move the player<br>
-**[ 12 ]** Migrate Character class onto server.  It may help with
-movement<br>
+**[ 7 ]** Get world coordinates from client and update with new world coordinates on
+server for player.<br>
+**[ 8 ]** Implement ItemManager class on server<br>
