@@ -17,9 +17,14 @@ public class Character extends MovingEntity {
     int screenOrigin;
     int screenEnd;
     int moveSpeed;
+    boolean nearEdge = false;
     //    Vector origin;
     int ox;     // origin x
     int oy;     // origin y
+    int newx;   // next origin x
+    int newy;   // next origin y
+    float dx = 0f;     // delta x
+    float dy = 0f;     // delta y
 
     /**
      * Create a new client.Character (wx, wy)
@@ -109,10 +114,15 @@ public class Character extends MovingEntity {
    @param key String representing a keystroke
     */
     public void move(String key) {
-        // keep the character fixed to the grid
+        // move the screen under the character, fixed to a grid
+        if (nearEdge) {
+            moveMapHelper();
+            return;
+        }
+
+        // moved the character fixed to the grid
         if (!canMove) {
             moveTranslationHelper();
-//            changeOrigin();
             return;
         }
 
@@ -159,7 +169,7 @@ public class Character extends MovingEntity {
                 canMove = true;
                 return;
             }
-            moveTranslationHelper();
+            changeOrigin();
         }
     }
 
@@ -174,10 +184,10 @@ public class Character extends MovingEntity {
         float wy = wc.getY();
         float x = 0, y = 0;
         int change = moveSpeed;
-        if (changeOrigin()) {
-            movesLeft = 0;
-            return;
-        }
+//        if (changeOrigin()) {
+//            movesLeft = 0;
+//            return;
+//        }
 
         if (movesLeft > 0) {
             switch (direction) {
@@ -207,6 +217,49 @@ public class Character extends MovingEntity {
         }
     }
 
+
+    /*
+    Moves the map under the character
+     */
+    private void moveMapHelper() {
+        Vector wc = getWorldCoordinates();
+        float wx = wc.getX();
+        float wy = wc.getY();
+        float x = 0, y = 0;
+        float change = (float) moveSpeed/ 10f;
+
+        if (movesLeft > 0) {
+            switch (direction) {
+                case "walk_up":
+                    dx = 0f;
+                    dy -= change;
+                    break;
+                case "walk_down":
+                    dx = 0f;
+                    dy += change;
+                    break;
+                case "walk_left":
+                    dx -= change;
+                    dy = 0f;
+                    break;
+                case "walk_right":
+                    dx += change;
+                    dy = 0f;
+                    break;
+            }
+            movesLeft -= change;
+            RenderMap.setMap(dc, this);
+        }
+        else {
+            nearEdge = false;
+//            ox = newx;
+//            oy = newy;
+            System.out.printf("Origin set to: %s, %s\n", ox, oy);
+//            canMove = true;
+//            changeOrigin();
+        }
+    }
+
     /*
     Changes the screen origin if the player is in range
     Note: Not using the Vector class as we don't want to pass classes around AND
@@ -225,40 +278,45 @@ public class Character extends MovingEntity {
         px = px/dc.tilesize;
         py = py/dc.tilesize;
         int buffer = 5;
-        boolean inbuffer = false;
+        nearEdge = false;
         int width = dc.ScreenWidth/dc.tilesize;
         int height = dc.ScreenHeight/dc.tilesize;
 
+
         // move screen down
         if (Math.abs(py - height) < buffer && direction.equals("walk_down")) {
-            System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
+//            System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
             if (oy + 1 < height)
-                inbuffer = true;
+                nearEdge = true;
                 oy++;
         }
         // move screen up
         else if (Math.abs(0 - py) < buffer && direction.equals("walk_up")) {
-            System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
-            if (oy - 1 > 0)
-                inbuffer = true;
+//            System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
+            if (oy - 1 >= 0)
+                nearEdge = true;
                 oy--;
         }
         // move screen right
         else if (Math.abs(px - width) < buffer && direction.equals("walk_right")) {
-            System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
+//            System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
             if (ox + 1 < width)
-                inbuffer = true;
+                nearEdge = true;
                 ox++;
         }
         // move screen left
         else if (Math.abs(0 - px) < buffer && direction.equals("walk_left")) {
-            System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
-            if (ox - 1 > 0)
-                inbuffer = true;
+//            System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
+            if (ox - 1 >= 0)
+                nearEdge = true;
                 ox--;
         }
 
-        if (inbuffer) {
+        if (nearEdge) {
+            movesLeft = dc.tilesize;
+            dx = 32f;
+            dy = 32f;
+
             return true;
         }
         return false;

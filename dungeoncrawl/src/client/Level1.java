@@ -120,7 +120,7 @@ public class Level1 extends BasicGameState {
         dc.characters.add(knight);
         
 //        currentOrigin = knight.origin;
-        RenderMap.setMap(dc, knight.ox, knight.oy);                   // renders the map Tiles
+        RenderMap.setMap(dc, knight);                   // renders the map Tiles
         currentOX = knight.ox;
         currentOY = knight.oy;
         
@@ -227,11 +227,11 @@ public class Level1 extends BasicGameState {
         }
 
         knight.move(getKeystroke(input));
-        if (currentOX != knight.ox || currentOY != knight.oy) {
-            RenderMap.setMap(dc, knight.ox, knight.oy);
-            currentOX = knight.ox;
-            currentOY = knight.oy;
-        }
+//        if (currentOX != knight.ox || currentOY != knight.oy) {
+//            RenderMap.setMap(dc, knight);
+//            currentOX = knight.ox;
+//            currentOY = knight.oy;
+//        }
 
 
         //check if a character has hit an item

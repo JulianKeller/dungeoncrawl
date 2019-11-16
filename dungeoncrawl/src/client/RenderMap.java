@@ -74,16 +74,19 @@ public class RenderMap extends Entity {
 
 
     // Draw the 2D map to the screen
-    public static void setMap(Main dc, int ox, int oy) {
-//        System.out.println("Setting new Map Layout:" + origin);
-        int x, y;
+    public static void setMap(Main dc, Character c) {
+        int ox = c.ox;
+        int oy = c.oy;
+        float dx = c.dx;
+        float dy = c.dy;
+
+        float x, y;
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         // todo offset the i and j values based on origin offest
-        for (int i = 0 + oy; i < dc.height + oy; i++) {
-            for (int j = 0 + ox; j < dc.width + ox; j++) {
-                // TODO adjust i and j based on the offset in the origin
-                x = (j - ox) * dc.tilesize + dc.tilesize/2;        // columns
-                y = (i - oy) * dc.tilesize + dc.tilesize/2;        // rows
+        for (int i = oy; i < dc.height + oy; i++) {
+            for (int j = ox; j < dc.width + ox; j++) {
+                x = ((j - ox) * dc.tilesize + (float) dc.tilesize/2);        // columns
+                y = ((i - oy) * dc.tilesize + (float) dc.tilesize/2);       // rows
                 // WALLs
                 if (dc.map[i][j] == 1) {
                     if (i+1 >= dc.map.length) {
