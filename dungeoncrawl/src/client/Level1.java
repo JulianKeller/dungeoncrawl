@@ -69,6 +69,7 @@ public class Level1 extends BasicGameState {
 //            } catch (IOException e) {
 //                e.printStackTrace();
 //            // server.Server sockets for reading/writing to server.
+
         this.socket = dc.socket;
         this.dis = dc.dis;
         this.dos = dc.dos;
@@ -93,15 +94,6 @@ public class Level1 extends BasicGameState {
         }
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
 
-
-        // TODO can be removed. Just here to display potions
-//        dc.potions = new Entity[dc.map.length][dc.map[0].length];   // TODO make arraylist
-//        dc.potions[10][10] = new client.Potion(10 * dc.tilesize + dc.tilesize/2, 10 * dc.tilesize + dc.tilesize/2, "health");
-//        dc.potions[10][4] = new client.Potion(10 * dc.tilesize + dc.tilesize/2, 4 * dc.tilesize + dc.tilesize/2, "manna");
-//        dc.potions[10][8] = new client.Potion(10 * dc.tilesize + dc.tilesize/2, 8 * dc.tilesize + dc.tilesize/2, "fire");
-//        dc.potions[10][2] = new client.Potion(10 * dc.tilesize + dc.tilesize/2, 2 * dc.tilesize + dc.tilesize/2, "strength");
-//        dc.potions[10][6] = new client.Potion(10 * dc.tilesize + dc.tilesize/2, 6 * dc.tilesize + dc.tilesize/2, "invisibility");
-
         // TODO can be removed, here to demo animations/characters
         dc.animations = new ArrayList<>(200);
 //        client.AnimateEntity.testAllCharacterAnimations(dc);
@@ -116,7 +108,9 @@ public class Level1 extends BasicGameState {
         }catch(IOException e){
             e.printStackTrace();
         }
-        
+
+        dc.mapWidth = dc.map[0].length;
+        dc.mapHeight = dc.map.length;
         dc.characters.add(knight);
         
 //        currentOrigin = knight.origin;

@@ -99,6 +99,8 @@ public class Main extends StateBasedGame {
     int xOffset;
     int width;  // num tiles in width
     int height; // num tiles in height
+    int mapWidth;
+    int mapHeight;
     int[][] map;
     Entity[][] mapTiles;
     boolean collisions;
@@ -140,6 +142,8 @@ public class Main extends StateBasedGame {
         super(title);
         ScreenWidth = width;
         ScreenHeight = height;
+        mapWidth = 0;
+        mapHeight = 0;
 
         tilesize = 32;
         offset = tilesize/2;

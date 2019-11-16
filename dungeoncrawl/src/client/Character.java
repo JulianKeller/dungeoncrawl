@@ -226,8 +226,9 @@ public class Character extends MovingEntity {
         float wx = wc.getX();
         float wy = wc.getY();
         float x = 0, y = 0;
-        float change = (float) moveSpeed/ 10f;
+        float change = moveSpeed;
 
+        System.out.println("movesleft: " + movesLeft);
         if (movesLeft > 0) {
             switch (direction) {
                 case "walk_up":
@@ -247,13 +248,14 @@ public class Character extends MovingEntity {
                     dy = 0f;
                     break;
             }
+            System.out.printf("dx, dy = %s, %s\n", dx, dy);
             movesLeft -= change;
             RenderMap.setMap(dc, this);
         }
         else {
             nearEdge = false;
-//            ox = newx;
-//            oy = newy;
+            ox = newx;
+            oy = newy;
             System.out.printf("Origin set to: %s, %s\n", ox, oy);
 //            canMove = true;
 //            changeOrigin();
@@ -288,35 +290,34 @@ public class Character extends MovingEntity {
 //            System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
             if (oy + 1 < height)
                 nearEdge = true;
-                oy++;
+                newy++;
         }
         // move screen up
         else if (Math.abs(0 - py) < buffer && direction.equals("walk_up")) {
 //            System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
             if (oy - 1 >= 0)
                 nearEdge = true;
-                oy--;
+                newy--;
         }
         // move screen right
         else if (Math.abs(px - width) < buffer && direction.equals("walk_right")) {
 //            System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
             if (ox + 1 < width)
                 nearEdge = true;
-                ox++;
+                newx++;
         }
         // move screen left
         else if (Math.abs(0 - px) < buffer && direction.equals("walk_left")) {
 //            System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
             if (ox - 1 >= 0)
                 nearEdge = true;
-                ox--;
+                newx--;
         }
 
         if (nearEdge) {
             movesLeft = dc.tilesize;
-            dx = 32f;
-            dy = 32f;
-
+            dx = 0f;
+            dy = 0f;
             return true;
         }
         return false;
