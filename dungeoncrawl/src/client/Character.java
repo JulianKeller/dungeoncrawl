@@ -301,7 +301,7 @@ public class Character extends MovingEntity {
         // move screen left
         else if (px - 1 < buffer && direction.equals("walk_left")) {
             System.out.printf("left: %s < %s\n", px, buffer);
-            if (ox - 1 > 0) {
+            if (ox > 0) {
                 nearEdge = true;
                 newx--;
             }
