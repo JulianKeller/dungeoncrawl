@@ -57,9 +57,9 @@ public class Level1 extends BasicGameState {
             System.exit(1);
         }
         paused = false;
-        dc.width = dc.ScreenWidth/dc.tilesize;
-        dc.height = dc.ScreenHeight/dc.tilesize;
-        
+        dc.tilesWide = dc.ScreenWidth/dc.tilesize;
+        dc.tilesHigh = dc.ScreenHeight/dc.tilesize;
+
         messagebox = new Message[messages]; //display four messages at a time
 
             // TODO This section is the original map generator.
@@ -74,8 +74,7 @@ public class Level1 extends BasicGameState {
         this.dis = dc.dis;
         this.dos = dc.dos;
 
-        dc.width = dc.ScreenWidth / dc.tilesize;
-        dc.height = dc.ScreenHeight / dc.tilesize;
+
         // TODO this section requires that you run the server prior to client.Main.
         // Grab the map from the server.Server
         try {
@@ -93,9 +92,10 @@ public class Level1 extends BasicGameState {
             e.printStackTrace();
         }
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
+        System.out.printf("Map Size: %s, %s\n", dc.map.length, dc.map[0].length);
 
         // TODO can be removed, here to demo animations/characters
-        dc.animations = new ArrayList<>(200);
+//        dc.animations = new ArrayList<>(200);
 //        client.AnimateEntity.testAllCharacterAnimations(dc);
 
         float wx = (dc.tilesize * 20) - dc.offset;// - dc.xOffset;

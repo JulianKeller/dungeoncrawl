@@ -33,7 +33,8 @@
 [12] - update floor tiles
 [13] - update wall tiles
 [15] - render multiple random maps and save them
-
+[16] - fix map loading file error
+[19] - set animation speed based on characters move speed, math problem
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
@@ -42,5 +43,4 @@
 [10] - get mysql connector working properly
 [11] - update potions styles
 [14] - refactor walls and levels classes into one map class
-[16] - fix map loading file error
 [18] - refactor to client/server directories

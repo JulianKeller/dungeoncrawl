@@ -45,9 +45,9 @@ public class Character extends MovingEntity {
         ox = 0;
         oy = 0;
         screenOrigin = 0;
-        screenEnd = screenOrigin + dc.width;
+        screenEnd = screenOrigin + dc.tilesWide;
         setSpeed(25);
-        moveSpeed = 2;
+        moveSpeed = 8;
     }
 
     /**
@@ -184,10 +184,6 @@ public class Character extends MovingEntity {
         float wy = wc.getY();
         float x = 0, y = 0;
         int change = moveSpeed;
-//        if (changeOrigin()) {
-//            movesLeft = 0;
-//            return;
-//        }
 
         if (movesLeft > 0) {
             switch (direction) {
@@ -213,7 +209,6 @@ public class Character extends MovingEntity {
         }
         else {
             canMove = true;
-//            changeOrigin();
         }
     }
 
@@ -228,7 +223,7 @@ public class Character extends MovingEntity {
         float x = 0, y = 0;
         float change = moveSpeed;
 
-        System.out.println("movesleft: " + movesLeft);
+//        System.out.println("movesleft: " + movesLeft);
         if (movesLeft > 0) {
             switch (direction) {
                 case "walk_up":
@@ -248,18 +243,17 @@ public class Character extends MovingEntity {
                     dy = 0f;
                     break;
             }
-            System.out.printf("dx, dy = %s, %s\n", dx, dy);
+//            System.out.printf("dx, dy = %s, %s\n", dx, dy);
             movesLeft -= change;
             RenderMap.setMap(dc, this);
         }
         else {
             nearEdge = false;
+            System.out.printf("Origin updated %s, %s --> %s, %s\n", ox, oy, newx, newy);
             ox = newx;
             oy = newy;
-            System.out.printf("Origin set to: %s, %s\n", ox, oy);
-//            canMove = true;
-//            changeOrigin();
         }
+
     }
 
     /*
@@ -281,37 +275,44 @@ public class Character extends MovingEntity {
         py = py/dc.tilesize;
         int buffer = 5;
         nearEdge = false;
-        int width = dc.ScreenWidth/dc.tilesize;
-        int height = dc.ScreenHeight/dc.tilesize;
+        int height = dc.tilesHigh - 2;
+        int width = dc.tilesWide - 2;
 
+//        System.out.printf("height: %s, width: %s\n", height, width);
 
-        // move screen down
-        if (Math.abs(py - height) < buffer && direction.equals("walk_down")) {
-//            System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
-            if (oy + 1 < height)
-                nearEdge = true;
-                newy++;
-        }
         // move screen up
-        else if (Math.abs(0 - py) < buffer && direction.equals("walk_up")) {
-//            System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
-            if (oy - 1 >= 0)
+        if (py < buffer && direction.equals("walk_up")) {
+            System.out.printf("up: %s < %s\n", py, buffer);
+            if (oy - 1 >= 0) {
                 nearEdge = true;
                 newy--;
+            }
+        }
+        // move screen down
+        else if (Math.abs(py - height) < buffer && direction.equals("walk_down")) {
+            System.out.printf("down: %s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
+//            System.out.printf("oy: %s, height: %s\n", oy, height);
+            if (oy - 1 <= height + 2) {
+                nearEdge = true;
+                newy++;
+            }
+
+        }
+        // move screen left
+        else if (px - 1 < buffer && direction.equals("walk_left")) {
+            System.out.printf("left: %s < %s\n", px, buffer);
+            if (ox - 1 > 0) {
+                nearEdge = true;
+                newx--;
+            }
         }
         // move screen right
         else if (Math.abs(px - width) < buffer && direction.equals("walk_right")) {
-//            System.out.printf("%s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
-            if (ox + 1 < width)
+            System.out.printf("right: %s - %s = %s < %s\n", px, width, Math.abs(px - width), buffer);
+            if (ox < width + 2) {
                 nearEdge = true;
                 newx++;
-        }
-        // move screen left
-        else if (Math.abs(0 - px) < buffer && direction.equals("walk_left")) {
-//            System.out.printf("%s - %s = %s < %s\n", height, py, height - py, buffer);
-            if (ox - 1 >= 0)
-                nearEdge = true;
-                newx--;
+            }
         }
 
         if (nearEdge) {

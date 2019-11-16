@@ -73,22 +73,25 @@ public class RenderMap extends Entity {
     }
 
 
-    // Draw the 2D map to the screen
+    /**
+    Creates tiles in the correct x, y coordinates to be rendered
+    @param dc the Main game class
+    @param c an instance of the character class
+    */
     public static void setMap(Main dc, Character c) {
         // todo adjust based on bounds of game
+        float x = 0, y = 0;
+        int i = 0, j = 0;
         int ox = c.ox;
         int oy = c.oy;
         float dx = c.dx;
         float dy = c.dy;
         int startx = ox;
         int starty = oy;
-        int endx = dc.width + ox;
-        int endy = dc.height + oy;
-        System.out.printf("sx sy: %s, %s\n", startx, starty);
-        System.out.printf("ex ey: %s, %s\n", endx, endy);
+        int endx = dc.tilesWide + ox;
+        int endy = dc.tilesHigh + oy;
 
-
-        // increase the range by 1 if possible
+        // increase the range rendered by 1 if possible, prevents black edges on scrolling
         if (startx > 0) {
             startx--;
         }
@@ -101,49 +104,49 @@ public class RenderMap extends Entity {
         if (endy < dc.mapHeight) {
             endy++;
         }
-        System.out.printf("sx sy: %s, %s\n", startx, starty);
-        System.out.printf("ex ey: %s, %s\n\n", endx, endy);
 
-        float x, y;
+//        System.out.printf("Origin: %s, %s\n", ox, oy);
+//        System.out.printf("x Range: %s, %s\n", startx, endx);
+//        System.out.printf("y Range: %s, %s\n\n", starty, endy);
+
+        // generate the correct wall, floor, shadow tiles in the x, y coordinates
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
-        // todo offset the i and j values based on origin offest
-        for (int i = starty; i < endy; i++) {
-            for (int j = startx; j < endx; j++) {
-//                x = (((float) j - (float) ox) * (float) dc.tilesize + (float) dc.tilesize/2);        // columns
-//                y = (((float) i - (float) oy) * (float) dc.tilesize + (float) dc.tilesize/2);        // columns
-                x = (((float) j - (float) ox) * (float) dc.tilesize + (float) dc.tilesize/2) - dx;        // columns
-                y = (((float) i - (float) oy) * (float) dc.tilesize + (float) dc.tilesize/2) - dy;        // columns
-                // WALLs
-                if (dc.map[i][j] == 1) {
-                    if (i+1 >= dc.map.length) {
-                        dc.mapTiles[i][j] = new Wall(x, y, "top");
+        try {
+            for (i = starty; i < endy && i < dc.mapHeight; i++) {
+                for (j = startx; j < endx && j < dc.mapWidth; j++) {
+                    x = ((j - ox) * dc.tilesize + (float) dc.tilesize / 2) - dx;        // columns
+                    y = ((i - oy) * dc.tilesize + (float) dc.tilesize / 2) - dy;        // columns
+                    // WALLs
+                    if (dc.map[i][j] == 1) {
+                        if (i + 1 >= dc.map.length) {
+                            dc.mapTiles[i][j] = new Wall(x, y, "top");
+                        } else if (dc.map[i + 1][j] == 0) {
+                            dc.mapTiles[i][j] = new Wall(x, y, "border");
+                        } else if (dc.map[i + 1][j] == 1) {
+                            dc.mapTiles[i][j] = new Wall(x, y, "top");
+                        }
                     }
-                    else if (dc.map[i+1][j] == 0) {
-                        dc.mapTiles[i][j] = new Wall(x, y, "border");
-                    }
-                    else if (dc.map[i+1][j] == 1) {
-                        dc.mapTiles[i][j] = new Wall(x, y, "top");
-                    }
-                }
-                // FLOORs
-                else if (dc.map[i][j] == 0) {
-                    if (dc.map[i+1][j] == 1 && dc.map[i][j-1] == 1) {
-                        dc.mapTiles[i][j] = new Floor(x, y, "shadow_double");
-                    }
-                    else if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
-                        dc.mapTiles[i][j] = new Floor(x, y, "shadow");
-                    }
-                    else if (j-1 >= 0 && dc.map[i][j-1] == 1) {
-                        dc.mapTiles[i][j] = new Floor(x, y, "shadow_right");
-                    }
-                    else if (j-1 > 0 && i+1 < dc.map[i].length && dc.map[i+1][j-1] == 1) {
-                        dc.mapTiles[i][j] = new Floor(x, y, "shadow_corner");
-                    }
-                    else {
-                        dc.mapTiles[i][j] = new Floor(x, y, "normal");
+                    // FLOORs
+                    else if (dc.map[i][j] == 0) {
+                        if (dc.map[i + 1][j] == 1 && dc.map[i][j - 1] == 1) {
+                            dc.mapTiles[i][j] = new Floor(x, y, "shadow_double");
+                        } else if (i + 1 < dc.map.length && dc.map[i + 1][j] == 1) {
+                            dc.mapTiles[i][j] = new Floor(x, y, "shadow");
+                        } else if (j - 1 >= 0 && dc.map[i][j - 1] == 1) {
+                            dc.mapTiles[i][j] = new Floor(x, y, "shadow_right");
+                        } else if (j - 1 > 0 && i + 1 < dc.map[i].length && dc.map[i + 1][j - 1] == 1) {
+                            dc.mapTiles[i][j] = new Floor(x, y, "shadow_corner");
+                        } else {
+                            dc.mapTiles[i][j] = new Floor(x, y, "normal");
+                        }
                     }
                 }
             }
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println(e.getStackTrace());
+            System.out.printf("[i, j] = [%s, %s]\t<x, y> = <%s, %s>\n", i, j, x, y);
+
         }
     }
 

@@ -97,8 +97,8 @@ public class Main extends StateBasedGame {
     int doubleOffset;
     int yOffset;
     int xOffset;
-    int width;  // num tiles in width
-    int height; // num tiles in height
+    int tilesWide;  // num tiles in width
+    int tilesHigh; // num tiles in height
     int mapWidth;
     int mapHeight;
     int[][] map;
