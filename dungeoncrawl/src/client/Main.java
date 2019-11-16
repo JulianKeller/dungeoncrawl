@@ -263,12 +263,12 @@ public class Main extends StateBasedGame {
                 e.printStackTrace();
             }
         }
-    	Main game = new Main("Dungeon Crawl", 1280, 768, socket, dis, dos);
+    	Main game = new Main("Dungeon Crawl", 1280, 736, socket, dis, dos);
     	im = new ItemManager(game);
         AppGameContainer app;
         try {
             app = new AppGameContainer(game);
-            app.setDisplayMode(1280, 768, false);
+            app.setDisplayMode(1280, 736, false);
             app.setVSync(true);
 //            app.setShowFPS(false);      // disable fps
             app.start();
