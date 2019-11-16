@@ -38,7 +38,9 @@ public class Character extends MovingEntity {
         this.dc = dc;
         this.type = type;
         setStats();
-        animate = new AnimateEntity( wx, wy, getSpeed(), this.type);
+        animate = new AnimateEntity(wx, wy, getSpeed(), this.type);
+//        System.out.println("Starting getPosition(): " + animate.getPosition());
+
         direction = "walk_down";
         animate.selectAnimation(direction);
         animate.stop();
@@ -47,7 +49,7 @@ public class Character extends MovingEntity {
         screenOrigin = 0;
         screenEnd = screenOrigin + dc.tilesWide;
         setSpeed(25);
-        moveSpeed = 8;
+        moveSpeed = 2;
     }
 
     /**
@@ -127,31 +129,19 @@ public class Character extends MovingEntity {
         }
 
         String movement = null;
-        float distance = 1f;
-        Vector wc = getWorldCoordinates();
-        float x = 0, y = 0;
-
         animate.stop();
         switch (key) {
             case "w":
                 movement = "walk_up";
-                x = wc.getX();
-                y = wc.getY() - distance;
                 break;
             case "s":
                 movement = "walk_down";
-                x = wc.getX();
-                y = wc.getY() + distance;
                 break;
             case "a":
                 movement = "walk_left";
-                x = wc.getX() - distance;
-                y = wc.getY();
                 break;
             case "d":
                 movement = "walk_right";
-                x = wc.getX() + distance;
-                y = wc.getY();
                 break;
         }
         if (movement != null) {
@@ -179,32 +169,35 @@ public class Character extends MovingEntity {
     called from the move method and should not be called by any other methods.
      */
     private void moveTranslationHelper() {
-        Vector wc = getWorldCoordinates();
-        float wx = wc.getX();
-        float wy = wc.getY();
+//        System.out.println("Move Translation Helper");
+//        Vector wc = getWorldCoordinates();
+        Vector sc = animate.getPosition();
+        float sx = sc.getX();
+        float sy = sc.getY();
         float x = 0, y = 0;
-        int change = moveSpeed;
-
+//        System.out.printf("%s: moveTranslationHelper Animate Position: %s, %s", movesLeft, animate.getX(), animate.getY());
+//        System.out.println("Direction: " + direction);
         if (movesLeft > 0) {
             switch (direction) {
                 case "walk_up":
-                    x = wx;
-                    y = wy - change;
+                    x = sx;
+                    y = sy - moveSpeed;
                     break;
                 case "walk_down":
-                    x = wx;
-                    y = wy + change;
+                    x = sx;
+                    y = sy + moveSpeed;
                     break;
                 case "walk_left":
-                    x = wx - change;
-                    y = wy;
+                    x = sx - moveSpeed;
+                    y = sy;
                     break;
                 case "walk_right":
-                    x = wx + change;
-                    y = wy;
+                    x = sx + moveSpeed;
+                    y = sy;
                     break;
             }
-            movesLeft -= change;
+            movesLeft -= moveSpeed;
+//            System.out.printf(" next %s, %s\n", x, y);
             updatePosition(x, y);
         }
         else {
@@ -217,6 +210,7 @@ public class Character extends MovingEntity {
     Moves the map under the character
      */
     private void moveMapHelper() {
+//        System.out.println("Move Map Helper");
         Vector wc = getWorldCoordinates();
         float wx = wc.getX();
         float wy = wc.getY();
@@ -243,15 +237,14 @@ public class Character extends MovingEntity {
                     dy = 0f;
                     break;
             }
-//            System.out.printf("dx, dy = %s, %s\n", dx, dy);
             movesLeft -= change;
             RenderMap.setMap(dc, this);
         }
         else {
-            nearEdge = false;
-            System.out.printf("Origin updated %s, %s --> %s, %s\n", ox, oy, newx, newy);
             ox = newx;
             oy = newy;
+            updateWorldPosition();
+            nearEdge = false;
         }
 
     }
@@ -269,8 +262,9 @@ public class Character extends MovingEntity {
      */
     private boolean changeOrigin() {
         // calculate players distance to up, down, left, right borders of screen
-        int px = (int) animate.getX();
-        int py = (int) animate.getY();
+        Vector sc = animate.getPosition();
+        int px = (int) sc.getX();
+        int py = (int) sc.getY();
         px = px/dc.tilesize;
         py = py/dc.tilesize;
         int buffer = 5;
@@ -282,7 +276,7 @@ public class Character extends MovingEntity {
 
         // move screen up
         if (py < buffer && direction.equals("walk_up")) {
-            System.out.printf("up: %s < %s\n", py, buffer);
+//            System.out.printf("up: %s < %s\n", py, buffer);
             if (oy - 1 >= 0) {
                 nearEdge = true;
                 newy--;
@@ -290,7 +284,7 @@ public class Character extends MovingEntity {
         }
         // move screen down
         else if (Math.abs(py - height) < buffer && direction.equals("walk_down")) {
-            System.out.printf("down: %s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
+//            System.out.printf("down: %s - %s = %s < %s\n", py, height, Math.abs(py - height), buffer);
 //            System.out.printf("oy: %s, height: %s\n", oy, height);
             if (oy - 1 <= height + 2) {
                 nearEdge = true;
@@ -300,7 +294,7 @@ public class Character extends MovingEntity {
         }
         // move screen left
         else if (px - 1 < buffer && direction.equals("walk_left")) {
-            System.out.printf("left: %s < %s\n", px, buffer);
+//            System.out.printf("left: %s < %s\n", px, buffer);
             if (ox > 0) {
                 nearEdge = true;
                 newx--;
@@ -308,7 +302,7 @@ public class Character extends MovingEntity {
         }
         // move screen right
         else if (Math.abs(px - width) < buffer && direction.equals("walk_right")) {
-            System.out.printf("right: %s - %s = %s < %s\n", px, width, Math.abs(px - width), buffer);
+//            System.out.printf("right: %s - %s = %s < %s\n", px, width, Math.abs(px - width), buffer);
             if (ox < width + 2) {
                 nearEdge = true;
                 newx++;
@@ -326,60 +320,91 @@ public class Character extends MovingEntity {
 
 
     /*
-    check if there is a collision at the next x, y with the wall
+    check if there is a collision at the next world x, y with the wall
     returns true if there is a collision, false otherwise
      */
     // TODO this method needs to be adjusted for the screen coordinates
     private boolean collision() {
-        int len = dc.map.length;
-        int width = dc.map[0].length;
-        int x = (int) animate.getX() + (dc.tilesize * screenOrigin);
-        int y = (int) animate.getY() + (dc.tilesize * screenOrigin);
-//        System.out.printf("Position x, y:  %s, %s --> %s, %s\n", x, y, x/dc.tilesize, y/dc.tilesize);
-        if (direction.equals("walk_up")) {
-            y -= dc.tilesize;
+        Vector wc = getWorldCoordinates();
+        int x = (((int) wc.getX() + dc.offset)/dc.tilesize) - 1;
+        int y = (((int) wc.getY()+ dc.tilesize + dc.doubleOffset)/dc.tilesize) - 1;
+//        System.out.printf("World: %s, ox, oy: %s, %s\n", wc, ox, oy);
+        switch (direction) {
+            case "walk_up":
+                y -= 1;
+                break;
+            case "walk_down":
+                y += 1;
+                break;
+            case "walk_left":
+                x -= 1;
+                break;
+            case "walk_right":
+                x += 1;
+                break;
         }
-        else if (direction.equals("walk_down")) {
-            y += dc.tilesize;
-        }
-        else if (direction.equals("walk_left")) {
-            x -= dc.tilesize;
-        }
-        else if (direction.equals("walk_right")) {
-            x += dc.tilesize;
-        }
-        x = x/dc.tilesize;
-        y = y/dc.tilesize;
+//        System.out.printf("dc.map[%s][%s] = ", y, x, dc.map[y][x]);
+//        System.out.printf(" %s\n", dc.map[y][x]);
         return (dc.map[y][x] != 0);
     }
 
 
 
-    /*
+    /**
     Updates the animation that is currently in use
     @param action a new animations action to be selected
      */
     private void updateAnimation(String action) {
+//        System.out.println("Update Animation: " + action );
         if (action != null) {
-            // TODO change getX and getY
-            Vector wc = getWorldCoordinates();
-//            System.out.printf("Update World Coordinates %s, %s\n", wc.getX(), wc.getY());
-            animate = new AnimateEntity(wc.getX(), wc.getY(), getSpeed(), this.type);
+//            Vector wc = getWorldCoordinates();
+            // TODO adjust for world coordinates
+//            int x = (((int) wc.getX() + dc.offset)/dc.tilesize) - 1;
+//            int y = (((int) wc.getY()+ dc.tilesize + dc.doubleOffset)/dc.tilesize) - 1;
+//            float wx = wc.getX();
+//            float wy = wc.getY();
+//            System.out.printf("World Coordinates: %s, %s\n", wx, wy);
+//            animate = null;
+//            System.out.printf("Update Animation position: %s, %s\n", animate.getX(), animate.getY());
+            Vector sc = animate.getPosition();
+            animate = new AnimateEntity(sc.getX(), sc.getY(), getSpeed(), this.type);
             animate.selectAnimation(action);
-            // TODO set world coordinates
         }
     }
 
-    /*
-     Translates the entity's screen and world coordinates position
-     @param x The new x position
-     @param y The new y position
+    /**
+     Translates the entity's screen position and sets the correct world coordinates
+     @param x The new x screen position
+     @param y The new y screen position
      */
     private void updatePosition(float x, float y) {
+        System.out.printf("\nSetting Screen Position to: %s, %s\n", x, y);
+//        System.out.println("bf: animate.getPosition() " + animate.getPosition());
+        Vector sc = animate.getPosition();
+        System.out.printf("bf: animate.getPosition() %s\n", animate.getPosition());
+        animate.setPosition(x, y);      // screen coordinates
+//        animate.setX(x);
+//        animate.setY(y);
+        System.out.println("af: animate.getPosition() " + animate.getPosition());
+//        System.out.printf("af: animate.getX(), animate.getY(): %s, %s\n\n", animate.getX(), animate.getY());
+
+
         Vector wc = getWorldCoordinates();
-//        System.out.printf("World Coordinates %s, %s\n", wc.getX(), wc.getY());
-//        System.out.printf("Walk Coordinates %s, %s\n\n", x, y);
-        animate.setPosition(x, y);
-        setWorldCoordinates(x, y);
+        float wx = x + (ox * dc.tilesize);
+        float wy = y + (oy * dc.tilesize);
+        setWorldCoordinates(wx, wy);    // world coordinates
+//        System.out.printf("updatePosition() wc: %s, %s\n\n", wx, wy);
+    }
+
+    /**
+     Updates the characters world position when the screen is scrolling
+     */
+    private void updateWorldPosition() {
+        Vector wc = getWorldCoordinates();
+        Vector sc = animate.getPosition();
+        float wx = (ox * dc.tilesize) + sc.getX();
+        float wy = (oy * dc.tilesize) + sc.getY();
+        setWorldCoordinates(wx, wy);    // world coordinates
+        System.out.printf("updateWorldPosition(): %s, %s\n", wx, wy);
     }
 }
