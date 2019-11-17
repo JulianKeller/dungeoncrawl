@@ -37,7 +37,7 @@ public class Character extends MovingEntity {
         animate.stop();
         ox = 0;
         oy = 0;
-        setSpeed(25);       // speed of the animation
+        setSpeed(50);       // speed of the animation
         moveSpeed = 2;      // speed that character moves across the screen
     }
 
@@ -122,8 +122,12 @@ public class Character extends MovingEntity {
             return;
         }
 
+        if (key == null || key.equals("")) {
+            animate.stop();
+            return;
+        }
+
         String movement = null;
-        animate.stop();
         switch (key) {
             case "w":
                 movement = "walk_up";
@@ -136,6 +140,24 @@ public class Character extends MovingEntity {
                 break;
             case "d":
                 movement = "walk_right";
+                break;
+            case "4":       // speed up
+                if (moveSpeed >= 32) {
+                    System.out.println("Speed at Maximum: " + moveSpeed);
+                    break;
+                }
+                setSpeed(getSpeed() / 2);
+                moveSpeed *= 2;
+                System.out.println("Speed increased to: " + moveSpeed);
+                break;
+            case "5":        // slow down
+                if (moveSpeed <= 1) {
+                    System.out.println("Speed at Minimum: " + moveSpeed);
+                    break;
+                }
+                setSpeed(getSpeed() * 2);
+                moveSpeed /= 2;
+                System.out.println("Speed Decreased to: " + moveSpeed);
                 break;
         }
         if (movement != null) {

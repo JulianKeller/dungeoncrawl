@@ -105,9 +105,6 @@ public class RenderMap extends Entity {
             endy++;
         }
 
-//        System.out.printf("Origin: %s, %s\n", ox, oy);
-//        System.out.printf("x Range: %s, %s\n", startx, endx);
-//        System.out.printf("y Range: %s, %s\n\n", starty, endy);
 
         // generate the correct wall, floor, shadow tiles in the x, y coordinates
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
@@ -144,7 +141,7 @@ public class RenderMap extends Entity {
             }
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             System.out.printf("[i, j] = [%s, %s]\t<x, y> = <%s, %s>\n", i, j, x, y);
 
         }
