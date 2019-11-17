@@ -1,4 +1,16 @@
+package client;
+
 import org.newdawn.slick.Input;
+
+
+/*
+Keys in Use:
+1: level 1
+3: startup state
+4: increase speed
+5: decrease speed
+c: no collisions with walls
+ */
 
 public class Cheats {
 
@@ -13,19 +25,7 @@ public class Cheats {
         else if (input.isKeyPressed(Input.KEY_3)) {
             dc.enterState(Main.STARTUPSTATE);
         }
-//                else if (input.isKeyPressed(Input.KEY_4)) {
-//            dtc.enterState(Game.GAMEOVER);
-//        }
-//        else if (input.isKeyPressed(Input.KEY_5)) {
-//            dtc.enterState(Game.GAMEWON);
-//        }
-//        if (input.isKeyPressed(Input.KEY_6)) {
-//            dtc.showPath = !dtc.showPath;
-//        }
-//        else if (input.isKeyPressed(Input.KEY_7)) {
-//            dtc.infiniteLives = !dtc.infiniteLives;
-//        }
-        else if (input.isKeyPressed(Input.KEY_C)) {
+        else if (input.isKeyPressed(Input.KEY_C)) {     // disable collisions with walls
             dc.collisions = !dc.collisions;
         }
     }

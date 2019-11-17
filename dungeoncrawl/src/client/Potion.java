@@ -1,6 +1,11 @@
+package client;
+
 import jig.Entity;
 import jig.ResourceManager;
 
+/*
+TODO This class can probably be deleted if it is not used by the Item Manager
+ */
 public class Potion extends Entity {
     String type;
 

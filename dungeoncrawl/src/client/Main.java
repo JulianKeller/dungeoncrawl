@@ -1,7 +1,10 @@
+package client;
+
 import jig.Entity;
 import jig.ResourceManager;
 
-import java.sql.SQLException;
+import java.io.*;
+import java.net.*;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
@@ -12,6 +15,12 @@ import java.util.ArrayList;
 
 
 public class Main extends StateBasedGame {
+    // server.Server items
+    public final Socket socket;
+    public final ObjectInputStream dis;
+    public final ObjectOutputStream dos;
+    public static boolean localMode = false;
+
     // Game States
     public static final int STARTUPSTATE = 0;
     public static final int LEVEL1 = 1;
@@ -35,22 +44,12 @@ public class Main extends StateBasedGame {
     public static final String SHADOW_FLOOR_CORNER = "resources/floor/floor_2d_shadow_corner.png";
     public static final String SHADOW_FLOOR_DOUBLE_CORNER = "resources/floor/floor_2d_dual_shadows.png";
 
-    // iso
-    public static final String ISOFLOOR = "resources/floor/floor_grey.png";
-    public static final String ISOWALL = "resources/wall/wall_grey.png";
 
     // path finding arrows
     public static final String ARROW_U = "resources/arrows/up.png";
     public static final String ARROW_D = "resources/arrows/down.png";
     public static final String ARROW_L = "resources/arrows/left.png";
     public static final String ARROW_R = "resources/arrows/right.png";
-
-    // potions
-    public static final String POTION_BLUE = "resources/potions/blue_potion.png";
-    public static final String POTION_RED = "resources/potions/red_potion.png";
-    public static final String POTION_YELLOW = "resources/potions/yellow_potion.png";
-    public static final String POTION_PINK = "resources/potions/pink_potion.png";
-    public static final String POTION_ORANGE = "resources/potions/orange_potion.png";
 
     // Knight
     public static final String KNIGHT_LEATHER = "resources/knight/knight_leather.png";
@@ -60,7 +59,6 @@ public class Main extends StateBasedGame {
     // Mage
     public static final String MAGE_LEATHER = "resources/mage/mage_leather.png";
     public static final String MAGE_IMPROVED = "resources/mage/mage_improved.png";
-
 
     // Archer
     public static final String ARCHER_LEATHER = "resources/archer/archer_leather.png";
@@ -78,6 +76,25 @@ public class Main extends StateBasedGame {
     // dark elf
     public static final String ICE_ELF = "resources/darkelf/iceelf.png";
 
+
+    /* Items */
+
+    // potions
+    public static final String POTION_BLUE = "resources/potions/blue_potion.png";
+    public static final String POTION_RED = "resources/potions/red_potion.png";
+    public static final String POTION_YELLOW = "resources/potions/yellow_potion.png";
+    public static final String POTION_PINK = "resources/potions/pink_potion.png";
+    public static final String POTION_ORANGE = "resources/potions/orange_potion.png";
+
+    // Armor
+    public static final String ARMOR_GOLD = "resources/armor/gold_armor.png";
+    public static final String ARMOR_IRON = "resources/armor/iron_armor.png";
+
+    // Swords
+    public static final String SWORD_WOOD = "resources/swords/wood_sword.png";
+    public static final String SWORD_IRON = "resources/swords/iron_sword.png";
+    public static final String SWORD_GOLD = "resources/swords/gold_sword.png";
+
     // Screen Size
     public final int ScreenWidth;
     public final int ScreenHeight;
@@ -88,14 +105,17 @@ public class Main extends StateBasedGame {
     int doubleOffset;
     int yOffset;
     int xOffset;
-    int width;  // num tiles in width
-    int height; // num tiles in height
+    int tilesWide;  // num tiles in width
+    int tilesHigh; // num tiles in height
+    int mapWidth;
+    int mapHeight;
     int[][] map;
     Entity[][] mapTiles;
     boolean collisions;
+    ArrayList<DisplayItem> testItems;
     
     //item types
-    public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
+    public static final String[] ItemTypes = {"client.Potion", "Armor", "Sword", "client.Arrow", "Staff", "Glove"};
     
     //item materials
     public static final String[] ArmorMaterials = {"Leather", "Iron", "Turtle Shell"};
@@ -127,10 +147,12 @@ public class Main extends StateBasedGame {
      *
      * @param title The name of the game
      */
-    public Main(String title, int width, int height) {
+    public Main(String title, int width, int height, Socket socket, ObjectInputStream dis, ObjectOutputStream dos) {
         super(title);
         ScreenWidth = width;
         ScreenHeight = height;
+        mapWidth = 0;
+        mapHeight = 0;
 
         tilesize = 32;
         offset = tilesize/2;
@@ -138,8 +160,12 @@ public class Main extends StateBasedGame {
         xOffset = tilesize - doubleOffset;
         yOffset = tilesize + doubleOffset/2;
         collisions = true;
+        this.socket = socket;
+        this.dis = dis;
+        this.dos = dos;
 
-        characters = new ArrayList<Character>();
+        characters = new ArrayList<>();
+        testItems = new ArrayList<>(50);
 
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);    // set a rectangle
     }
@@ -169,17 +195,6 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(SHADOW_FLOOR_CORNER);
         ResourceManager.loadImage(SHADOW_FLOOR_DOUBLE_CORNER);
 
-        // ISO
-        ResourceManager.loadImage(ISOFLOOR);
-        ResourceManager.loadImage(ISOWALL);
-
-        // POTIONS
-        ResourceManager.loadImage(POTION_BLUE);
-        ResourceManager.loadImage(POTION_ORANGE);
-        ResourceManager.loadImage(POTION_PINK);
-        ResourceManager.loadImage(POTION_RED);
-        ResourceManager.loadImage(POTION_YELLOW);
-
         // KNIGHT
         ResourceManager.loadImage(KNIGHT_LEATHER);
         ResourceManager.loadImage(KNIGHT_IRON);
@@ -204,15 +219,72 @@ public class Main extends StateBasedGame {
 
         // ELF
         ResourceManager.loadImage(ICE_ELF);
+
+        // ---- ITEMS ----
+        // POTIONS
+        ResourceManager.loadImage(POTION_BLUE);
+        ResourceManager.loadImage(POTION_ORANGE);
+        ResourceManager.loadImage(POTION_PINK);
+        ResourceManager.loadImage(POTION_RED);
+        ResourceManager.loadImage(POTION_YELLOW);
+
+        // ARMOR
+        ResourceManager.loadImage(ARMOR_GOLD);
+        ResourceManager.loadImage(ARMOR_IRON);
+
+        // SWORDS
+        ResourceManager.loadImage((SWORD_IRON));
+        ResourceManager.loadImage(SWORD_WOOD);
+        ResourceManager.loadImage(SWORD_GOLD);
+    }
+
+    // Send close to the server and close connections before exiting.
+    @Override
+    public boolean closeRequested(){
+        if(!localMode) {
+            try {
+                dos.writeUTF("Exit");
+                dos.flush();
+                socket.close();
+                dos.close();
+                dis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        System.exit(0);
+        return false;
     }
 
     public static void main(String[] args) {
-    	Main game = new Main("Dungeon Crawl", 1280, 768);
+        // Setting up the connection to the server
+        Socket socket = null;
+        ObjectInputStream dis = null;
+        ObjectOutputStream dos = null;
+        if(!localMode) {
+            try {
+                byte[] ipAddr = new byte[]{127, 0, 0, 1};
+
+                // getting localhost ip
+                InetAddress ip = InetAddress.getByAddress(ipAddr);
+
+                // establish the connection with server port 5000
+                socket = new Socket(ip, 5000);
+
+                // obtaining input and out streams
+                dis = new ObjectInputStream(socket.getInputStream());
+                dos = new ObjectOutputStream(socket.getOutputStream());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    	Main game = new Main("Dungeon Crawl", 1280, 736, socket, dis, dos);
     	im = new ItemManager(game);
         AppGameContainer app;
         try {
             app = new AppGameContainer(game);
-            app.setDisplayMode(1280, 768, false);
+            app.setDisplayMode(1280, 736, false);
             app.setVSync(true);
 //            app.setShowFPS(false);      // disable fps
             app.start();

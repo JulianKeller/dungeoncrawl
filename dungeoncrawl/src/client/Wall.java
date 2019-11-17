@@ -1,8 +1,10 @@
+package client;
+
 import jig.Entity;
 import jig.ResourceManager;
 
 /*
-This class creates a Floor tile Entity with the correct image
+This class creates a client.Floor tile Entity with the correct image
  */
 public class Wall extends Entity {
 
@@ -19,10 +21,6 @@ public class Wall extends Entity {
             }
             case "shadow": {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.SHADOW_FLOOR));
-                break;
-            }
-            case "iso": {
-                addImageWithBoundingBox(ResourceManager.getImage(Main.ISOWALL));
                 break;
             }
         }

@@ -1,3 +1,5 @@
+package client;
+
 import java.util.*;
 
 // an implementation of Dijkstra's algorithm
@@ -14,8 +16,8 @@ public class PathFinding {
     private int startY;
     private final int MAX = 20000;
 
-//    public PathFinding(Game dtc, int startX, int startY, int targetX, int targetY) {
-//        Wall[][] map = dtc.map;
+//    public client.PathFinding(Game dtc, int startX, int startY, int targetX, int targetY) {
+//        client.Wall[][] map = dtc.map;
 //        this.x = map.length - 1;
 //        this.y = map[0].length;
 //        this.targetX = targetX;
@@ -26,7 +28,7 @@ public class PathFinding {
 //
 //    // runs dijkstra's and then returns the shortest found path
 //    public ArrayList<int[]> dijkstra(Game dtc, int startX, int startY) {
-//        Wall[][] map = dtc.map;
+//        client.Wall[][] map = dtc.map;
 //        Vertex min;
 //        initializeSingleSource(startX, startY);
 //        int[] current;
@@ -107,7 +109,7 @@ public class PathFinding {
     }
 
     // current = u, adjacent = v
-//    private void relax(Wall[][] map, int[] current, int[] adjacent) {
+//    private void relax(client.Wall[][] map, int[] current, int[] adjacent) {
 //        int cx = current[0];
 //        int cy = current[1];
 //        int ax = adjacent[0];

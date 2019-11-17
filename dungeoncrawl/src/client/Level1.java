@@ -1,6 +1,18 @@
+<<<<<<< HEAD:dungeoncrawl/src/Level1.java
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+=======
+package client;
+
+import jig.Entity;
+import jig.Vector;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.net.*;
+import java.io.*;
+>>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -16,12 +28,25 @@ import jig.Vector;
 public class Level1 extends BasicGameState {
     private Boolean paused;
     Character knight;
+
+    int currentOX;
+    int currentOY;
+
     Vector currentOrigin;
+<<<<<<< HEAD:dungeoncrawl/src/Level1.java
     private Random rand;
     
     private int[][] rotatedMap;
+=======
+    Socket socket;
+    ObjectInputStream dis;
+    ObjectOutputStream dos;
+    String serverMessage;
+
+>>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
     
     private final int messageTimer = 2000;
+
     
     private ArrayList<Item> itemsToRender;
     
@@ -48,25 +73,58 @@ public class Level1 extends BasicGameState {
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) {
+        serverMessage = "";
         Main dc = (Main) game;
+        if(dc.socket == null){
+            System.out.println("ERROR: Make sure you start the server before starting the client!");
+            System.exit(1);
+        }
         paused = false;
-        dc.width = dc.ScreenWidth/dc.tilesize;
-        dc.height = dc.ScreenHeight/dc.tilesize;
-        
+        dc.tilesWide = dc.ScreenWidth/dc.tilesize;
+        dc.tilesHigh = dc.ScreenHeight/dc.tilesize;
+
         messagebox = new Message[messages]; //display four messages at a time
 
+            // TODO This section is the original map generator.
+//            dc.map = client.RenderMap.getDebugMap(dc);
+//            try {
+//                dc.map = client.RenderMap.getRandomMap();        // grab a randomly generated map
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            // server.Server sockets for reading/writing to server.
 
+        this.socket = dc.socket;
+        this.dis = dc.dis;
+        this.dos = dc.dos;
+
+<<<<<<< HEAD:dungeoncrawl/src/Level1.java
         //dc.map = RenderMap.getDebugMap(dc);
         ///*
+=======
+
+        // TODO this section requires that you run the server prior to client.Main.
+        // Grab the map from the server.Server
+>>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
         try {
-            dc.map = RenderMap.getRandomMap(dc);        // grab a randomly generated map
+            Integer[][] mapData = (Integer[][]) this.dis.readObject();
+            // Convert it into an 2d int array
+            dc.map = new int[mapData.length][mapData[0].length];
+            for (int i = 0; i < mapData.length; i++) {
+                for (int j = 0; j < mapData[i].length; j++) {
+                    dc.map[i][j] = mapData[i][j];
+                }
+            }
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
         //*/
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
+        System.out.printf("Map Size: %s, %s\n", dc.map.length, dc.map[0].length);
 
 
+<<<<<<< HEAD:dungeoncrawl/src/Level1.java
         
 
         
@@ -132,6 +190,40 @@ public class Level1 extends BasicGameState {
     		return true;
     	}
     	return false;
+=======
+        // map variables
+        dc.mapWidth = dc.map[0].length;
+        dc.mapHeight = dc.map.length;
+
+        // setup the knight character
+        float wx = (dc.tilesize * 20) - dc.offset;
+        float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
+        System.out.printf("setting character at %s, %s\n", wx, wy);
+        knight = new Character(dc, wx, wy, "knight_iron", 1);
+        dc.characters.add(knight);
+        currentOX = knight.ox;
+        currentOY = knight.oy;
+
+        // render map
+        RenderMap.setMap(dc, knight);
+
+        String coord = wx + " " + wy;
+        try {
+            dos.writeUTF(coord);
+            dos.flush();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
+
+        // test items can be deleted
+        dc.testItems.add(new DisplayItem((dc.tilesize * 4)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_gold"));
+        dc.testItems.add(new DisplayItem((dc.tilesize * 5)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_iron"));
+        dc.testItems.add(new DisplayItem((dc.tilesize * 6)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_iron"));
+        dc.testItems.add(new DisplayItem((dc.tilesize * 7)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_wood"));
+        dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_gold"));
+>>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
     }
 
 
@@ -142,7 +234,8 @@ public class Level1 extends BasicGameState {
     	//TODO: make the restoration boundary cover only the screen area + a buffer
     	itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
-    
+
+
     public void addMessage(String message){
     	//add a message to the first index of the message box
     	//  and shift everything else down
@@ -157,10 +250,6 @@ public class Level1 extends BasicGameState {
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
         // render tiles
-        // TODO only render in the screen
-//        int origin = knight.screenOrigin;     // TODO this is equal to the players offset
-//        int h = dc.height + origin;
-//        int w = dc.width + origin;
         for (int i = 0; i < dc.map.length; i++) {
             for (int j = 0; j < dc.map[i].length; j++) {
                 if (dc.mapTiles[i][j] == null)
@@ -182,16 +271,13 @@ public class Level1 extends BasicGameState {
         	
         }
 
-        // render potions
-//        for (int i = 0; i < dc.potions.length; i++) {
-//            for (int j = 0; j < dc.potions[0].length; j++) {
-//                if (dc.potions[i][j] == null)
-//                    continue;
-//                dc.potions[i][j].render(g);
-//            }
-//        }
+        // draw test items
+        for (DisplayItem i : dc.testItems) {
+            i.render(g);
+        }
 
         knight.animate.render(g);
+
         
         
         //render messages
@@ -214,6 +300,7 @@ public class Level1 extends BasicGameState {
         	g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
         	g.setColor(tmp);
         }
+<<<<<<< HEAD:dungeoncrawl/src/Level1.java
         
         //display player inventory
         //use the knight for now
@@ -290,12 +377,15 @@ public class Level1 extends BasicGameState {
     	
 
     	g.setColor(tmp);
+=======
+
+>>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
     }
 
 
 
     @Override
-    public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+    public void update(GameContainer container, StateBasedGame game, int delta) {
         Input input = container.getInput();
         Main dc = (Main) game;
         Cheats.enableCheats(dc, input);
@@ -304,6 +394,7 @@ public class Level1 extends BasicGameState {
             return;
         }
         knight.move(getKeystroke(input));
+<<<<<<< HEAD:dungeoncrawl/src/Level1.java
         if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
             RenderMap.setMap(dc, knight.origin);
             currentOrigin = knight.origin;
@@ -318,6 +409,9 @@ public class Level1 extends BasicGameState {
         	displayInventory = false;
         }
         
+=======
+
+>>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
         //check if a character has hit an item
         for( Character ch : dc.characters ){
         	float x = (ch.animate.getX()/dc.tilesize);
@@ -366,7 +460,7 @@ public class Level1 extends BasicGameState {
     get the key being pressed, returns a string
      */
     public String getKeystroke(Input input) {
-        String ks = null;
+        String ks = "";
         if (input.isKeyDown(Input.KEY_W)) {
             ks = "w";
         }
@@ -379,9 +473,38 @@ public class Level1 extends BasicGameState {
         else if (input.isKeyDown(Input.KEY_D)) {
             ks = "d";
         }
+        // cheat speed up
+        else if (input.isKeyPressed(Input.KEY_4)) {
+            ks = "4";
+        }
+        // cheat slow down
+        else if (input.isKeyPressed(Input.KEY_5)) {
+            ks = "5";
+        }
+        try{
+            dos.writeUTF(ks);
+            dos.flush();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
         return ks;
     }
 
-
+    /**
+     * Reads the new player coordinates and walks the player accordingly.
+//     */
+//    public void getNewPlayerCoord(){
+//        try {
+//            serverMessage = dis.readUTF();
+//            if (!serverMessage.equals("")) {
+////                System.out.println("server.Server says: Move valid.  New coordinates: "+ serverMessage);
+//                knight.moveSmoothTranslationHelper();
+//            } else{
+////                System.out.println("server.Server says: Move invalid/No Button Pressed.");
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 }

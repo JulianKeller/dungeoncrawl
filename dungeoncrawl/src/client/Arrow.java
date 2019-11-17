@@ -1,3 +1,5 @@
+package client;
+
 import jig.Entity;
 import jig.ResourceManager;
 
@@ -55,7 +57,7 @@ public class Arrow extends Entity {
 //            else if (y < py) {
 //                dir = "up";
 //            }
-//            tank.arrows.add(new Arrow(x * tilesize + offset, y * tilesize + offset, dir));
+//            tank.arrows.add(new client.Arrow(x * tilesize + offset, y * tilesize + offset, dir));
 //            px = x;
 //            py = y;
 //        }
@@ -63,7 +65,7 @@ public class Arrow extends Entity {
 
     // remove arrows from the previous run
 //    public static void removeArrows(AITank ai) {
-//        for (Arrow a : ai.arrows) {
+//        for (client.Arrow a : ai.arrows) {
 //            if (a != null) {
 //                a.removeArrowImage();
 //            }

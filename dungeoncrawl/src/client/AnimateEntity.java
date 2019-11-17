@@ -1,3 +1,5 @@
+package client;
+
 import jig.Entity;
 import jig.ResourceManager;
 
@@ -11,7 +13,7 @@ import org.newdawn.slick.Animation;
 /**
  * A class representing a characters movement.
  */
-class AnimateEntity extends Entity {
+public class AnimateEntity extends Entity {
     public Animation animation;
     private String action;
     private String sprite;
@@ -268,7 +270,7 @@ class AnimateEntity extends Entity {
     draw all the animations for all the characters on seperate rows for testing
     @param dc The games main class
     */
-//    public static void testAllCharacterAnimations(Main dc) {
+//    public static void testAllCharacterAnimations(client.Main dc) {
 //        String[] sprites = new String[] {
 //                "knight_leather", "knight_iron", "knight_gold",
 //                "mage_leather", "mage_improved",
@@ -298,7 +300,7 @@ class AnimateEntity extends Entity {
     @param sprite The sprite to display animations for
     @param row The screen row to draw the coordinates at
     */
-//    public static void displayAllAnimations(Main dc, String sprite, int row) {
+//    public static void displayAllAnimations(client.Main dc, String sprite, int row) {
 //        String[] variations = new String[]{
 //                "spell_up", "spell_left", "spell_down", "spell_right",
 //                "jab_up", "jab_left", "jab_down", "jab_right",
@@ -307,7 +309,7 @@ class AnimateEntity extends Entity {
 //                "shoot_up", "shoot_left", "shoot_down", "shoot_right",
 //                "die"};
 //        for (int i = 0; i < variations.length; i++) {
-//            dc.animations.add(new AnimateEntity((i + 3) * dc.tilesize + dc.tilesize / 2, row * dc.tilesize, variations[i], 100, sprite));
+//            dc.animations.add(new client.AnimateEntity((i + 3) * dc.tilesize + dc.tilesize / 2, row * dc.tilesize, variations[i], 100, sprite));
 //        }
 //    }
 }
