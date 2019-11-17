@@ -70,9 +70,23 @@ public class MovingEntity extends Entity {
 
     public void addItem(Item i){
         inventory.add(i);
-        if( i.isIdentified() ){
-        	codex.add(i);
+        if( i.isIdentified() && i.getType().equals("Potion") ){
+        	addToCodex(i);
         }
+    }
+    
+    public void addToCodex(Item i){
+    	//check if the item is already in the codex first
+    	if( !i.getType().equals("Potion") ){
+    		System.out.println("Cannot add non-potions to codex.");
+    		return;
+    	}
+    	for( Item itm : codex ){
+    		if( i.getMaterial().equals(itm.getMaterial()) ){
+				return;
+			}
+    	}
+    	codex.add(i);
     }
 
     /**
@@ -86,7 +100,9 @@ public class MovingEntity extends Entity {
     				//if the player is using this item, identify it
     				//  and add to the codex
     				inventory.get(i).identify();
-    				codex.add(inventory.get(i));
+    				if( inventory.get(i).equals("Potion") ){
+    					addToCodex(inventory.get(i));
+    				}
     			}
     			return inventory.remove(i);
     		}
