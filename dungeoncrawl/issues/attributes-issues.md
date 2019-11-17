@@ -1,35 +1,33 @@
 ## Current Issue
-[17] - get scrolling and player movement
-
-## Open Issues ##
-[3] - Draw Armor
+[3] - Draw Items 
+Draw Armor
         Leather
         Iron
         Turtle Shell
 
-[4] -  Draw Swords
+Draw Swords
         Wooden Sword
         Iron Sword
         Gold Sword
 
-[5] - Draw Arrows
+Draw Arrows
         Normal client.Arrow (infinite)
         Flaming Arrows
         Poisoned client.Arrow
         Ice client.Arrow
 
-[6] - Draw Staffs
+Draw Staffs
         Ruby Staff
         Emerald Staff
         Amethyst Staff
 
-[7] - Draw Gloves
+Draw Gloves
         Leather Gloves
         Iron Gloves
         Gold Gloves
-        
-[9] - several entities are missing bow and sword
 
+## Open Issues ##
+[9] - several entities are missing bow and sword
 [12] - update floor tiles
 [13] - update wall tiles
 [15] - render multiple random maps and save them
@@ -43,4 +41,5 @@
 [10] - get mysql connector working properly
 [11] - update potions styles
 [14] - refactor walls and levels classes into one map class
+[17] - get scrolling and player movement
 [18] - refactor to client/server directories

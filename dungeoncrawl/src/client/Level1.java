@@ -94,15 +94,23 @@ public class Level1 extends BasicGameState {
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         System.out.printf("Map Size: %s, %s\n", dc.map.length, dc.map[0].length);
 
-        // TODO can be removed, here to demo animations/characters
-//        dc.animations = new ArrayList<>(200);
-//        client.AnimateEntity.testAllCharacterAnimations(dc);
 
+        // map variables
+        dc.mapWidth = dc.map[0].length;
+        dc.mapHeight = dc.map.length;
+
+        // setup the knight character
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
-
         knight = new Character(dc, wx, wy, "knight_iron", 1);
+        dc.characters.add(knight);
+        currentOX = knight.ox;
+        currentOY = knight.oy;
+
+        // render map
+        RenderMap.setMap(dc, knight);
+
         String coord = wx + " " + wy;
         try {
             dos.writeUTF(coord);
@@ -111,16 +119,14 @@ public class Level1 extends BasicGameState {
             e.printStackTrace();
         }
 
-        dc.mapWidth = dc.map[0].length;
-        dc.mapHeight = dc.map.length;
-        dc.characters.add(knight);
-        
-//        currentOrigin = knight.origin;
-        RenderMap.setMap(dc, knight);                   // renders the map Tiles
-        currentOX = knight.ox;
-        currentOY = knight.oy;
-        
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
+
+        // test items can be deleted
+        dc.testItems.add(new DisplayItem((dc.tilesize * 4)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_gold"));
+        dc.testItems.add(new DisplayItem((dc.tilesize * 5)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_iron"));
+        dc.testItems.add(new DisplayItem((dc.tilesize * 6)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_iron"));
+        dc.testItems.add(new DisplayItem((dc.tilesize * 7)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_wood"));
+        dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_gold"));
     }
 
 
@@ -134,7 +140,8 @@ public class Level1 extends BasicGameState {
     	//TODO: make the restoration boundary cover only the screen area + a buffer
     	itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
-    
+
+
     public void addMessage(String message){
     	//add a message to the first index of the message box
     	//  and shift everything else down
@@ -149,10 +156,6 @@ public class Level1 extends BasicGameState {
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
         // render tiles
-        // TODO only render in the screen
-//        int origin = knight.screenOrigin;     // TODO this is equal to the players offset
-//        int h = dc.height + origin;
-//        int w = dc.width + origin;
         for (int i = 0; i < dc.map.length; i++) {
             for (int j = 0; j < dc.map[i].length; j++) {
                 if (dc.mapTiles[i][j] == null)
@@ -174,14 +177,10 @@ public class Level1 extends BasicGameState {
         	
         }
 
-        // render potions
-//        for (int i = 0; i < dc.potions.length; i++) {
-//            for (int j = 0; j < dc.potions[0].length; j++) {
-//                if (dc.potions[i][j] == null)
-//                    continue;
-//                dc.potions[i][j].render(g);
-//            }
-//        }
+        // draw test items
+        for (DisplayItem i : dc.testItems) {
+            i.render(g);
+        }
 
         knight.animate.render(g);
 
@@ -213,7 +212,7 @@ public class Level1 extends BasicGameState {
 
 
     @Override
-    public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+    public void update(GameContainer container, StateBasedGame game, int delta) {
         Input input = container.getInput();
         Main dc = (Main) game;
         Cheats.enableCheats(dc, input);
@@ -221,14 +220,7 @@ public class Level1 extends BasicGameState {
         if (paused) {
             return;
         }
-
         knight.move(getKeystroke(input));
-//        if (currentOX != knight.ox || currentOY != knight.oy) {
-//            RenderMap.setMap(dc, knight);
-//            currentOX = knight.ox;
-//            currentOY = knight.oy;
-//        }
-
 
         //check if a character has hit an item
         for( Character ch : dc.characters ){
