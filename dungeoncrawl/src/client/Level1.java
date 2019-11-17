@@ -1,9 +1,9 @@
-<<<<<<< HEAD:dungeoncrawl/src/Level1.java
+package client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
-=======
-package client;
+
+
 
 import jig.Entity;
 import jig.Vector;
@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.net.*;
 import java.io.*;
->>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -33,17 +32,17 @@ public class Level1 extends BasicGameState {
     int currentOY;
 
     Vector currentOrigin;
-<<<<<<< HEAD:dungeoncrawl/src/Level1.java
+
     private Random rand;
     
     private int[][] rotatedMap;
-=======
+
     Socket socket;
     ObjectInputStream dis;
     ObjectOutputStream dos;
     String serverMessage;
 
->>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
+    private StateBasedGame game;
     
     private final int messageTimer = 2000;
 
@@ -97,14 +96,14 @@ public class Level1 extends BasicGameState {
         this.dis = dc.dis;
         this.dos = dc.dos;
 
-<<<<<<< HEAD:dungeoncrawl/src/Level1.java
+
         //dc.map = RenderMap.getDebugMap(dc);
         ///*
-=======
+
 
         // TODO this section requires that you run the server prior to client.Main.
         // Grab the map from the server.Server
->>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
+
         try {
             Integer[][] mapData = (Integer[][]) this.dis.readObject();
             // Convert it into an 2d int array
@@ -124,7 +123,7 @@ public class Level1 extends BasicGameState {
         System.out.printf("Map Size: %s, %s\n", dc.map.length, dc.map[0].length);
 
 
-<<<<<<< HEAD:dungeoncrawl/src/Level1.java
+
         
 
         
@@ -162,36 +161,15 @@ public class Level1 extends BasicGameState {
 			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 		}
         
+		/*
         float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
         float wy = (dc.tilesize * row) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
         
         knight = new Character(dc, wx, wy, "knight_iron", 1);
         dc.characters.add(knight);
-        
-        currentOrigin = knight.origin;
-        RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
-    }
-    
-    private boolean wallAdjacent(int row, int col, int[][] map){
-    	//check if there is a wall or map edge in a horizontally adjacent tile
-    	try{
-	    	if( map[row-1][col] == 1 ){
-	    		return true;
-	    	}else if( map[row+1][col] == 1 ){
-	    		return true;
-	    	}else if( map[row][col-1] == 1 ){
-	    		return true;
-	    	}else if( map[row][col+1] == 1 ){
-	    		return true;
-	    	}else if( map[row][col] == 1 ){
-	    		return true;
-	    	}
-    	}catch(ArrayIndexOutOfBoundsException ex){
-    		return true;
-    	}
-    	return false;
-=======
+        */
         // map variables
+    	//Main dc = (Main) game;
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
@@ -218,17 +196,46 @@ public class Level1 extends BasicGameState {
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
 
         // test items can be deleted
+        /*
         dc.testItems.add(new DisplayItem((dc.tilesize * 4)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_gold"));
         dc.testItems.add(new DisplayItem((dc.tilesize * 5)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_iron"));
         dc.testItems.add(new DisplayItem((dc.tilesize * 6)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_iron"));
         dc.testItems.add(new DisplayItem((dc.tilesize * 7)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_wood"));
         dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_gold"));
->>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
+        */
+        
+        /*
+        currentOrigin = knight.origin;
+        RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
+        */
+    }
+    
+    private boolean wallAdjacent(int row, int col, int[][] map){
+    	//check if there is a wall or map edge in a horizontally adjacent tile
+    	try{
+	    	if( map[row-1][col] == 1 ){
+	    		return true;
+	    	}else if( map[row+1][col] == 1 ){
+	    		return true;
+	    	}else if( map[row][col-1] == 1 ){
+	    		return true;
+	    	}else if( map[row][col+1] == 1 ){
+	    		return true;
+	    	}else if( map[row][col] == 1 ){
+	    		return true;
+	    	}
+    	}catch(ArrayIndexOutOfBoundsException ex){
+    		return true;
+    	}
+    	return false;
+
+
     }
 
 
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
+    	this.game = game;
     	messagebox = new Message[messages];
 
     	//TODO: make the restoration boundary cover only the screen area + a buffer
@@ -300,7 +307,7 @@ public class Level1 extends BasicGameState {
         	g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
         	g.setColor(tmp);
         }
-<<<<<<< HEAD:dungeoncrawl/src/Level1.java
+
         
         //display player inventory
         //use the knight for now
@@ -377,9 +384,7 @@ public class Level1 extends BasicGameState {
     	
 
     	g.setColor(tmp);
-=======
 
->>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
     }
 
 
@@ -394,11 +399,12 @@ public class Level1 extends BasicGameState {
             return;
         }
         knight.move(getKeystroke(input));
-<<<<<<< HEAD:dungeoncrawl/src/Level1.java
+        /*
         if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
             RenderMap.setMap(dc, knight.origin);
             currentOrigin = knight.origin;
         }
+        */
         
         if( input.isKeyPressed(Input.KEY_I) ){
         	displayInventory = !displayInventory;
@@ -409,9 +415,7 @@ public class Level1 extends BasicGameState {
         	displayInventory = false;
         }
         
-=======
 
->>>>>>> be973ce5e1de0b9d402b060d993d63f38f43c30a:dungeoncrawl/src/client/Level1.java
         //check if a character has hit an item
         for( Character ch : dc.characters ){
         	float x = (ch.animate.getX()/dc.tilesize);
