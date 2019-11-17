@@ -287,6 +287,14 @@ public class Level1 extends BasicGameState {
         else if (input.isKeyDown(Input.KEY_D)) {
             ks = "d";
         }
+        // cheat speed up
+        else if (input.isKeyPressed(Input.KEY_4)) {
+            ks = "4";
+        }
+        // cheat slow down
+        else if (input.isKeyPressed(Input.KEY_5)) {
+            ks = "5";
+        }
         try{
             dos.writeUTF(ks);
             dos.flush();

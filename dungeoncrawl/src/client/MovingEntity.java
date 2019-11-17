@@ -177,6 +177,9 @@ public class MovingEntity extends Entity {
     }
 
     public void setSpeed(int sp){
+        if (sp <= 0) {
+            return;
+        }
         speed = sp;
     }
     /**
