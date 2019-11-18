@@ -47,6 +47,9 @@ public class LevelServer extends Thread{
                         break;
                     }
                     getPlayerCoord();
+                    //updateOtherPositions();
+                }catch(EOFException e){
+                    break;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -107,4 +110,18 @@ public class LevelServer extends Thread{
         return clientId;
     }
 
+    /**
+     * updates other players' position on the screen.
+     */
+    public void updateOtherPositions(){
+        for(Iterator<LevelServer> i = Server.clients.iterator();i.hasNext();){
+            LevelServer s = i.next();
+            try {
+                this.dos.writeUTF(s.position.stringify());
+                this.dos.flush();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
 }
