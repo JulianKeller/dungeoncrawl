@@ -54,6 +54,7 @@ public class Level1 extends BasicGameState {
     private boolean displayCodex = false;
     private int itemx = 0;
     private int itemy = 0; //which item is currently selected in the inventory
+    private int selectedEquippedItem = 0; //item selected in the hotbar
     
     private class Message{
     	protected int timer = messageTimer;
@@ -361,6 +362,22 @@ public class Level1 extends BasicGameState {
         	}
         }
         
+        //draw the player's equipped items
+        Color tmp = g.getColor();
+        g.setColor(new Color(0, 0, 0, 0.5f));
+        g.fillRoundRect(dc.ScreenWidth-(dc.tilesize*5), dc.ScreenHeight-(dc.tilesize*2), dc.tilesize*4, dc.tilesize, 0);
+        int x = 0;
+        int y = 0;
+        for( int i = 0; i < knight.getEquipped().length; i++ ){
+        	if( knight.getEquipped()[i] != null ){
+	        	x = dc.ScreenWidth-(dc.tilesize*(knight.getEquipped().length+1));
+	        	y = dc.ScreenHeight-(dc.tilesize*2);
+	        	g.drawImage(knight.getEquipped()[i].getImage(), x+(dc.tilesize*i), y);
+        	}
+        }
+        g.setColor(Color.white);
+        g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
+        g.setColor(tmp);
         
         
         
@@ -467,6 +484,19 @@ public class Level1 extends BasicGameState {
         	}
         	
         	//System.out.println(itemx+", "+itemy);
+        }else{
+        	if( input.isKeyPressed(Input.KEY_LEFT) ){
+        		selectedEquippedItem--;
+        	}else if( input.isKeyPressed(Input.KEY_RIGHT) ){
+        		selectedEquippedItem++;
+        	}
+        	
+        	if( selectedEquippedItem < 0 ){
+        		selectedEquippedItem = 0;
+        	}
+        	if( selectedEquippedItem > knight.getEquipped().length-1 ){
+        		selectedEquippedItem = knight.getEquipped().length-1;
+        	}
         }
         
 

@@ -117,6 +117,13 @@ public class MovingEntity extends Entity {
     		if( equipped[i] == null ){
     			//equip item here, remove it from the main inventory
     			equipped[i] = inventory.get(index);
+    			for( int x = 0; x < equipped.length; x++ ){
+    				if( equipped[x] == null ){
+    					System.out.print("null ");
+    				}else{
+    					System.out.print(equipped[x].getType() + " ");
+    				}
+    			}
     			inventory.remove(index);
     			return null;
     		}
@@ -246,6 +253,9 @@ public class MovingEntity extends Entity {
     }
     public ArrayList<Item> getCodex(){
     	return codex;
+    }
+    public Item[] getEquipped(){
+    	return equipped;
     }
 
     public void setPosition(Vector p){
