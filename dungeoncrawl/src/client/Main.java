@@ -110,12 +110,14 @@ public class Main extends StateBasedGame {
     int mapWidth;
     int mapHeight;
     int[][] map;
-    Entity[][] mapTiles;
+//    Entity[][] mapTiles;
+    ArrayList<BaseMap> maptiles;
     boolean collisions;
     ArrayList<DisplayItem> testItems;
+    Character hero;
     
     //item types
-    public static final String[] ItemTypes = {"client.Potion", "Armor", "Sword", "client.Arrow", "Staff", "Glove"};
+    public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
     
     //item materials
     public static final String[] ArmorMaterials = {"Leather", "Iron", "Turtle Shell"};
@@ -173,7 +175,7 @@ public class Main extends StateBasedGame {
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
         addState(new StartUpState());
-        addState(new Level1());
+        addState(new Level());
         addState(new GameOver());
 
         // load images

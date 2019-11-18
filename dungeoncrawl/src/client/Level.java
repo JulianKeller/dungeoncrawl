@@ -8,8 +8,6 @@ import java.util.Random;
 import jig.Entity;
 import jig.Vector;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.net.*;
 import java.io.*;
 
@@ -21,34 +19,20 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import jig.Entity;
-import jig.Vector;
-
-public class Level1 extends BasicGameState {
+public class Level extends BasicGameState {
     private Boolean paused;
-    Character knight;
-
     int currentOX;
     int currentOY;
-
     Vector currentOrigin;
-
     private Random rand;
-    
     private int[][] rotatedMap;
-
     Socket socket;
     ObjectInputStream dis;
     ObjectOutputStream dos;
     String serverMessage;
-
     private StateBasedGame game;
-    
     private final int messageTimer = 2000;
-
-    
     private ArrayList<Item> itemsToRender;
-    
     //whether to display player inventory/codex on the screen
     private boolean displayInventory = false;
     private boolean displayCodex = false;
@@ -117,16 +101,9 @@ public class Level1 extends BasicGameState {
             e.printStackTrace();
         }
         //*/
-        dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
+//        dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         System.out.printf("Map Size: %s, %s\n", dc.map.length, dc.map[0].length);
 
-
-
-        
-
-        
-  
-        
         //rotated map verified correct
         rotatedMap = new int[dc.map[0].length][dc.map.length];
         for( int i = 0; i < dc.map.length; i++ ){
@@ -175,13 +152,13 @@ public class Level1 extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
-        knight = new Character(dc, wx, wy, "knight_iron", 1);
-        dc.characters.add(knight);
-        currentOX = knight.ox;
-        currentOY = knight.oy;
+        dc.hero = new Character(dc, wx, wy, "knight_iron", 1);
+        dc.characters.add(dc.hero);
+        currentOX = dc.hero.ox;
+        currentOY = dc.hero.oy;
 
         // render map
-        RenderMap.setMap(dc, knight);
+        RenderMap.setMap(dc, dc.hero);
 
         String coord = wx + " " + wy;
         try {
@@ -254,14 +231,8 @@ public class Level1 extends BasicGameState {
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
-        // render tiles
-        for (int i = 0; i < dc.map.length; i++) {
-            for (int j = 0; j < dc.map[i].length; j++) {
-                if (dc.mapTiles[i][j] == null)
-                    continue;
-                dc.mapTiles[i][j].render(g);
-            }
-        }
+        // draw the floor and wall tiles
+        displayMap(dc, g);
         
         //render all visible items
         g.setColor(Color.red);
@@ -270,10 +241,9 @@ public class Level1 extends BasicGameState {
         	//TODO: draw item images
         	//for now, use ovals
         	//g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
-        	
+
         	i.setPosition((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2));
         	i.render(g);
-        	
         }
 
         // draw test items
@@ -281,11 +251,11 @@ public class Level1 extends BasicGameState {
             i.render(g);
         }
 
-        knight.animate.render(g);
+        // draw the hero
+        dc.hero.animate.render(g);
 
-        
-        
         //render messages
+        // TODO this loop is causing a FPS drop
         for( Message m : messagebox ){
         	if( m != null ){
                 g.setColor(new Color(0, 0, 0, 0.5f));
@@ -306,12 +276,12 @@ public class Level1 extends BasicGameState {
         	g.setColor(tmp);
         }
 
-        
-        //display player inventory
-        //use the knight for now
+
+        // display player inventory
+        // use the knight for now
         if( displayInventory ){
         	renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
-        	ArrayList<Item> items = knight.getInventory();
+        	ArrayList<Item> items = dc.hero.getInventory();
         	if( items.size() != 0 ){
             	int row = 2;
             	int col = 1;
@@ -325,6 +295,7 @@ public class Level1 extends BasicGameState {
             	}
         	}
         }
+
         if( displayCodex ){
         	//display this box next to the item box
         	//  if it is open
@@ -332,10 +303,10 @@ public class Level1 extends BasicGameState {
         	if( displayInventory ){
         		x *= 4;
         	}
-        	
+
         	renderItemBox(dc, g, "Codex", x, dc.tilesize, dc.tilesize * 10, dc.tilesize*8);
-        	
-        	ArrayList<Item> items = knight.getCodex();
+
+        	ArrayList<Item> items = dc.hero.getCodex();
         	int row = 2;
         	for( Item i : items ){
         		g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
@@ -396,14 +367,8 @@ public class Level1 extends BasicGameState {
         if (paused) {
             return;
         }
-        knight.move(getKeystroke(input));
-        positionToServer(knight.getWorldCoordinates());  // Get the player's updated position onto the server.
-        /*
-        if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
-            RenderMap.setMap(dc, knight.origin);
-            currentOrigin = knight.origin;
-        }
-        */
+        dc.hero.move(getKeystroke(input));
+        positionToServer(dc.hero.getWorldCoordinates());  // Get the player's updated position onto the server.
         
         if( input.isKeyPressed(Input.KEY_I) ){
         	displayInventory = !displayInventory;
@@ -413,7 +378,6 @@ public class Level1 extends BasicGameState {
         	displayCodex = !displayCodex;
         	displayInventory = false;
         }
-        
 
         //check if a character has hit an item
         for( Character ch : dc.characters ){
@@ -506,6 +470,15 @@ public class Level1 extends BasicGameState {
             e.printStackTrace();
         }
 
+    }
+
+    /*
+    Renders the map on screen, only drawing the necessary tiles in view
+     */
+    public void displayMap(Main dc, Graphics g) {
+        for (BaseMap b : dc.maptiles) {
+            b.render(g);
+        }
     }
 
     /**
