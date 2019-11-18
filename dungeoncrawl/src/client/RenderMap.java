@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 import java.util.Random;
 
@@ -79,6 +80,8 @@ public class RenderMap extends Entity {
     @param c an instance of the character class
     */
     public static void setMap(Main dc, Character c) {
+        System.out.print("setMap()");
+//        long startTime = System.nanoTime();
         // todo adjust based on bounds of game
         float x = 0, y = 0;
         int i = 0, j = 0;
@@ -107,7 +110,10 @@ public class RenderMap extends Entity {
 
 
         // generate the correct wall, floor, shadow tiles in the x, y coordinates
-        dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
+//        dc.maptiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the maptiles
+//        dc.maptiles = new Entity[dc.mapHeight+1][dc.mapWidth+1];      // initialize the maptiles
+        dc.maptiles = new ArrayList<>((dc.mapHeight+1)*(dc.mapWidth+1));
+        
         try {
             for (i = starty; i < endy && i < dc.mapHeight; i++) {
                 for (j = startx; j < endx && j < dc.mapWidth; j++) {
@@ -116,25 +122,25 @@ public class RenderMap extends Entity {
                     // WALLs
                     if (dc.map[i][j] == 1) {
                         if (i + 1 >= dc.map.length) {
-                            dc.mapTiles[i][j] = new Wall(x, y, "top");
+                            dc.maptiles.add(new BaseMap(x, y, "wall_top"));
                         } else if (dc.map[i + 1][j] == 0) {
-                            dc.mapTiles[i][j] = new Wall(x, y, "border");
+                            dc.maptiles.add(new BaseMap(x, y, "wall_border"));
                         } else if (dc.map[i + 1][j] == 1) {
-                            dc.mapTiles[i][j] = new Wall(x, y, "top");
+                            dc.maptiles.add(new BaseMap(x, y, "wall_top"));
                         }
                     }
                     // FLOORs
                     else if (dc.map[i][j] == 0) {
                         if (dc.map[i + 1][j] == 1 && dc.map[i][j - 1] == 1) {
-                            dc.mapTiles[i][j] = new Floor(x, y, "shadow_double");
+                            dc.maptiles.add(new BaseMap(x, y, "shadow_double"));
                         } else if (i + 1 < dc.map.length && dc.map[i + 1][j] == 1) {
-                            dc.mapTiles[i][j] = new Floor(x, y, "shadow");
+                            dc.maptiles.add(new BaseMap(x, y, "shadow_floor"));
                         } else if (j - 1 >= 0 && dc.map[i][j - 1] == 1) {
-                            dc.mapTiles[i][j] = new Floor(x, y, "shadow_right");
+                            dc.maptiles.add(new BaseMap(x, y, "shadow_right"));
                         } else if (j - 1 > 0 && i + 1 < dc.map[i].length && dc.map[i + 1][j - 1] == 1) {
-                            dc.mapTiles[i][j] = new Floor(x, y, "shadow_corner");
+                            dc.maptiles.add(new BaseMap(x, y, "shadow_corner"));
                         } else {
-                            dc.mapTiles[i][j] = new Floor(x, y, "normal");
+                            dc.maptiles.add(new BaseMap(x, y, "floor"));
                         }
                     }
                 }
@@ -145,6 +151,9 @@ public class RenderMap extends Entity {
             System.out.printf("[i, j] = [%s, %s]\t<x, y> = <%s, %s>\n", i, j, x, y);
 
         }
+//        long endTime = System.nanoTime();
+//        long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
+//        System.out.println("setMap Runtime: " + duration);
     }
 
 }

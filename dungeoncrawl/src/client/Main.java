@@ -110,7 +110,8 @@ public class Main extends StateBasedGame {
     int mapWidth;
     int mapHeight;
     int[][] map;
-    Entity[][] mapTiles;
+//    Entity[][] mapTiles;
+    ArrayList<BaseMap> maptiles;
     boolean collisions;
     ArrayList<DisplayItem> testItems;
     Character hero;
