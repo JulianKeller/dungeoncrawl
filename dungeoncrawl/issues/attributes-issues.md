@@ -1,4 +1,5 @@
-## Current Issue
+## Current Issues
+[20] - fix map slowing down FPS when nearing edge of screen
 [3] - Draw Items 
 Draw Armor
         Leather
