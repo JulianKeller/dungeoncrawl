@@ -427,7 +427,7 @@ public class Level1 extends BasicGameState {
 	        	if( i.isIdentified() ){
 	        		addMessage("Picked up " + i.getMaterial() + " " +i.getType() + " of " + i.getEffect() + ".");
 	        	}else{
-	        		addMessage("Picked up unidentified "+i.getType().toLowerCase()+".");
+	        		addMessage("Picked up unidentified "+i.getMaterial().toLowerCase()+" "+i.getType().toLowerCase()+".");
 	        	}
 	        	//give removes item from the world's inventory
 	        	//  and adds it to the player's inventory
