@@ -23,10 +23,6 @@ public class Wall extends Entity {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.SHADOW_FLOOR));
                 break;
             }
-            case "iso": {
-                addImageWithBoundingBox(ResourceManager.getImage(Main.ISOWALL));
-                break;
-            }
         }
 
     }

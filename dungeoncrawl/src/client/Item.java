@@ -1,3 +1,4 @@
+
 package client;
 
 import java.util.Random;
@@ -142,6 +143,12 @@ public class Item extends StationaryObject{
 	//setter functions
 	public void setOID( int oid ){
 		this.oid = oid;
+	}
+	public void identify(){
+		this.identified = true;
+	}
+	public void setEffect( String effect ){
+		this.effect = effect;
 	}
 	
 	//render function

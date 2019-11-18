@@ -17,14 +17,6 @@ public class RenderMap extends Entity {
 
     // grabs a random map and returns it as a 2d array
     public static int[][] getRandomMap() throws IOException {
-//        File f;
-//        if( System.getProperty("os.name").toLowerCase().contains("mac") ){
-//            //if this is running on mac os
-//            f = new File("dungeoncrawl/mapGen/maps");
-//        }else{
-//            f = new File("mapGen/maps");
-//        }
-
         File f;
         if( System.getProperty("os.name").toLowerCase().contains("windows")){
         	f = new File("src/maps");
@@ -80,62 +72,78 @@ public class RenderMap extends Entity {
                 .toArray(int[][]::new);                 // add the array to a 2d array
     }
 
-/*
-    int origin = knight.screenOrigin;     // TODO this is equal to the players offset
-    int h = dc.height + origin;
-    int w = dc.width + origin;
-        for (int i = origin; i < h; i++) {
-        for (int j = origin; j < w; j++) {
-            if (dc.mapTiles[i][j] == null)
-                continue;
-            dc.mapTiles[i][j].render(g);
+
+    /**
+    Creates tiles in the correct x, y coordinates to be rendered
+    @param dc the Main game class
+    @param c an instance of the character class
+    */
+    public static void setMap(Main dc, Character c) {
+        // todo adjust based on bounds of game
+        float x = 0, y = 0;
+        int i = 0, j = 0;
+        int ox = c.ox;
+        int oy = c.oy;
+        float dx = c.dx;
+        float dy = c.dy;
+        int startx = ox;
+        int starty = oy;
+        int endx = dc.tilesWide + ox;
+        int endy = dc.tilesHigh + oy;
+
+        // increase the range rendered by 1 if possible, prevents black edges on scrolling
+        if (startx > 0) {
+            startx--;
         }
-    }
+        if (starty > 0) {
+            starty--;
+        }
+        if (endx < dc.mapWidth) {
+            endx++;
+        }
+        if (endy < dc.mapHeight) {
+            endy++;
+        }
 
- */
 
-    // Draw the 2D map to the screen
-    public static void setMap(Main dc, int ox, int oy) {
-//        System.out.println("Setting new Map Layout:" + origin);
-        int x, y;
+        // generate the correct wall, floor, shadow tiles in the x, y coordinates
         dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
-        // todo offset the i and j values based on origin offest
-        for (int i = 0 + oy; i < dc.height + oy; i++) {
-            for (int j = 0 + ox; j < dc.width + ox; j++) {
-                // TODO adjust i and j based on the offset in the origin
-                x = (j - ox) * dc.tilesize + dc.tilesize/2;        // columns
-                y = (i - oy) * dc.tilesize + dc.tilesize/2;        // rows
-                // WALLs
-                if (dc.map[i][j] == 1) {
-                    if (i+1 >= dc.map.length) {
-                        dc.mapTiles[i][j] = new Wall(x, y, "top");
+        try {
+            for (i = starty; i < endy && i < dc.mapHeight; i++) {
+                for (j = startx; j < endx && j < dc.mapWidth; j++) {
+                    x = ((j - ox) * dc.tilesize + (float) dc.tilesize / 2) - dx;        // columns
+                    y = ((i - oy) * dc.tilesize + (float) dc.tilesize / 2) - dy;        // columns
+                    // WALLs
+                    if (dc.map[i][j] == 1) {
+                        if (i + 1 >= dc.map.length) {
+                            dc.mapTiles[i][j] = new Wall(x, y, "top");
+                        } else if (dc.map[i + 1][j] == 0) {
+                            dc.mapTiles[i][j] = new Wall(x, y, "border");
+                        } else if (dc.map[i + 1][j] == 1) {
+                            dc.mapTiles[i][j] = new Wall(x, y, "top");
+                        }
                     }
-                    else if (dc.map[i+1][j] == 0) {
-                        dc.mapTiles[i][j] = new Wall(x, y, "border");
-                    }
-                    else if (dc.map[i+1][j] == 1) {
-                        dc.mapTiles[i][j] = new Wall(x, y, "top");
-                    }
-                }
-                // FLOORs
-                else if (dc.map[i][j] == 0) {
-                    if (dc.map[i+1][j] == 1 && dc.map[i][j-1] == 1) {
-                        dc.mapTiles[i][j] = new Floor(x, y, "shadow_double");
-                    }
-                    else if (i+1 < dc.map.length && dc.map[i+1][j] == 1) {
-                        dc.mapTiles[i][j] = new Floor(x, y, "shadow");
-                    }
-                    else if (j-1 >= 0 && dc.map[i][j-1] == 1) {
-                        dc.mapTiles[i][j] = new Floor(x, y, "shadow_right");
-                    }
-                    else if (j-1 > 0 && i+1 < dc.map[i].length && dc.map[i+1][j-1] == 1) {
-                        dc.mapTiles[i][j] = new Floor(x, y, "shadow_corner");
-                    }
-                    else {
-                        dc.mapTiles[i][j] = new Floor(x, y, "normal");
+                    // FLOORs
+                    else if (dc.map[i][j] == 0) {
+                        if (dc.map[i + 1][j] == 1 && dc.map[i][j - 1] == 1) {
+                            dc.mapTiles[i][j] = new Floor(x, y, "shadow_double");
+                        } else if (i + 1 < dc.map.length && dc.map[i + 1][j] == 1) {
+                            dc.mapTiles[i][j] = new Floor(x, y, "shadow");
+                        } else if (j - 1 >= 0 && dc.map[i][j - 1] == 1) {
+                            dc.mapTiles[i][j] = new Floor(x, y, "shadow_right");
+                        } else if (j - 1 > 0 && i + 1 < dc.map[i].length && dc.map[i + 1][j - 1] == 1) {
+                            dc.mapTiles[i][j] = new Floor(x, y, "shadow_corner");
+                        } else {
+                            dc.mapTiles[i][j] = new Floor(x, y, "normal");
+                        }
                     }
                 }
             }
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            System.out.printf("[i, j] = [%s, %s]\t<x, y> = <%s, %s>\n", i, j, x, y);
+
         }
     }
 

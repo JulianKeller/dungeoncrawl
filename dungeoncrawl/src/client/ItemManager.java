@@ -3,6 +3,8 @@ package client;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.newdawn.slick.SlickException;
+
 import jig.Vector;
 public class ItemManager {  
 
@@ -10,10 +12,21 @@ public class ItemManager {
 	private Main game;
 	private Random rand;
 	
+	private final int uniquePotions = 5; //the number of different potion images
+	
+	//0: blue, 1: orange, 2: pink, 3: red, 4: yellow
+	private String[] identifiedPotionEffects;
+	
 	public ItemManager(Main game){
 		worldItems = new ArrayList<Item>();
 		this.game = game;
 		rand = new Random();
+		
+		identifiedPotionEffects = new String[uniquePotions];
+		//populate this list ahead of time
+		for( int i = 0; i < uniquePotions; i++ ){
+			identifiedPotionEffects[i] = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length)];
+		}
 	}
 	
 	public void give(int itemID, int playerID){
@@ -33,12 +46,12 @@ public class ItemManager {
 
 	}
 	
-	public void take(int itemID, int playerID, Vector wc){
+	public void take(int itemID, int playerID, Vector wc, boolean use){
 		//take an item from the player and place it at the given coordinates
 		// unless the coordinate is null
 		for( Character c : game.characters ){
 			if( c.getPid() == playerID ){
-				Item i = c.discardItem(itemID);
+				Item i = c.discardItem(itemID, use);
 				
 				
 				
@@ -55,17 +68,55 @@ public class ItemManager {
 	
 	private int currentItemID = 0;
 	
-	public void plant(int numItems){
-		int maxx = game.ScreenWidth/game.tilesize;
-		int maxy = game.ScreenHeight/game.tilesize;
+	public void plant(int numItems, int[][] map) throws SlickException{
+		int maxcol = game.ScreenWidth/game.tilesize;
+		int maxrow = game.ScreenHeight/game.tilesize;
 		
 		rand.setSeed(System.nanoTime());
 		
+		//int[][] potionAt = new int[game.map.length][game.map.length];
+		
+		
 		while( numItems > 0 ){
-			Vector wc = new Vector( rand.nextInt(maxx), rand.nextInt(maxy) );
+			
+			int col = rand.nextInt(maxcol);
+			int row = rand.nextInt(maxrow);
+			//Vector wc = new Vector( rand.nextInt(maxx), rand.nextInt(maxy) );
+			while( map[row][col] == 1 ){
+				col = rand.nextInt(maxcol);
+				row = rand.nextInt(maxrow);
+			}
+			Vector wc = new Vector( row, col );
 			
 			//create a random item at the given position
-			worldItems.add(new Item(wc, false, currentItemID, 0));
+			Item i = new Item(wc, false, currentItemID, 0);
+			
+			//check if the item is a potion and set its effect
+			//0: blue, 1: orange, 2: pink, 3: red, 4: yellow
+			if( i.getType().equals("Potion") ){
+				if( i.getMaterial().equals("Blue") ){
+					//use the stored effect
+					i.setEffect(identifiedPotionEffects[0]);
+				}else if( i.getMaterial().equals("Orange")){
+					//use the stored effect
+					i.setEffect(identifiedPotionEffects[1]);
+				}else if( i.getMaterial().equals("Pink")){
+					//use the stored effect
+					i.setEffect(identifiedPotionEffects[2]);
+				}else if( i.getMaterial().equals("Red")){
+					//use the stored effect
+					i.setEffect(identifiedPotionEffects[3]);
+				}else if( i.getMaterial().equals("Yellow") ){
+					//use the stored effect
+					i.setEffect(identifiedPotionEffects[4]);
+				}else{
+					//this would suggest that the list of potion colors in this class
+					//  is incomplete
+					throw new SlickException("Error: invalid potion color.");
+				}
+			}
+			
+			worldItems.add(i);
 			
 			currentItemID++;
 			

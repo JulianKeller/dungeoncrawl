@@ -15,6 +15,7 @@ public class MovingEntity extends Entity {
     private int speed;
     private int pid;
     private ArrayList<Item> inventory;
+    private ArrayList<Item> codex; //list of identified items
     private Item [] equipped;
     private Vector position;
 
@@ -35,6 +36,8 @@ public class MovingEntity extends Entity {
         equipped = new Item[4];
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
+        
+        codex = new ArrayList<Item>();
 
         Vector wc = getWorldCoordinates();
 //        System.out.printf("\nGiven ME World Coordinates %s, %s\n", wx, wy);
@@ -66,15 +69,40 @@ public class MovingEntity extends Entity {
 
     public void addItem(Item i){
         inventory.add(i);
+        if( i.isIdentified() && i.getType().equals("Potion") ){
+        	addToCodex(i);
+        }
+    }
+    
+    public void addToCodex(Item i){
+    	//check if the item is already in the codex first
+    	if( !i.getType().equals("Potion") ){
+    		System.out.println("Cannot add non-potions to codex.");
+    		return;
+    	}
+    	for( Item itm : codex ){
+    		if( i.getMaterial().equals(itm.getMaterial()) ){
+				return;
+			}
+    	}
+    	codex.add(i);
     }
 
     /**
      * Removes an item from the client.MovingEntity's Inventory
      * @param i_id id of the item to be removed.
      */
-    public Item discardItem(int i_id){
+    public Item discardItem(int i_id, boolean use){
     	for( int i = 0; i < inventory.size(); i++ ){
     		if( inventory.get(i).getID() == i_id ){
+    			if( use ){
+    				//if the player is using this item, identify it
+    				//  and add to the codex
+    				inventory.get(i).identify();
+    				if( inventory.get(i).equals("Potion") ){
+    					addToCodex(inventory.get(i));
+    				}
+    			}
     			return inventory.remove(i);
     		}
     	}
@@ -177,6 +205,9 @@ public class MovingEntity extends Entity {
     }
 
     public void setSpeed(int sp){
+        if (sp <= 0) {
+            return;
+        }
         speed = sp;
     }
     /**
@@ -189,6 +220,13 @@ public class MovingEntity extends Entity {
     
     public int getPid(){
         return pid;
+    }
+    
+    public ArrayList<Item> getInventory(){
+    	return inventory;
+    }
+    public ArrayList<Item> getCodex(){
+    	return codex;
     }
 
     public void setPosition(Vector p){
