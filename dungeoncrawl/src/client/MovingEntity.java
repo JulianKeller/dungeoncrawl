@@ -109,6 +109,22 @@ public class MovingEntity extends Entity {
     	return null;
         //inventory.removeIf(item -> item.getID() == i_id);
     }
+    
+    public String equipItem(int index){
+    	//equip the item with id in the next available slot
+    	//return a status message
+    	for( int i = 0; i < equipped.length; i++ ){
+    		if( equipped[i] == null ){
+    			//equip item here, remove it from the main inventory
+    			equipped[i] = inventory.get(index);
+    			inventory.remove(index);
+    			return null;
+    		}
+    		System.out.println("Slot "+i+" full.");
+    	}
+
+    	return "Your hands are full.";   	
+    }
 
     /**
      * Equips an item from the client.MovingEntity's inventory
@@ -125,7 +141,7 @@ public class MovingEntity extends Entity {
                     case "Sword":
                     case "Shield":
                     case "Staff":
-                    case "client.Arrow":
+                    case "Arrow":
                         if(slot > 1 || slot < 0){
                             System.out.println("Invalid slot.");
                             break;
@@ -153,7 +169,7 @@ public class MovingEntity extends Entity {
                             inventory.add(temp);
                         }
                         break;
-                    case "client.Potion":
+                    case "Potion":
                         if(equipped[4] != null){
                             Item temp = equipped[2];
                             equipped[4] = item;
@@ -165,6 +181,9 @@ public class MovingEntity extends Entity {
                         System.out.println("Couldn't equip.");
                         break;
                 }
+            }
+            for( Item itm : equipped ){
+            	System.out.print(itm.getType() + " ");
             }
         }
     }

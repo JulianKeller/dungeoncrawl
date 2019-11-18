@@ -443,6 +443,13 @@ public class Level1 extends BasicGameState {
         	}else if( input.isKeyPressed(Input.KEY_RIGHT) ){
         		//selectedItem.setX(selectedItem.getX()+1);
         		itemx++;
+        	}else if( input.isKeyPressed(Input.KEY_ENTER) ){
+        		System.out.println("Equipping "+((itemy*4)+itemx)+"...");
+        		//knight.equipItem( knight.getInventory().get((itemy*4)+itemx).getID(), 0);
+        		String m = knight.equipItem((itemy*4)+itemx);
+        		if( m != null ){
+        			addMessage(m);
+        		}
         	}
         	
         	
