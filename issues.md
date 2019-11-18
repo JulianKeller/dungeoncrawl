@@ -10,4 +10,5 @@
 server for player.<br>
 
 ## PENDING ISSUES ##
-**[ 8 ]** Implement ItemManager class on server<br>
+**[ 8 ]** Get other Clients' position rendering on the client.<br>
+**[ 9 ]** Get item managment working on the server.
