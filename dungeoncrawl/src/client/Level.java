@@ -241,7 +241,7 @@ public class Level extends BasicGameState {
         	//TODO: draw item images
         	//for now, use ovals
         	//g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
-        	
+
         	i.setPosition((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2));
         	i.render(g);
         }
@@ -255,6 +255,7 @@ public class Level extends BasicGameState {
         dc.hero.animate.render(g);
 
         //render messages
+        // TODO this loop is causing a FPS drop
         for( Message m : messagebox ){
         	if( m != null ){
                 g.setColor(new Color(0, 0, 0, 0.5f));
@@ -275,9 +276,9 @@ public class Level extends BasicGameState {
         	g.setColor(tmp);
         }
 
-        
-        //display player inventory
-        //use the knight for now
+
+        // display player inventory
+        // use the knight for now
         if( displayInventory ){
         	renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
         	ArrayList<Item> items = dc.hero.getInventory();
@@ -294,6 +295,7 @@ public class Level extends BasicGameState {
             	}
         	}
         }
+
         if( displayCodex ){
         	//display this box next to the item box
         	//  if it is open
@@ -301,9 +303,9 @@ public class Level extends BasicGameState {
         	if( displayInventory ){
         		x *= 4;
         	}
-        	
+
         	renderItemBox(dc, g, "Codex", x, dc.tilesize, dc.tilesize * 10, dc.tilesize*8);
-        	
+
         	ArrayList<Item> items = dc.hero.getCodex();
         	int row = 2;
         	for( Item i : items ){
@@ -367,12 +369,6 @@ public class Level extends BasicGameState {
         }
         dc.hero.move(getKeystroke(input));
         positionToServer(dc.hero.getWorldCoordinates());  // Get the player's updated position onto the server.
-        /*
-        if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
-            RenderMap.setMap(dc, knight.origin);
-            currentOrigin = knight.origin;
-        }
-        */
         
         if( input.isKeyPressed(Input.KEY_I) ){
         	displayInventory = !displayInventory;
@@ -382,7 +378,6 @@ public class Level extends BasicGameState {
         	displayCodex = !displayCodex;
         	displayInventory = false;
         }
-        
 
         //check if a character has hit an item
         for( Character ch : dc.characters ){
