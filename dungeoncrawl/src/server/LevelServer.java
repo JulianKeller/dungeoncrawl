@@ -48,6 +48,8 @@ public class LevelServer extends Thread{
                     }
                     getPlayerCoord();
                     //updateOtherPositions();
+                }catch(EOFException e){
+                    break;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
