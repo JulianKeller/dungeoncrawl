@@ -1,6 +1,9 @@
 ##Open Issues##
 [5] Update/test player interactions with items
-[12] Add images for items besides potions
+[17] Add images for remaining items
+[18] Update character images based on their armor
+[19] Update character images based on weapon material
+[20] Add method for selecting and using/equipping items from inventory
 
 ##Resolved Issues##
 [1] Create database schema to hold items and player inventories
@@ -13,6 +16,7 @@
 [9] Update give/take methods to work with current codebase
 [10] fix file not found exception on windows
 [11] Fix items spawning on walls
+[12] Add images for items besides potions
 [13] Add message box that displays item pickups
 [14] Create player codex, a list of identified items
 [15] Make potions with the same color have the same effect
