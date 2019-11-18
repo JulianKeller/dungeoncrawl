@@ -113,9 +113,7 @@ public class Level1 extends BasicGameState {
                     dc.map[i][j] = mapData[i][j];
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         //*/
@@ -399,6 +397,7 @@ public class Level1 extends BasicGameState {
             return;
         }
         knight.move(getKeystroke(input));
+        positionToServer(knight.getWorldCoordinates());  // Get the player's updated position onto the server.
         /*
         if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
             RenderMap.setMap(dc, knight.origin);
@@ -492,6 +491,21 @@ public class Level1 extends BasicGameState {
             e.printStackTrace();
         }
         return ks;
+    }
+
+    /**
+      * Update the players position on the server.
+      */
+    public void positionToServer(Vector wc){
+        String position = wc.getX() + " " + wc.getY();
+       //System.out.println("Client position: "+ position);
+        try {
+            this.dos.writeUTF(position);
+            this.dos.flush();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
     }
 
     /**
