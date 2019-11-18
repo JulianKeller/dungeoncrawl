@@ -489,6 +489,12 @@ public class Level1 extends BasicGameState {
         		selectedEquippedItem--;
         	}else if( input.isKeyPressed(Input.KEY_RIGHT) ){
         		selectedEquippedItem++;
+        	}else if( input.isKeyPressed(Input.KEY_ENTER) ){
+        		//TODO: add use/discard functionality
+        		addMessage("used "+knight.getEquipped()[selectedEquippedItem]+".");
+        	}else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
+        		//TODO: add drop functionality
+        		addMessage("dropped "+knight.getEquipped()[selectedEquippedItem]+".");
         	}
         	
         	if( selectedEquippedItem < 0 ){
