@@ -80,9 +80,6 @@ public class RenderMap extends Entity {
     @param c an instance of the character class
     */
     public static void setMap(Main dc, Character c) {
-        System.out.print("setMap()");
-//        long startTime = System.nanoTime();
-        // todo adjust based on bounds of game
         float x = 0, y = 0;
         int i = 0, j = 0;
         int ox = c.ox;
@@ -108,12 +105,8 @@ public class RenderMap extends Entity {
             endy++;
         }
 
-
         // generate the correct wall, floor, shadow tiles in the x, y coordinates
-//        dc.maptiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the maptiles
-//        dc.maptiles = new Entity[dc.mapHeight+1][dc.mapWidth+1];      // initialize the maptiles
         dc.maptiles = new ArrayList<>((dc.mapHeight+1)*(dc.mapWidth+1));
-        
         try {
             for (i = starty; i < endy && i < dc.mapHeight; i++) {
                 for (j = startx; j < endx && j < dc.mapWidth; j++) {
@@ -151,9 +144,6 @@ public class RenderMap extends Entity {
             System.out.printf("[i, j] = [%s, %s]\t<x, y> = <%s, %s>\n", i, j, x, y);
 
         }
-//        long endTime = System.nanoTime();
-//        long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
-//        System.out.println("setMap Runtime: " + duration);
     }
 
 }

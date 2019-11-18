@@ -19,7 +19,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-public class Level1 extends BasicGameState {
+public class Level extends BasicGameState {
     private Boolean paused;
     int currentOX;
     int currentOY;
@@ -104,13 +104,6 @@ public class Level1 extends BasicGameState {
 //        dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         System.out.printf("Map Size: %s, %s\n", dc.map.length, dc.map[0].length);
 
-
-
-        
-
-        
-  
-        
         //rotated map verified correct
         rotatedMap = new int[dc.map[0].length][dc.map.length];
         for( int i = 0; i < dc.map.length; i++ ){
@@ -238,8 +231,8 @@ public class Level1 extends BasicGameState {
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
-
-       displayMap(dc, g);
+        // draw the floor and wall tiles
+        displayMap(dc, g);
         
         //render all visible items
         g.setColor(Color.red);
@@ -251,7 +244,6 @@ public class Level1 extends BasicGameState {
         	
         	i.setPosition((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2));
         	i.render(g);
-        	
         }
 
         // draw test items
@@ -259,10 +251,9 @@ public class Level1 extends BasicGameState {
             i.render(g);
         }
 
+        // draw the hero
         dc.hero.animate.render(g);
 
-        
-        
         //render messages
         for( Message m : messagebox ){
         	if( m != null ){
@@ -490,35 +481,9 @@ public class Level1 extends BasicGameState {
     Renders the map on screen, only drawing the necessary tiles in view
      */
     public void displayMap(Main dc, Graphics g) {
-
         for (BaseMap b : dc.maptiles) {
             b.render(g);
         }
-//        System.out.println("displayMap()");
-//        int startx = dc.hero.ox;
-//        int starty = dc.hero.oy;
-//        int endx = dc.tilesWide + dc.hero.ox;
-//        int endy = dc.tilesHigh + dc.hero.oy;
-//
-////        // increase the range rendered by 1 if possible, prevents black edges on scrolling
-//        if (startx > 0) {
-//            startx--;
-//        }
-//        if (starty > 0) {
-//            starty--;
-//        }
-//        if (endx < dc.mapWidth) {
-//            endx++;
-//        }
-//        if (endy < dc.mapHeight) {
-//            endy++;
-//        }
-//
-//        for (int i = starty; i < endy && i < dc.mapHeight; i++) {
-//            for (int j = startx; j < endx && j < dc.mapWidth; j++) {
-//                dc.mapTiles[i][j].render(g);
-//            }
-//        }
     }
 
     /**

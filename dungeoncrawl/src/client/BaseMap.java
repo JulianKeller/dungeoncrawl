@@ -4,13 +4,14 @@ import jig.Entity;
 import jig.ResourceManager;
 
 /*
-This class creates a client.Floor tile Entity with the correct image
+This class creates a wall or floor tile Entity with the correct image
  */
 public class BaseMap extends Entity {
 
     public BaseMap(final float x, final float y, String type) {
         super(x, y);
         switch (type) {
+            // Walls
             case "wall_top": {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.WALL_TOP));
                 break;
@@ -19,6 +20,7 @@ public class BaseMap extends Entity {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.WALL));
                 break;
             }
+            // Floors
             case "floor": {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.FLOOR));
                 break;

@@ -175,7 +175,7 @@ public class Main extends StateBasedGame {
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
         addState(new StartUpState());
-        addState(new Level1());
+        addState(new Level());
         addState(new GameOver());
 
         // load images
