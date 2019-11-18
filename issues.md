@@ -6,8 +6,8 @@
 **[ 5 ]** Convert to a multithreaded network.<br>
 **[ 6 ]** Work on Client sending keystrokes and Server response to them<br>
 **[ 12 ]** Have the server/client properly close all connections<br>
-
-## PENDING ISSUES ##
 **[ 7 ]** Get world coordinates from client and update with new world coordinates on
 server for player.<br>
+
+## PENDING ISSUES ##
 **[ 8 ]** Implement ItemManager class on server<br>
