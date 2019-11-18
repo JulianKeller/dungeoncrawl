@@ -8,8 +8,6 @@ import java.util.Random;
 import jig.Entity;
 import jig.Vector;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.net.*;
 import java.io.*;
 
@@ -21,34 +19,20 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import jig.Entity;
-import jig.Vector;
-
 public class Level1 extends BasicGameState {
     private Boolean paused;
-    Character knight;
-
     int currentOX;
     int currentOY;
-
     Vector currentOrigin;
-
     private Random rand;
-    
     private int[][] rotatedMap;
-
     Socket socket;
     ObjectInputStream dis;
     ObjectOutputStream dos;
     String serverMessage;
-
     private StateBasedGame game;
-    
     private final int messageTimer = 2000;
-
-    
     private ArrayList<Item> itemsToRender;
-    
     //whether to display player inventory/codex on the screen
     private boolean displayInventory = false;
     private boolean displayCodex = false;
@@ -175,13 +159,13 @@ public class Level1 extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
-        knight = new Character(dc, wx, wy, "knight_iron", 1);
-        dc.characters.add(knight);
-        currentOX = knight.ox;
-        currentOY = knight.oy;
+        dc.hero = new Character(dc, wx, wy, "knight_iron", 1);
+        dc.characters.add(dc.hero);
+        currentOX = dc.hero.ox;
+        currentOY = dc.hero.oy;
 
         // render map
-        RenderMap.setMap(dc, knight);
+        RenderMap.setMap(dc, dc.hero);
 
         String coord = wx + " " + wy;
         try {
@@ -254,14 +238,8 @@ public class Level1 extends BasicGameState {
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
-        // render tiles
-        for (int i = 0; i < dc.map.length; i++) {
-            for (int j = 0; j < dc.map[i].length; j++) {
-                if (dc.mapTiles[i][j] == null)
-                    continue;
-                dc.mapTiles[i][j].render(g);
-            }
-        }
+
+       displayMap(dc, g);
         
         //render all visible items
         g.setColor(Color.red);
@@ -281,7 +259,7 @@ public class Level1 extends BasicGameState {
             i.render(g);
         }
 
-        knight.animate.render(g);
+        dc.hero.animate.render(g);
 
         
         
@@ -311,7 +289,7 @@ public class Level1 extends BasicGameState {
         //use the knight for now
         if( displayInventory ){
         	renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
-        	ArrayList<Item> items = knight.getInventory();
+        	ArrayList<Item> items = dc.hero.getInventory();
         	if( items.size() != 0 ){
             	int row = 2;
             	int col = 1;
@@ -335,7 +313,7 @@ public class Level1 extends BasicGameState {
         	
         	renderItemBox(dc, g, "Codex", x, dc.tilesize, dc.tilesize * 10, dc.tilesize*8);
         	
-        	ArrayList<Item> items = knight.getCodex();
+        	ArrayList<Item> items = dc.hero.getCodex();
         	int row = 2;
         	for( Item i : items ){
         		g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
@@ -396,8 +374,8 @@ public class Level1 extends BasicGameState {
         if (paused) {
             return;
         }
-        knight.move(getKeystroke(input));
-        positionToServer(knight.getWorldCoordinates());  // Get the player's updated position onto the server.
+        dc.hero.move(getKeystroke(input));
+        positionToServer(dc.hero.getWorldCoordinates());  // Get the player's updated position onto the server.
         /*
         if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
             RenderMap.setMap(dc, knight.origin);
@@ -506,6 +484,39 @@ public class Level1 extends BasicGameState {
             e.printStackTrace();
         }
 
+    }
+
+    /*
+    Renders the map on screen, only drawing the necessary tiles in view
+     */
+    public void displayMap(Main dc, Graphics g) {
+        int startx = dc.hero.ox;
+        int starty = dc.hero.oy;
+        int endx = dc.tilesWide + dc.hero.ox;
+        int endy = dc.tilesHigh + dc.hero.oy;
+
+//        // increase the range rendered by 1 if possible, prevents black edges on scrolling
+        if (startx > 0) {
+            startx--;
+        }
+        if (starty > 0) {
+            starty--;
+        }
+        if (endx < dc.mapWidth) {
+            endx++;
+        }
+        if (endy < dc.mapHeight) {
+            endy++;
+        }
+
+        for (int i = starty; i < endy && i < dc.mapHeight; i++) {
+            for (int j = startx; j < endx && j < dc.mapWidth; j++) {
+                // render tiles
+                if (dc.mapTiles[i][j] == null)
+                    continue;
+                dc.mapTiles[i][j].render(g);
+            }
+        }
     }
 
     /**

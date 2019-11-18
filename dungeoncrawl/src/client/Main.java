@@ -113,9 +113,10 @@ public class Main extends StateBasedGame {
     Entity[][] mapTiles;
     boolean collisions;
     ArrayList<DisplayItem> testItems;
+    Character hero;
     
     //item types
-    public static final String[] ItemTypes = {"client.Potion", "Armor", "Sword", "client.Arrow", "Staff", "Glove"};
+    public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
     
     //item materials
     public static final String[] ArmorMaterials = {"Leather", "Iron", "Turtle Shell"};

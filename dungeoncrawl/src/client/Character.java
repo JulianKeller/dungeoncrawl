@@ -19,12 +19,12 @@ public class Character extends MovingEntity {
     float dy = 0f;      // delta y
 
     /**
-     * Create a new client.Character (wx, wy)
+     * Create a new Character (wx, wy)
      *
      * @param wx   world coordinates x
      * @param wy   world coordinates y
      * @param type entity animation to get "knight_leather" for example see the AnimateEntity Class
-     * @param id   id for client.MovingEntity
+     * @param id   id for MovingEntity
      */
     public Character(Main dc, final float wx, final float wy, String type, int id) {
         super(wx, wy, id);
@@ -43,11 +43,11 @@ public class Character extends MovingEntity {
 
 
     /**
-     * Create a new client.Character (Vector)
+     * Create a new Character (Vector)
      *
      * @param wc   world coordinates Vector
      * @param type 'K'night, 'M'age, 'A'rcher, 'T'ank
-     * @param id   id for client.MovingEntity
+     * @param id   id for MovingEntity
      */
     public Character(Vector wc, String type, int id) {
         super(wc, id);
@@ -56,7 +56,7 @@ public class Character extends MovingEntity {
     }
 
     /**
-     * Sets client.Character HP, AP, and Mana based on type given.
+     * Sets Character HP, AP, and Mana based on type given.
      */
     private void setStats() {
         switch (type) {
@@ -87,7 +87,7 @@ public class Character extends MovingEntity {
                 setSpeed(25);
                 break;
             default:
-                System.out.println("ERROR: No matching client.Character type specified.\n");
+                System.out.println("ERROR: No matching Character type specified.\n");
                 break;
         }
     }
