@@ -35,7 +35,7 @@ public class Item extends StationaryObject{
 		
 		//first get the item type
 		//this.type = client.Main.ItemTypes[ rand.nextInt(client.Main.ItemTypes.length) ];
-		this.type = "client.Potion";
+		this.type = "Potion";
 		
 		//choose materials from the appropriate list
 		if( type.equals("Sword") ){
@@ -59,9 +59,9 @@ public class Item extends StationaryObject{
 			this.effect = Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ];
 		}else if( type.equals("Glove") ){
 			this.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
-		}else if( type.equals("client.Potion") ){
+		}else if( type.equals("Potion") ){
 			this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
-		}else if( type.equals("client.Arrow") ){
+		}else if( type.equals("Arrow") ){
 			this.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
 		}else{
 			this.effect = "";
@@ -78,23 +78,28 @@ public class Item extends StationaryObject{
 		identified = false;
 		
 		//get an image based on item type
-		if( type.equals("client.Potion") ){
+		if( type.equals("Potion") ){
 			int r = rand.nextInt(5);
 			switch( r ){
 			case 0:
 				this.image = ResourceManager.getImage(Main.POTION_BLUE);
+				material = "Blue";
 				break;
 			case 1:
 				this.image = ResourceManager.getImage(Main.POTION_ORANGE);
+				material = "Orange";
 				break;
 			case 2:
 				this.image = ResourceManager.getImage(Main.POTION_PINK);
+				material = "Pink";
 				break;
 			case 3:
 				this.image = ResourceManager.getImage(Main.POTION_RED);
+				material = "Red";
 				break;
 			case 4:
 				this.image = ResourceManager.getImage(Main.POTION_YELLOW);
+				material = "Yellow";
 				break;
 			}
 		}

@@ -112,7 +112,7 @@ public class ItemManager {
 				}else{
 					//this would suggest that the list of potion colors in this class
 					//  is incomplete
-					throw new SlickException("Error: invalid potion color.");
+					throw new SlickException("Error: invalid potion color "+i.getMaterial());
 				}
 			}
 			
