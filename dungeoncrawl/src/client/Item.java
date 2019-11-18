@@ -5,6 +5,7 @@ import java.util.Random;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 
 import jig.ResourceManager;
 import jig.Vector;
@@ -24,7 +25,7 @@ public class Item extends StationaryObject{
 	private Random rand;
 	
 	
-	public Item(Vector wc, boolean locked, int id, int oid){
+	public Item(Vector wc, boolean locked, int id, int oid) throws SlickException{
 		super(wc, locked); //superconstructor
 		//set random properties
 		rand = new Random();
@@ -35,7 +36,10 @@ public class Item extends StationaryObject{
 		
 		//first get the item type
 		//this.type = client.Main.ItemTypes[ rand.nextInt(client.Main.ItemTypes.length) ];
-		this.type = "Potion";
+		
+		//currently developed item types, for debugging purposes only
+		String[] currentTypes = {"Potion", "Sword", "Armor"};
+		this.type = currentTypes[ rand.nextInt(currentTypes.length) ];
 		
 		//choose materials from the appropriate list
 		if( type.equals("Sword") ){
@@ -101,6 +105,26 @@ public class Item extends StationaryObject{
 				this.image = ResourceManager.getImage(Main.POTION_YELLOW);
 				material = "Yellow";
 				break;
+			}
+		}else if( type.equals("Sword") ){
+			//wood, iron, gold
+			if( material.equals("Wooden") ){
+				image = ResourceManager.getImage(Main.SWORD_WOOD);
+			}else if( material.equals("Iron") ){
+				image = ResourceManager.getImage(Main.SWORD_IRON);
+			}else if( material.equals("Gold") ){
+				image = ResourceManager.getImage(Main.SWORD_GOLD);
+			}else{
+				throw new SlickException("Error: invalid sword material'"+material+"'");
+			}
+		}else if( type.equals("Armor") ){
+			//iron, gold
+			if( material.equals("Iron") ){
+				image = ResourceManager.getImage(Main.ARMOR_IRON);
+			}else if( material.equals("Gold") ){
+				image = ResourceManager.getImage(Main.ARMOR_GOLD);
+			}else{
+				throw new SlickException("Error: invalid armor material '"+material+"'");
 			}
 		}
 	}

@@ -115,10 +115,10 @@ public class Main extends StateBasedGame {
     ArrayList<DisplayItem> testItems;
     
     //item types
-    public static final String[] ItemTypes = {"client.Potion", "Armor", "Sword", "client.Arrow", "Staff", "Glove"};
+    public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "client.Arrow", "Staff", "Glove"};
     
     //item materials
-    public static final String[] ArmorMaterials = {"Leather", "Iron", "Turtle Shell"};
+    public static final String[] ArmorMaterials = /*{"Leather", "Iron", "Turtle Shell"}*/ {"Iron", "Gold"};
     public static final String[] SwordMaterials = {"Wooden", "Iron", "Gold"};
     public static final String[] StaffMaterials = {"Ruby", "Emerald", "Amethyst"};
     public static final String[] GloveMaterials = {"Leather", "Iron", "Gold"};
@@ -233,7 +233,7 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(ARMOR_IRON);
 
         // SWORDS
-        ResourceManager.loadImage((SWORD_IRON));
+        ResourceManager.loadImage(SWORD_IRON);
         ResourceManager.loadImage(SWORD_WOOD);
         ResourceManager.loadImage(SWORD_GOLD);
     }
