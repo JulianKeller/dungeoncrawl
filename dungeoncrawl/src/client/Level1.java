@@ -52,6 +52,8 @@ public class Level1 extends BasicGameState {
     //whether to display player inventory/codex on the screen
     private boolean displayInventory = false;
     private boolean displayCodex = false;
+    private int itemx = 0;
+    private int itemy = 0; //which item is currently selected in the inventory
     
     private class Message{
     	protected int timer = messageTimer;
@@ -325,6 +327,16 @@ public class Level1 extends BasicGameState {
             			col = 1;
             		}
             	}
+            	//draw a square around the selected item
+            	Color tmp = g.getColor();
+            	g.setColor(Color.white);
+            	g.drawRect(
+            			(itemx + 1)*dc.tilesize,
+            			(itemy + 2)*dc.tilesize,
+            			dc.tilesize,
+            			dc.tilesize
+            			);
+            	g.setColor(tmp);
         	}
         }
         if( displayCodex ){
@@ -348,6 +360,9 @@ public class Level1 extends BasicGameState {
         		row++;
         	}
         }
+        
+        
+        
         
         
         //print the tile values on the screen
@@ -413,6 +428,38 @@ public class Level1 extends BasicGameState {
         if( input.isKeyPressed(Input.KEY_O) ){
         	displayCodex = !displayCodex;
         	displayInventory = false;
+        }
+        
+        if( displayInventory ){
+        	if( input.isKeyPressed(Input.KEY_UP) ){
+        		//selectedItem.setY(selectedItem.getY()-1);
+        		itemy--;
+        	}else if( input.isKeyPressed(Input.KEY_DOWN) ){
+        		//selectedItem.setY(selectedItem.getY()+1);
+        		itemy++;
+        	}else if( input.isKeyPressed(Input.KEY_LEFT) ){
+        		//selectedItem.setX(selectedItem.getX()-1);
+        		itemx--;
+        	}else if( input.isKeyPressed(Input.KEY_RIGHT) ){
+        		//selectedItem.setX(selectedItem.getX()+1);
+        		itemx++;
+        	}
+        	
+        	
+        	if( itemx < 0 ){
+        		itemx = 0;
+        	}
+        	if( itemy < 0 ){
+        		itemy = 0;
+        	}
+        	if( itemx > 3 ){
+        		itemx = 3;
+        	}
+        	if( itemy > knight.getInventory().size()/4){
+        		itemy = knight.getInventory().size()/4;
+        	}
+        	
+        	//System.out.println(itemx+", "+itemy);
         }
         
 
