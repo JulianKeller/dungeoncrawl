@@ -3,10 +3,12 @@ package server;
 public class PlayerPosition {
     private float [] position;
     private int clientId;
+    private String type;
 
-    public PlayerPosition(int id){
+    public PlayerPosition(int id, String type){
         position = new float[]{0,0};
         clientId = id;
+        this.type = type;
     }
 
     public void setX(float x){
@@ -35,7 +37,7 @@ public class PlayerPosition {
     }
 
     public String stringify(){
-        return position[0] + " " + position[1];
+        return type + " "+ clientId + " " + position[0] + " " + position[1];
     }
 
     public int getClientId(){

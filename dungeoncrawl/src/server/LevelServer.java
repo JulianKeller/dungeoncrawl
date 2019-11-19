@@ -25,7 +25,7 @@ public class LevelServer extends Thread{
         this.dis = dis;
         this.dos = dos;
         clientId = id;
-        position = new PlayerPosition(clientId);
+        position = null;
     }
     /**
      * This is what is called when the main server function invokes start().
@@ -35,7 +35,8 @@ public class LevelServer extends Thread{
         String inputCode;
         String toSend = "";
         sendMap();
-        getPlayerCoord();
+        setupPlayer();
+        Server.clients.add(this);
         try {
             while (true) {
                 // User clicks "X"(Windows) or red button (macOS) it will break out of the loop
@@ -47,7 +48,7 @@ public class LevelServer extends Thread{
                         break;
                     }
                     getPlayerCoord();
-                    //updateOtherPositions();
+                    updateOtherPositions();
                 }catch(EOFException e){
                     break;
                 } catch (IOException e) {
@@ -87,12 +88,24 @@ public class LevelServer extends Thread{
         }
     }
 
+    private void setupPlayer(){
+        try{
+            String info = dis.readUTF();
+            position = new PlayerPosition(clientId,info.split(" ")[0]);
+            String xy = info.split(" ")[1] + " " +info.split(" ")[2];
+            getPlayerCoord(xy);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+    }
+
     /**
      * This method retrieves the player coordinates in screen coordinates to the
      * server to store. (This will probably be changed to convert to screen coordinates
      * and send back to the client later).
      */
-    public void getPlayerCoord(){
+    private void getPlayerCoord(){
         String coords = "";
         String x;
         String y;
@@ -106,6 +119,15 @@ public class LevelServer extends Thread{
         y = coords.split(" ")[1];
         position.setPosition(Float.parseFloat(x),Float.parseFloat(y));
     }
+
+    private void getPlayerCoord(String coords){
+        String x;
+        String y;
+        //System.out.println("Position read: "+coords);
+        x = coords.split(" ")[0];
+        y = coords.split(" ")[1];
+        position.setPosition(Float.parseFloat(x),Float.parseFloat(y));
+    }
     public int getClientId(){
         return clientId;
     }
@@ -113,15 +135,25 @@ public class LevelServer extends Thread{
     /**
      * updates other players' position on the screen.
      */
-    public void updateOtherPositions(){
-        for(Iterator<LevelServer> i = Server.clients.iterator();i.hasNext();){
-            LevelServer s = i.next();
-            try {
-                this.dos.writeUTF(s.position.stringify());
-                this.dos.flush();
-            } catch (IOException e){
-                e.printStackTrace();
+    public synchronized void updateOtherPositions() {
+        try {
+            this.dos.writeUTF(Integer.toString(Server.clients.size()));
+            this.dos.flush();
+            if(Server.clients.size() <= 1){
+                return;
             }
+            for (Iterator<LevelServer> i = Server.clients.iterator(); i.hasNext(); ) {
+                LevelServer s = i.next();
+                // Current problem, hangs with more than one client.
+                if(s.getClientId() != this.clientId && s.position != null) {
+                    //System.out.println(s.position.stringify());
+                    this.dos.writeUTF(s.position.stringify());
+                    this.dos.flush();
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
