@@ -504,7 +504,6 @@ public class Level extends BasicGameState {
                 }
                 int num_characters = Integer.parseInt(update);
                 int id = 0;
-                for(int num = 0; num < num_characters;num++) {
                     update = dis.readUTF();
                     //System.out.println(update);
                     id = Integer.parseInt(update.split(" ")[1]);
@@ -525,7 +524,6 @@ public class Level extends BasicGameState {
                         dc.characters.add(new Character(dc, wx, wy, type, id));
                         return;
                     }
-                }
 
 
 
