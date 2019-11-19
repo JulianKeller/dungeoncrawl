@@ -48,6 +48,7 @@ public class Server {
 
                 // Create a new thread object
                 LevelServer t = new LevelServer(s,dis,dos,s.getPort(), iMap);
+                t.join();
                 clients.add(t);
 
                 // Invoking the start() method

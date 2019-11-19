@@ -1,6 +1,7 @@
 package client;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 
@@ -152,21 +153,25 @@ public class Level extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
-        dc.hero = new Character(dc, wx, wy, "knight_iron", 1);
-        dc.characters.add(dc.hero);
-        currentOX = dc.hero.ox;
-        currentOY = dc.hero.oy;
 
-        // render map
-        RenderMap.setMap(dc, dc.hero);
-
-        String coord = wx + " " + wy;
+        // Setting starting position for the hero.
+        String type = "knight_iron";
+        String coord = type + " " + wx + " " + wy;
         try {
             dos.writeUTF(coord);
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();
         }
+        dc.hero = new Character(dc, wx, wy, type, 1);
+        //dc.characters.add(dc.hero);
+        currentOX = dc.hero.ox;
+        currentOY = dc.hero.oy;
+
+        // render map
+        RenderMap.setMap(dc, dc.hero);
+
+
 
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
 
@@ -253,6 +258,10 @@ public class Level extends BasicGameState {
 
         // draw the hero
         dc.hero.animate.render(g);
+
+        // draw other characters
+        for(Iterator<Character> i = dc.characters.iterator(); i.hasNext();)
+            i.next().animate.render(g);
 
         //render messages
         // TODO this loop is causing a FPS drop
@@ -369,6 +378,7 @@ public class Level extends BasicGameState {
         }
         dc.hero.move(getKeystroke(input));
         positionToServer(dc.hero.getWorldCoordinates());  // Get the player's updated position onto the server.
+        updateOtherPlayers(dc);
         
         if( input.isKeyPressed(Input.KEY_I) ){
         	displayInventory = !displayInventory;
@@ -481,6 +491,46 @@ public class Level extends BasicGameState {
         }
     }
 
+    public void updateOtherPlayers(Main dc){
+        String update = "";
+        boolean isRendered = false;
+        try {
+            update = dis.readUTF();
+            // Return if there are no other players.
+            if(update.equals("1")){
+                return;
+            }
+            int num_characters = Integer.parseInt(update);
+            int id = 0;
+            for(int num = 0; num < num_characters; num++){
+                update = dis.readUTF();
+                id = Integer.parseInt(update.split(" ")[1]);
+                // Go through and check to see if the character already exists.
+                for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
+                    Character c = i.next();
+                    if (c.getPid() == id) {
+                        c.animate.setPosition(Float.parseFloat(update.split(" ")[2]),
+                                Float.parseFloat(update.split(" ")[3]));
+                        isRendered = true;
+                        break;
+                    }
+                }
+                if(!isRendered){
+                    Float wx = Float.parseFloat(update.split(" ")[2]);
+                    Float wy = Float.parseFloat(update.split(" ")[3]);
+                    String type = update.split(" ")[0];
+                    dc.characters.add(new Character(dc,wx,wy,type,id));
+                    return;
+                }
+            }
+
+
+
+
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+    }
     /**
      * Reads the new player coordinates and walks the player accordingly.
 //     */
