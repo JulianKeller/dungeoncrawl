@@ -265,7 +265,7 @@ public class Main extends StateBasedGame {
         ObjectOutputStream dos = null;
         if(!localMode) {
             try {
-                byte[] ipAddr = new byte[]{127, 0, 0, 1};
+                byte[] ipAddr = new byte[]{127,0,0,1};
 
                 // getting localhost ip
                 InetAddress ip = InetAddress.getByAddress(ipAddr);
