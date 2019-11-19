@@ -8,7 +8,6 @@
 **[ 12 ]** Have the server/client properly close all connections<br>
 **[ 7 ]** Get world coordinates from client and update with new world coordinates on
 server for player.<br>
-
-## PENDING ISSUES ##
 **[ 8 ]** Get other Clients' position rendering on the client.<br>
+## PENDING ISSUES ##
 **[ 9 ]** Get item managment working on the server.

@@ -12,6 +12,7 @@ import jig.Vector;
 import java.net.*;
 import java.io.*;
 
+import org.lwjgl.Sys;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -496,33 +497,35 @@ public class Level extends BasicGameState {
         boolean isRendered = false;
         try {
             update = dis.readUTF();
-            // Return if there are no other players.
-            if(update.equals("1")){
-                return;
-            }
-            int num_characters = Integer.parseInt(update);
-            int id = 0;
-            for(int num = 0; num < num_characters; num++){
-                update = dis.readUTF();
-                id = Integer.parseInt(update.split(" ")[1]);
-                // Go through and check to see if the character already exists.
-                for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
-                    Character c = i.next();
-                    if (c.getPid() == id) {
-                        c.animate.setPosition(Float.parseFloat(update.split(" ")[2]),
-                                Float.parseFloat(update.split(" ")[3]));
-                        isRendered = true;
-                        break;
-                    }
-                }
-                if(!isRendered){
-                    Float wx = Float.parseFloat(update.split(" ")[2]);
-                    Float wy = Float.parseFloat(update.split(" ")[3]);
-                    String type = update.split(" ")[0];
-                    dc.characters.add(new Character(dc,wx,wy,type,id));
+             //Return if there are no other players.
+                if(update.equals("1")){
+                    //System.out.println("No other clients.");
                     return;
                 }
-            }
+                int num_characters = Integer.parseInt(update);
+                int id = 0;
+                for(int num = 0; num < num_characters;num++) {
+                    update = dis.readUTF();
+                    //System.out.println(update);
+                    id = Integer.parseInt(update.split(" ")[1]);
+                    // Go through and check to see if the character already exists.
+                    for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
+                        Character c = i.next();
+                        if (c.getPid() == id) {
+                            c.animate.setPosition(Float.parseFloat(update.split(" ")[2]),
+                                    Float.parseFloat(update.split(" ")[3]));
+                            isRendered = true;
+                            break;
+                        }
+                    }
+                    if (!isRendered) {
+                        Float wx = Float.parseFloat(update.split(" ")[2]);
+                        Float wy = Float.parseFloat(update.split(" ")[3]);
+                        String type = update.split(" ")[0];
+                        dc.characters.add(new Character(dc, wx, wy, type, id));
+                        return;
+                    }
+                }
 
 
 

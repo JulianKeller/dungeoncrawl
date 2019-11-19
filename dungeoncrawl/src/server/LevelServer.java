@@ -36,6 +36,7 @@ public class LevelServer extends Thread{
         String toSend = "";
         sendMap();
         setupPlayer();
+        Server.clients.add(this);
         try {
             while (true) {
                 // User clicks "X"(Windows) or red button (macOS) it will break out of the loop
@@ -138,13 +139,14 @@ public class LevelServer extends Thread{
         try {
             this.dos.writeUTF(Integer.toString(Server.clients.size()));
             this.dos.flush();
-            if(Server.clients.size() == 1){
+            if(Server.clients.size() <= 1){
                 return;
             }
             for (Iterator<LevelServer> i = Server.clients.iterator(); i.hasNext(); ) {
                 LevelServer s = i.next();
                 // Current problem, hangs with more than one client.
-                if(s.getClientId() != this.clientId && position != null) {
+                if(s.getClientId() != this.clientId && s.position != null) {
+                    //System.out.println(s.position.stringify());
                     this.dos.writeUTF(s.position.stringify());
                     this.dos.flush();
                 }
