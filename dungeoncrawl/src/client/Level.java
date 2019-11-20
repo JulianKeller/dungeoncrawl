@@ -187,6 +187,11 @@ public class Level extends BasicGameState {
         dc.testItems.add(new DisplayItem((dc.tilesize * 7)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_wood"));
         dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_gold"));
         */
+        dc.testItems.add(new DisplayItem((dc.tilesize * 14)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_ice"));
+        dc.testItems.add(new DisplayItem((dc.tilesize * 15)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_poison"));
+        dc.testItems.add(new DisplayItem((dc.tilesize * 16)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_flame"));
+        dc.testItems.add(new DisplayItem((dc.tilesize * 17)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_normal"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_normal"));
         
         /*
         currentOrigin = knight.origin;

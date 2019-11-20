@@ -95,6 +95,12 @@ public class Main extends StateBasedGame {
     public static final String SWORD_IRON = "resources/swords/iron_sword.png";
     public static final String SWORD_GOLD = "resources/swords/gold_sword.png";
 
+    // Arrows
+    public static final String ARROW_NORMAL = "resources/arrows/normal_arrows.png";
+    public static final String ARROW_ICE = "resources/arrows/ice_arrows.png";
+    public static final String ARROW_POISON = "resources/arrows/flaming_arrows.png";
+    public static final String ARROW_FLAME = "resources/arrows/poison_arrows.png";
+
     // Screen Size
     public final int ScreenWidth;
     public final int ScreenHeight;
@@ -235,9 +241,15 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(ARMOR_IRON);
 
         // SWORDS
-        ResourceManager.loadImage((SWORD_IRON));
+        ResourceManager.loadImage(SWORD_IRON);
         ResourceManager.loadImage(SWORD_WOOD);
         ResourceManager.loadImage(SWORD_GOLD);
+
+        // ARROWS
+        ResourceManager.loadImage(ARROW_NORMAL);
+        ResourceManager.loadImage(ARROW_FLAME);
+        ResourceManager.loadImage(ARROW_ICE);
+        ResourceManager.loadImage(ARROW_POISON);
     }
 
     // Send close to the server and close connections before exiting.
