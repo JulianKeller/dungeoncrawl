@@ -244,9 +244,9 @@ public class Character extends MovingEntity {
         } else {
             ox = newx;
             oy = newy;
-            updateWorldCoordinates();
             nearEdge = false;
         }
+        updateWorldCoordinates();
     }
 
 

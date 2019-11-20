@@ -34,6 +34,7 @@ Draw Gloves
 [15] - render multiple random maps and save them
 [16] - fix map loading file error
 [19] - set animation speed based on characters move speed, math problem
+[21] - update world coordinates every increment when scrolling
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
