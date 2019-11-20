@@ -150,6 +150,9 @@ public class Level extends BasicGameState {
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
+        System.out.println("width: " + dc.tilesWide);
+        System.out.println("height: " + dc.tilesHigh);
+
         // setup the knight character
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
