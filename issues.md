@@ -10,4 +10,5 @@
 server for player.<br>
 **[ 8 ]** Get other Clients' position rendering on the client.<br>
 ## PENDING ISSUES ##
-**[ 9 ]** Get item managment working on the server.
+**[ 9 ]** Get item managment working on the server.<br>
+**[ 10 ]** Convert Server to take multiple clients instead of making new threads.
