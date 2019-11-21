@@ -470,13 +470,15 @@ public class Character extends MovingEntity {
     /**
      *
      */
-//    public static Vector convert2ScreenCoordinates(Vector wc) {
-//        Vector sc;
-//        float x = wc.getX();
-//        float y = wc.getY();
-//        float wx = x + (ox * dc.tilesize);
-//        float wy = y + (oy * dc.tilesize);
-//        return null;
-//    }
+    // TODO figure out how to convert screen world coords to screen coords so that the enemy is displayed in the correct
+//    location when the hero scrolls the map
+    public Vector convert2ScreenCoordinates(Vector wc) {
+        Vector sc;
+        float x = wc.getX();
+        float y = wc.getY();
+        float wx = x + (ox * dc.tilesize);
+        float wy = y + (oy * dc.tilesize);
+        return null;
+    }
 
 }
