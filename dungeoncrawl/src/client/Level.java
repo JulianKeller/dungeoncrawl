@@ -5,14 +5,11 @@ import java.util.Iterator;
 import java.util.Random;
 
 
-
-import jig.Entity;
 import jig.Vector;
 
 import java.net.*;
 import java.io.*;
 
-import org.lwjgl.Sys;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -138,15 +135,8 @@ public class Level extends BasicGameState {
 			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 		}
         
-		/*
-        float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
-        float wy = (dc.tilesize * row) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
-        
-        knight = new Character(dc, wx, wy, "knight_iron", 1);
-        dc.characters.add(knight);
-        */
+
         // map variables
-    	//Main dc = (Main) game;
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
@@ -167,7 +157,12 @@ public class Level extends BasicGameState {
         }catch(IOException e){
             e.printStackTrace();
         }
-        dc.hero = new Character(dc, wx, wy, type, 1);
+        dc.hero = new Character(dc, wx, wy, type, 1, false);
+
+        wx = (dc.tilesize * 20) - dc.offset;
+        wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
+        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, true));
+
         //dc.characters.add(dc.hero);
         currentOX = dc.hero.ox;
         currentOY = dc.hero.oy;
@@ -187,10 +182,10 @@ public class Level extends BasicGameState {
         dc.testItems.add(new DisplayItem((dc.tilesize * 7)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_wood"));
         dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_gold"));
         */
-        dc.testItems.add(new DisplayItem((dc.tilesize * 14)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_ice"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 15)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_poison"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 16)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_flame"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 17)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_normal"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 14)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_ice"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 15)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_poison"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 16)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_flame"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 17)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_normal"));
 //        dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_normal"));
         
         /*
@@ -265,12 +260,12 @@ public class Level extends BasicGameState {
             i.render(g);
         }
 
+        // TODO will need to sort the lists and draw in order
+        // draw other characters
+        renderCharacters(dc, g);
+
         // draw the hero
         dc.hero.animate.render(g);
-
-        // draw other characters
-        for(Iterator<Character> i = dc.characters.iterator(); i.hasNext();)
-            i.next().animate.render(g);
 
         //render messages
         // TODO this loop is causing a FPS drop
@@ -358,6 +353,31 @@ public class Level extends BasicGameState {
         //*/
         
     }
+
+    /*
+    Renders the other characters and AI on the screen if they are in the players screen
+     */
+    private void renderCharacters(Main dc, Graphics g) {
+        for(Iterator<Character> i = dc.characters.iterator(); i.hasNext();) {
+            Character ch = i.next();
+            Vector position = ch.animate.getPosition();
+            float cwx = position.getX();
+            float cwy = position.getY();
+
+            // hero screen origin
+            float ox = dc.hero.ox * dc.tilesize;
+            float oy = dc.hero.oy * dc.tilesize;
+            float screenX = ox + dc.tilesWide * dc.tilesize;
+            float screenY = oy + dc.tilesHigh * dc.tilesize;
+
+            if (ox < cwx && oy < cwy && screenX > cwx && screenY > cwy) {
+                // if character in screen, render them
+                ch.animate.render(g);
+            }
+
+
+        }
+    }
     
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
     	Color tmp = g.getColor();
@@ -368,10 +388,7 @@ public class Level extends BasicGameState {
     	
     	g.setColor(Color.white);
     	g.drawString(title, dc.tilesize + 10, dc.tilesize + 10);
-    	
-
     	g.setColor(tmp);
-
     }
 
 
@@ -396,6 +413,13 @@ public class Level extends BasicGameState {
         if( input.isKeyPressed(Input.KEY_O) ){
         	displayCodex = !displayCodex;
         	displayInventory = false;
+        }
+
+        // cause AI players to move around
+        for( Character ch : dc.characters ) {
+            if (ch.ai) {        // if the player is an AI player, move them
+                ch.moveAI();
+            }
         }
 
         //check if a character has hit an item
@@ -529,7 +553,7 @@ public class Level extends BasicGameState {
                         Float wx = Float.parseFloat(update.split(" ")[2]);
                         Float wy = Float.parseFloat(update.split(" ")[3]);
                         String type = update.split(" ")[0];
-                        dc.characters.add(new Character(dc, wx, wy, type, id));
+                        dc.characters.add(new Character(dc, wx, wy, type, id, false));
                         return;
                     }
 

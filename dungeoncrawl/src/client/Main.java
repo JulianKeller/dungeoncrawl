@@ -105,25 +105,25 @@ public class Main extends StateBasedGame {
     public static final String ARROW_FLAME_UP = "resources/arrows/up/up_arrow_fire.png";
     public static final String ARROW_FLAME_DOWN = "resources/arrows/down/down_arrow_fire.png";
     public static final String ARROW_FLAME_LEFT = "resources/arrows/left/left_arrow_fire.png";
-    public static final String ARROW_FLAME_RIGHT = "resources/arrows/right/left_arrow_fire.png";
+    public static final String ARROW_FLAME_RIGHT = "resources/arrows/right/right_arrow_fire.png";
     
     // Ice Arrows
     public static final String ARROW_ICE_UP = "resources/arrows/up/up_arrow_ice.png";
     public static final String ARROW_ICE_DOWN = "resources/arrows/down/down_arrow_ice.png";
     public static final String ARROW_ICE_LEFT = "resources/arrows/left/left_arrow_ice.png";
-    public static final String ARROW_ICE_RIGHT = "resources/arrows/right/left_arrow_ice.png";
+    public static final String ARROW_ICE_RIGHT = "resources/arrows/right/right_arrow_ice.png";
     
     // Normal Arrows
     public static final String ARROW_NORMAL_UP = "resources/arrows/up/up_arrow_normal.png";
     public static final String ARROW_NORMAL_DOWN = "resources/arrows/down/down_arrow_normal.png";
     public static final String ARROW_NORMAL_LEFT = "resources/arrows/left/left_arrow_normal.png";
-    public static final String ARROW_NORMAL_RIGHT = "resources/arrows/right/left_arrow_normal.png";
+    public static final String ARROW_NORMAL_RIGHT = "resources/arrows/right/right_arrow_normal.png";
     
     // Poison Arrows
     public static final String ARROW_POISON_UP = "resources/arrows/up/up_arrow_poison.png";
     public static final String ARROW_POISON_DOWN = "resources/arrows/down/down_arrow_poison.png";
     public static final String ARROW_POISON_LEFT = "resources/arrows/left/left_arrow_poison.png";
-    public static final String ARROW_POISON_RIGHT = "resources/arrows/right/left_arrow_poison.png";
+    public static final String ARROW_POISON_RIGHT = "resources/arrows/right/right_arrow_poison.png";
 
     // Screen Size
     public final int ScreenWidth;
@@ -145,6 +145,15 @@ public class Main extends StateBasedGame {
     boolean collisions;
     ArrayList<DisplayItem> testItems;
     Character hero;
+    public ArrayList<Character> characters;
+    ArrayList<Character> enemies;
+
+    // create an item manager
+    public static ItemManager im;
+    Entity[][] potions;
+    ArrayList<AnimateEntity> animations;
+
+
     
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
@@ -166,12 +175,7 @@ public class Main extends StateBasedGame {
     //displayed item name should be of the form "material type of effect" using whatever fields are filled in
     
     
-    // create an item manager
-    public static ItemManager im;
-    Entity[][] potions;
-    ArrayList<AnimateEntity> animations;
-    
-    public ArrayList<Character> characters;
+
 
 
     /**
@@ -197,6 +201,7 @@ public class Main extends StateBasedGame {
         this.dos = dos;
 
         characters = new ArrayList<>();
+        enemies = new ArrayList<>();
         testItems = new ArrayList<>(50);
 
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);    // set a rectangle

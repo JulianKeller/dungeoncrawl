@@ -1,5 +1,5 @@
 ## Current Issues
-[20] - fix map slowing down FPS when nearing edge of screen
+[22] - implement AI characters
 [3] - Draw Items 
 Draw Armor
         Leather
@@ -34,7 +34,7 @@ Draw Gloves
 [15] - render multiple random maps and save them
 [16] - fix map loading file error
 [19] - set animation speed based on characters move speed, math problem
-[21] - update world coordinates every increment when scrolling
+
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
@@ -45,3 +45,5 @@ Draw Gloves
 [14] - refactor walls and levels classes into one map class
 [17] - get scrolling and player movement
 [18] - refactor to client/server directories
+[20] - fix map slowing down FPS when nearing edge of screen
+[21] - update world coordinates every increment when scrolling
