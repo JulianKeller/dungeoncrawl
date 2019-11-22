@@ -343,6 +343,12 @@ public class Level extends BasicGameState {
             			dc.tilesize,
             			dc.tilesize
             			);
+            	Item sItem = items.get((itemy*4)+itemx);
+            	if( sItem.isIdentified() ){
+            		g.drawString(sItem.getMaterial() + " " + sItem.getType() + " of " + sItem.getEffect(), dc.tilesize+10, dc.tilesize*8);
+            	}else{
+            		g.drawString("Unidentified " + sItem.getMaterial() + " " + sItem.getType(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));          		
+            	}
             	g.setColor(tmp);
         	}
         }
@@ -470,6 +476,8 @@ public class Level extends BasicGameState {
         		System.out.println("Equipping "+((itemy*4)+itemx)+"...");
         		//dc.hero.equipItem( dc.hero.getInventory().get((itemy*4)+itemx).getID(), 0);
         		String m = dc.hero.equipItem((itemy*4)+itemx);
+        		itemx = 0;
+        		itemy = 0;
         		if( m != null ){
         			addMessage(m);
         		}
