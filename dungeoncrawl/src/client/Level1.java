@@ -525,13 +525,19 @@ public class Level1 extends BasicGameState {
         			addMessage("You are now affected by " + i.getEffect().toLowerCase());
         		}
         		
-        		//remove the item
-        		//(add to codex)
+        		//remove the item from hands
         		knight.unequipItem(selectedEquippedItem);
-        		knight.discardItem(i.getID(), true);
+        		
+        		//only remove the item from the inventory if it is a potion/consumable
+        		//armor should remain in the player's inventory
+        		if( i.getType().equals("Potion") ){
+        			knight.discardItem(i.getID(), true);
+        		}else if( i.getType().equals("Armor") ){
+        			i.identify();
+        		}
         		
         	}else if( input.isKeyPressed(Input.KEY_BACKSLASH) ){
-        		//TODO: add drop functionality
+        		
         		
         		Item itm = knight.getEquipped()[selectedEquippedItem];
         		knight.unequipItem(selectedEquippedItem);
