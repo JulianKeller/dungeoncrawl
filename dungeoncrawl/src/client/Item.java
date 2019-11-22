@@ -5,6 +5,7 @@ import java.util.Random;
 
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 
 import jig.ResourceManager;
 import jig.Vector;
@@ -24,7 +25,7 @@ public class Item extends StationaryObject{
 	private Random rand;
 	
 	
-	public Item(Vector wc, boolean locked, int id, int oid){
+	public Item(Vector wc, boolean locked, int id, int oid) throws SlickException{
 		super(wc, locked); //superconstructor
 		//set random properties
 		rand = new Random();
@@ -35,7 +36,10 @@ public class Item extends StationaryObject{
 		
 		//first get the item type
 		//this.type = client.Main.ItemTypes[ rand.nextInt(client.Main.ItemTypes.length) ];
-		this.type = "client.Potion";
+		
+		//currently developed item types, for debugging purposes only
+		String[] currentTypes = {"Potion", "Sword", "Armor"};
+		this.type = currentTypes[ rand.nextInt(currentTypes.length) ];
 		
 		//choose materials from the appropriate list
 		if( type.equals("Sword") ){
@@ -59,9 +63,9 @@ public class Item extends StationaryObject{
 			this.effect = Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ];
 		}else if( type.equals("Glove") ){
 			this.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
-		}else if( type.equals("client.Potion") ){
+		}else if( type.equals("Potion") ){
 			this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
-		}else if( type.equals("client.Arrow") ){
+		}else if( type.equals("Arrow") ){
 			this.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
 		}else{
 			this.effect = "";
@@ -77,25 +81,54 @@ public class Item extends StationaryObject{
 		//all items start unidentified
 		identified = false;
 		
+		
+		//for debugging
+		//super.lock();
+		
 		//get an image based on item type
-		if( type.equals("client.Potion") ){
+		if( type.equals("Potion") ){
 			int r = rand.nextInt(5);
 			switch( r ){
 			case 0:
 				this.image = ResourceManager.getImage(Main.POTION_BLUE);
+				material = "Blue";
 				break;
 			case 1:
 				this.image = ResourceManager.getImage(Main.POTION_ORANGE);
+				material = "Orange";
 				break;
 			case 2:
 				this.image = ResourceManager.getImage(Main.POTION_PINK);
+				material = "Pink";
 				break;
 			case 3:
 				this.image = ResourceManager.getImage(Main.POTION_RED);
+				material = "Red";
 				break;
 			case 4:
 				this.image = ResourceManager.getImage(Main.POTION_YELLOW);
+				material = "Yellow";
 				break;
+			}
+		}else if( type.equals("Sword") ){
+			//wood, iron, gold
+			if( material.equals("Wooden") ){
+				image = ResourceManager.getImage(Main.SWORD_WOOD);
+			}else if( material.equals("Iron") ){
+				image = ResourceManager.getImage(Main.SWORD_IRON);
+			}else if( material.equals("Gold") ){
+				image = ResourceManager.getImage(Main.SWORD_GOLD);
+			}else{
+				throw new SlickException("Error: invalid sword material'"+material+"'");
+			}
+		}else if( type.equals("Armor") ){
+			//iron, gold
+			if( material.equals("Iron") ){
+				image = ResourceManager.getImage(Main.ARMOR_IRON);
+			}else if( material.equals("Gold") ){
+				image = ResourceManager.getImage(Main.ARMOR_GOLD);
+			}else{
+				throw new SlickException("Error: invalid armor material '"+material+"'");
 			}
 		}
 	}
@@ -139,6 +172,9 @@ public class Item extends StationaryObject{
 	public Image getImage(){
 		return image;
 	}
+	public boolean isLocked(){
+		return super.isLocked();
+	}
 	
 	//setter functions
 	public void setOID( int oid ){
@@ -149,6 +185,12 @@ public class Item extends StationaryObject{
 	}
 	public void setEffect( String effect ){
 		this.effect = effect;
+	}
+	public void lock(){
+		super.lock();
+	}
+	public void unlock(){
+		super.unlock();
 	}
 	
 	//render function

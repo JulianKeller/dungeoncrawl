@@ -24,6 +24,7 @@ public class Server {
     public static final int xOffset = tilesize - doubleOffset;      //x offset
     public static final int yOffset = tilesize + doubleOffset/2;    // y offset
 
+    
     public Server() throws IOException{
         // server is listening on port 5000
         ServerSocket ss = new ServerSocket(5000);
