@@ -491,10 +491,25 @@ public class Level1 extends BasicGameState {
         		selectedEquippedItem++;
         	}else if( input.isKeyPressed(Input.KEY_ENTER) ){
         		//TODO: add use functionality
-        		addMessage("used "+knight.getEquipped()[selectedEquippedItem]+".");
+        		//throw/attack with item (i.e. throw potion or swing sword)
+        		addMessage("threw "+knight.getEquipped()[selectedEquippedItem]+".");
+        	}else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
+        		//use item on own character
+        		Item i = knight.getEquipped()[selectedEquippedItem];
+        		String x = "";
+        		if( i.getType().equals("Potion") ){
+        			x = "Drank";
+        		}else{
+        			x = "Used";
+        		}
+        		//TODO: add potion effects to character
+        		//TODO: add attack functions
+        		addMessage(x + " " + i.getMaterial() + " " + i.getType() + " of " + i.getEffect() );
         	}else if( input.isKeyPressed(Input.KEY_BACKSLASH) ){
         		//TODO: add drop functionality
         		addMessage("dropped "+knight.getEquipped()[selectedEquippedItem]+".");
+        		Item itm = knight.getEquipped()[selectedEquippedItem];
+        		Main.im.take(itm.getID(), knight.getPid(), knight.getWorldCoordinates(), false);
         	}else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
         		//return item to inventory
         		knight.unequipItem(selectedEquippedItem);
