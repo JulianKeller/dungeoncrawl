@@ -95,6 +95,36 @@ public class Main extends StateBasedGame {
     public static final String SWORD_IRON = "resources/swords/iron_sword.png";
     public static final String SWORD_GOLD = "resources/swords/gold_sword.png";
 
+    // Arrow Item
+    public static final String ARROW_NORMAL = "resources/arrows/normal_arrows.png";
+    public static final String ARROW_ICE = "resources/arrows/ice_arrows.png";
+    public static final String ARROW_POISON = "resources/arrows/flaming_arrows.png";
+    public static final String ARROW_FLAME = "resources/arrows/poison_arrows.png";
+    
+    // Fire Arrows
+    public static final String ARROW_FLAME_UP = "resources/arrows/up/up_arrow_fire.png";
+    public static final String ARROW_FLAME_DOWN = "resources/arrows/down/down_arrow_fire.png";
+    public static final String ARROW_FLAME_LEFT = "resources/arrows/left/left_arrow_fire.png";
+    public static final String ARROW_FLAME_RIGHT = "resources/arrows/right/left_arrow_fire.png";
+    
+    // Ice Arrows
+    public static final String ARROW_ICE_UP = "resources/arrows/up/up_arrow_ice.png";
+    public static final String ARROW_ICE_DOWN = "resources/arrows/down/down_arrow_ice.png";
+    public static final String ARROW_ICE_LEFT = "resources/arrows/left/left_arrow_ice.png";
+    public static final String ARROW_ICE_RIGHT = "resources/arrows/right/left_arrow_ice.png";
+    
+    // Normal Arrows
+    public static final String ARROW_NORMAL_UP = "resources/arrows/up/up_arrow_normal.png";
+    public static final String ARROW_NORMAL_DOWN = "resources/arrows/down/down_arrow_normal.png";
+    public static final String ARROW_NORMAL_LEFT = "resources/arrows/left/left_arrow_normal.png";
+    public static final String ARROW_NORMAL_RIGHT = "resources/arrows/right/left_arrow_normal.png";
+    
+    // Poison Arrows
+    public static final String ARROW_POISON_UP = "resources/arrows/up/up_arrow_poison.png";
+    public static final String ARROW_POISON_DOWN = "resources/arrows/down/down_arrow_poison.png";
+    public static final String ARROW_POISON_LEFT = "resources/arrows/left/left_arrow_poison.png";
+    public static final String ARROW_POISON_RIGHT = "resources/arrows/right/left_arrow_poison.png";
+
     // Screen Size
     public final int ScreenWidth;
     public final int ScreenHeight;
@@ -110,15 +140,16 @@ public class Main extends StateBasedGame {
     int mapWidth;
     int mapHeight;
     int[][] map;
-    Entity[][] mapTiles;
+//    Entity[][] mapTiles;
+    ArrayList<BaseMap> maptiles;
     boolean collisions;
     ArrayList<DisplayItem> testItems;
     
     //item types
-    public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "client.Arrow", "Staff", "Glove"};
+    public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
     
     //item materials
-    public static final String[] ArmorMaterials = /*{"Leather", "Iron", "Turtle Shell"}*/ {"Iron", "Gold"};
+    public static final String[] ArmorMaterials = {"Leather", "Iron", "Turtle Shell"};
     public static final String[] SwordMaterials = {"Wooden", "Iron", "Gold"};
     public static final String[] StaffMaterials = {"Ruby", "Emerald", "Amethyst"};
     public static final String[] GloveMaterials = {"Leather", "Iron", "Gold"};
@@ -173,7 +204,7 @@ public class Main extends StateBasedGame {
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
         addState(new StartUpState());
-        addState(new Level1());
+        addState(new Level());
         addState(new GameOver());
 
         // load images
@@ -236,6 +267,38 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(SWORD_IRON);
         ResourceManager.loadImage(SWORD_WOOD);
         ResourceManager.loadImage(SWORD_GOLD);
+
+        // ARROWS
+        ResourceManager.loadImage(ARROW_NORMAL);
+        ResourceManager.loadImage(ARROW_FLAME);
+        ResourceManager.loadImage(ARROW_ICE);
+        ResourceManager.loadImage(ARROW_POISON);
+        
+        // FLAME ARROWS
+        ResourceManager.loadImage(ARROW_FLAME_UP);
+        ResourceManager.loadImage(ARROW_FLAME_DOWN);
+        ResourceManager.loadImage(ARROW_FLAME_LEFT);
+        ResourceManager.loadImage(ARROW_FLAME_RIGHT);
+        
+        // ICE ARROWS
+        ResourceManager.loadImage(ARROW_ICE_UP);
+        ResourceManager.loadImage(ARROW_ICE_DOWN);
+        ResourceManager.loadImage(ARROW_ICE_LEFT);
+        ResourceManager.loadImage(ARROW_ICE_RIGHT);
+        
+        // NORMAL ARROWS
+        ResourceManager.loadImage(ARROW_NORMAL_UP);
+        ResourceManager.loadImage(ARROW_NORMAL_DOWN);
+        ResourceManager.loadImage(ARROW_NORMAL_LEFT);
+        ResourceManager.loadImage(ARROW_NORMAL_RIGHT);
+        
+        // POISON ARROWS
+        ResourceManager.loadImage(ARROW_POISON_UP);
+        ResourceManager.loadImage(ARROW_POISON_DOWN);
+        ResourceManager.loadImage(ARROW_POISON_LEFT);
+        ResourceManager.loadImage(ARROW_POISON_RIGHT);
+
+
     }
 
     // Send close to the server and close connections before exiting.

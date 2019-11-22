@@ -1,8 +1,12 @@
 package server;
 
 import jig.Vector;
+
+import javax.swing.text.html.HTMLDocument;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class LevelServer extends Thread{
     private Integer [][] map;           // Holds the 2d map file
@@ -10,7 +14,7 @@ public class LevelServer extends Thread{
     private ObjectInputStream dis;     // holds the input stream
     private ObjectOutputStream dos;    // output stream
     private int clientId;              // clientid is based on port number
-    private Vector playerCoord;        // stores the current coordinates of the player.
+    public PlayerPosition position;    // Position of this player.
 
     /**
      * creates a new map and character
@@ -21,7 +25,7 @@ public class LevelServer extends Thread{
         this.dis = dis;
         this.dos = dos;
         clientId = id;
-
+        position = null;
     }
     /**
      * This is what is called when the main server function invokes start().
@@ -31,7 +35,8 @@ public class LevelServer extends Thread{
         String inputCode;
         String toSend = "";
         sendMap();
-        getPlayerCoord();
+        setupPlayer();
+        Server.clients.add(this);
         try {
             while (true) {
                 // User clicks "X"(Windows) or red button (macOS) it will break out of the loop
@@ -42,49 +47,10 @@ public class LevelServer extends Thread{
                     if (inputCode.equals("Exit")) {
                         break;
                     }
-                    // Switch based on client's input.
-                    switch(inputCode){  // for each direction, first check for a collision, if so don't update
-                        case "w": //w     // otherwise update.
-                            if(collision(inputCode)){
-                                dos.writeUTF("");
-                            } else{
-                                playerCoord = new Vector(playerCoord.getX(),playerCoord.getY()-Server.tilesize);
-                                toSend = (playerCoord.getX())+" "+(playerCoord.getY());
-                                dos.writeUTF(toSend);
-                            }
-                            break;
-                        case "s":
-                            if(collision(inputCode)){
-                                dos.writeUTF("");
-                            } else{
-                                playerCoord = new Vector(playerCoord.getX(),playerCoord.getY()+Server.tilesize);
-                                toSend = (playerCoord.getX())+" "+(playerCoord.getY());
-                                dos.writeUTF(toSend);
-                            }
-                            break;
-                        case "a":
-                            if(collision(inputCode)){
-                                dos.writeUTF("");
-                            } else{
-                                playerCoord = new Vector(playerCoord.getX()-Server.tilesize,playerCoord.getY());
-                                toSend = (playerCoord.getX())+" "+(playerCoord.getY());
-                                dos.writeUTF(toSend);
-                            }
-                            break;
-                        case "d":
-                            if(collision(inputCode)){
-                                dos.writeUTF("");
-                            } else{
-                                playerCoord = new Vector(playerCoord.getX()+Server.tilesize,playerCoord.getY());
-                                toSend = (playerCoord.getX())+" "+(playerCoord.getY());
-                                dos.writeUTF(toSend);
-                            }
-                            break;
-                        default:
-                            dos.writeUTF("");
-                            break;
-                    }
-                    dos.flush();
+                    getPlayerCoord();
+                    updateOtherPositions();
+                }catch(EOFException e){
+                    break;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -122,56 +88,72 @@ public class LevelServer extends Thread{
         }
     }
 
+    private void setupPlayer(){
+        try{
+            String info = dis.readUTF();
+            position = new PlayerPosition(clientId,info.split(" ")[0]);
+            String xy = info.split(" ")[1] + " " +info.split(" ")[2];
+            getPlayerCoord(xy);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+    }
+
     /**
      * This method retrieves the player coordinates in screen coordinates to the
      * server to store. (This will probably be changed to convert to screen coordinates
      * and send back to the client later).
      */
-    public void getPlayerCoord(){
+    private void getPlayerCoord(){
         String coords = "";
         String x;
         String y;
         try{
             coords = dis.readUTF();
+            //System.out.println("Position read: "+coords);
         }catch(IOException e){
             e.printStackTrace();
         }
         x = coords.split(" ")[0];
         y = coords.split(" ")[1];
-        playerCoord = new Vector(Float.parseFloat(x),Float.parseFloat(y));
-        System.out.println("Client "+ clientId+ "x: "+playerCoord.getX()+" y: "+playerCoord.getY());
+        position.setPosition(Float.parseFloat(x),Float.parseFloat(y));
+    }
+
+    private void getPlayerCoord(String coords){
+        String x;
+        String y;
+        //System.out.println("Position read: "+coords);
+        x = coords.split(" ")[0];
+        y = coords.split(" ")[1];
+        position.setPosition(Float.parseFloat(x),Float.parseFloat(y));
     }
     public int getClientId(){
         return clientId;
     }
 
     /**
-      * check if there is a collision at the next x, y with the wall
-      * returns true if there is a collision, false otherwise
+     * updates other players' position on the screen.
      */
-    // TODO this method needs to be adjusted for the screen coordinates
-    // NOTE: This method was modified from client.Character.collision().
-    public boolean collision(String direction) {
-        int x = (int) playerCoord.getX();
-        int y = (int) playerCoord.getY();
-//        System.out.printf("Position x, y:  %s, %s --> %s, %s\n", x, y, x/dc.tilesize, y/dc.tilesize);
-        if (direction.equals("w")) {
-            y -= Server.tilesize;
+    public synchronized void updateOtherPositions() {
+        try {
+            this.dos.writeUTF(Integer.toString(Server.clients.size()));
+            this.dos.flush();
+            if(Server.clients.size() <= 1){
+                return;
+            }
+            for (Iterator<LevelServer> i = Server.clients.iterator(); i.hasNext(); ) {
+                LevelServer s = i.next();
+                // Current problem, hangs with more than one client.
+                if(s.getClientId() != this.clientId && s.position != null) {
+                    //System.out.println(s.position.stringify());
+                    this.dos.writeUTF(s.position.stringify());
+                    this.dos.flush();
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        else if (direction.equals("s")) {
-            y += Server.tilesize;
-        }
-        else if (direction.equals("a")) {
-            x -= Server.tilesize;
-        }
-        else if (direction.equals("d")) {
-            x += Server.tilesize;
-        }
-//        System.out.printf("this x, this y:  %s, %s\n", this.getX(), this.getY());
-//        System.out.printf("Collision? x, y:  %s, %s", x, y);
-        x = x/Server.tilesize;
-        y = y/Server.tilesize;
-//        System.out.printf(" -->  %s, %s\n\n", x, y);
-        return (Server.map[y][x] != 0);
     }
 }

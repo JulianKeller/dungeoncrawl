@@ -26,7 +26,7 @@ import jig.Vector;
 
 public class Level1 extends BasicGameState {
     private Boolean paused;
-    Character knight;
+    //Character dc.hero;
 
     int currentOX;
     int currentOY;
@@ -179,25 +179,25 @@ public class Level1 extends BasicGameState {
         float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
         float wy = (dc.tilesize * row) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
         
-        knight = new Character(dc, wx, wy, "knight_iron", 1);
-        dc.characters.add(knight);
+        dc.hero = new Character(dc, wx, wy, "dc.hero_iron", 1);
+        dc.characters.add(dc.hero);
         */
         // map variables
     	//Main dc = (Main) game;
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
-        // setup the knight character
+        // setup the dc.hero character
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
-        knight = new Character(dc, wx, wy, "knight_iron", 1);
-        dc.characters.add(knight);
-        currentOX = knight.ox;
-        currentOY = knight.oy;
+        dc.hero = new Character(dc, wx, wy, "dc.hero_iron", 1);
+        dc.characters.add(dc.hero);
+        currentOX = dc.hero.ox;
+        currentOY = dc.hero.oy;
 
         // render map
-        RenderMap.setMap(dc, knight);
+        RenderMap.setMap(dc, dc.hero);
 
         String coord = wx + " " + wy;
         try {
@@ -219,8 +219,8 @@ public class Level1 extends BasicGameState {
         */
         
         /*
-        currentOrigin = knight.origin;
-        RenderMap.setMap(dc, knight.origin);                   // renders the map Tiles
+        currentOrigin = dc.hero.origin;
+        RenderMap.setMap(dc, dc.hero.origin);                   // renders the map Tiles
         */
     }
     
@@ -299,7 +299,7 @@ public class Level1 extends BasicGameState {
             i.render(g);
         }
 
-        knight.animate.render(g);
+        dc.hero.animate.render(g);
 
         
         
@@ -326,10 +326,10 @@ public class Level1 extends BasicGameState {
 
         
         //display player inventory
-        //use the knight for now
+        //use the dc.hero for now
         if( displayInventory ){
         	renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
-        	ArrayList<Item> items = knight.getInventory();
+        	ArrayList<Item> items = dc.hero.getInventory();
         	if( items.size() != 0 ){
             	int row = 2;
             	int col = 1;
@@ -363,7 +363,7 @@ public class Level1 extends BasicGameState {
         	
         	renderItemBox(dc, g, "Codex", x, dc.tilesize, dc.tilesize * 10, dc.tilesize*8);
         	
-        	ArrayList<Item> items = knight.getCodex();
+        	ArrayList<Item> items = dc.hero.getCodex();
         	int row = 2;
         	for( Item i : items ){
         		g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
@@ -381,11 +381,11 @@ public class Level1 extends BasicGameState {
         g.fillRoundRect(dc.ScreenWidth-(dc.tilesize*5), dc.ScreenHeight-(dc.tilesize*2), dc.tilesize*4, dc.tilesize, 0);
         int x = 0;
         int y = 0;
-        for( int i = 0; i < knight.getEquipped().length; i++ ){
-        	if( knight.getEquipped()[i] != null ){
-	        	x = dc.ScreenWidth-(dc.tilesize*(knight.getEquipped().length+1));
+        for( int i = 0; i < dc.hero.getEquipped().length; i++ ){
+        	if( dc.hero.getEquipped()[i] != null ){
+	        	x = dc.ScreenWidth-(dc.tilesize*(dc.hero.getEquipped().length+1));
 	        	y = dc.ScreenHeight-(dc.tilesize*2);
-	        	g.drawImage(knight.getEquipped()[i].getImage(), x+(dc.tilesize*i), y);
+	        	g.drawImage(dc.hero.getEquipped()[i].getImage(), x+(dc.tilesize*i), y);
         	}
         }
         g.setColor(Color.white);
@@ -443,11 +443,11 @@ public class Level1 extends BasicGameState {
         if (paused) {
             return;
         }
-        knight.move(getKeystroke(input));
+        dc.hero.move(getKeystroke(input));
         /*
-        if (currentOrigin.getX() != knight.origin.getX() && currentOrigin.getY() != knight.origin.getY()) {
-            RenderMap.setMap(dc, knight.origin);
-            currentOrigin = knight.origin;
+        if (currentOrigin.getX() != dc.hero.origin.getX() && currentOrigin.getY() != dc.hero.origin.getY()) {
+            RenderMap.setMap(dc, dc.hero.origin);
+            currentOrigin = dc.hero.origin;
         }
         */
         
@@ -475,8 +475,8 @@ public class Level1 extends BasicGameState {
         		itemx++;
         	}else if( input.isKeyPressed(Input.KEY_ENTER) ){
         		System.out.println("Equipping "+((itemy*4)+itemx)+"...");
-        		//knight.equipItem( knight.getInventory().get((itemy*4)+itemx).getID(), 0);
-        		String m = knight.equipItem((itemy*4)+itemx);
+        		//dc.hero.equipItem( dc.hero.getInventory().get((itemy*4)+itemx).getID(), 0);
+        		String m = dc.hero.equipItem((itemy*4)+itemx);
         		if( m != null ){
         			addMessage(m);
         		}
@@ -492,8 +492,8 @@ public class Level1 extends BasicGameState {
         	if( itemx > 3 ){
         		itemx = 3;
         	}
-        	if( itemy > knight.getInventory().size()/4){
-        		itemy = knight.getInventory().size()/4;
+        	if( itemy > dc.hero.getInventory().size()/4){
+        		itemy = dc.hero.getInventory().size()/4;
         	}
         	
         	//System.out.println(itemx+", "+itemy);
@@ -505,10 +505,10 @@ public class Level1 extends BasicGameState {
         	}else if( input.isKeyPressed(Input.KEY_ENTER) ){
         		//TODO: add use functionality
         		//throw/attack with item (i.e. throw potion or swing sword)
-        		addMessage("threw "+knight.getEquipped()[selectedEquippedItem]+".");
+        		addMessage("threw "+dc.hero.getEquipped()[selectedEquippedItem]+".");
         	}else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
         		//use item on own character
-        		Item i = knight.getEquipped()[selectedEquippedItem];
+        		Item i = dc.hero.getEquipped()[selectedEquippedItem];
         		String x = "";
         		if( i.getType().equals("Potion") ){
         			x = "Drank";
@@ -521,17 +521,17 @@ public class Level1 extends BasicGameState {
         		//TODO: add potion effects to character
         		if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
         			//add effect to character
-        			knight.addEffect(i.getEffect());
+        			dc.hero.addEffect(i.getEffect());
         			addMessage("You are now affected by " + i.getEffect().toLowerCase());
         		}
         		
         		//remove the item from hands
-        		knight.unequipItem(selectedEquippedItem);
+        		dc.hero.unequipItem(selectedEquippedItem);
         		
         		//only remove the item from the inventory if it is a potion/consumable
         		//armor should remain in the player's inventory
         		if( i.getType().equals("Potion") ){
-        			knight.discardItem(i.getID(), true);
+        			dc.hero.discardItem(i.getID(), true);
         		}else if( i.getType().equals("Armor") ){
         			i.identify();
         		}
@@ -539,18 +539,18 @@ public class Level1 extends BasicGameState {
         	}else if( input.isKeyPressed(Input.KEY_BACKSLASH) ){
         		
         		
-        		Item itm = knight.getEquipped()[selectedEquippedItem];
-        		knight.unequipItem(selectedEquippedItem);
+        		Item itm = dc.hero.getEquipped()[selectedEquippedItem];
+        		dc.hero.unequipItem(selectedEquippedItem);
         		
 
         		
-        		//place the item on the world at the knight's position
-        		//get world coords of knight position 
-        		Vector wc = new Vector((int) knight.animate.getX()/dc.tilesize, (int) knight.animate.getY()/dc.tilesize);
+        		//place the item on the world at the dc.hero's position
+        		//get world coords of dc.hero position 
+        		Vector wc = new Vector((int) dc.hero.animate.getX()/dc.tilesize, (int) dc.hero.animate.getY()/dc.tilesize);
         		System.out.println("placing item at "+wc.getX() + ", " + wc.getY());
-        		//this will remove the item from the knight's inventory and place it on the world
+        		//this will remove the item from the dc.hero's inventory and place it on the world
         		
-        		Main.im.take(itm.getID(), knight.getPid(), wc, false);
+        		Main.im.take(itm.getID(), dc.hero.getPid(), wc, false);
         		
         		//lock the item with a timer
         		itm.lock();
@@ -561,17 +561,17 @@ public class Level1 extends BasicGameState {
         		//add the item to the render list
         		itemsToRender.add(itm);
         		
-        		addMessage("Dropped "+knight.getEquipped()[selectedEquippedItem]+".");
+        		addMessage("Dropped "+dc.hero.getEquipped()[selectedEquippedItem]+".");
         	}else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
         		//return item to inventory
-        		knight.unequipItem(selectedEquippedItem);
+        		dc.hero.unequipItem(selectedEquippedItem);
         	}
         	
         	if( selectedEquippedItem < 0 ){
         		selectedEquippedItem = 0;
         	}
-        	if( selectedEquippedItem > knight.getEquipped().length-1 ){
-        		selectedEquippedItem = knight.getEquipped().length-1;
+        	if( selectedEquippedItem > dc.hero.getEquipped().length-1 ){
+        		selectedEquippedItem = dc.hero.getEquipped().length-1;
         	}
         }
         
@@ -678,7 +678,7 @@ public class Level1 extends BasicGameState {
 //            serverMessage = dis.readUTF();
 //            if (!serverMessage.equals("")) {
 ////                System.out.println("server.Server says: Move valid.  New coordinates: "+ serverMessage);
-//                knight.moveSmoothTranslationHelper();
+//                dc.hero.moveSmoothTranslationHelper();
 //            } else{
 ////                System.out.println("server.Server says: Move invalid/No Button Pressed.");
 //            }

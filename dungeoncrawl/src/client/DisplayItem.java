@@ -54,6 +54,23 @@ public class DisplayItem extends Entity {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.SWORD_GOLD));
                 break;
             }
+            // arrows
+            case "arrow_normal": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ARROW_NORMAL));
+                break;
+            }
+            case "arrow_ice": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ARROW_ICE));
+                break;
+            }
+            case "arrow_poison": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ARROW_POISON));
+                break;
+            }
+            case "arrow_flame": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ARROW_FLAME));
+                break;
+            }
         }
     }
 }
