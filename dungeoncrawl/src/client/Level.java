@@ -1,17 +1,11 @@
 package client;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
-
-
-
-import jig.Entity;
-import jig.Vector;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.net.*;
-import java.io.*;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -21,10 +15,9 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import jig.Entity;
 import jig.Vector;
 
-public class Level1 extends BasicGameState {
+public class Level extends BasicGameState {
     private Boolean paused;
     //Character dc.hero;
 
@@ -41,8 +34,6 @@ public class Level1 extends BasicGameState {
     ObjectInputStream dis;
     ObjectOutputStream dos;
     String serverMessage;
-
-    private StateBasedGame game;
     
     private final int messageTimer = 2000;
 
@@ -133,7 +124,7 @@ public class Level1 extends BasicGameState {
             e.printStackTrace();
         }
         //*/
-        dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
+        //dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         System.out.printf("Map Size: %s, %s\n", dc.map.length, dc.map[0].length);
 
 
@@ -191,7 +182,7 @@ public class Level1 extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
-        dc.hero = new Character(dc, wx, wy, "dc.hero_iron", 1);
+        dc.hero = new Character(dc, wx, wy, "knight_iron", 1);
         dc.characters.add(dc.hero);
         currentOX = dc.hero.ox;
         currentOY = dc.hero.oy;
@@ -249,7 +240,6 @@ public class Level1 extends BasicGameState {
 
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
-    	this.game = game;
     	messagebox = new Message[messages];
     	
     	itemLockTimers = new ArrayList<ItemLockTimer>();
@@ -273,6 +263,7 @@ public class Level1 extends BasicGameState {
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
         // render tiles
+        /*
         for (int i = 0; i < dc.map.length; i++) {
             for (int j = 0; j < dc.map[i].length; j++) {
                 if (dc.mapTiles[i][j] == null)
@@ -280,6 +271,8 @@ public class Level1 extends BasicGameState {
                 dc.mapTiles[i][j].render(g);
             }
         }
+        */
+        displayMap(dc, g);
         
         //render all visible items
         g.setColor(Color.red);
@@ -669,6 +662,71 @@ public class Level1 extends BasicGameState {
         }
         return ks;
     }
+    
+    /**
+     * Update the players position on the server.
+     */
+   public void positionToServer(Vector wc){
+       String position = wc.getX() + " " + wc.getY();
+      //System.out.println("Client position: "+ position);
+       try {
+           this.dos.writeUTF(position);
+           this.dos.flush();
+       }catch(IOException e){
+           e.printStackTrace();
+       }
+
+   }
+   
+   /*
+   Renders the map on screen, only drawing the necessary tiles in view
+    */
+   public void displayMap(Main dc, Graphics g) {
+       for (BaseMap b : dc.maptiles) {
+           b.render(g);
+       }
+   }
+   
+   public void updateOtherPlayers(Main dc){
+       String update = "";
+       boolean isRendered = false;
+       try {
+           update = dis.readUTF();
+            //Return if there are no other players.
+               if(update.equals("1")){
+                   //System.out.println("No other clients.");
+                   return;
+               }
+               //int num_characters = Integer.parseInt(update);
+               int id = 0;
+                   update = dis.readUTF();
+                   //System.out.println(update);
+                   id = Integer.parseInt(update.split(" ")[1]);
+                   // Go through and check to see if the character already exists.
+                   for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
+                       Character c = i.next();
+                       if (c.getPid() == id) {
+                           c.animate.setPosition(Float.parseFloat(update.split(" ")[2]),
+                                   Float.parseFloat(update.split(" ")[3]));
+                           isRendered = true;
+                           break;
+                       }
+                   }
+                   if (!isRendered) {
+                       Float wx = Float.parseFloat(update.split(" ")[2]);
+                       Float wy = Float.parseFloat(update.split(" ")[3]);
+                       String type = update.split(" ")[0];
+                       dc.characters.add(new Character(dc, wx, wy, type, id));
+                       return;
+                   }
+
+
+
+
+       } catch(IOException e){
+           e.printStackTrace();
+       }
+   }
 
     /**
      * Reads the new player coordinates and walks the player accordingly.
