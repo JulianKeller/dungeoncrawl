@@ -205,6 +205,8 @@ public class Character extends MovingEntity {
      *
      */
     public void moveAI() {
+//        if(true)
+//            return;
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
         // moved the character fixed to the grid
         if (!canMove) {
@@ -308,11 +310,11 @@ public class Character extends MovingEntity {
             movesLeft -= moveSpeed;
             if (ai) {
 //                updateAIposition(x, y);
-                System.out.printf("setting x, y: %s, %s\n", x, y);
-                System.out.println("World Coordinates are: " + getWorldCoordinates());
+//                System.out.printf("setting x, y: %s, %s\n", x, y);
+//                System.out.println("World Coordinates are: " + getWorldCoordinates());
                 setWorldCoordinates(x, y);
-                System.out.println("World Coordinates are: " + getWorldCoordinates());
-                System.out.println();
+//                System.out.println("World Coordinates are: " + getWorldCoordinates());
+//                System.out.println();
             }
             else {
                 updatePosition(x, y);
@@ -330,6 +332,7 @@ public class Character extends MovingEntity {
     Should only be called from the move method.
      */
     private void moveMapHelper() {
+//        System.out.printf("dx,dy = %s, %s\n", dx, dy);
         if (movesLeft > 0) {
             switch (direction) {
                 case "walk_up":
@@ -351,13 +354,19 @@ public class Character extends MovingEntity {
             }
             movesLeft -= moveSpeed;
             RenderMap.setMap(dc, this);
-            pixelX = (ox * dc.tilesize + (float) dc.tilesize / 2) - dx;        // columns
-            pixelY = (oy * dc.tilesize + (float) dc.tilesize / 2) - dy;        // columns
+//            pixelX = (ox * dc.tilesize + (float) dc.tilesize / 2) + dx;        // columns
+//            pixelY = (oy * dc.tilesize + (float) dc.tilesize / 2) + dy;        // columns
+            pixelX = (ox * dc.tilesize) + dx;        // columns
+            pixelY = (oy * dc.tilesize) + dy;        // columns
+//            System.out.printf("moveMapHelper - Pixel: %s, %s\n", dc.hero.pixelX, dc.hero.pixelY);
         } else {
             ox = newx;
             oy = newy;
-            pixelX = (ox * dc.tilesize);
-            pixelY = (oy * dc.tilesize);
+            pixelX = (ox * dc.tilesize);// + (float) dc.tilesize / 2);
+            pixelY = (oy * dc.tilesize);// + (float) dc.tilesize / 2);
+//            System.out.printf("Origin: %s, %s\n", ox, oy);
+//            System.out.printf("Final Pixel x, y: %s, %s\n\n", pixelX, pixelY);
+
             nearEdge = false;
         }
         updateWorldCoordinates();

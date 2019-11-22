@@ -560,10 +560,6 @@ public class Level extends BasicGameState {
                         dc.characters.add(new Character(dc, wx, wy, type, id, false));
                         return;
                     }
-
-
-
-
         } catch(IOException e){
             e.printStackTrace();
         }
@@ -571,39 +567,30 @@ public class Level extends BasicGameState {
 
 
     /**
-     * @param wc The AI's world coordinates
+     * @param dc Main class
+     * @param ai an AI character
      * TODO update the ai characters from the render method
      *      only care about keeping track of enemies world position.
      *      Then in the render method, I convert world coordinates to screen coordinates
      *      If the ai is in the screen, then render, else don't render
      */
-    //
-//    location when the hero scrolls the map
     public Vector world2screenCoordinates(Main dc, Character ai) {
         Vector sc;
         float wx = ai.getWorldCoordinates().getX();
         float wy = ai.getWorldCoordinates().getY();
         float sx;
         float sy;
-//        float hox = dc.hero.ox * dc.tilesize;
-//        float hoy = dc.hero.oy * dc.tilesize;
-//        float wx = x + (ox * dc.tilesize);
-//        float wy = y + (oy * dc.tilesize);
-//        x = ((j - ox) * dc.tilesize + (float) dc.tilesize / 2) - dx;        // columns
-//        y = ((i - oy) * dc.tilesize + (float) dc.tilesize / 2) - dy;        // columns
 
+//        System.out.printf("Pixel: %s, %s    ", dc.hero.pixelX, dc.hero.pixelY);
 
         sx = wx - dc.hero.pixelX;
         sy = wy - dc.hero.pixelY;
         sc = new Vector(sx, sy);
         // TODO screencoords = wc - pixelX
 
-
-//        System.out.printf("Hero Origin <%s, %s>\n", hox, hoy);
-//        System.out.printf("PixelX, Pixely = <%s, %s>\n", dc.hero.pixelX, dc.hero.pixelY);
-        System.out.println("World Coordinates = " + ai.getWorldCoordinates());
-        System.out.println("Screen Coordinates = " + sc);
-        System.out.println();
+//        System.out.println("World Coordinates = " + ai.getWorldCoordinates());
+//        System.out.println("Screen Coordinates = " + sc);
+//        System.out.println();
 
         return sc;
     }
