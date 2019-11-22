@@ -1,7 +1,6 @@
 package client;
 
 import jig.Vector;
-import org.lwjgl.Sys;
 
 import java.util.Random;
 
@@ -17,6 +16,8 @@ public class Character extends MovingEntity {
     private int moveSpeed;
     int ox;             // origin x
     int oy;             // origin y
+    float pixelX;       // players exact origin in pixels
+    float pixelY;       // players exact origin in pixels
     private int newx;   // next origin x
     private int newy;   // next origin y
     float dx = 0f;      // delta x
@@ -41,6 +42,8 @@ public class Character extends MovingEntity {
         animate.stop();
         ox = 0;
         oy = 0;
+        pixelX = 0f;
+        pixelY = 0f;
         setSpeed(50);       // speed of the animation
         moveSpeed = 2;      // speed that character moves across the screen
         ai = AI;            //
@@ -135,7 +138,7 @@ public class Character extends MovingEntity {
 
         // moved the character fixed to the grid
         if (!canMove) {
-            moveTranslationHelper();
+            moveTranslationHelper(animate.getPosition());
             return;
         }
 
@@ -205,7 +208,7 @@ public class Character extends MovingEntity {
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
         // moved the character fixed to the grid
         if (!canMove) {
-            moveTranslationHelper();
+            moveTranslationHelper(getWorldCoordinates());
             return;
         }
         int rand = new Random().nextInt(moves.length);
@@ -270,15 +273,15 @@ public class Character extends MovingEntity {
     }
 
 
-    /*
-    This method updates the players position such that it is a smooth transition without jumps. It is
-    called from the move method and should not be called by any other methods. Updates the characters coordinates.
+    /**
+     This method updates the characters position such that it is a smooth transition without jumps. It is
+     called from the move method and should not be called by any other methods. Updates the characters coordinates.
+     @param position animate.getPosition() for the player and getWorldCoordinates() for ai
      */
-    private void moveTranslationHelper() {
-        Vector sc = animate.getPosition();
-        float sx = sc.getX();
-        float sy = sc.getY();
-        float x = 0, y = 0;
+    private void moveTranslationHelper(Vector position) {
+        float sx = position.getX();
+        float sy = position.getY();
+        float x, y;
         if (movesLeft > 0) {
             switch (direction) {
                 case "walk_up":
@@ -303,11 +306,23 @@ public class Character extends MovingEntity {
                     break;
             }
             movesLeft -= moveSpeed;
-            updatePosition(x, y);
+            if (ai) {
+//                updateAIposition(x, y);
+                System.out.printf("setting x, y: %s, %s\n", x, y);
+                System.out.println("World Coordinates are: " + getWorldCoordinates());
+                setWorldCoordinates(x, y);
+                System.out.println("World Coordinates are: " + getWorldCoordinates());
+                System.out.println();
+            }
+            else {
+                updatePosition(x, y);
+            }
         } else {
             canMove = true;
         }
     }
+
+
 
 
     /*
@@ -336,9 +351,13 @@ public class Character extends MovingEntity {
             }
             movesLeft -= moveSpeed;
             RenderMap.setMap(dc, this);
+            pixelX = (ox * dc.tilesize + (float) dc.tilesize / 2) - dx;        // columns
+            pixelY = (oy * dc.tilesize + (float) dc.tilesize / 2) - dy;        // columns
         } else {
             ox = newx;
             oy = newy;
+            pixelX = (ox * dc.tilesize);
+            pixelY = (oy * dc.tilesize);
             nearEdge = false;
         }
         updateWorldCoordinates();
@@ -444,13 +463,8 @@ public class Character extends MovingEntity {
      * @param y The new y screen position
      */
     private void updatePosition(float x, float y) {
-        if (!ai) {
-            animate.setPosition(x, y);      // screen coordinates
-        }
-        else {
-            // set the position but convert the world coordinates to screen coordinates first
-            animate.setPosition(x, y);      // screen coordinates
-        }
+        // set the position but convert the world coordinates to screen coordinates first
+        animate.setPosition(x, y);      // screen coordinates
         float wx = x + (ox * dc.tilesize);
         float wy = y + (oy * dc.tilesize);
         setWorldCoordinates(wx, wy);    // world coordinates
@@ -467,18 +481,34 @@ public class Character extends MovingEntity {
         setWorldCoordinates(wx, wy);    // world coordinates
     }
 
+
     /**
+     * Translates the ai's screen position when the player scrolls on screen
      *
+     * @param dx The new x screen position
+     * @param dy The new y screen position
      */
-    // TODO figure out how to convert screen world coords to screen coords so that the enemy is displayed in the correct
-//    location when the hero scrolls the map
-    public Vector convert2ScreenCoordinates(Vector wc) {
-        Vector sc;
-        float x = wc.getX();
-        float y = wc.getY();
-        float wx = x + (ox * dc.tilesize);
-        float wy = y + (oy * dc.tilesize);
-        return null;
-    }
+//    private void updateAIscreenPosition(float dx, float dy) {
+//        Vector position = animate.getPosition();
+////        System.out.println("Position is: " + position);
+////
+////
+////        animate.setPosition(position.getX() + dx*-1, position.getY() + dy*-1);      // screen coordinates
+////        System.out.println("Updated position is: " + animate.getPosition());
+////        System.out.println();
+//
+//
+//
+//        // set the position but convert the world coordinates to screen coordinates first
+//        if (dc.hero.animate.isActive()) {
+//            Vector sc = world2screenCoordinates(getWorldCoordinates());
+//            animate.setPosition(sc);
+//        }
+//        else {
+//            animate.setPosition(position.getX() + dx, position.getY() + dy);      // screen coordinates
+//        }
+//    }
+
+
 
 }
