@@ -33,6 +33,9 @@ public class ItemManager {
 		//give an item with given id to the player with given id
 		for( Item i : worldItems ){
 			if( i.getID() == itemID ){
+				if(i.isLocked() ){
+					return;
+				}
 				//add to the player's inventory
 				for( Character c : game.characters ){
 					if( c.getPid() == playerID ){
@@ -43,7 +46,6 @@ public class ItemManager {
 				}
 			}
 		}
-
 	}
 	
 	public void take(int itemID, int playerID, Vector wc, boolean use){
@@ -154,6 +156,19 @@ public class ItemManager {
 			}
 		}
 		return null;
+	}
+	
+	public Item getWorldItemByID(int id){
+		for( Item i : worldItems ){
+			if( i.getID() == id ){
+				return i;
+			}
+		}
+		return null;
+	}
+	
+	public ArrayList<Item> getWorldItems(){
+		return worldItems;
 	}
 	
 }

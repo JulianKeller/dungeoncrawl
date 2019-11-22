@@ -81,6 +81,10 @@ public class Item extends StationaryObject{
 		//all items start unidentified
 		identified = false;
 		
+		
+		//for debugging
+		//super.lock();
+		
 		//get an image based on item type
 		if( type.equals("Potion") ){
 			int r = rand.nextInt(5);
@@ -168,6 +172,9 @@ public class Item extends StationaryObject{
 	public Image getImage(){
 		return image;
 	}
+	public boolean isLocked(){
+		return super.isLocked();
+	}
 	
 	//setter functions
 	public void setOID( int oid ){
@@ -178,6 +185,12 @@ public class Item extends StationaryObject{
 	}
 	public void setEffect( String effect ){
 		this.effect = effect;
+	}
+	public void lock(){
+		super.lock();
+	}
+	public void unlock(){
+		super.unlock();
 	}
 	
 	//render function

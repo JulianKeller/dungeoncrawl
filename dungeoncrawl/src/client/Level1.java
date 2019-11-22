@@ -67,6 +67,17 @@ public class Level1 extends BasicGameState {
     //array of messages to print to the screen
     private Message[] messagebox;
     private int messages = 4; //number of messages printed at one time
+    
+    private class ItemLockTimer{
+    	//timer to unlock an item so it can be picked up again
+    	int itemID;
+    	int timer = 3000; //unlock when this hits zero
+    	
+    	public ItemLockTimer(int id){
+    		itemID = id;
+    	}	
+    }
+    private ArrayList<ItemLockTimer> itemLockTimers;
 
     @Override
     public int getID() {
@@ -240,6 +251,8 @@ public class Level1 extends BasicGameState {
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
     	this.game = game;
     	messagebox = new Message[messages];
+    	
+    	itemLockTimers = new ArrayList<ItemLockTimer>();
 
     	//TODO: make the restoration boundary cover only the screen area + a buffer
     	itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
@@ -422,7 +435,7 @@ public class Level1 extends BasicGameState {
 
 
     @Override
-    public void update(GameContainer container, StateBasedGame game, int delta) {
+    public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         Input input = container.getInput();
         Main dc = (Main) game;
         Cheats.enableCheats(dc, input);
@@ -499,16 +512,17 @@ public class Level1 extends BasicGameState {
         		String x = "";
         		if( i.getType().equals("Potion") ){
         			x = "Drank";
+        		}else if( i.getType().equals("Armor") ){
+        			x = "Put on";
         		}else{
         			x = "Used";
         		}
         		addMessage(x + " " + i.getMaterial() + " " + i.getType() + " of " + i.getEffect() );
         		//TODO: add potion effects to character
-        		if( i.getType().equals("Potion") ){
+        		if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
         			//add effect to character
         			knight.addEffect(i.getEffect());
         			addMessage("You are now affected by " + i.getEffect().toLowerCase());
-        			
         		}
         		
         		//remove the item
@@ -518,9 +532,30 @@ public class Level1 extends BasicGameState {
         		
         	}else if( input.isKeyPressed(Input.KEY_BACKSLASH) ){
         		//TODO: add drop functionality
-        		addMessage("dropped "+knight.getEquipped()[selectedEquippedItem]+".");
+        		
         		Item itm = knight.getEquipped()[selectedEquippedItem];
-        		Main.im.take(itm.getID(), knight.getPid(), knight.getWorldCoordinates(), false);
+        		knight.unequipItem(selectedEquippedItem);
+        		
+
+        		
+        		//place the item on the world at the knight's position
+        		//get world coords of knight position 
+        		Vector wc = new Vector((int) knight.animate.getX()/dc.tilesize, (int) knight.animate.getY()/dc.tilesize);
+        		System.out.println("placing item at "+wc.getX() + ", " + wc.getY());
+        		//this will remove the item from the knight's inventory and place it on the world
+        		
+        		Main.im.take(itm.getID(), knight.getPid(), wc, false);
+        		
+        		//lock the item with a timer
+        		itm.lock();
+        		//add item lock timer
+        		itemLockTimers.add( new ItemLockTimer(itm.getID()) );
+        		System.out.println("Locked dropped item.");
+    
+        		//add the item to the render list
+        		itemsToRender.add(itm);
+        		
+        		addMessage("Dropped "+knight.getEquipped()[selectedEquippedItem]+".");
         	}else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
         		//return item to inventory
         		knight.unequipItem(selectedEquippedItem);
@@ -542,7 +577,7 @@ public class Level1 extends BasicGameState {
         	Vector aniPos = new Vector((int)x, (int)y);
         	
 	        Item i = Main.im.getItemAt(aniPos);
-	        if( i != null ){
+	        if( i != null && !i.isLocked() ){
 	        	if( i.isIdentified() ){
 	        		addMessage("Picked up " + i.getMaterial() + " " +i.getType() + " of " + i.getEffect() + ".");
 	        	}else{
@@ -568,6 +603,22 @@ public class Level1 extends BasicGameState {
         		messagebox[i].timer -= delta;
         	}
         }
+        
+        //update item lock timers if applicable
+        for( ItemLockTimer t : itemLockTimers ){
+        	t.timer -= delta;
+        	if( t.timer <= 0 ){
+        		Item itm = Main.im.getWorldItemByID(t.itemID);
+        		if( itm != null ){
+        			itm.unlock();
+        		}else{
+        			//if this item is null there is a problem
+        			throw new SlickException("Attempted to unlock a null item.");
+        		}
+        	}
+        }
+        //remove expired timers
+        itemLockTimers.removeIf(b -> b.timer <= 0);
     }
 
 

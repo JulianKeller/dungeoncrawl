@@ -27,4 +27,11 @@ public class StationaryObject extends Entity{
 	public boolean isLocked(){
 		return locked;
 	}
+	
+	public void lock(){
+		locked = true;
+	}
+	public void unlock(){
+		locked = false;
+	}
 }
