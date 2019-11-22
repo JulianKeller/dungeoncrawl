@@ -18,7 +18,17 @@ public class MovingEntity extends Entity {
     private ArrayList<Item> codex; //list of identified items
     private Item [] equipped;
     private Vector position;
-
+    
+    private ArrayList<Effect> activeEffects; //list of things currently affecting the character
+    private final int defaultEffectTimer = 5000;
+    private class Effect{
+    	String name;
+    	int timer = defaultEffectTimer;
+    	
+    	public Effect(String name){
+    		this.name = name;
+    	}
+    }
     /**
      * Create a new Entity (x,y)
      * @param wx starting world x coordinate
@@ -38,6 +48,8 @@ public class MovingEntity extends Entity {
         position = new Vector(0,0);
         
         codex = new ArrayList<Item>();
+        
+        activeEffects = new ArrayList<Effect>();
 
         Vector wc = getWorldCoordinates();
 //        System.out.printf("\nGiven ME World Coordinates %s, %s\n", wx, wy);
@@ -62,10 +74,22 @@ public class MovingEntity extends Entity {
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
     }
-    /**
-     * Retrieve current hit points.
-     * @return current hit points
-     */
+    
+    public void addEffect(String name){
+    	//if the character already has the effect,
+    	// reset the timer
+    	for( Effect e : activeEffects ){
+    		if( e.name.equals(name) ){
+    			e.timer = defaultEffectTimer;
+    		}
+    	}
+    	//if not, add the effect
+    	activeEffects.add(new Effect(name));
+    }
+    
+    public ArrayList<Effect> getActiveEffects(){
+    	return activeEffects;
+    }
 
     public void addItem(Item i){
         inventory.add(i);
@@ -99,7 +123,7 @@ public class MovingEntity extends Entity {
     				//if the player is using this item, identify it
     				//  and add to the codex
     				inventory.get(i).identify();
-    				if( inventory.get(i).equals("Potion") ){
+    				if( inventory.get(i).getType().equals("Potion") ){
     					addToCodex(inventory.get(i));
     				}
     			}

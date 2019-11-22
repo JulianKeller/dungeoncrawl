@@ -502,9 +502,20 @@ public class Level1 extends BasicGameState {
         		}else{
         			x = "Used";
         		}
-        		//TODO: add potion effects to character
-        		//TODO: add attack functions
         		addMessage(x + " " + i.getMaterial() + " " + i.getType() + " of " + i.getEffect() );
+        		//TODO: add potion effects to character
+        		if( i.getType().equals("Potion") ){
+        			//add effect to character
+        			knight.addEffect(i.getEffect());
+        			addMessage("You are now affected by " + i.getEffect().toLowerCase());
+        			
+        		}
+        		
+        		//remove the item
+        		//(add to codex)
+        		knight.unequipItem(selectedEquippedItem);
+        		knight.discardItem(i.getID(), true);
+        		
         	}else if( input.isKeyPressed(Input.KEY_BACKSLASH) ){
         		//TODO: add drop functionality
         		addMessage("dropped "+knight.getEquipped()[selectedEquippedItem]+".");
