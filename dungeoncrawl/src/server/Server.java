@@ -5,31 +5,22 @@ package server;/*
  */
 
 import client.RenderMap;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 import java.util.ArrayList;
+import java.util.concurrent.*;
 
 
 public class Server {
-    // setting up server class to be starting up in client.Main.java
-    public static ArrayList<LevelServer> clients;                    // This holds the number of clients connected.
-    public static int [][] map;                                     // This holds the world map
-    public static final int tilesize = 32;                          // Tile size of the map
-    public static final int offset = tilesize/2;                    // offset
-    public static final int doubleOffset = offset/2;               // double offset
-    public static final int xOffset = tilesize - doubleOffset;      //x offset
-    public static final int yOffset = tilesize + doubleOffset/2;    // y offset
+
+    private ArrayList<PlayerPosition> positions;              // this holds all player's positions
+    private int [][] map;                                     // This holds the world map
 
     public Server() throws IOException{
         // server is listening on port 5000
         ServerSocket ss = new ServerSocket(5000);
-        clients = new ArrayList<LevelServer>(4);
+        positions = new ArrayList<>(4);
         map = RenderMap.getRandomMap();
-        Integer [][] iMap = convertMap();
         // infinite loop for getting client request
         while(true){
             Socket s = null;
@@ -47,8 +38,7 @@ public class Server {
                 System.out.println("Assigning new thread for this client");
 
                 // Create a new thread object
-                LevelServer t = new LevelServer(s,dis,dos,s.getPort(), iMap);
-                //clients.add(t);
+                ClientHandler t = new ClientHandler(s,dis,dos,s.getPort());
 
                 // Invoking the start() method
                 t.start();
@@ -57,20 +47,6 @@ public class Server {
                 e.printStackTrace();
             }
         }
-    }
-
-    /**
-     * Converts the map to an Integer object for transport
-     * @return newMap
-     */
-    private Integer [][] convertMap(){
-        Integer [][] newMap = new Integer[map.length][map[0].length];
-        for(int i = 0; i < map.length; i++){
-            for(int j=0; j < map[i].length; j++){
-                newMap[i][j] = map[i][j];
-            }
-        }
-        return newMap;
     }
     public static void main(String [] args) throws IOException {
         new Server();
