@@ -5,7 +5,6 @@
 [19] Update character images based on weapon material
 [22] Add ability to throw items
 [23] Make character effects functional
-[24] Add item description to inventory display
 [25] Add attack functionality
 
 ##Resolved Issues##
@@ -26,3 +25,4 @@
 [16] Add visual display for player inventory and codex
 [20] Add method for selecting and using/equipping items from inventory
 [21] Add method to use equipped consumable items
+[24] Add item description to inventory display
