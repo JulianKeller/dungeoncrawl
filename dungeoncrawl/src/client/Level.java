@@ -91,14 +91,7 @@ public class Level extends BasicGameState {
         // Grab the map from the server.Server
 
         try {
-            Integer[][] mapData = (Integer[][]) this.dis.readObject();
-            // Convert it into an 2d int array
-            dc.map = new int[mapData.length][mapData[0].length];
-            for (int i = 0; i < mapData.length; i++) {
-                for (int j = 0; j < mapData[i].length; j++) {
-                    dc.map[i][j] = mapData[i][j];
-                }
-            }
+           dc.map = (int[][])dis.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }

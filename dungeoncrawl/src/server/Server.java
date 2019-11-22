@@ -1,54 +1,65 @@
-package server;/*
- * Multithreaded server.Server Example from GeeksforGeeks.org
- * https://www.geeksforgeeks.org/introducing-threads-socket-programming-java/
- *
- */
+package server;
 
-import client.RenderMap;
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.concurrent.*;
+import client.RenderMap;
 
+public class Server extends Thread{
+    // Static Objects for each thread.
+    private static BlockingQueue<PlayerPosition> serverQueue = new LinkedBlockingQueue<>(10);
+    private static int [][] map;
 
-public class Server {
-
-    private ArrayList<PlayerPosition> positions;              // this holds all player's positions
-    private int [][] map;                                     // This holds the world map
-
-    public Server() throws IOException{
-        // server is listening on port 5000
-        ServerSocket ss = new ServerSocket(5000);
-        positions = new ArrayList<>(4);
-        map = RenderMap.getRandomMap();
-        // infinite loop for getting client request
-        while(true){
-            Socket s = null;
-            try {
-                // socket object to receive incoming client requests
-                s = ss.accept();
-
-                System.out.println("A new client is connected: " + s);
-
-                // obtaining input and out streams
-                ObjectOutputStream dos = new ObjectOutputStream(s.getOutputStream());
-                ObjectInputStream dis = new ObjectInputStream(s.getInputStream());
-
-
-                System.out.println("Assigning new thread for this client");
-
-                // Create a new thread object
-                ClientHandler t = new ClientHandler(s,dis,dos,s.getPort());
-
-                // Invoking the start() method
-                t.start();
-            } catch (Exception e){
-                s.close();
-                e.printStackTrace();
-            }
+    private static void getMap() {
+        try {
+            map = RenderMap.getRandomMap();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-    public static void main(String [] args) throws IOException {
-        new Server();
+
+    // Objects that are only server
+    private Socket socket;
+    private ObjectInputStream is;
+    private ObjectOutputStream os;
+    private BlockingQueue<String> threadQueue;
+
+    public Server(Socket socket) throws IOException{
+        this.socket = socket;
+        is = new ObjectInputStream(socket.getInputStream());
+        os = new ObjectOutputStream(socket.getOutputStream());
+        threadQueue = new LinkedBlockingQueue<>(10);
     }
+
+    @Override
+    public void run() {
+        String message = "";
+        try {
+            os.writeObject(map);
+            message = is.readUTF();
+            while(true){
+
+            }
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+
+    }
+    private void toQueue(String m){
+        try {
+            serverQueue.put(new PlayerPosition(socket.getPort(), m.split(" ")[0],
+                    Float.parseFloat(m.split(" ")[1]),
+                    Float.parseFloat(m.split(" ")[2])));
+        } catch (InterruptedException e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String [] args) throws IOException{
+        ServerSocket ss = new ServerSocket(5000);
+        getMap();
+
+    }
+
+
 }

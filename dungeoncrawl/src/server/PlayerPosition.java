@@ -5,8 +5,8 @@ public class PlayerPosition {
     private int clientId;
     private String type;
 
-    public PlayerPosition(int id, String type){
-        position = new float[]{0,0};
+    public PlayerPosition(int id, String type, float x, float y){
+        position = new float[]{x,y};
         clientId = id;
         this.type = type;
     }
