@@ -358,31 +358,16 @@ public class Level extends BasicGameState {
     Renders the other characters and AI on the screen if they are in the players screen
      */
     private void renderCharacters(Main dc, Graphics g) {
-        for(Iterator<Character> i = dc.characters.iterator(); i.hasNext();) {
-            Character ch = i.next();
-            Vector position = ch.animate.getPosition();
-            float cwx = position.getX();
-            float cwy = position.getY();
-
-            // hero screen origin
-            float ox = dc.hero.ox * dc.tilesize;
-            float oy = dc.hero.oy * dc.tilesize;
-            float screenX = ox + dc.tilesWide * dc.tilesize;
-            float screenY = oy + dc.tilesHigh * dc.tilesize;
-
-            // only render if player is on screen
-//            if (ox < cwx && oy < cwy && screenX > cwx && screenY > cwy) {
-//                // if character in screen, render them
-//                ch.animate.render(g);
-//            }
+        for (Character ch : dc.characters) {
             Vector sc = world2screenCoordinates(dc, ch);
             ch.animate.setPosition(sc);
-
-            ch.animate.render(g);
-
+            if (characterInRegion(dc, ch)) {
+                ch.animate.render(g);
+            }
         }
     }
-    
+
+
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
     	Color tmp = g.getColor();
     	g.setColor(new Color(0, 0, 0, 0.5f));
@@ -567,6 +552,22 @@ public class Level extends BasicGameState {
 
 
     /**
+     * Check if the Character is in the Hero's screen +- one tile wide and high
+     * @param dc the Main class
+     * @param ch the Character instance to check if it is in region
+     * @return true if the ch is in screen, else false
+     */
+    public boolean characterInRegion(Main dc, Character ch){
+        float maxX = (dc.tilesize * dc.tilesWide) + dc.hero.pixelX + dc.tilesize;
+        float maxY = (dc.tilesize * dc.tilesWide) + dc.hero.pixelY + dc.tilesize;
+        float minX = dc.hero.pixelX - dc.tilesize;
+        float minY = dc.hero.pixelY - dc.tilesize;
+        Vector wc = ch.getWorldCoordinates();
+        return minX <= wc.getX() && wc.getX() <= maxX && minY <= wc.getY() && wc.getY() <= maxY;
+    }
+
+
+    /**
      * @param dc Main class
      * @param ai an AI character
      * TODO update the ai characters from the render method
@@ -575,24 +576,10 @@ public class Level extends BasicGameState {
      *      If the ai is in the screen, then render, else don't render
      */
     public Vector world2screenCoordinates(Main dc, Character ai) {
-        Vector sc;
-        float wx = ai.getWorldCoordinates().getX();
-        float wy = ai.getWorldCoordinates().getY();
-        float sx;
-        float sy;
-
-//        System.out.printf("Pixel: %s, %s    ", dc.hero.pixelX, dc.hero.pixelY);
-
-        sx = wx - dc.hero.pixelX;
-        sy = wy - dc.hero.pixelY;
-        sc = new Vector(sx, sy);
-        // TODO screencoords = wc - pixelX
-
-//        System.out.println("World Coordinates = " + ai.getWorldCoordinates());
-//        System.out.println("Screen Coordinates = " + sc);
-//        System.out.println();
-
-        return sc;
+        // screen coords = AI world coords - Hero's Screen Origin
+        float sx = ai.getWorldCoordinates().getX() - dc.hero.pixelX;
+        float sy = ai.getWorldCoordinates().getY() - dc.hero.pixelY;
+        return new Vector(sx, sy);
     }
 
     /**
