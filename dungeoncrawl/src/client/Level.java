@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Scanner;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -436,7 +437,7 @@ public class Level extends BasicGameState {
 
     }
 
-
+    
 
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
@@ -458,6 +459,18 @@ public class Level extends BasicGameState {
             currentOrigin = dc.hero.origin;
         }
         */
+        
+        //cheat code to apply any effect to the character
+        if( input.isKeyPressed(Input.KEY_LALT) ){
+        	System.out.println("Game window frozen, expecting user input.");
+        	System.out.println("Enter valid effect name (e.g. Healing): ");
+        	
+        	Scanner scan = new Scanner(System.in);
+        	String effect = scan.next().trim();
+        	
+        	dc.hero.addEffect(effect);
+        	scan.close();
+        }
         
         if( input.isKeyPressed(Input.KEY_I) ){
         	displayInventory = !displayInventory;
