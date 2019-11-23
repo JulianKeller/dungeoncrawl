@@ -821,28 +821,22 @@ public class Level extends BasicGameState {
     }
 
 
-//    /**
-//     * @param dc Main class
-//     * @param ai an AI character
-//     * TODO update the ai characters from the render method
-//     *      only care about keeping track of enemies world position.
-//     *      Then in the render method, I convert world coordinates to screen coordinates
-//     *      If the ai is in the screen, then render, else don't render
-//     */
-//    public Vector world2screenCoordinates(Main dc, Character ai) {
-//        // screen coords = AI world coords - Hero's Screen Origin
-//        float sx = ai.getWorldCoordinates().getX() - dc.hero.pixelX;
-//        float sy = ai.getWorldCoordinates().getY() - dc.hero.pixelY;
-//        return new Vector(sx, sy);
-//    }
+    /**
+     * Convert the Characters world coordinates to screen coordinates
+     * @param dc Main class
+     * @param ai an AI character
+     */
+    public Vector world2screenCoordinates(Main dc, Character ai) {
+        // screen coords = AI world coords - Hero's Screen Origin
+        float sx = ai.getWorldCoordinates().getX() - dc.hero.pixelX;
+        float sy = ai.getWorldCoordinates().getY() - dc.hero.pixelY;
+        return new Vector(sx, sy);
+    }
 
     /**
+     * Convert the passed in world coordinates to screen coordinates
      * @param dc Main class
      * @param wc worldCoordinates vector of the object to render
-     * TODO update the ai characters from the render method
-     *      only care about keeping track of enemies world position.
-     *      Then in the render method, I convert world coordinates to screen coordinates
-     *      If the ai is in the screen, then render, else don't render
      */
     public Vector world2screenCoordinates(Main dc, Vector wc) {
         // screen coords = AI world coords - Hero's Screen Origin
@@ -851,22 +845,5 @@ public class Level extends BasicGameState {
         return new Vector(sx, sy);
     }
 
-
-    /**
-     * Reads the new player coordinates and walks the player accordingly.
-//     */
-//    public void getNewPlayerCoord(){
-//        try {
-//            serverMessage = dis.readUTF();
-//            if (!serverMessage.equals("")) {
-////                System.out.println("server.Server says: Move valid.  New coordinates: "+ serverMessage);
-//                dc.hero.moveSmoothTranslationHelper();
-//            } else{
-////                System.out.println("server.Server says: Move invalid/No Button Pressed.");
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
 }
