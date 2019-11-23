@@ -252,9 +252,10 @@ Reflection:
     			//roll 30% change to take 20 damage
     			rand.setSeed(System.nanoTime());
     			int r = rand.nextInt(100);
-    			if( r < 30 ){
+    			if( r < 60 ){
     				hitPoints -= 20;
     				currentLevel.addMessage("Struck by lightning!");
+    				System.out.println("Struck by lightning!");
     			}
     			
     		}else if( e.name.equals("Stench") ){
@@ -311,7 +312,9 @@ Reflection:
 		 */ 
 		activeEffects.removeIf(b -> b.name.equals("Strength") || 
 									b.name.equals("Iron Skin") || 
-									b.name.equals("Healing") );
+									b.name.equals("Healing") ||
+									b.name.equals("Lightning") );
+					
     }
 
     public void addItem(Item i){
