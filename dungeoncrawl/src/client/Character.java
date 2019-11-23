@@ -10,7 +10,6 @@ public class Character extends MovingEntity {
     private boolean canMove = true;
     private boolean nearEdge = false;
     private int movesLeft;
-    private int moveSpeed;
     int ox;             // origin x
     int oy;             // origin y
     private int newx;   // next origin x
@@ -31,14 +30,13 @@ public class Character extends MovingEntity {
         this.dc = dc;
         this.type = type;
         setStats();
-        animate = new AnimateEntity(wx, wy, getSpeed(), this.type);
+        animate = new AnimateEntity(wx, wy, getAnimationSpeed(), this.type);
         direction = "walk_down";
         animate.selectAnimation(direction);
         animate.stop();
         ox = 0;
         oy = 0;
-        setSpeed(50);       // speed of the animation
-        moveSpeed = 2;      // speed that character moves across the screen
+        setAnimationSpeed(50);       // speed of the animation
     }
 
 
@@ -55,25 +53,7 @@ public class Character extends MovingEntity {
         setStats();
     }
     
-    public void doubleMoveSpeed(){
-        if (moveSpeed >= 32) {
-            System.out.println("Speed at Maximum: " + moveSpeed);
-            return;
-        }
-        setSpeed(getSpeed() / 2);
-        moveSpeed *= 2;
-        System.out.println("Speed increased to: " + moveSpeed);
-    }
-    
-    public void halfMoveSpeed(){
-        if (moveSpeed <= 1) {
-            System.out.println("Speed at Minimum: " + moveSpeed);
-            return;
-        }
-        setSpeed(getSpeed() * 2);
-        moveSpeed /= 2;
-        System.out.println("Speed Decreased to: " + moveSpeed);
-    }
+
 
     /**
      * Sets Character HP, AP, and Mana based on type given.
@@ -85,26 +65,26 @@ public class Character extends MovingEntity {
             case "knight_gold":
                 setHitPoints(100);
                 setArmorPoints(100);
-                setSpeed(50);
+                setAnimationSpeed(50);
                 break;
             case "mage_leather": // Mage
             case "mage_improved":
                 setHitPoints(80);
                 setArmorPoints(50);
-                setSpeed(75);
+                setAnimationSpeed(75);
                 setMana(100);
                 break;
             case "archer_leather": // Archer
                 setHitPoints(100);
                 setArmorPoints(50);
-                setSpeed(75);
+                setAnimationSpeed(75);
                 break;
             case "tank_leather": // Tank
             case "tank_iron":
             case "tank_gold":
                 setHitPoints(150);
                 setArmorPoints(100);
-                setSpeed(25);
+                setAnimationSpeed(25);
                 break;
             default:
                 System.out.println("ERROR: No matching Character type specified.\n");
@@ -200,22 +180,22 @@ public class Character extends MovingEntity {
             switch (direction) {
                 case "walk_up":
                     x = sx;
-                    y = sy - moveSpeed;
+                    y = sy - super.getMovementSpeed();
                     break;
                 case "walk_down":
                     x = sx;
-                    y = sy + moveSpeed;
+                    y = sy + super.getMovementSpeed();
                     break;
                 case "walk_left":
-                    x = sx - moveSpeed;
+                    x = sx - super.getMovementSpeed();
                     y = sy;
                     break;
                 case "walk_right":
-                    x = sx + moveSpeed;
+                    x = sx + super.getMovementSpeed();
                     y = sy;
                     break;
             }
-            movesLeft -= moveSpeed;
+            movesLeft -= super.getMovementSpeed();
             updatePosition(x, y);
         } else {
             canMove = true;
@@ -232,22 +212,22 @@ public class Character extends MovingEntity {
             switch (direction) {
                 case "walk_up":
                     dx = 0f;
-                    dy -= moveSpeed;
+                    dy -= super.getMovementSpeed();
                     break;
                 case "walk_down":
                     dx = 0f;
-                    dy += moveSpeed;
+                    dy += super.getMovementSpeed();
                     break;
                 case "walk_left":
-                    dx -= moveSpeed;
+                    dx -= super.getMovementSpeed();
                     dy = 0f;
                     break;
                 case "walk_right":
-                    dx += moveSpeed;
+                    dx += super.getMovementSpeed();
                     dy = 0f;
                     break;
             }
-            movesLeft -= moveSpeed;
+            movesLeft -= super.getMovementSpeed();
             RenderMap.setMap(dc, this);
         } else {
             ox = newx;
@@ -340,7 +320,7 @@ public class Character extends MovingEntity {
     private void updateAnimation(String action) {
         if (action != null) {
             Vector sc = animate.getPosition();
-            animate = new AnimateEntity(sc.getX(), sc.getY(), getSpeed(), this.type);
+            animate = new AnimateEntity(sc.getX(), sc.getY(), getAnimationSpeed(), this.type);
             animate.selectAnimation(action);
         }
     }

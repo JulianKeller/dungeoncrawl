@@ -25,7 +25,8 @@ public class MovingEntity extends Entity {
     private boolean reflecting = false;
     
     private Vector worldCoordinates;
-    private int speed;
+    private int animationSpeed;
+    private int movementSpeed;
     private int pid;
     private ArrayList<Item> inventory;
     private ArrayList<Item> codex; //list of identified items
@@ -58,7 +59,8 @@ public class MovingEntity extends Entity {
         //startingHitPoints = hitPoints;
         armorPoints = 0;
         worldCoordinates = new Vector(wx, wy);
-        speed = 0;
+        animationSpeed = 0;
+        movementSpeed = 1;
         mana = 0;
         strength = 1;
         this.pid = pid;
@@ -87,7 +89,8 @@ public class MovingEntity extends Entity {
         //startingHitPoints = hitPoints;
         armorPoints = 0;
         worldCoordinates = wc;
-        speed = 0;
+        animationSpeed = 0;
+        movementSpeed = 1;
         mana = 0;
         strength = 1;
         this.pid = pid;
@@ -210,7 +213,7 @@ Reflection:
     			
     		}else if( e.name.equals("Ice") ){
     			//set movement speed to zero
-    			speed = 0;
+    			movementSpeed = 0;
     		}else if( e.name.equals("Lightning") ){
     			//roll 30% change to take 20 damage
     			rand.setSeed(System.nanoTime());
@@ -233,7 +236,7 @@ Reflection:
     			
     		}else if( e.name.equals("Swiftness") ){
     			//double movement speed
-    			speed *= 2;
+    			movementSpeed *= 2;
     			
     		}else if( e.name.equals("Fright") ){
     			//AI problem, see stench
@@ -439,18 +442,49 @@ Reflection:
     	return strength;
     }
 
-    public void setSpeed(int sp){
+    public void setAnimationSpeed(int sp){
         if (sp <= 0) {
             return;
         }
-        speed = sp;
+        animationSpeed = sp;
     }
+    
+    public void setMovementSpeed(int sp){
+        if (sp <= 0) {
+            return;
+        }
+        movementSpeed = sp;
+    }
+    
+    public void doubleMoveSpeed(){
+        if (movementSpeed >= 32) {
+            System.out.println("Speed at Maximum: " + movementSpeed);
+            return;
+        }
+        setAnimationSpeed(getAnimationSpeed() / 2);
+        movementSpeed *= 2;
+        System.out.println("Speed increased to: " + movementSpeed);
+    }
+    
+    public void halfMoveSpeed(){
+        if (movementSpeed <= 1) {
+            System.out.println("Speed at Minimum: " + movementSpeed);
+            return;
+        }
+        setAnimationSpeed(getAnimationSpeed() * 2);
+        movementSpeed /= 2;
+        System.out.println("Speed Decreased to: " + movementSpeed);
+    }
+    
     /**
      * Retreive client.MovingEntity's speed
      * @return speed
      */
-    public int getSpeed(){
-        return speed;
+    public int getAnimationSpeed(){
+        return animationSpeed;
+    }
+    public int getMovementSpeed(){
+    	return movementSpeed;
     }
     
     public int getPid(){
@@ -528,7 +562,7 @@ Reflection:
      * @param amt amount to add to speed.
      */
     public void addToSpeed(int amt){
-        speed += amt;
+        animationSpeed += amt;
     }
 
     /**
@@ -536,7 +570,7 @@ Reflection:
      * @param amt subtract amount to speed.
      */
     public void subSpeed(int amt){
-        speed -= amt;
+        animationSpeed -= amt;
     }
 
 //    public void update(int delta){
