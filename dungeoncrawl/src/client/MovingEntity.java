@@ -26,6 +26,7 @@ public class MovingEntity extends Entity {
     
     private Vector worldCoordinates;
     private int animationSpeed;
+    private int initialMovementSpeed;
     private int movementSpeed;
     private int pid;
     private ArrayList<Item> inventory;
@@ -60,7 +61,8 @@ public class MovingEntity extends Entity {
         armorPoints = 0;
         worldCoordinates = new Vector(wx, wy);
         animationSpeed = 0;
-        movementSpeed = 1;
+        initialMovementSpeed = movementSpeed = 1;
+        
         mana = 0;
         strength = 1;
         this.pid = pid;
@@ -90,7 +92,7 @@ public class MovingEntity extends Entity {
         armorPoints = 0;
         worldCoordinates = wc;
         animationSpeed = 0;
-        movementSpeed = 1;
+        initialMovementSpeed = movementSpeed = 1;
         mana = 0;
         strength = 1;
         this.pid = pid;
@@ -133,10 +135,21 @@ public class MovingEntity extends Entity {
     	return activeEffects;
     }
     
+    
     public void updateEffectTimers(int delta){
     	//reduce each active effect timer by delta
+    	//System.out.println("Updating effect timers");
     	for( Effect e : activeEffects ){
+    		//System.out.println("reducing timer of " + e.name + " by " + delta);
     		e.timer -= delta;
+    		if( e.timer <= 0 ){
+    			//set special exit properties
+    			//  for certain effects
+    			if( e.name.equals("Swiftness") || e.name.equals("Ice") ){
+    				//reset to initial movement speed
+    				movementSpeed = initialMovementSpeed;
+    			}
+    		}
     	}
     	//remove any expired effects
     	activeEffects.removeIf(b -> b.timer <= 0);
@@ -179,8 +192,11 @@ Reflection:
 	Attacking enemies will take 50% of the damage they deal.
      */
     
+
+    
     public void implementEffects() throws SlickException{
     	for( Effect e : activeEffects ){
+    		//System.out.println(e.name);
     		if( e.name.equals("Healing") ){
     			//find the difference between this entity's current HP
     			//  and its starting HP, then add 25% of that to the
@@ -236,7 +252,11 @@ Reflection:
     			
     		}else if( e.name.equals("Swiftness") ){
     			//double movement speed
-    			movementSpeed *= 2;
+    			//  only if the current speed is equal to the
+    			//  initial speed
+    			if( movementSpeed == initialMovementSpeed ){
+    				doubleMoveSpeed();
+    			}
     			
     		}else if( e.name.equals("Fright") ){
     			//AI problem, see stench
@@ -265,10 +285,14 @@ Reflection:
 
     	}
     	
-		//remove one-time effects
+		/*
+		 * Some effects should only be applied once.
+		 * For example, swiftness will double the speed every loop
+		 *   if it remains in the list
+		 */ 
 		activeEffects.removeIf(b -> b.name.equals("Strength") || 
 									b.name.equals("Iron Skin") || 
-									b.name.equals("Healing"));
+									b.name.equals("Healing") );
     }
 
     public void addItem(Item i){

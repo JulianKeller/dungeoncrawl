@@ -396,6 +396,7 @@ public class Level extends BasicGameState {
         g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*3));
         g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
         g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
+        g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
         
         
         
@@ -437,7 +438,7 @@ public class Level extends BasicGameState {
 
     }
 
-    
+    private Scanner scan = new Scanner(System.in);
 
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
@@ -450,6 +451,10 @@ public class Level extends BasicGameState {
         }
         //implement effects on the character
         dc.hero.implementEffects();
+        //reduce the effect timers by a constant value each frame
+        //  if delta is used instead of a constant, tabbing away from
+        //  the game window can cause all effects to disappear instantly
+        dc.hero.updateEffectTimers(16);
         
         
         dc.hero.move(getKeystroke(input));
@@ -465,11 +470,11 @@ public class Level extends BasicGameState {
         	System.out.println("Game window frozen, expecting user input.");
         	System.out.println("Enter valid effect name (e.g. Healing): ");
         	
-        	Scanner scan = new Scanner(System.in);
         	String effect = scan.next().trim();
         	
+        	System.out.println("Got effect '"+effect+"'");
+        	
         	dc.hero.addEffect(effect);
-        	scan.close();
         }
         
         if( input.isKeyPressed(Input.KEY_I) ){
