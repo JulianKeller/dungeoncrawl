@@ -183,7 +183,7 @@ Reflection:
     			//  and its starting HP, then add 25% of that to the
     			//  current value
     			int diff = startingHitPoints - hitPoints;
-    			hitPoints += (hitPoints*0.25);
+    			hitPoints += (diff*0.25);
     			
     		}else if( e.name.equals("Strength") ){
     			//increment the player's strength variable
@@ -426,6 +426,9 @@ Reflection:
     }
     public int getMana(){
         return mana;
+    }
+    public int getStrength(){
+    	return strength;
     }
 
     public void setSpeed(int sp){
