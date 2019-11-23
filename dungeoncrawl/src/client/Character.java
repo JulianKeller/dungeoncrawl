@@ -54,6 +54,26 @@ public class Character extends MovingEntity {
         this.type = type;
         setStats();
     }
+    
+    public void doubleMoveSpeed(){
+        if (moveSpeed >= 32) {
+            System.out.println("Speed at Maximum: " + moveSpeed);
+            return;
+        }
+        setSpeed(getSpeed() / 2);
+        moveSpeed *= 2;
+        System.out.println("Speed increased to: " + moveSpeed);
+    }
+    
+    public void halfMoveSpeed(){
+        if (moveSpeed <= 1) {
+            System.out.println("Speed at Minimum: " + moveSpeed);
+            return;
+        }
+        setSpeed(getSpeed() * 2);
+        moveSpeed /= 2;
+        System.out.println("Speed Decreased to: " + moveSpeed);
+    }
 
     /**
      * Sets Character HP, AP, and Mana based on type given.
@@ -142,22 +162,10 @@ public class Character extends MovingEntity {
                 movement = "walk_right";
                 break;
             case "4":       // speed up
-                if (moveSpeed >= 32) {
-                    System.out.println("Speed at Maximum: " + moveSpeed);
-                    break;
-                }
-                setSpeed(getSpeed() / 2);
-                moveSpeed *= 2;
-                System.out.println("Speed increased to: " + moveSpeed);
+            	doubleMoveSpeed();
                 break;
             case "5":        // slow down
-                if (moveSpeed <= 1) {
-                    System.out.println("Speed at Minimum: " + moveSpeed);
-                    break;
-                }
-                setSpeed(getSpeed() * 2);
-                moveSpeed /= 2;
-                System.out.println("Speed Decreased to: " + moveSpeed);
+            	halfMoveSpeed();
                 break;
         }
         if (movement != null) {

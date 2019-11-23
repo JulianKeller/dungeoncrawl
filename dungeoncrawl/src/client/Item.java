@@ -39,7 +39,8 @@ public class Item extends StationaryObject{
 		
 		//currently developed item types, for debugging purposes only
 		String[] currentTypes = {"Potion", "Sword", "Armor"};
-		this.type = currentTypes[ rand.nextInt(currentTypes.length) ];
+		//TODO
+		this.type = "Potion"; //currentTypes[ rand.nextInt(currentTypes.length) ];
 		
 		//choose materials from the appropriate list
 		if( type.equals("Sword") ){
@@ -81,10 +82,7 @@ public class Item extends StationaryObject{
 		//all items start unidentified
 		identified = false;
 		
-		
-		//for debugging
-		//super.lock();
-		
+
 		//get an image based on item type
 		if( type.equals("Potion") ){
 			int r = rand.nextInt(5);

@@ -447,6 +447,10 @@ public class Level extends BasicGameState {
         if (paused) {
             return;
         }
+        //implement effects on the character
+        dc.hero.implementEffects();
+        
+        
         dc.hero.move(getKeystroke(input));
         /*
         if (currentOrigin.getX() != dc.hero.origin.getX() && currentOrigin.getY() != dc.hero.origin.getY()) {

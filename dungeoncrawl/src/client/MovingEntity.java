@@ -12,7 +12,7 @@ import org.newdawn.slick.SlickException;
 
 public class MovingEntity extends Entity {
     private int hitPoints;
-    private final int startingHitPoints;
+    private int startingHitPoints;
     private int armorPoints;
     private int mana;
     private int strength; //determines what level of items the player can pick up
@@ -55,7 +55,7 @@ public class MovingEntity extends Entity {
     public MovingEntity(final float wx, final float wy, int pid) {
         super(wx, wy);
         hitPoints = 0;
-        startingHitPoints = hitPoints;
+        //startingHitPoints = hitPoints;
         armorPoints = 0;
         worldCoordinates = new Vector(wx, wy);
         speed = 0;
@@ -84,7 +84,7 @@ public class MovingEntity extends Entity {
     public MovingEntity(Vector wc, int pid) {
         super(wc.getX(), wc.getY());
         hitPoints = 0;
-        startingHitPoints = hitPoints;
+        //startingHitPoints = hitPoints;
         armorPoints = 0;
         worldCoordinates = wc;
         speed = 0;
@@ -182,8 +182,10 @@ Reflection:
     			//find the difference between this entity's current HP
     			//  and its starting HP, then add 25% of that to the
     			//  current value
-    			int diff = startingHitPoints - hitPoints;
-    			hitPoints += (diff*0.25);
+    			if( startingHitPoints > hitPoints ){
+	    			int diff = startingHitPoints - hitPoints;
+	    			hitPoints += (diff*0.25);
+    			}
     			
     		}else if( e.name.equals("Strength") ){
     			//increment the player's strength variable
@@ -257,11 +259,13 @@ Reflection:
     			throw new SlickException("Unknown character effect.");
     		}
     		
-    		//remove one-time effects
-    		activeEffects.removeIf(b -> b.name.equals("Strength") || 
-    									b.name.equals("Iron Skin") || 
-    									b.name.equals("Healing"));
+
     	}
+    	
+		//remove one-time effects
+		activeEffects.removeIf(b -> b.name.equals("Strength") || 
+									b.name.equals("Iron Skin") || 
+									b.name.equals("Healing"));
     }
 
     public void addItem(Item i){
@@ -406,6 +410,10 @@ Reflection:
 
     public void setHitPoints(int hp){
         hitPoints = hp;
+        if( startingHitPoints == 0 ){
+        	//TODO
+        	startingHitPoints = 200;
+        }
     }
     public int getHitPoints(){
         return hitPoints;
