@@ -25,7 +25,17 @@ public class ItemManager {
 		identifiedPotionEffects = new String[uniquePotions];
 		//populate this list ahead of time
 		for( int i = 0; i < uniquePotions; i++ ){
-			identifiedPotionEffects[i] = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length)];
+			String effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length)];
+			for( int j = 0; j < identifiedPotionEffects.length; j++ ){
+				if( identifiedPotionEffects[j] != null && identifiedPotionEffects[j].equals(effect) ){
+					i--;
+					break;
+				}
+				if( j == identifiedPotionEffects.length-1 ){
+					identifiedPotionEffects[i] = effect;
+				}
+			}
+			
 		}
 	}
 	
