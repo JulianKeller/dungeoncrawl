@@ -132,6 +132,17 @@ public class MovingEntity extends Entity {
     	return reflecting;
     }
     
+    /*
+     * Note on effects:
+     * -Effects to be removed automatically after a period of time
+     *  should be removed with the updateEffectTimers method
+     * -Effects to be removed immediately after being applied
+     *  should be added to the removeIf statement at the bottom of
+     *  the implementEffects method
+     * -Effects to be removed in any other situation can be manually
+     *  removed with the removeEffect method
+     */
+    
     public void addEffect(String name){
     	//if the character already has the effect,
     	// reset the timer
@@ -148,10 +159,26 @@ public class MovingEntity extends Entity {
     	return activeEffects;
     }
     
+    /**
+     * Use this function to remove effects caused by
+     * an equipped item when said item is unequipped
+     */
+    public void removeEffect(String name){
+    	activeEffects.removeIf(e -> e.name.equals(name));
+    	//special exit behavior
+    	if( name.equals("Iron Skin") ){
+    		armorPoints = initialArmorPoints;
+    	}
+    }
     
+    /**
+     * Use this function every update loop for
+     * the automatic removal of timed effects
+     */
     public void updateEffectTimers(int delta){
     	//reduce each active effect timer by delta
-    	//System.out.println("Updating effect timers");
+    	//System.out.println("Updating effect timers")
+    	ArrayList<String> effectsToAdd = new ArrayList<String>();
     	for( Effect e : activeEffects ){
     		//System.out.println("reducing timer of " + e.name + " by " + delta);
     		e.timer -= delta;
@@ -161,11 +188,22 @@ public class MovingEntity extends Entity {
     			if( e.name.equals("Swiftness") || e.name.equals("Ice") ){	
     				//reset to initial movement speed
     				movementSpeed = initialMovementSpeed;
+    			}else if( e.name.equals("Iron Skin") ){
+    				//iron skin will be active as long as the player is wearing
+    				//  armor carrying the effect, so it should be reactivated
+    				//  every time its timer runs out (effect should be
+    				//    manually removed when the armor is taken off)
+    				effectsToAdd.add("Iron Skin");
     			}
     		}
     	}
     	//remove any expired effects
     	activeEffects.removeIf(b -> b.timer <= 0);
+    	
+    	//add any new effects
+    	for( String s : effectsToAdd ){
+    		addEffect(s);
+    	}
     }
     
     /*
@@ -268,6 +306,7 @@ Reflection:
     				armorPoints *= 2;
     			}
     			
+    			
     		}else if( e.name.equals("Thorns") ){
     			//AI problem
     			thorny = true;
@@ -313,7 +352,6 @@ Reflection:
 		 *   if it remains in the list
 		 */ 
 		activeEffects.removeIf(b -> b.name.equals("Strength") || 
-									b.name.equals("Iron Skin") || 
 									b.name.equals("Healing") ||
 									b.name.equals("Lightning") );
 					

@@ -472,6 +472,9 @@ public class Level extends BasicGameState {
         	
         	String effect = scan.next().trim();
         	
+        	if( effect.equals("Iron") ){
+        		effect = "Iron Skin";
+        	}
         	System.out.println("Got effect '"+effect+"'");
         	
         	dc.hero.addEffect(effect);
