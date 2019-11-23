@@ -12,8 +12,9 @@ import org.newdawn.slick.SlickException;
 
 public class MovingEntity extends Entity {
     private int hitPoints;
-    private int startingHitPoints;
+    private int startingHitPoints = -1;
     private int armorPoints;
+    private int initialArmorPoints = -1;
     private int mana;
     private int strength; //determines what level of items the player can pick up
     
@@ -64,7 +65,7 @@ public class MovingEntity extends Entity {
         
         hitPoints = 0;
         //startingHitPoints = hitPoints;
-        armorPoints = 0;
+        armorPoints = 1;
         worldCoordinates = new Vector(wx, wy);
         animationSpeed = 0;
         initialMovementSpeed = movementSpeed = 1;
@@ -247,6 +248,7 @@ Reflection:
     			int r = rand.nextInt(100);
     			if( r < 30 ){
     				hitPoints -= 20;
+    				currentLevel.addMessage("Struck by lightning!");
     			}
     			
     		}else if( e.name.equals("Stench") ){
@@ -448,9 +450,8 @@ Reflection:
 
     public void setHitPoints(int hp){
         hitPoints = hp;
-        if( startingHitPoints == 0 ){
-        	//TODO
-        	startingHitPoints = 200;
+        if( startingHitPoints == -1 ){
+        	startingHitPoints = hitPoints;
         }
     }
     public int getHitPoints(){
@@ -459,6 +460,9 @@ Reflection:
 
     public void setArmorPoints(int ap){
         armorPoints = ap;
+        if( initialArmorPoints == -1 ){
+        	initialArmorPoints = ap;
+        }
     }
     /**
      * Retrieve current armor points
