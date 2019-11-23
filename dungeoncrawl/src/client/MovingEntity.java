@@ -264,7 +264,9 @@ Reflection:
     			
     		}else if( e.name.equals("Iron Skin") ){
     			//double the armor points variable
-    			armorPoints *= 2;
+    			if( armorPoints == initialArmorPoints ){
+    				armorPoints *= 2;
+    			}
     			
     		}else if( e.name.equals("Thorns") ){
     			//AI problem
