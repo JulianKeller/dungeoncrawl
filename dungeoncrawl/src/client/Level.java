@@ -25,27 +25,14 @@ import jig.Vector;
 
 public class Level extends BasicGameState {
     private Boolean paused;
-    //Character dc.hero;
-
-    int currentOX;
-    int currentOY;
-
-    Vector currentOrigin;
-
     private Random rand;
-    
     private int[][] rotatedMap;
-
     Socket socket;
     ObjectInputStream dis;
     ObjectOutputStream dos;
     String serverMessage;
-    
     private final int messageTimer = 2000;
-
-    
     private ArrayList<Item> itemsToRender;
-    
     //whether to display player inventory/codex on the screen
     private boolean displayInventory = false;
     private boolean displayCodex = false;
@@ -133,13 +120,6 @@ public class Level extends BasicGameState {
         //dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         System.out.printf("Map Size: %s, %s\n", dc.map.length, dc.map[0].length);
 
-
-
-        
-
-        
-  
-        
         //rotated map verified correct
         rotatedMap = new int[dc.map[0].length][dc.map.length];
         for( int i = 0; i < dc.map.length; i++ ){
@@ -157,7 +137,10 @@ public class Level extends BasicGameState {
 			e.printStackTrace();
 			return;
 		}
-        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
+
+        // initialize itemsToRender
+        itemsToRender = new ArrayList<>();
+//        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
         
         //find a tile with no walls in its horizontal adjacencies
         rand = new Random();
@@ -181,9 +164,11 @@ public class Level extends BasicGameState {
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
         dc.hero = new Character(dc, wx, wy, "knight_iron", 1, false);
-        dc.characters.add(dc.hero);
-        currentOX = dc.hero.ox;
-        currentOY = dc.hero.oy;
+
+        // setup a skeleton enemy
+        wx = (dc.tilesize * 20) - dc.offset;
+        wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
+        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, true));
 
         // render map
         RenderMap.setMap(dc, dc.hero);
@@ -196,20 +181,8 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
 
-        dc.hero = new Character(dc, wx, wy, "knight_leather", 1, false);
-
-        wx = (dc.tilesize * 20) - dc.offset;
-        wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
-        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, true));
-
-        //dc.characters.add(dc.hero);
-        currentOX = dc.hero.ox;
-        currentOY = dc.hero.oy;
-
         // render map
         RenderMap.setMap(dc, dc.hero);
-
-
 
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
 
@@ -282,38 +255,16 @@ public class Level extends BasicGameState {
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
-        // render tiles
-        /*
-        for (int i = 0; i < dc.map.length; i++) {
-            for (int j = 0; j < dc.map[i].length; j++) {
-                if (dc.mapTiles[i][j] == null)
-                    continue;
-                dc.mapTiles[i][j].render(g);
-            }
-        }
-        */
+        // render map tiles
         displayMap(dc, g);
         
         //render all visible items
-        g.setColor(Color.red);
-        for( Item i : itemsToRender){
-        	//System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
-        	//TODO: draw item images
-        	//for now, use ovals
-        	//g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
-        	
-        	i.setPosition((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2));
-        	i.render(g);
-        	
-        }
+        renderItems(dc, g);
 
         // draw test items
-        for (DisplayItem i : dc.testItems) {
-            i.render(g);
-        }
+        renderTestItems(dc, g);
 
-
-        // TODO will need to sort the lists and draw in order
+        // TODO will need to sort the lists and draw in order so players draw on top of others
         // draw other characters
         renderCharacters(dc, g);
 
@@ -321,108 +272,35 @@ public class Level extends BasicGameState {
         dc.hero.animate.render(g);
 
         //render messages
-        for( Message m : messagebox ){
-        	if( m != null ){
-                g.setColor(new Color(0, 0, 0, 0.5f));
-                g.fillRoundRect(25, dc.ScreenHeight-(20 * messagebox.length), 400, 20 * messagebox.length, 0);
-                g.setColor(Color.red);
-                break;
-        	}
-        }
+        renderMessages(dc, g);
 
-        for( int i = 0; i < messagebox.length; i++ ){
-        	if( messagebox[i] == null || messagebox[i].text == "" ){
-        		break;
-        	}
-        	Color tmp = g.getColor();
-        	//make the messages fade away based on their timers
-        	g.setColor(new Color(255, 0, 0, (float) (messagebox[i].timer*2)/messageTimer));
-        	g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
-        	g.setColor(tmp);
-        }
-
-        
         //display player inventory
         //use the dc.hero for now
-        if( displayInventory ){
-        	renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
-        	ArrayList<Item> items = dc.hero.getInventory();
-        	if( items.size() != 0 ){
-            	int row = 2;
-            	int col = 1;
-            	for( int i = 0; i < items.size(); i++ ){
-            		g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
-            		col++;
-            		if( i > 4 && i % 4 == 0 ){
-            			row++;
-            			col = 1;
-            		}
-            	}
-            	//draw a square around the selected item
-            	Color tmp = g.getColor();
-            	g.setColor(Color.white);
-            	g.drawRect(
-            			(itemx + 1)*dc.tilesize,
-            			(itemy + 2)*dc.tilesize,
-            			dc.tilesize,
-            			dc.tilesize
-            			);
-            	g.setColor(tmp);
-        	}
-        }
-        if( displayCodex ){
-        	//display this box next to the item box
-        	//  if it is open
-        	int x = dc.tilesize;
-        	if( displayInventory ){
-        		x *= 4;
-        	}
-        	
-        	renderItemBox(dc, g, "Codex", x, dc.tilesize, dc.tilesize * 10, dc.tilesize*8);
-        	
-        	ArrayList<Item> items = dc.hero.getCodex();
-        	int row = 2;
-        	for( Item i : items ){
-        		g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
-        		Color tmp = g.getColor();
-        		g.setColor(Color.white);
-        		g.drawString(i.getMaterial()+" "+i.getType()+" of "+i.getEffect(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
-        		g.setColor(tmp);
-        		row++;
-        	}
-        }
+        renderInventory(dc, g);
+
+        // render the codex
+        renderCodex(dc, g);
         
         //draw the player's equipped items
-        Color tmp = g.getColor();
-        g.setColor(new Color(0, 0, 0, 0.5f));
-        g.fillRoundRect(dc.ScreenWidth-(dc.tilesize*5), dc.ScreenHeight-(dc.tilesize*2), dc.tilesize*4, dc.tilesize, 0);
-        int x = 0;
-        int y = 0;
-        for( int i = 0; i < dc.hero.getEquipped().length; i++ ){
-        	if( dc.hero.getEquipped()[i] != null ){
-	        	x = dc.ScreenWidth-(dc.tilesize*(dc.hero.getEquipped().length+1));
-	        	y = dc.ScreenHeight-(dc.tilesize*2);
-	        	g.drawImage(dc.hero.getEquipped()[i].getImage(), x+(dc.tilesize*i), y);
-        	}
-        }
-        g.setColor(Color.white);
-        g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
-        g.setColor(tmp);
-        
-        
-        
-        
-        //print the tile values on the screen
-        /*
+        renderEquippedItems(dc, g);
+
+//         renderDebug(dc, g);
+    }
+
+
+    /**
+     * Render debug information on the screen
+     * @param dc
+     * @param g
+     */
+    private void renderDebug(Main dc, Graphics g) {
         for( int i = 0; i < dc.map.length; i++ ){
         	for( int j = 0; j < dc.map[i].length; j++ ){
         		g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
         		//i is y, j is x
         	}
         }
-        //*/
-        
-        /*
+
         if( rotatedMap != null ){
         	for( int i = 0; i < rotatedMap.length; i++ ){
         		for( int j = 0; j < rotatedMap[i].length; j++ ){
@@ -430,8 +308,150 @@ public class Level extends BasicGameState {
         		}
         	}
         }
-        //*/
-        
+    }
+
+    /**
+     * Renders the players equipped items
+     * @param dc
+     * @param g
+     */
+    private void renderEquippedItems(Main dc, Graphics g) {
+        Color tmp = g.getColor();
+        g.setColor(new Color(0, 0, 0, 0.5f));
+        g.fillRoundRect(dc.ScreenWidth-(dc.tilesize*5), dc.ScreenHeight-(dc.tilesize*2), dc.tilesize*4, dc.tilesize, 0);
+        int x = 0;
+        int y = 0;
+        for( int i = 0; i < dc.hero.getEquipped().length; i++ ){
+            if( dc.hero.getEquipped()[i] != null ){
+                x = dc.ScreenWidth-(dc.tilesize*(dc.hero.getEquipped().length+1));
+                y = dc.ScreenHeight-(dc.tilesize*2);
+                g.drawImage(dc.hero.getEquipped()[i].getImage(), x+(dc.tilesize*i), y);
+            }
+        }
+        g.setColor(Color.white);
+        g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
+        g.setColor(tmp);
+    }
+
+    /**
+     * Renders the codex on the players screen
+     * @param dc
+     * @param g
+     */
+    private void renderCodex(Main dc, Graphics g) {
+        if( displayCodex ){
+            //display this box next to the item box
+            //  if it is open
+            int x = dc.tilesize;
+            if( displayInventory ){
+                x *= 4;
+            }
+
+            renderItemBox(dc, g, "Codex", x, dc.tilesize, dc.tilesize * 10, dc.tilesize*8);
+
+            ArrayList<Item> items = dc.hero.getCodex();
+            int row = 2;
+            for( Item i : items ){
+                g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
+                Color tmp = g.getColor();
+                g.setColor(Color.white);
+                g.drawString(i.getMaterial()+" "+i.getType()+" of "+i.getEffect(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
+                g.setColor(tmp);
+                row++;
+            }
+        }
+    }
+
+    /**
+     * Render the players inventory
+     * @param dc
+     * @param g
+     */
+    private void renderInventory(Main dc, Graphics g) {
+        if( displayInventory ){
+            renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
+            ArrayList<Item> items = dc.hero.getInventory();
+            if( items.size() != 0 ){
+                int row = 2;
+                int col = 1;
+                for( int i = 0; i < items.size(); i++ ){
+                    g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
+                    col++;
+                    if( i > 4 && i % 4 == 0 ){
+                        row++;
+                        col = 1;
+                    }
+                }
+                //draw a square around the selected item
+                Color tmp = g.getColor();
+                g.setColor(Color.white);
+                g.drawRect(
+                        (itemx + 1)*dc.tilesize,
+                        (itemy + 2)*dc.tilesize,
+                        dc.tilesize,
+                        dc.tilesize
+                );
+                g.setColor(tmp);
+            }
+        }
+    }
+
+    /**
+     * Renders messages
+     * @param dc
+     * @param g
+     */
+    private void renderMessages(Main dc, Graphics g) {
+        for( Message m : messagebox ){
+            if( m != null ){
+                g.setColor(new Color(0, 0, 0, 0.5f));
+                g.fillRoundRect(25, dc.ScreenHeight-(20 * messagebox.length), 400, 20 * messagebox.length, 0);
+                g.setColor(Color.red);
+                break;
+            }
+        }
+
+        for( int i = 0; i < messagebox.length; i++ ){
+            if( messagebox[i] == null || messagebox[i].text == "" ){
+                break;
+            }
+            Color tmp = g.getColor();
+            //make the messages fade away based on their timers
+            g.setColor(new Color(255, 0, 0, (float) (messagebox[i].timer*2)/messageTimer));
+            g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
+            g.setColor(tmp);
+        }
+    }
+
+    /**
+     * Renders the visible items on the map
+     * @param dc
+     * @param g
+     */
+    private void renderItems(Main dc, Graphics g) {
+        // TODO get the players min/max vectors
+        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
+        g.setColor(Color.red);
+        for( Item i : itemsToRender){
+            //System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
+            //TODO: draw item images
+            //for now, use ovals
+            //g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
+
+            i.setPosition((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2));
+            i.render(g);
+        }
+    }
+
+    /**
+     * Renders new items which are being tested
+     * @param dc
+     * @param g
+     */
+    private void renderTestItems(Main dc, Graphics g) {
+        for (DisplayItem i : dc.testItems) {
+            i.render(g);
+        }
     }
 
     /*
