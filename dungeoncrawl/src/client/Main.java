@@ -145,6 +145,15 @@ public class Main extends StateBasedGame {
     boolean collisions;
     ArrayList<DisplayItem> testItems;
     Character hero;
+    public ArrayList<Character> characters;
+    ArrayList<Character> enemies;
+
+    // create an item manager
+    public static ItemManager im;
+    Entity[][] potions;
+    ArrayList<AnimateEntity> animations;
+
+
     
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
@@ -166,12 +175,7 @@ public class Main extends StateBasedGame {
     //displayed item name should be of the form "material type of effect" using whatever fields are filled in
     
     
-    // create an item manager
-    public static ItemManager im;
-    Entity[][] potions;
-    ArrayList<AnimateEntity> animations;
-    
-    public ArrayList<Character> characters;
+
 
 
     /**
@@ -197,6 +201,7 @@ public class Main extends StateBasedGame {
         this.dos = dos;
 
         characters = new ArrayList<>();
+        enemies = new ArrayList<>();
         testItems = new ArrayList<>(50);
 
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);    // set a rectangle

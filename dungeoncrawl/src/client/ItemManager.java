@@ -117,16 +117,18 @@ public class ItemManager {
 					throw new SlickException("Error: invalid potion color "+i.getMaterial());
 				}
 			}
-			
+
 			worldItems.add(i);
-			
+
 			currentItemID++;
-			
+
 			numItems--;
 		}
 
 	}
-	
+
+
+
 	public ArrayList<Item> itemsInRegion(Vector min, Vector max){
 		//return items in the specified region
 		ArrayList<Item> items = new ArrayList<Item>();

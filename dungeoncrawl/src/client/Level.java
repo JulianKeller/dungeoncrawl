@@ -7,6 +7,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
+import jig.Vector;
+
+import java.net.*;
+import java.io.*;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -16,6 +21,7 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import jig.Vector;
+
 
 public class Level extends BasicGameState {
     private Boolean paused;
@@ -165,16 +171,8 @@ public class Level extends BasicGameState {
 	        row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
 			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 		}
-        
-		/*
-        float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
-        float wy = (dc.tilesize * row) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
-        
-        dc.hero = new Character(dc, wx, wy, "dc.hero_iron", 1);
-        dc.characters.add(dc.hero);
-        */
+
         // map variables
-    	//Main dc = (Main) game;
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
@@ -182,7 +180,7 @@ public class Level extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
-        dc.hero = new Character(dc, wx, wy, "knight_iron", 1);
+        dc.hero = new Character(dc, wx, wy, "knight_iron", 1, false);
         dc.characters.add(dc.hero);
         currentOX = dc.hero.ox;
         currentOY = dc.hero.oy;
@@ -198,6 +196,21 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
 
+        dc.hero = new Character(dc, wx, wy, "knight_leather", 1, false);
+
+        wx = (dc.tilesize * 20) - dc.offset;
+        wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
+        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, true));
+
+        //dc.characters.add(dc.hero);
+        currentOX = dc.hero.ox;
+        currentOY = dc.hero.oy;
+
+        // render map
+        RenderMap.setMap(dc, dc.hero);
+
+
+
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
 
         // test items can be deleted
@@ -208,6 +221,13 @@ public class Level extends BasicGameState {
         dc.testItems.add(new DisplayItem((dc.tilesize * 7)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_wood"));
         dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_gold"));
         */
+
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 14)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_ice"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 15)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_poison"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 16)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_flame"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 17)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_normal"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_normal"));
+
         
         /*
         currentOrigin = dc.hero.origin;
@@ -292,10 +312,14 @@ public class Level extends BasicGameState {
             i.render(g);
         }
 
+
+        // TODO will need to sort the lists and draw in order
+        // draw other characters
+        renderCharacters(dc, g);
+
+        // draw the hero
         dc.hero.animate.render(g);
 
-        
-        
         //render messages
         for( Message m : messagebox ){
         	if( m != null ){
@@ -409,7 +433,21 @@ public class Level extends BasicGameState {
         //*/
         
     }
-    
+
+    /*
+    Renders the other characters and AI on the screen if they are in the players screen
+     */
+    private void renderCharacters(Main dc, Graphics g) {
+        for (Character ch : dc.characters) {
+            Vector sc = world2screenCoordinates(dc, ch);
+            ch.animate.setPosition(sc);
+            if (characterInRegion(dc, ch)) {
+                ch.animate.render(g);
+            }
+        }
+    }
+
+
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
     	Color tmp = g.getColor();
     	g.setColor(new Color(0, 0, 0, 0.5f));
@@ -419,10 +457,7 @@ public class Level extends BasicGameState {
     	
     	g.setColor(Color.white);
     	g.drawString(title, dc.tilesize + 10, dc.tilesize + 10);
-    	
-
     	g.setColor(tmp);
-
     }
 
 
@@ -569,6 +604,13 @@ public class Level extends BasicGameState {
         }
         
 
+        // cause AI players to move around
+        for( Character ch : dc.characters ) {
+            if (ch.ai) {        // if the player is an AI player, move them
+                ch.moveAI();
+            }
+        }
+
         //check if a character has hit an item
         for( Character ch : dc.characters ){
         	float x = (ch.animate.getX()/dc.tilesize);
@@ -687,46 +729,76 @@ public class Level extends BasicGameState {
        }
    }
    
-   public void updateOtherPlayers(Main dc){
-       String update = "";
-       boolean isRendered = false;
-       try {
-           update = dis.readUTF();
-            //Return if there are no other players.
-               if(update.equals("1")){
-                   //System.out.println("No other clients.");
-                   return;
-               }
-               //int num_characters = Integer.parseInt(update);
-               int id = 0;
-                   update = dis.readUTF();
-                   //System.out.println(update);
-                   id = Integer.parseInt(update.split(" ")[1]);
-                   // Go through and check to see if the character already exists.
-                   for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
-                       Character c = i.next();
-                       if (c.getPid() == id) {
-                           c.animate.setPosition(Float.parseFloat(update.split(" ")[2]),
-                                   Float.parseFloat(update.split(" ")[3]));
-                           isRendered = true;
-                           break;
-                       }
-                   }
-                   if (!isRendered) {
-                       Float wx = Float.parseFloat(update.split(" ")[2]);
-                       Float wy = Float.parseFloat(update.split(" ")[3]);
-                       String type = update.split(" ")[0];
-                       dc.characters.add(new Character(dc, wx, wy, type, id));
-                       return;
-                   }
+
+    public void updateOtherPlayers(Main dc){
+        String update = "";
+        boolean isRendered = false;
+        try {
+            update = dis.readUTF();
+             //Return if there are no other players.
+                if(update.equals("1")){
+                    //System.out.println("No other clients.");
+                    return;
+                }
+                int num_characters = Integer.parseInt(update);
+                int id = 0;
+                    update = dis.readUTF();
+                    //System.out.println(update);
+                    id = Integer.parseInt(update.split(" ")[1]);
+                    // Go through and check to see if the character already exists.
+                    for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
+                        Character c = i.next();
+                        if (c.getPid() == id) {
+                            c.animate.setPosition(Float.parseFloat(update.split(" ")[2]),
+                                    Float.parseFloat(update.split(" ")[3]));
+                            isRendered = true;
+                            break;
+                        }
+                    }
+                    if (!isRendered) {
+                        Float wx = Float.parseFloat(update.split(" ")[2]);
+                        Float wy = Float.parseFloat(update.split(" ")[3]);
+                        String type = update.split(" ")[0];
+                        dc.characters.add(new Character(dc, wx, wy, type, id, false));
+                        return;
+                    }
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+    }
 
 
+    /**
+     * Check if the Character is in the Hero's screen +- one tile wide and high
+     * @param dc the Main class
+     * @param ch the Character instance to check if it is in region
+     * @return true if the ch is in screen, else false
+     */
+    public boolean characterInRegion(Main dc, Character ch){
+        float maxX = (dc.tilesize * dc.tilesWide) + dc.hero.pixelX + dc.tilesize;
+        float maxY = (dc.tilesize * dc.tilesWide) + dc.hero.pixelY + dc.tilesize;
+        float minX = dc.hero.pixelX - dc.tilesize;
+        float minY = dc.hero.pixelY - dc.tilesize;
+        Vector wc = ch.getWorldCoordinates();
+        return minX <= wc.getX() && wc.getX() <= maxX && minY <= wc.getY() && wc.getY() <= maxY;
+    }
 
 
-       } catch(IOException e){
-           e.printStackTrace();
-       }
-   }
+    /**
+     * @param dc Main class
+     * @param ai an AI character
+     * TODO update the ai characters from the render method
+     *      only care about keeping track of enemies world position.
+     *      Then in the render method, I convert world coordinates to screen coordinates
+     *      If the ai is in the screen, then render, else don't render
+     */
+    public Vector world2screenCoordinates(Main dc, Character ai) {
+        // screen coords = AI world coords - Hero's Screen Origin
+        float sx = ai.getWorldCoordinates().getX() - dc.hero.pixelX;
+        float sy = ai.getWorldCoordinates().getY() - dc.hero.pixelY;
+        return new Vector(sx, sy);
+    }
+
 
     /**
      * Reads the new player coordinates and walks the player accordingly.
