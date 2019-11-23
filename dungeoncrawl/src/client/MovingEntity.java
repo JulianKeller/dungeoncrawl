@@ -11,8 +11,8 @@ import java.util.Random;
 import org.newdawn.slick.SlickException;
 
 public class MovingEntity extends Entity {
-    private int hitPoints;
-    private int startingHitPoints = -1;
+    private float hitPoints;
+    private float startingHitPoints = -1;
     private int armorPoints;
     private int initialArmorPoints = -1;
     private int mana;
@@ -215,7 +215,7 @@ Reflection:
     			//  and its starting HP, then add 25% of that to the
     			//  current value
     			if( startingHitPoints > hitPoints ){
-	    			int diff = startingHitPoints - hitPoints;
+	    			float diff = startingHitPoints - hitPoints;
 	    			hitPoints += (diff*0.25);
     			}
     			
@@ -225,8 +225,11 @@ Reflection:
     			//this should only happen once
     			
     		}else if( e.name.equals("Flame") ){
-    			//decrease health by 10
-    			hitPoints -= 10;
+    			//decrease health by 10 every second
+    			//	want to lose 10 hp per second
+    			//	assume 60 frames per second
+    			//	10/60 = amount of hp lost per frame
+    			hitPoints -= ( (float) 10/60);
     			
     		}else if( e.name.equals("Mana") ){
     			//add 15% to the current maximum mana
@@ -237,8 +240,8 @@ Reflection:
     			//  just set a boolean value
     			invisible = true;
     		}else if( e.name.equals("Poisoned") ){
-    			//decrease health by 5
-    			hitPoints -= 5;
+    			//decrease health by 5 every second
+    			hitPoints -= ( (float) 5/60);
     			
     		}else if( e.name.equals("Ice") ){
     			//set movement speed to zero
@@ -457,7 +460,7 @@ Reflection:
         	startingHitPoints = hitPoints;
         }
     }
-    public int getHitPoints(){
+    public float getHitPoints(){
         return hitPoints;
     }
 
