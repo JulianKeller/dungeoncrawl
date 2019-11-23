@@ -34,7 +34,7 @@ Draw Gloves
 [15] - render multiple random maps and save them
 [16] - fix map loading file error
 [19] - set animation speed based on characters move speed, math problem
-
+[23] - make items stay in place when player scrolls on screen
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
