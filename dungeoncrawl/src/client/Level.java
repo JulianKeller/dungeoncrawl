@@ -429,17 +429,20 @@ public class Level extends BasicGameState {
      * @param g
      */
     private void renderItems(Main dc, Graphics g) {
-        // TODO get the players min/max vectors
-        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
+        // get the items in range
+        Vector wc;
+        ArrayList<Item> worldItems = Main.im.getWorldItems();
         g.setColor(Color.red);
-        for( Item i : itemsToRender){
-            //System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
-            //TODO: draw item images
-            //for now, use ovals
-            //g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
-
-            i.setPosition((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2));
-            i.render(g);
+        for (Item i : worldItems) {
+            // convert the world tile coordinates to world pixel coordinates
+            wc = new Vector((i.getWorldCoordinates().getX() * dc.tilesize) + (float) (dc.tilesize / 2),
+                    (i.getWorldCoordinates().getY() * dc.tilesize) + (float) (dc.tilesize / 2));
+            // draw the objects on the screen
+            if (objectInRegion(dc, wc)) {
+                Vector sc = world2screenCoordinates(dc, wc);
+                i.setPosition(sc);
+                i.render(g);
+            }
         }
     }
 
@@ -459,7 +462,7 @@ public class Level extends BasicGameState {
      */
     private void renderCharacters(Main dc, Graphics g) {
         for (Character ch : dc.characters) {
-            Vector sc = world2screenCoordinates(dc, ch);
+            Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
             ch.animate.setPosition(sc);
             if (characterInRegion(dc, ch)) {
                 ch.animate.render(g);
@@ -491,23 +494,22 @@ public class Level extends BasicGameState {
         if (paused) {
             return;
         }
+        // move the hero
         dc.hero.move(getKeystroke(input));
-        /*
-        if (currentOrigin.getX() != dc.hero.origin.getX() && currentOrigin.getY() != dc.hero.origin.getY()) {
-            RenderMap.setMap(dc, dc.hero.origin);
-            currentOrigin = dc.hero.origin;
-        }
-        */
-        
-        if( input.isKeyPressed(Input.KEY_I) ){
-        	displayInventory = !displayInventory;
-        	displayCodex = false;
-        }
+
+
+
+        // display codex
         if( input.isKeyPressed(Input.KEY_O) ){
         	displayCodex = !displayCodex;
         	displayInventory = false;
         }
-        
+
+        // display inventory
+        if( input.isKeyPressed(Input.KEY_I) ){
+            displayInventory = !displayInventory;
+            displayCodex = false;
+        }
         if( displayInventory ){
         	if( input.isKeyPressed(Input.KEY_UP) ){
         		//selectedItem.setY(selectedItem.getY()-1);
@@ -529,8 +531,7 @@ public class Level extends BasicGameState {
         			addMessage(m);
         		}
         	}
-        	
-        	
+
         	if( itemx < 0 ){
         		itemx = 0;
         	}
@@ -584,7 +585,7 @@ public class Level extends BasicGameState {
         			i.identify();
         		}
         		
-        	}else if( input.isKeyPressed(Input.KEY_BACKSLASH) ){
+        	} else if( input.isKeyPressed(Input.KEY_BACKSLASH) ){
         		
         		
         		Item itm = dc.hero.getEquipped()[selectedEquippedItem];
@@ -607,6 +608,7 @@ public class Level extends BasicGameState {
         		System.out.println("Locked dropped item.");
     
         		//add the item to the render list
+                // TODO may need to be changed to be added to worldItems
         		itemsToRender.add(itm);
         		
         		addMessage("Dropped "+dc.hero.getEquipped()[selectedEquippedItem]+".");
@@ -805,17 +807,47 @@ public class Level extends BasicGameState {
 
 
     /**
+     * Check if the object is in the Hero's screen +- one tile wide and high
+     * @param dc the Main class
+     * @param wc The world coordinate vector of the object
+     * @return true if the ch is in screen, else false
+     */
+    public boolean objectInRegion(Main dc, Vector wc){
+        float maxX = (dc.tilesize * dc.tilesWide) + dc.hero.pixelX + dc.tilesize;
+        float maxY = (dc.tilesize * dc.tilesWide) + dc.hero.pixelY + dc.tilesize;
+        float minX = dc.hero.pixelX - dc.tilesize;
+        float minY = dc.hero.pixelY - dc.tilesize;
+        return minX <= wc.getX() && wc.getX() <= maxX && minY <= wc.getY() && wc.getY() <= maxY;
+    }
+
+
+//    /**
+//     * @param dc Main class
+//     * @param ai an AI character
+//     * TODO update the ai characters from the render method
+//     *      only care about keeping track of enemies world position.
+//     *      Then in the render method, I convert world coordinates to screen coordinates
+//     *      If the ai is in the screen, then render, else don't render
+//     */
+//    public Vector world2screenCoordinates(Main dc, Character ai) {
+//        // screen coords = AI world coords - Hero's Screen Origin
+//        float sx = ai.getWorldCoordinates().getX() - dc.hero.pixelX;
+//        float sy = ai.getWorldCoordinates().getY() - dc.hero.pixelY;
+//        return new Vector(sx, sy);
+//    }
+
+    /**
      * @param dc Main class
-     * @param ai an AI character
+     * @param wc worldCoordinates vector of the object to render
      * TODO update the ai characters from the render method
      *      only care about keeping track of enemies world position.
      *      Then in the render method, I convert world coordinates to screen coordinates
      *      If the ai is in the screen, then render, else don't render
      */
-    public Vector world2screenCoordinates(Main dc, Character ai) {
+    public Vector world2screenCoordinates(Main dc, Vector wc) {
         // screen coords = AI world coords - Hero's Screen Origin
-        float sx = ai.getWorldCoordinates().getX() - dc.hero.pixelX;
-        float sy = ai.getWorldCoordinates().getY() - dc.hero.pixelY;
+        float sx = wc.getX() - dc.hero.pixelX;
+        float sy = wc.getY() - dc.hero.pixelY;
         return new Vector(sx, sy);
     }
 
