@@ -183,7 +183,7 @@ public class Level extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
-        dc.hero = new Character(dc, wx, wy, "knight_iron", 1);
+        dc.hero = new Character(dc, wx, wy, "knight_iron", 1, this);
         dc.characters.add(dc.hero);
         currentOX = dc.hero.ox;
         currentOY = dc.hero.oy;
@@ -751,7 +751,7 @@ public class Level extends BasicGameState {
                        Float wx = Float.parseFloat(update.split(" ")[2]);
                        Float wy = Float.parseFloat(update.split(" ")[3]);
                        String type = update.split(" ")[0];
-                       dc.characters.add(new Character(dc, wx, wy, type, id));
+                       dc.characters.add(new Character(dc, wx, wy, type, id, this));
                        return;
                    }
 

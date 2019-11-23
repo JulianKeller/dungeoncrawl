@@ -37,6 +37,8 @@ public class MovingEntity extends Entity {
     //random number generator
     private Random rand = new Random();
     
+    //provides ability to add messages to the level
+    private Level currentLevel;
    
     
     private ArrayList<Effect> activeEffects; //list of things currently affecting the character
@@ -54,8 +56,12 @@ public class MovingEntity extends Entity {
      * @param wx starting world x coordinate
      * @param wy starting world y coordinate
      */
-    public MovingEntity(final float wx, final float wy, int pid) {
+    public MovingEntity(final float wx, final float wy, int pid, Level level) {
         super(wx, wy);
+        
+        currentLevel = level;
+        
+        
         hitPoints = 0;
         //startingHitPoints = hitPoints;
         armorPoints = 0;
@@ -85,8 +91,13 @@ public class MovingEntity extends Entity {
      * @param wc Vector for starting world coordinates of the moving entity
      * @param pid entity's id.
      */
-    public MovingEntity(Vector wc, int pid) {
+    public MovingEntity(Vector wc, int pid, Level level) {
         super(wc.getX(), wc.getY());
+        
+        
+        currentLevel = level;
+        
+        
         hitPoints = 0;
         //startingHitPoints = hitPoints;
         armorPoints = 0;

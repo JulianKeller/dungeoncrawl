@@ -25,8 +25,8 @@ public class Character extends MovingEntity {
      * @param type entity animation to get "knight_leather" for example see the AnimateEntity Class
      * @param id   id for MovingEntity
      */
-    public Character(Main dc, final float wx, final float wy, String type, int id) {
-        super(wx, wy, id);
+    public Character(Main dc, final float wx, final float wy, String type, int id, Level level) {
+        super(wx, wy, id, level);
         this.dc = dc;
         this.type = type;
         setStats();
@@ -47,10 +47,11 @@ public class Character extends MovingEntity {
      * @param type 'K'night, 'M'age, 'A'rcher, 'T'ank
      * @param id   id for MovingEntity
      */
-    public Character(Vector wc, String type, int id) {
-        super(wc, id);
+    public Character(Vector wc, String type, int id, Level level) {
+        super(wc, id, level);
         this.type = type;
         setStats();
+        
     }
     
 
