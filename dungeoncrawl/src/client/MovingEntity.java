@@ -28,6 +28,7 @@ public class MovingEntity extends Entity {
     private Vector worldCoordinates;
     private int animationSpeed;
     private int initialMovementSpeed;
+    private int initialAnimationSpeed = -1;
     private int movementSpeed;
     private int pid;
     private ArrayList<Item> inventory;
@@ -67,7 +68,7 @@ public class MovingEntity extends Entity {
         //startingHitPoints = hitPoints;
         armorPoints = 1;
         worldCoordinates = new Vector(wx, wy);
-        animationSpeed = 0;
+        animationSpeed = 1;
         initialMovementSpeed = movementSpeed = 1;
         
         mana = 0;
@@ -103,7 +104,7 @@ public class MovingEntity extends Entity {
         //startingHitPoints = hitPoints;
         armorPoints = 0;
         worldCoordinates = wc;
-        animationSpeed = 0;
+        animationSpeed = 1;
         initialMovementSpeed = movementSpeed = 1;
         mana = 0;
         strength = 1;
@@ -157,7 +158,7 @@ public class MovingEntity extends Entity {
     		if( e.timer <= 0 ){
     			//set special exit properties
     			//  for certain effects
-    			if( e.name.equals("Swiftness") || e.name.equals("Ice") ){
+    			if( e.name.equals("Swiftness") || e.name.equals("Ice") ){	
     				//reset to initial movement speed
     				movementSpeed = initialMovementSpeed;
     			}
@@ -242,6 +243,8 @@ Reflection:
     		}else if( e.name.equals("Ice") ){
     			//set movement speed to zero
     			movementSpeed = 0;
+    			//animationSpeed = 0;
+    			
     		}else if( e.name.equals("Lightning") ){
     			//roll 30% change to take 20 damage
     			rand.setSeed(System.nanoTime());
@@ -486,6 +489,9 @@ Reflection:
             return;
         }
         animationSpeed = sp;
+        if( initialAnimationSpeed == -1 ){
+        	initialAnimationSpeed = sp;
+        }
     }
     
     public void setMovementSpeed(int sp){
