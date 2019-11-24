@@ -50,6 +50,7 @@ public class PathFinding {
             relax(map, current, left);
             relax(map, current, right);
         }
+        System.out.println("-------------------------------------------------");
         return findShortestPath();
     }
 
@@ -117,8 +118,11 @@ public class PathFinding {
         if (!inRange(current) || !inRange(adjacent))
             return;
 
-        int weight = map[ax][ay];
-        if (weight == 1) {
+        // TODO here seems to be the problem
+        int weight = 1;
+//        if (weight < 0)
+//            System.out.printf("map[%s][%s] = %s\n", ax, ay, weight);
+        if (map[ax][ay] == 1) {
             weight = Integer.MAX_VALUE;
         }
         if (distance[ax][ay] > distance[cx][cy] + weight) {
@@ -147,6 +151,10 @@ public class PathFinding {
         System.out.println();
     }
 
+    public float[][] getWeights() {
+        return distance;
+    }
+
     // comparator for vertices
     public static Comparator<Vertex> vertexcmp = new Comparator<Vertex>() {
         @Override
@@ -167,6 +175,8 @@ public class PathFinding {
             this.distance = Math.abs(startX - x) + Math.abs(startY - y);
         }
     }
+
+
 
 
 }

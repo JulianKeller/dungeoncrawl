@@ -25,6 +25,7 @@ public class Character extends MovingEntity {
     float dy = 0f;      // delta y
     ArrayList<int[]> shortest;
     ArrayList<Arrow> arrows;
+    float[][] weights;
 
     /**
      * Create a new Character (wx, wy)
@@ -234,6 +235,7 @@ public class Character extends MovingEntity {
         if (dc.showPath) {
             Arrow.removeArrows(this);
             Arrow.loadPathArrows(dc, this);
+            weights = find.getWeights();
         }
         // move based on the shortest path
 

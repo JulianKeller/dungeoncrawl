@@ -161,8 +161,8 @@ public class Level extends BasicGameState {
         dc.hero = new Character(dc, wx, wy, "knight_iron", 1, false);
 
         // setup a skeleton enemy
-        wx = (dc.tilesize * 20) - dc.offset;
-        wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
+        wx = (dc.tilesize * 8) - dc.offset;
+        wy = (dc.tilesize * 8) - dc.tilesize - dc.doubleOffset;
         dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, true));
 
         // render map
@@ -283,7 +283,9 @@ public class Level extends BasicGameState {
 
         if (dc.showPath) {
             renderShortestPath(dc, g);
+            renderPathWeights(dc, g);
         }
+
     }
 
     /** Renders the AI's shortest path
@@ -296,6 +298,32 @@ public class Level extends BasicGameState {
                 Vector sc = world2screenCoordinates(dc, a.getWorldCoordinates());
                 a.setPosition(sc);
                 a.render(g);
+            }
+        }
+    }
+
+    private void renderPathWeights(Main dc, Graphics g) {
+        for (Character ai : dc.characters) {
+            if (ai.weights != null) {
+                for (int i = 0; i < ai.weights[0].length; i++) {
+                    for (int j = 0; j < ai.weights.length; j++) {
+                        Color tmp = g.getColor();
+
+                        //make the messages fade away based on their timers
+                        String msg = String.valueOf((int) ai.weights[j][i]);
+                        g.setColor(new Color(255, 255, 255, .6f));
+                        g.scale(.5f, .5f);
+
+//                        if (ai.weights[j][i] == 0) {
+                        Vector wc = new Vector(2 * j * dc.tilesize, 2 * i * dc.tilesize);
+                        Vector sc = world2screenCoordinates(dc, wc);
+                        g.drawString(msg, sc.getX(), sc.getY());
+//                        }
+
+                        g.scale(2f, 2f);
+                        g.setColor(tmp);
+                    }
+                }
             }
         }
     }
