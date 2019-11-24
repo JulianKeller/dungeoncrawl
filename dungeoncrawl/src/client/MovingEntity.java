@@ -168,7 +168,17 @@ public class MovingEntity extends Entity {
     	//special exit behavior
     	if( name.equals("Iron Skin") ){
     		armorPoints = initialArmorPoints;
-    	}
+    	}else if( name.equals("Stench") ){
+			stinky = false;
+		}else if( name.equals("Thorns")){
+			thorny = false;
+		}else if( name.equals("Fright") ){
+			frightening = false;
+		}else if( name.equals("Invisibility") ){
+			invisible = false;
+		}else if( name.equals("Reflection") ){
+			reflecting = false;
+		}
     }
     
     /**
@@ -194,6 +204,18 @@ public class MovingEntity extends Entity {
     				//  every time its timer runs out (effect should be
     				//    manually removed when the armor is taken off)
     				effectsToAdd.add("Iron Skin");
+    			}else if( e.name.equals("Stench") ){
+    				effectsToAdd.add("Stench");
+    			}else if( e.name.equals("Regeneration")){
+    				effectsToAdd.add("Regeneration");
+    			}else if( e.name.equals("Thorns")){
+    				effectsToAdd.add("Thorns");
+    			}else if( e.name.equals("Fright") ){
+    				effectsToAdd.add("Fright");
+    			}else if( e.name.equals("Might") ){
+    				effectsToAdd.add("Might");
+    			}else if( e.name.equals("Reflection") ){
+    				effectsToAdd.add("Reflection");
     			}
     		}
     	}
