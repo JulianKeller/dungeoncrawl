@@ -15,7 +15,7 @@ public class MovingEntity extends Entity {
     private float startingHitPoints = -1;
     private int armorPoints;
     private int initialArmorPoints = -1;
-    private int mana;
+    private float mana;
     private int strength; //determines what level of items the player can pick up
     
     //boolean effects for AI
@@ -375,7 +375,8 @@ Reflection:
 		 */ 
 		activeEffects.removeIf(b -> b.name.equals("Strength") || 
 									b.name.equals("Healing") ||
-									b.name.equals("Lightning") );
+									b.name.equals("Lightning") ||
+									b.name.equals("Mana"));
 					
     }
 
@@ -545,7 +546,7 @@ Reflection:
     public void setMana(int m){
         mana = m;
     }
-    public int getMana(){
+    public float getMana(){
         return mana;
     }
     public int getStrength(){
