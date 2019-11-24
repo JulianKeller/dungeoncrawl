@@ -9,9 +9,6 @@ import java.util.Random;
 
 import jig.Vector;
 
-import java.net.*;
-import java.io.*;
-
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -19,8 +16,6 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-
-import jig.Vector;
 
 
 public class Level extends BasicGameState {
@@ -166,8 +161,8 @@ public class Level extends BasicGameState {
         dc.hero = new Character(dc, wx, wy, "knight_iron", 1, false);
 
         // setup a skeleton enemy
-        wx = (dc.tilesize * 20) - dc.offset;
-        wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
+        wx = (dc.tilesize * 8) - dc.offset;
+        wy = (dc.tilesize * 8) - dc.tilesize - dc.doubleOffset;
         dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, true));
 
         // render map
@@ -285,8 +280,59 @@ public class Level extends BasicGameState {
         renderEquippedItems(dc, g);
 
 //         renderDebug(dc, g);
+
+        if (dc.showPath) {
+            renderShortestPath(dc, g);
+            renderPathWeights(dc, g);
+        }
+
     }
 
+    /** Renders the AI's shortest path
+     *
+     */
+    private void renderShortestPath(Main dc, Graphics g) {
+        // only load arrows if the player wants to show the dijkstra's path
+        for (Character ai : dc.characters) {
+            for (Arrow a : ai.arrows) {
+                Vector sc = world2screenCoordinates(dc, a.getWorldCoordinates());
+                a.setPosition(sc);
+                a.render(g);
+            }
+        }
+    }
+
+    private void renderPathWeights(Main dc, Graphics g) {
+        for (Character ai : dc.characters) {
+            if (ai.weights != null) {
+                for (int i = 0; i < ai.weights[0].length; i++) {
+                    for (int j = 0; j < ai.weights.length; j++) {
+                        Color tmp = g.getColor();
+
+                        //make the messages fade away based on their timers
+                        String msg = String.valueOf((int) ai.weights[j][i]);
+                        g.setColor(new Color(255, 255, 255, 1f));
+                        g.scale(.5f, .5f);
+
+
+                        Vector wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize);
+                        Vector sc = world2screenCoordinates(dc, wc);
+                        g.drawString(msg, sc.getX(), sc.getY());
+
+                        // draw x, y tile values
+//                        wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize + dc.offset);
+//                        sc = world2screenCoordinates(dc, wc);
+//                        msg = "(" + String.valueOf(i) + "," + String.valueOf(j) + ")";
+//                        g.drawString(msg, sc.getX(), sc.getY());
+
+
+                        g.scale(2f, 2f);
+                        g.setColor(tmp);
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Render debug information on the screen
@@ -297,7 +343,6 @@ public class Level extends BasicGameState {
         for( int i = 0; i < dc.map.length; i++ ){
         	for( int j = 0; j < dc.map[i].length; j++ ){
         		g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
-        		//i is y, j is x
         	}
         }
 

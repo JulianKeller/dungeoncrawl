@@ -2,6 +2,7 @@ package client;
 
 import jig.Vector;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Character extends MovingEntity {
@@ -22,6 +23,9 @@ public class Character extends MovingEntity {
     private int newy;   // next origin y
     float dx = 0f;      // delta x
     float dy = 0f;      // delta y
+    ArrayList<int[]> shortest;
+    ArrayList<Arrow> arrows;
+    float[][] weights;
 
     /**
      * Create a new Character (wx, wy)
@@ -32,7 +36,7 @@ public class Character extends MovingEntity {
      * @param AI: true if this is an AI character
      */
     public Character(Main dc, final float wx, final float wy, String type, int id, boolean AI) {
-        super(wx, wy, id);
+        super(dc, wy, id, wx);
         this.dc = dc;
         this.type = type;
         setStats();
@@ -47,6 +51,8 @@ public class Character extends MovingEntity {
         setSpeed(50);       // speed of the animation
         moveSpeed = 2;      // speed that character moves across the screen
         ai = AI;            //
+        shortest = new ArrayList<>();
+        arrows = new ArrayList<>();
     }
 
 
@@ -205,22 +211,49 @@ public class Character extends MovingEntity {
      *
      */
     public void moveAI() {
-//        if(true)
-//            return;
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
+        String currentDirection = direction;
         // moved the character fixed to the grid
         if (!canMove) {
             moveTranslationHelper(getWorldCoordinates());
             return;
         }
-        int rand = new Random().nextInt(moves.length);
-        String currentDirection = direction;
-        direction = moves[rand];
 
-        if (direction.equals("wait")) {
-            animate.stop();
-            return;
+        // run dijkstra's so enemies attack the player
+        PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), dc.hero.getTileWorldCoordinates());
+        int startX = (int) getTileWorldCoordinates().getX();
+        int startY = (int) getTileWorldCoordinates().getY();
+
+        shortest = find.dijkstra(dc, startX, startY);
+
+        System.out.println("Hero: " + dc.hero.getTileWorldCoordinates());
+        System.out.println("AI: " + getTileWorldCoordinates());
+        PathFinding.printShortestPath(shortest);
+        System.out.println();
+
+        // load arrows for dijkstra's debugging
+        if (dc.showPath) {
+            Arrow.removeArrows(this);
+            Arrow.loadPathArrows(dc, this);
+            weights = find.getWeights();
         }
+        // move based on the shortest path
+
+        String next = getNextDirection(dc);
+        if (next != null) {
+            direction = next;
+        }
+        else {
+            // get a random direction to move in
+            int rand = new Random().nextInt(moves.length);
+            direction = moves[rand];
+            if (direction.equals("wait")) {
+                animate.stop();
+                return;
+            }
+        }
+
+
 
         // TODO this can be simplified
         String movement = null;
@@ -274,6 +307,39 @@ public class Character extends MovingEntity {
         }
     }
 
+
+
+    // get next direction based on Dijkstra shortest path
+    public String getNextDirection(Main dc) {
+        if (shortest.isEmpty() || shortest.size() < 2) {
+            return null;
+        }
+//        int px = (int) dc.hero.getWorldCoordinates().getX() / dc.tilesize - 1;
+//        int py = (int) dc.hero.getWorldCoordinates().getY() / dc.tilesize;
+        int px = (int) getTileWorldCoordinates().getX();
+        int py = (int) getTileWorldCoordinates().getY();
+        String dir = null;
+
+        int[] v = shortest.get(1);
+        int x = v[0];
+        int y = v[1];
+        if (x == px && y == py) {
+            v = shortest.get(2);
+            x = v[0];
+            y = v[1];
+            dir = "wait";
+        }
+        else if (x > px) {
+            dir = "walk_right";
+        } else if (x < px) {
+            dir = "walk_left";
+        } else if (y > py) {
+            dir = "walk_down";
+        } else if (y < py) {
+            dir = "walk_up";
+        }
+        return dir;
+    }
 
     /**
      This method updates the characters position such that it is a smooth transition without jumps. It is
@@ -477,35 +543,6 @@ public class Character extends MovingEntity {
         float wy = (oy * dc.tilesize) + sc.getY();
         setWorldCoordinates(wx, wy);    // world coordinates
     }
-
-
-    /**
-     * Translates the ai's screen position when the player scrolls on screen
-     *
-     * @param dx The new x screen position
-     * @param dy The new y screen position
-     */
-//    private void updateAIscreenPosition(float dx, float dy) {
-//        Vector position = animate.getPosition();
-////        System.out.println("Position is: " + position);
-////
-////
-////        animate.setPosition(position.getX() + dx*-1, position.getY() + dy*-1);      // screen coordinates
-////        System.out.println("Updated position is: " + animate.getPosition());
-////        System.out.println();
-//
-//
-//
-//        // set the position but convert the world coordinates to screen coordinates first
-//        if (dc.hero.animate.isActive()) {
-//            Vector sc = world2screenCoordinates(getWorldCoordinates());
-//            animate.setPosition(sc);
-//        }
-//        else {
-//            animate.setPosition(position.getX() + dx, position.getY() + dy);      // screen coordinates
-//        }
-//    }
-
 
 
 }

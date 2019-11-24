@@ -1,12 +1,13 @@
 package client;
 
 import java.util.*;
+import jig.Vector;
 
 // an implementation of Dijkstra's algorithm
 public class PathFinding {
     private float[][] distance;
     private int[][][] path;
-    private Boolean[][] visited;
+    private boolean[][] visited;
     private ArrayList<Vertex> q;
     private int y;
     private int x;
@@ -16,42 +17,41 @@ public class PathFinding {
     private int startY;
     private final int MAX = 20000;
 
-//    public client.PathFinding(Game dtc, int startX, int startY, int targetX, int targetY) {
-//        client.Wall[][] map = dtc.map;
-//        this.x = map.length - 1;
-//        this.y = map[0].length;
-//        this.targetX = targetX;
-//        this.targetY = targetY;
-//        this.startX = startX;
-//        this.startY = startY;
-//    }
-//
-//    // runs dijkstra's and then returns the shortest found path
-//    public ArrayList<int[]> dijkstra(Game dtc, int startX, int startY) {
-//        client.Wall[][] map = dtc.map;
-//        Vertex min;
-//        initializeSingleSource(startX, startY);
-//        int[] current;
-//        int[] up;
-//        int[] down;
-//        int[] left;
-//        int[] right;
-//        initializeQueue(startX, startY);
-//        while (q.size() > 0) {
-//            min = q.get(0);
-//            current = new int[]{min.x, min.y};
-//            q.remove(0);
-//            up = new int[]{min.x, min.y + 1};
-//            down = new int[]{min.x, min.y - 1};
-//            left = new int[]{min.x - 1, min.y};
-//            right = new int[]{min.x + 1, min.y};
-//            relax(map, current, up);
-//            relax(map, current, down);
-//            relax(map, current, left);
-//            relax(map, current, right);
-//        }
-//        return findShortestPath();
-//    }
+    public PathFinding(Main dc, Vector start, Vector target) {
+        this.x = dc.map.length - 1;
+        this.y = dc.map[0].length;
+        this.targetX = (int) target.getX();
+        this.targetY = (int) target.getY();
+        this.startX = (int) start.getX();
+        this.startY = (int) start.getY();
+    }
+
+    // runs dijkstra's and then returns the shortest found path
+    public ArrayList<int[]> dijkstra(Main dc, int startX, int startY) {
+        int[][] map = dc.map;
+        Vertex min;
+        initializeSingleSource(startX, startY);
+        int[] current;
+        int[] up;
+        int[] down;
+        int[] left;
+        int[] right;
+        initializeQueue(startX, startY);
+        while (q.size() > 0) {
+            min = q.get(0);
+            current = new int[]{min.x, min.y};
+            q.remove(0);
+            up = new int[]{min.x, min.y + 1};
+            down = new int[]{min.x, min.y - 1};
+            left = new int[]{min.x - 1, min.y};
+            right = new int[]{min.x + 1, min.y};
+            relax(map, current, up);
+            relax(map, current, down);
+            relax(map, current, left);
+            relax(map, current, right);
+        }
+        return findShortestPath();
+    }
 
     // find the shortest path from Dijkstra
     private ArrayList<int[]> findShortestPath() {
@@ -64,6 +64,7 @@ public class PathFinding {
         prevy = targetY;
         int count = 0;
         while (count < 200) {
+            //stop dijkstra's early if we found the player
             if (prevx == startX && prevy == startY) {
                 break;
             }
@@ -97,7 +98,7 @@ public class PathFinding {
     private void initializeSingleSource(int startX, int startY) {
         distance = new float[x][y];
         path = new int[x][y][2];
-        visited = new Boolean[x][y];
+        visited = new boolean[x][y];
         for (int j = 0; j < y; j++) {
             for (int i = 0; i < x; i++) {
                 distance[i][j] = MAX;
@@ -109,26 +110,24 @@ public class PathFinding {
     }
 
     // current = u, adjacent = v
-//    private void relax(client.Wall[][] map, int[] current, int[] adjacent) {
-//        int cx = current[0];
-//        int cy = current[1];
-//        int ax = adjacent[0];
-//        int ay = adjacent[1];
-//        if (!inRange(current) || !inRange(adjacent))
-//            return;
-//
-//        // TODO consider multiplying the health by a value to consider time to destroy bricks
-//        float weight = 1;
-//        if (map[ax][ay] != null) {
-//            weight = map[ax][ay].health * 100;
-//            if (weight < 0)
-//                weight = Integer.MAX_VALUE;
-//        }
-//        if (distance[ax][ay] > distance[cx][cy] + weight) {
-//            distance[ax][ay] = distance[cx][cy] + weight;
-//            path[ax][ay] = current;
-//        }
-//    }
+    private void relax(int[][] map, int[] current, int[] adjacent) {
+        int cx = current[0];
+        int cy = current[1];
+        int ax = adjacent[0];
+        int ay = adjacent[1];
+        if (!inRange(current) || !inRange(adjacent))
+            return;
+
+        // TODO here seems to be the problem
+        int weight = 1;
+        if (map[ax][ay] == 1) {
+            weight = Integer.MAX_VALUE;
+        }
+        if (distance[ax][ay] > distance[cx][cy] + weight) {
+            distance[ax][ay] = distance[cx][cy] + weight;
+            path[ax][ay] = current;
+        }
+    }
 
     // make sure everything is in range of the map
     private Boolean inRange(int[] vertex) {
@@ -148,6 +147,10 @@ public class PathFinding {
             System.out.printf("[%s, %s] -> ", x, y);
         }
         System.out.println();
+    }
+
+    public float[][] getWeights() {
+        return distance;
     }
 
     // comparator for vertices
@@ -170,6 +173,8 @@ public class PathFinding {
             this.distance = Math.abs(startX - x) + Math.abs(startY - y);
         }
     }
+
+
 
 
 }
