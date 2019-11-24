@@ -24,6 +24,7 @@ public class Character extends MovingEntity {
     float dx = 0f;      // delta x
     float dy = 0f;      // delta y
     ArrayList<int[]> shortest;
+    ArrayList<Arrow> arrows;
 
     /**
      * Create a new Character (wx, wy)
@@ -50,6 +51,7 @@ public class Character extends MovingEntity {
         moveSpeed = 2;      // speed that character moves across the screen
         ai = AI;            //
         shortest = new ArrayList<>();
+        arrows = new ArrayList<>();
     }
 
 
@@ -223,7 +225,14 @@ public class Character extends MovingEntity {
 
         shortest = find.dijkstra(dc, startX, startY);
 
+        System.out.println("Hero: " + dc.hero.getTileWorldCoordinates());
+        System.out.println("AI: " + getTileWorldCoordinates());
         PathFinding.printShortestPath(shortest);
+        System.out.println();
+
+        // load arrows for dijkstra's debugging
+        Arrow.removeArrows(this);
+        Arrow.loadPathArrows(dc, this);
         // move based on the shortest path
 
         String next = getNextDirection(dc);
@@ -298,30 +307,32 @@ public class Character extends MovingEntity {
 
     // get next direction based on Dijkstra shortest path
     public String getNextDirection(Main dc) {
-        if (shortest.isEmpty()) {
+        if (shortest.isEmpty() || shortest.size() < 2) {
             return null;
         }
-        int x, y;
-        int px = (int) dc.hero.getWorldCoordinates().getX() / dc.tilesize - 1;
-        int py = (int) dc.hero.getWorldCoordinates().getY() / dc.tilesize;
+//        int px = (int) dc.hero.getWorldCoordinates().getX() / dc.tilesize - 1;
+//        int py = (int) dc.hero.getWorldCoordinates().getY() / dc.tilesize;
+        int px = (int) getTileWorldCoordinates().getX();
+        int py = (int) getTileWorldCoordinates().getY();
         String dir = null;
 
         int[] v = shortest.get(1);
-        x = v[0];
-        y = v[1];
+        int x = v[0];
+        int y = v[1];
         if (x == px && y == py) {
             v = shortest.get(2);
             x = v[0];
             y = v[1];
+            dir = "wait";
         }
-        if (x > px) {
-            dir = "right";
+        else if (x > px) {
+            dir = "walk_right";
         } else if (x < px) {
-            dir = "left";
+            dir = "walk_left";
         } else if (y > py) {
-            dir = "down";
+            dir = "walk_down";
         } else if (y < py) {
-            dir = "up";
+            dir = "walk_up";
         }
         return dir;
     }

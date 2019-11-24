@@ -285,8 +285,23 @@ public class Level extends BasicGameState {
         renderEquippedItems(dc, g);
 
 //         renderDebug(dc, g);
+
+        renderPath(dc, g);
     }
 
+    /** Renders the AI's shortest path
+     *
+     */
+    private void renderPath(Main dc, Graphics g) {
+        // only load arrows if the player wants to show the dijkstra's path
+        for (Character ai : dc.characters) {
+            for (Arrow a : ai.arrows) {
+                Vector sc = world2screenCoordinates(dc, a.getWorldCoordinates());
+                a.setPosition(sc);
+                a.render(g);
+            }
+        }
+    }
 
     /**
      * Render debug information on the screen
