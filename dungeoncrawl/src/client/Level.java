@@ -872,73 +872,70 @@ public class Level extends BasicGameState {
     		if( r < 50 ){
     			//slash
     			dc.hero.updateAnimation("slash_" + dir);
-    			addMessage("Slashed " + dir );
-    			
-    			for( Character c : dc.characters ){
-    				if( c.ai ){
-    					//if the ai character is within one tilesize of the player
-    					//in the given direction
-    					Vector aipos = c.animate.getPosition();
-    					Vector plpos = dc.hero.animate.getPosition();
-    					
-    					double x = Math.pow(aipos.getX()-plpos.getX(), 2); 
-    					double y = Math.pow(aipos.getY()-plpos.getY(), 2);
-    					float distance = (float) Math.sqrt(x + y);
-    					
-    					//System.out.println("distance: " + distance);
-    					
-	    				if(  distance <= (dc.tilesize*1.5) ){
-	    					//roll damage amount
-	    					rand.setSeed(System.nanoTime());
-	    					float percentOfMaxDamage = rand.nextInt(100)/(float) 100;
-	    					
-	    					float damage = 0;
-	    					if( itm.getMaterial().equals("Wooden") ){
-	    						//max damage: 30
-	    						damage = 30 * percentOfMaxDamage;
-	    					}else if( itm.getMaterial().equals("Iron") ){
-	    						//max damage: 60
-	    						damage = 60 * percentOfMaxDamage;
-	    					}else if( itm.getMaterial().equals("Gold") ){
-	    						//max damage: 100
-	    						damage = 100 * percentOfMaxDamage;
-	    					}
-	    					
-	    					//pass damage and effect to enemy
-	    					
-	    					if( c.takeDamage(damage, itm.getEffect()) ){
-	    						//returns true if the enemy died
-	    						c.updateAnimation("die");
-	    						
-	    					}
-	    					
-	    					if( percentOfMaxDamage == 0 ){
-	    						addMessage("Missed.");
-	    					}else{
-		    					String m = "Hit enemy for " + damage + " damage.";
-		    					if( percentOfMaxDamage >= 0.8 ){
-		    						m = m + " Critical hit!";
-		    					}
-		    					addMessage(m);
-	    					}
-	    					
-	    					//reveal the effect to the character
-	    					// if it is not known
-	    					if( !itm.isIdentified() ){
-	    						addMessage("It is " + itm.getType() + " of " + itm.getEffect() );
-	    						itm.identify();
-	    					}
-	    				}
-    				}
-    			}
-    			dc.characters.removeIf(b -> b.getHitPoints() <= 0);
-    			
+    			//addMessage("Slashed " + dir );
     		}else{
     			//jab
     			dc.hero.updateAnimation("jab_" + dir );
-    			addMessage("Jabbed " + dir );
-    			
+    			//addMessage("Jabbed " + dir );
     		}
+    		
+    		for( Character c : dc.characters ){
+				if( c.ai ){
+					//if the ai character is within one tilesize of the player
+					//in the given direction
+					Vector aipos = c.animate.getPosition();
+					Vector plpos = dc.hero.animate.getPosition();
+					
+					double x = Math.pow(aipos.getX()-plpos.getX(), 2); 
+					double y = Math.pow(aipos.getY()-plpos.getY(), 2);
+					float distance = (float) Math.sqrt(x + y);
+					
+    				if(  distance <= (dc.tilesize*1.5) ){
+    					//roll damage amount
+    					rand.setSeed(System.nanoTime());
+    					float percentOfMaxDamage = rand.nextInt(100)/(float) 100;
+    					
+    					float damage = 0;
+    					if( itm.getMaterial().equals("Wooden") ){
+    						//max damage: 30
+    						damage = 30 * percentOfMaxDamage;
+    					}else if( itm.getMaterial().equals("Iron") ){
+    						//max damage: 60
+    						damage = 60 * percentOfMaxDamage;
+    					}else if( itm.getMaterial().equals("Gold") ){
+    						//max damage: 100
+    						damage = 100 * percentOfMaxDamage;
+    					}
+    					
+    					//pass damage and effect to enemy
+    					
+    					if( c.takeDamage(damage, itm.getEffect()) ){
+    						//returns true if the enemy died
+    						c.updateAnimation("die");
+    						
+    					}
+    					
+    					if( percentOfMaxDamage == 0 ){
+    						addMessage("Missed.");
+    					}else{
+	    					String m = "Hit enemy for " + (int) damage + " damage.";
+	    					if( percentOfMaxDamage >= 0.8 ){
+	    						m = m + " Critical hit!";
+	    					}
+	    					addMessage(m);
+    					}
+    					
+    					//reveal the effect to the character
+    					// if it is not known
+    					if( !itm.isIdentified() ){
+    						addMessage("It is " + itm.getType() + " of " + itm.getEffect() );
+    						itm.identify();
+    					}
+    				}
+				}
+			}
+			dc.characters.removeIf(b -> b.getHitPoints() <= 0);
+			
     	}else if( itm.getType().equals("Potion") ){
     		
     	}else if( itm.getType().equals("Staff") ){
