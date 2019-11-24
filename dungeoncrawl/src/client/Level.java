@@ -185,7 +185,9 @@ public class Level extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
+        
         dc.hero = new Character(dc, wx, wy, "knight_iron", 1, this, false);
+        
         dc.characters.add(dc.hero);
         //currentOX = dc.hero.ox;
         //currentOY = dc.hero.oy;
@@ -704,6 +706,13 @@ public class Level extends BasicGameState {
         			dc.hero.discardItem(i.getID(), true);
         		}else if( i.getType().equals("Armor") ){
         			i.identify();
+        			
+        			//set the hero type to change the armor
+        			if( dc.hero.getType().contains("knight") ){
+        				dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
+        			}else if( dc.hero.getType().contains("tank") ){
+        				dc.hero.setType("tank_"+i.getMaterial().toLowerCase());
+        			}
         		}
         		
         	}else if( input.isKeyPressed(Input.KEY_BACKSLASH) ){

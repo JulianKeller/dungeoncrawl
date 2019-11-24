@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
+import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
 public class MovingEntity extends Entity {
@@ -520,7 +521,7 @@ Reflection:
         }
     }
 
-    public void setHitPoints(int hp){
+    public void setHitPoints(float hp){
         hitPoints = hp;
         if( startingHitPoints == -1 ){
         	startingHitPoints = hitPoints;

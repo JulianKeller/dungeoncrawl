@@ -63,6 +63,12 @@ public class Character extends MovingEntity {
         
     }
     
+    public void setType(String type){
+    	this.type = type;
+    	float hp = getHitPoints();
+    	setStats();
+    	setHitPoints(hp);
+    }
 
 
     /**
