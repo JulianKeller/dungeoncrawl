@@ -8,6 +8,11 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
 
+import jig.Vector;
+
+import java.net.*;
+import java.io.*;
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -18,15 +23,9 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import jig.Vector;
 
+
 public class Level extends BasicGameState {
     private Boolean paused;
-    //Character dc.hero;
-
-    int currentOX;
-    int currentOY;
-
-    Vector currentOrigin;
-
     private Random rand;
     
     private int[][] rotatedMap;
@@ -152,7 +151,10 @@ public class Level extends BasicGameState {
 			e.printStackTrace();
 			return;
 		}
-        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
+
+        // initialize itemsToRender
+        itemsToRender = new ArrayList<>();
+//        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
         
         //find a tile with no walls in its horizontal adjacencies
         rand = new Random();
@@ -183,10 +185,15 @@ public class Level extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
-        dc.hero = new Character(dc, wx, wy, "knight_iron", 1, this);
+        dc.hero = new Character(dc, wx, wy, "knight_iron", 1, this, false);
         dc.characters.add(dc.hero);
-        currentOX = dc.hero.ox;
-        currentOY = dc.hero.oy;
+        //currentOX = dc.hero.ox;
+        //currentOY = dc.hero.oy;
+        
+                // setup a skeleton enemy
+        wx = (dc.tilesize * 20) - dc.offset;
+        wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
+        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, this, true));
 
         // render map
         RenderMap.setMap(dc, dc.hero);
@@ -198,6 +205,9 @@ public class Level extends BasicGameState {
         }catch(IOException e){
             e.printStackTrace();
         }
+
+        // render map
+        RenderMap.setMap(dc, dc.hero);
 
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
 
@@ -276,48 +286,30 @@ public class Level extends BasicGameState {
         displayMap(dc, g);
         
         //render all visible items
-        g.setColor(Color.red);
-        for( Item i : itemsToRender){
-        	//System.out.println("Drawing item at "+i.getWorldCoordinates().getX()+", "+i.getWorldCoordinates().getY());
-        	//TODO: draw item images
-        	//for now, use ovals
-        	//g.drawOval((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2), 4, 4);
-        	
-        	i.setPosition((i.getWorldCoordinates().getX()*dc.tilesize)+(dc.tilesize/2), (i.getWorldCoordinates().getY()*dc.tilesize)+(dc.tilesize/2));
-        	i.render(g);
-        	
-        }
+        renderItems(dc, g);
 
         // draw test items
-        for (DisplayItem i : dc.testItems) {
-            i.render(g);
-        }
+        renderTestItems(dc, g);
 
+        // TODO will need to sort the lists and draw in order so players draw on top of others
+        // draw other characters
+        renderCharacters(dc, g);
+
+        // draw the hero
         dc.hero.animate.render(g);
 
-        
-        
         //render messages
-        for( Message m : messagebox ){
-        	if( m != null ){
-                g.setColor(new Color(0, 0, 0, 0.5f));
-                g.fillRoundRect(25, dc.ScreenHeight-(20 * messagebox.length), 400, 20 * messagebox.length, 0);
-                g.setColor(Color.red);
-                break;
-        	}
-        }
+        renderMessages(dc, g);
 
-        for( int i = 0; i < messagebox.length; i++ ){
-        	if( messagebox[i] == null || messagebox[i].text == "" ){
-        		break;
-        	}
-        	Color tmp = g.getColor();
-        	//make the messages fade away based on their timers
-        	g.setColor(new Color(255, 0, 0, (float) (messagebox[i].timer*2)/messageTimer));
-        	g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
-        	g.setColor(tmp);
-        }
+        //display player inventory
+        //use the dc.hero for now
+        renderInventory(dc, g);
 
+        // render the codex
+        renderCodex(dc, g);
+        
+         //draw the player's equipped items
+        renderEquippedItems(dc, g);
         
         //display player inventory
         //use the dc.hero for now
@@ -353,6 +345,36 @@ public class Level extends BasicGameState {
             	g.setColor(tmp);
         	}
         }
+        //draw the player's equipped items
+        renderEquippedItems(dc, g);
+
+//         renderDebug(dc, g);
+        
+        
+        //minimal HUD
+        g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*3));
+        g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
+        g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
+        g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
+        
+        
+        
+
+    }
+
+
+    /**
+     * Render debug information on the screen
+     * @param dc
+     * @param g
+     */
+    private void renderDebug(Main dc, Graphics g) {
+        for( int i = 0; i < dc.map.length; i++ ){
+        	for( int j = 0; j < dc.map[i].length; j++ ){
+        		g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
+        		//i is y, j is x
+        	}
+        }
         if( displayCodex ){
         	//display this box next to the item box
         	//  if it is open
@@ -374,50 +396,167 @@ public class Level extends BasicGameState {
         		row++;
         	}
         }
+    }
         
-        //draw the player's equipped items
+ /**
+     * Renders the players equipped items
+     * @param dc
+     * @param g
+     */
+    private void renderEquippedItems(Main dc, Graphics g) {
         Color tmp = g.getColor();
         g.setColor(new Color(0, 0, 0, 0.5f));
         g.fillRoundRect(dc.ScreenWidth-(dc.tilesize*5), dc.ScreenHeight-(dc.tilesize*2), dc.tilesize*4, dc.tilesize, 0);
         int x = 0;
         int y = 0;
         for( int i = 0; i < dc.hero.getEquipped().length; i++ ){
-        	if( dc.hero.getEquipped()[i] != null ){
-	        	x = dc.ScreenWidth-(dc.tilesize*(dc.hero.getEquipped().length+1));
-	        	y = dc.ScreenHeight-(dc.tilesize*2);
-	        	g.drawImage(dc.hero.getEquipped()[i].getImage(), x+(dc.tilesize*i), y);
-        	}
+            if( dc.hero.getEquipped()[i] != null ){
+                x = dc.ScreenWidth-(dc.tilesize*(dc.hero.getEquipped().length+1));
+                y = dc.ScreenHeight-(dc.tilesize*2);
+                g.drawImage(dc.hero.getEquipped()[i].getImage(), x+(dc.tilesize*i), y);
+            }
         }
         g.setColor(Color.white);
         g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
         g.setColor(tmp);
+    }
         
-        //minimal HUD
-        g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*3));
-        g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
-        g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
-        g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
-        
-        
-        
-        
-        //print the tile values on the screen
-        /*
-        for( int i = 0; i < dc.map.length; i++ ){
-        	for( int j = 0; j < dc.map[i].length; j++ ){
-        		g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
-        		//i is y, j is x
-        	}
+
+
+    /**
+     * Renders the codex on the players screen
+     * @param dc
+     * @param g
+     */
+    private void renderCodex(Main dc, Graphics g) {
+        if( displayCodex ){
+            //display this box next to the item box
+            //  if it is open
+            int x = dc.tilesize;
+            if( displayInventory ){
+                x *= 4;
+            }
+
+            renderItemBox(dc, g, "Codex", x, dc.tilesize, dc.tilesize * 10, dc.tilesize*8);
+
+            ArrayList<Item> items = dc.hero.getCodex();
+            int row = 2;
+            for( Item i : items ){
+                g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
+                Color tmp = g.getColor();
+                g.setColor(Color.white);
+                g.drawString(i.getMaterial()+" "+i.getType()+" of "+i.getEffect(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
+                g.setColor(tmp);
+                row++;
+            }
         }
-        //*/
-        
-        /*
-        if( rotatedMap != null ){
-        	for( int i = 0; i < rotatedMap.length; i++ ){
-        		for( int j = 0; j < rotatedMap[i].length; j++ ){
-        			g.drawString(""+rotatedMap[i][j], i*dc.tilesize, j*dc.tilesize);
-        		}
-        	}
+    }
+
+    /**
+     * Render the players inventory
+     * @param dc
+     * @param g
+     */
+    private void renderInventory(Main dc, Graphics g) {
+        if( displayInventory ){
+            renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
+            ArrayList<Item> items = dc.hero.getInventory();
+            if( items.size() != 0 ){
+                int row = 2;
+                int col = 1;
+                for( int i = 0; i < items.size(); i++ ){
+                    g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
+                    col++;
+                    if( i > 4 && i % 4 == 0 ){
+                        row++;
+                        col = 1;
+                    }
+                }
+                //draw a square around the selected item
+                Color tmp = g.getColor();
+                g.setColor(Color.white);
+                g.drawRect(
+                        (itemx + 1)*dc.tilesize,
+                        (itemy + 2)*dc.tilesize,
+                        dc.tilesize,
+                        dc.tilesize
+                );
+                g.setColor(tmp);
+            }
+        }
+    }
+
+    /**
+     * Renders messages
+     * @param dc
+     * @param g
+     */
+    private void renderMessages(Main dc, Graphics g) {
+        for( Message m : messagebox ){
+            if( m != null ){
+                g.setColor(new Color(0, 0, 0, 0.5f));
+                g.fillRoundRect(25, dc.ScreenHeight-(20 * messagebox.length), 400, 20 * messagebox.length, 0);
+                g.setColor(Color.red);
+                break;
+            }
+        }
+
+        for( int i = 0; i < messagebox.length; i++ ){
+            if( messagebox[i] == null || messagebox[i].text == "" ){
+                break;
+            }
+            Color tmp = g.getColor();
+            //make the messages fade away based on their timers
+            g.setColor(new Color(255, 0, 0, (float) (messagebox[i].timer*2)/messageTimer));
+            g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
+            g.setColor(tmp);
+        }
+    }
+
+    /**
+     * Renders the visible items on the map
+     * @param dc
+     * @param g
+     */
+    private void renderItems(Main dc, Graphics g) {
+        // get the items in range
+        Vector wc;
+        ArrayList<Item> worldItems = Main.im.getWorldItems();
+        g.setColor(Color.red);
+        for (Item i : worldItems) {
+            // convert the world tile coordinates to world pixel coordinates
+            wc = new Vector((i.getWorldCoordinates().getX() * dc.tilesize) + (float) (dc.tilesize / 2),
+                    (i.getWorldCoordinates().getY() * dc.tilesize) + (float) (dc.tilesize / 2));
+            // draw the objects on the screen
+            if (objectInRegion(dc, wc)) {
+                Vector sc = world2screenCoordinates(dc, wc);
+                i.setPosition(sc);
+                i.render(g);
+            }
+        }
+    }
+
+    /**
+     * Renders new items which are being tested
+     * @param dc
+     * @param g
+     */
+    private void renderTestItems(Main dc, Graphics g) {
+        for (DisplayItem i : dc.testItems) {
+            i.render(g);
+        }
+    }
+
+    /*
+    Renders the other characters and AI on the screen if they are in the players screen
+     */
+    private void renderCharacters(Main dc, Graphics g) {
+        for (Character ch : dc.characters) {
+            Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
+            ch.animate.setPosition(sc);
+            if (characterInRegion(dc, ch)) {
+                ch.animate.render(g);
+            }
         }
         //*/
         
@@ -590,6 +729,7 @@ public class Level extends BasicGameState {
         		System.out.println("Locked dropped item.");
     
         		//add the item to the render list
+                // TODO may need to be changed to be added to worldItems
         		itemsToRender.add(itm);
         		
         		addMessage("Dropped "+dc.hero.getEquipped()[selectedEquippedItem]+".");
@@ -606,6 +746,13 @@ public class Level extends BasicGameState {
         	}
         }
         
+
+        // cause AI players to move around
+        for( Character ch : dc.characters ) {
+            if (ch.ai) {        // if the player is an AI player, move them
+                ch.moveAI();
+            }
+        }
 
         //check if a character has hit an item
         for( Character ch : dc.characters ){
@@ -724,63 +871,98 @@ public class Level extends BasicGameState {
            b.render(g);
        }
    }
-   
-   public void updateOtherPlayers(Main dc){
-       String update = "";
-       boolean isRendered = false;
-       try {
-           update = dis.readUTF();
-            //Return if there are no other players.
-               if(update.equals("1")){
-                   //System.out.println("No other clients.");
-                   return;
-               }
-               //int num_characters = Integer.parseInt(update);
-               int id = 0;
-                   update = dis.readUTF();
-                   //System.out.println(update);
-                   id = Integer.parseInt(update.split(" ")[1]);
-                   // Go through and check to see if the character already exists.
-                   for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
-                       Character c = i.next();
-                       if (c.getPid() == id) {
-                           c.animate.setPosition(Float.parseFloat(update.split(" ")[2]),
-                                   Float.parseFloat(update.split(" ")[3]));
-                           isRendered = true;
-                           break;
-                       }
-                   }
-                   if (!isRendered) {
-                       Float wx = Float.parseFloat(update.split(" ")[2]);
-                       Float wy = Float.parseFloat(update.split(" ")[3]);
-                       String type = update.split(" ")[0];
-                       dc.characters.add(new Character(dc, wx, wy, type, id, this));
-                       return;
-                   }
 
-
-
-
-       } catch(IOException e){
-           e.printStackTrace();
-       }
-   }
+	public void updateOtherPlayers(Main dc){
+	    String update = "";
+	    boolean isRendered = false;
+	    try {
+	    	update = dis.readUTF();
+	    	//Return if there are no other players.
+	    	if(update.equals("1")){
+	    		//System.out.println("No other clients.");
+	    		return;
+	    	}
+	    	int num_characters = Integer.parseInt(update);
+	    	int id = 0;
+	    	update = dis.readUTF();
+	    	//System.out.println(update);
+	    	id = Integer.parseInt(update.split(" ")[1]);
+	    	// Go through and check to see if the character already exists.
+	    	for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
+	    		Character c = i.next();
+	    		if (c.getPid() == id) {
+	    			c.animate.setPosition(Float.parseFloat(update.split(" ")[2]),
+	    					Float.parseFloat(update.split(" ")[3]));
+	    			isRendered = true;
+	    			break;
+	    		}
+	    	}
+	    	if (!isRendered) {
+	    		Float wx = Float.parseFloat(update.split(" ")[2]);
+	    		Float wy = Float.parseFloat(update.split(" ")[3]);
+	    		String type = update.split(" ")[0];
+	            dc.characters.add(new Character(dc, wx, wy, type, id, this, false));
+	            return;
+	        }
+	    } catch(IOException e){
+	        e.printStackTrace();
+	    }
+	}
 
     /**
-     * Reads the new player coordinates and walks the player accordingly.
-//     */
-//    public void getNewPlayerCoord(){
-//        try {
-//            serverMessage = dis.readUTF();
-//            if (!serverMessage.equals("")) {
-////                System.out.println("server.Server says: Move valid.  New coordinates: "+ serverMessage);
-//                dc.hero.moveSmoothTranslationHelper();
-//            } else{
-////                System.out.println("server.Server says: Move invalid/No Button Pressed.");
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+     * Check if the Character is in the Hero's screen +- one tile wide and high
+     * @param dc the Main class
+     * @param ch the Character instance to check if it is in region
+     * @return true if the ch is in screen, else false
+     */
+    public boolean characterInRegion(Main dc, Character ch){
+        float maxX = (dc.tilesize * dc.tilesWide) + dc.hero.pixelX + dc.tilesize;
+        float maxY = (dc.tilesize * dc.tilesWide) + dc.hero.pixelY + dc.tilesize;
+        float minX = dc.hero.pixelX - dc.tilesize;
+        float minY = dc.hero.pixelY - dc.tilesize;
+        Vector wc = ch.getWorldCoordinates();
+        return minX <= wc.getX() && wc.getX() <= maxX && minY <= wc.getY() && wc.getY() <= maxY;
+    }
+
+
+    /**
+     * Check if the object is in the Hero's screen +- one tile wide and high
+     * @param dc the Main class
+     * @param wc The world coordinate vector of the object
+     * @return true if the ch is in screen, else false
+     */
+    public boolean objectInRegion(Main dc, Vector wc){
+        float maxX = (dc.tilesize * dc.tilesWide) + dc.hero.pixelX + dc.tilesize;
+        float maxY = (dc.tilesize * dc.tilesWide) + dc.hero.pixelY + dc.tilesize;
+        float minX = dc.hero.pixelX - dc.tilesize;
+        float minY = dc.hero.pixelY - dc.tilesize;
+        return minX <= wc.getX() && wc.getX() <= maxX && minY <= wc.getY() && wc.getY() <= maxY;
+    }
+
+
+    /**
+     * Convert the Characters world coordinates to screen coordinates
+     * @param dc Main class
+     * @param ai an AI character
+     */
+    public Vector world2screenCoordinates(Main dc, Character ai) {
+        // screen coords = AI world coords - Hero's Screen Origin
+        float sx = ai.getWorldCoordinates().getX() - dc.hero.pixelX;
+        float sy = ai.getWorldCoordinates().getY() - dc.hero.pixelY;
+        return new Vector(sx, sy);
+    }
+
+    /**
+     * Convert the passed in world coordinates to screen coordinates
+     * @param dc Main class
+     * @param wc worldCoordinates vector of the object to render
+     */
+    public Vector world2screenCoordinates(Main dc, Vector wc) {
+        // screen coords = AI world coords - Hero's Screen Origin
+        float sx = wc.getX() - dc.hero.pixelX;
+        float sy = wc.getY() - dc.hero.pixelY;
+        return new Vector(sx, sy);
+    }
+
 
 }
