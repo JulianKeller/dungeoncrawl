@@ -50,7 +50,6 @@ public class PathFinding {
             relax(map, current, left);
             relax(map, current, right);
         }
-        System.out.println("-------------------------------------------------");
         return findShortestPath();
     }
 
@@ -65,6 +64,7 @@ public class PathFinding {
         prevy = targetY;
         int count = 0;
         while (count < 200) {
+            //stop dijkstra's early if we found the player
             if (prevx == startX && prevy == startY) {
                 break;
             }
@@ -120,8 +120,6 @@ public class PathFinding {
 
         // TODO here seems to be the problem
         int weight = 1;
-//        if (weight < 0)
-//            System.out.printf("map[%s][%s] = %s\n", ax, ay, weight);
         if (map[ax][ay] == 1) {
             weight = Integer.MAX_VALUE;
         }

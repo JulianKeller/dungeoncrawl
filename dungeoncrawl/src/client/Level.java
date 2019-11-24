@@ -311,14 +311,20 @@ public class Level extends BasicGameState {
 
                         //make the messages fade away based on their timers
                         String msg = String.valueOf((int) ai.weights[j][i]);
-                        g.setColor(new Color(255, 255, 255, .6f));
+                        g.setColor(new Color(255, 255, 255, 1f));
                         g.scale(.5f, .5f);
 
-//                        if (ai.weights[j][i] == 0) {
-                        Vector wc = new Vector(2 * j * dc.tilesize, 2 * i * dc.tilesize);
+
+                        Vector wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize);
                         Vector sc = world2screenCoordinates(dc, wc);
                         g.drawString(msg, sc.getX(), sc.getY());
-//                        }
+
+                        // draw x, y tile values
+//                        wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize + dc.offset);
+//                        sc = world2screenCoordinates(dc, wc);
+//                        msg = "(" + String.valueOf(i) + "," + String.valueOf(j) + ")";
+//                        g.drawString(msg, sc.getX(), sc.getY());
+
 
                         g.scale(2f, 2f);
                         g.setColor(tmp);
