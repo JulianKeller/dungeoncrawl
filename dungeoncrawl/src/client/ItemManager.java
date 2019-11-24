@@ -58,6 +58,10 @@ public class ItemManager {
 		}
 	}
 	
+	public void give( Item i, Character c ){
+		c.addItem(i);
+	}
+	
 	public void take(int itemID, int playerID, Vector wc, boolean use){
 		//take an item from the player and place it at the given coordinates
 		// unless the coordinate is null
@@ -79,6 +83,13 @@ public class ItemManager {
 	}
 	
 	private int currentItemID = 0;
+	
+	public int getCurrentItemID(){
+		return currentItemID;
+	}
+	public void updateCurrentItemID(){
+		currentItemID++;
+	}
 	
 	public void plant(int numItems, int[][] map) throws SlickException{
 		int maxcol = game.ScreenWidth/game.tilesize;

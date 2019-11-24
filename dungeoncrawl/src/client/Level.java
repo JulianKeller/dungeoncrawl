@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
 
+import jig.ResourceManager;
 import jig.Vector;
 
 import java.net.*;
@@ -16,6 +17,7 @@ import java.io.*;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
@@ -186,7 +188,14 @@ public class Level extends BasicGameState {
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
         
-        dc.hero = new Character(dc, wx, wy, "knight_iron", 1, this, false);
+        dc.hero = new Character(dc, wx, wy, "knight_leather", 1, this, false);
+        
+        //give the hero leather armor with no effect
+        //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
+        Item a = new Item(null, false, Main.im.getCurrentItemID(), dc.hero.getPid(), "", "Armor", "Leather", false, true, 
+        		ResourceManager.getImage(Main.ARMOR_IRON));
+        
+        Main.im.give(a, dc.hero);
         
         dc.characters.add(dc.hero);
         //currentOX = dc.hero.ox;
