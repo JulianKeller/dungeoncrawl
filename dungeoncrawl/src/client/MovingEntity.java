@@ -380,6 +380,20 @@ Reflection:
 									b.name.equals("Mana"));
 					
     }
+    
+    public boolean takeDamage(float amount, String effect ){
+    	hitPoints -= amount;
+    	if( !effect.equals("") ){
+    		addEffect(effect);
+    	}
+    	
+    	//check if this entity is dead
+    	if( hitPoints <= 0 ){
+    		return true;
+    	}else{
+    		return false;
+    	}
+    }
 
     public void addItem(Item i){
         inventory.add(i);

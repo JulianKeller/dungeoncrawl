@@ -8,16 +8,9 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
 
-import jig.ResourceManager;
-import jig.Vector;
-
-import java.net.*;
-import java.io.*;
-
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
@@ -912,6 +905,13 @@ public class Level extends BasicGameState {
 	    					}
 	    					
 	    					//pass damage and effect to enemy
+	    					
+	    					if( c.takeDamage(damage, itm.getEffect()) ){
+	    						//returns true if the enemy died
+	    						c.updateAnimation("die");
+	    						
+	    					}
+	    					
 	    					if( percentOfMaxDamage == 0 ){
 	    						addMessage("Missed.");
 	    					}else{
@@ -921,9 +921,17 @@ public class Level extends BasicGameState {
 		    					}
 		    					addMessage(m);
 	    					}
+	    					
+	    					//reveal the effect to the character
+	    					// if it is not known
+	    					if( !itm.isIdentified() ){
+	    						addMessage("It is " + itm.getType() + " of " + itm.getEffect() );
+	    						itm.identify();
+	    					}
 	    				}
     				}
     			}
+    			dc.characters.removeIf(b -> b.getHitPoints() <= 0);
     			
     		}else{
     			//jab
