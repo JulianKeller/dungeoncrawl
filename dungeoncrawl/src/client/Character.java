@@ -428,18 +428,25 @@ public class Character extends MovingEntity {
         return dc.map[y][x] != 0;
     }
 
+    
+    private String action;
 
     /**
      * Updates the animation that is currently in use
      *
      * @param action a new animations action to be selected
      */
-    private void updateAnimation(String action) {
+    public void updateAnimation(String action) {
         if (action != null) {
+        	this.action = action;
             Vector sc = animate.getPosition();
             animate = new AnimateEntity(sc.getX(), sc.getY(), getAnimationSpeed(), this.type);
             animate.selectAnimation(action);
         }
+    }
+    
+    public String getAction(){
+    	return action;
     }
 
 

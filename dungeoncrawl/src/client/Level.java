@@ -594,6 +594,22 @@ public class Level extends BasicGameState {
     }
 
     private Scanner scan = new Scanner(System.in);
+    
+    private String prevks = "";
+    
+    private Vector vectorFromKeystroke(String ks){
+        if( ks.equals("w") ){
+        	return new Vector(0, -1);
+        }else if( ks.equals("s") ){
+        	return new Vector(0, 1);
+        }else if( ks.equals("a") ){
+        	return new Vector(-1, 0);
+        }else if( ks.equals("d") ){
+        	return new Vector(1, 0);
+        }else{
+        	return new Vector(0, -1);
+        }
+    }
 
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
@@ -604,6 +620,7 @@ public class Level extends BasicGameState {
         if (paused) {
             return;
         }
+        
         //implement effects on the character
         dc.hero.implementEffects();
         //reduce the effect timers by a constant value each frame
@@ -611,8 +628,19 @@ public class Level extends BasicGameState {
         //  the game window can cause all effects to disappear instantly
         dc.hero.updateEffectTimers(16);
         
-        
-        dc.hero.move(getKeystroke(input));
+        String ks = getKeystroke(input);
+        if( prevks.equals("") ){
+        	prevks = ks;
+        }
+        //convert key stroke to vector
+        Vector lastKnownDirection;
+        //System.out.println(ks);
+        if( ks.equals("") ){
+        	lastKnownDirection = vectorFromKeystroke(prevks);
+        }else{
+        	lastKnownDirection = vectorFromKeystroke(ks);
+        }
+        dc.hero.move(ks);
         /*
         if (currentOrigin.getX() != dc.hero.origin.getX() && currentOrigin.getY() != dc.hero.origin.getY()) {
             RenderMap.setMap(dc, dc.hero.origin);
@@ -691,7 +719,8 @@ public class Level extends BasicGameState {
         	}else if( input.isKeyPressed(Input.KEY_ENTER) ){
         		//TODO: add use functionality
         		//throw/attack with item (i.e. throw potion or swing sword)
-        		addMessage("threw "+dc.hero.getEquipped()[selectedEquippedItem]+".");
+        		//addMessage("threw "+dc.hero.getEquipped()[selectedEquippedItem]+".");
+        		attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
         	}else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
         		//use item on own character
         		Item i = dc.hero.getEquipped()[selectedEquippedItem];
@@ -827,7 +856,88 @@ public class Level extends BasicGameState {
         //remove expired timers
         itemLockTimers.removeIf(b -> b.timer <= 0);
     }
-
+    
+    private void attack(Item itm, Main dc, Vector direction) throws SlickException{
+    	//attack with the given item
+    	//Vector[] directions = {new Vector(0, -1), new Vector(0, 1), new Vector(-1, 0), new Vector(1, 0)};
+    	String dir = "";
+    	if( direction.equals(new Vector(0, -1) ) ){
+    		dir = "up";
+    	}else if( direction.equals(new Vector(0, 1)) ){
+    		dir = "down";
+    	}else if( direction.equals(new Vector(-1, 0)) ){
+    		dir = "left";
+    	}else if( direction.equals(new Vector(1, 0)) ){
+    		dir = "right";
+    	}else{
+    		throw new SlickException("Invalid attack direction " + dir);
+    	}
+    	
+    	if( itm.getType().equals("Sword") ){
+    		rand.setSeed(System.nanoTime());
+    		int r = rand.nextInt(100);
+    		if( r < 50 ){
+    			//slash
+    			dc.hero.updateAnimation("slash_" + dir);
+    			addMessage("Slashed " + dir );
+    			
+    			for( Character c : dc.characters ){
+    				if( c.ai ){
+    					//if the ai character is within one tilesize of the player
+    					//in the given direction
+    					Vector aipos = c.animate.getPosition();
+    					Vector plpos = dc.hero.animate.getPosition();
+    					
+    					double x = Math.pow(aipos.getX()-plpos.getX(), 2); 
+    					double y = Math.pow(aipos.getY()-plpos.getY(), 2);
+    					float distance = (float) Math.sqrt(x + y);
+    					
+    					//System.out.println("distance: " + distance);
+    					
+	    				if(  distance <= (dc.tilesize*1.5) ){
+	    					//roll damage amount
+	    					rand.setSeed(System.nanoTime());
+	    					float percentOfMaxDamage = rand.nextInt(100)/(float) 100;
+	    					
+	    					float damage = 0;
+	    					if( itm.getMaterial().equals("Wooden") ){
+	    						//max damage: 30
+	    						damage = 30 * percentOfMaxDamage;
+	    					}else if( itm.getMaterial().equals("Iron") ){
+	    						//max damage: 60
+	    						damage = 60 * percentOfMaxDamage;
+	    					}else if( itm.getMaterial().equals("Gold") ){
+	    						//max damage: 100
+	    						damage = 100 * percentOfMaxDamage;
+	    					}
+	    					
+	    					//pass damage and effect to enemy
+	    					if( percentOfMaxDamage == 0 ){
+	    						addMessage("Missed.");
+	    					}else{
+		    					String m = "Hit enemy for " + damage + " damage.";
+		    					if( percentOfMaxDamage >= 0.8 ){
+		    						m = m + " Critical hit!";
+		    					}
+		    					addMessage(m);
+	    					}
+	    				}
+    				}
+    			}
+    			
+    		}else{
+    			//jab
+    			dc.hero.updateAnimation("jab_" + dir );
+    			addMessage("Jabbed " + dir );
+    			
+    		}
+    	}else if( itm.getType().equals("Potion") ){
+    		
+    	}else if( itm.getType().equals("Staff") ){
+    		
+    	}
+    	
+    }
 
     // pause the game
     public void pause(Input input) {
