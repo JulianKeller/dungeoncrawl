@@ -192,11 +192,12 @@ public class Level extends BasicGameState {
         
         //give the hero leather armor with no effect
         //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
+        /*
         Item a = new Item(null, false, Main.im.getCurrentItemID(), dc.hero.getPid(), "", "Armor", "Leather", false, true, 
         		ResourceManager.getImage(Main.ARMOR_IRON));
         
         Main.im.give(a, dc.hero);
-        
+        */
         dc.characters.add(dc.hero);
         //currentOX = dc.hero.ox;
         //currentOY = dc.hero.oy;
@@ -347,11 +348,15 @@ public class Level extends BasicGameState {
             			dc.tilesize,
             			dc.tilesize
             			);
-            	Item sItem = items.get((itemy*4)+itemx);
-            	if( sItem.isIdentified() ){
-            		g.drawString(sItem.getMaterial() + " " + sItem.getType() + " of " + sItem.getEffect(), dc.tilesize+10, dc.tilesize*8);
-            	}else{
-            		g.drawString("Unidentified " + sItem.getMaterial() + " " + sItem.getType(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));          		
+            	try{
+	            	Item sItem = items.get((itemy*4)+itemx);
+	            	if( sItem.isIdentified() ){
+	            		g.drawString(sItem.getMaterial() + " " + sItem.getType() + " of " + sItem.getEffect(), dc.tilesize+10, dc.tilesize*8);
+	            	}else{
+	            		g.drawString("Unidentified " + sItem.getMaterial() + " " + sItem.getType(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));          		
+	            	}
+            	}catch(IndexOutOfBoundsException ex){
+            		
             	}
             	g.setColor(tmp);
         	}
