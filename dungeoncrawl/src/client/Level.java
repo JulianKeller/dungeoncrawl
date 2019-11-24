@@ -9,9 +9,6 @@ import java.util.Random;
 
 import jig.Vector;
 
-import java.net.*;
-import java.io.*;
-
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -19,8 +16,6 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
-
-import jig.Vector;
 
 
 public class Level extends BasicGameState {
@@ -286,13 +281,15 @@ public class Level extends BasicGameState {
 
 //         renderDebug(dc, g);
 
-        renderPath(dc, g);
+        if (dc.showPath) {
+            renderShortestPath(dc, g);
+        }
     }
 
     /** Renders the AI's shortest path
      *
      */
-    private void renderPath(Main dc, Graphics g) {
+    private void renderShortestPath(Main dc, Graphics g) {
         // only load arrows if the player wants to show the dijkstra's path
         for (Character ai : dc.characters) {
             for (Arrow a : ai.arrows) {
@@ -312,7 +309,6 @@ public class Level extends BasicGameState {
         for( int i = 0; i < dc.map.length; i++ ){
         	for( int j = 0; j < dc.map[i].length; j++ ){
         		g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
-        		//i is y, j is x
         	}
         }
 

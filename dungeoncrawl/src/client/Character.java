@@ -231,8 +231,10 @@ public class Character extends MovingEntity {
         System.out.println();
 
         // load arrows for dijkstra's debugging
-        Arrow.removeArrows(this);
-        Arrow.loadPathArrows(dc, this);
+        if (dc.showPath) {
+            Arrow.removeArrows(this);
+            Arrow.loadPathArrows(dc, this);
+        }
         // move based on the shortest path
 
         String next = getNextDirection(dc);
