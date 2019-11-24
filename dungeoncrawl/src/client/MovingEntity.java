@@ -18,6 +18,8 @@ public class MovingEntity extends Entity {
     private ArrayList<Item> codex; //list of identified items
     private Item [] equipped;
     private Vector position;
+    private Vector tileWorldCoordinates;
+    private Main dc;
     
     private ArrayList<Effect> activeEffects; //list of things currently affecting the character
     private final int defaultEffectTimer = 5000;
@@ -31,14 +33,18 @@ public class MovingEntity extends Entity {
     }
     /**
      * Create a new Entity (x,y)
-     * @param wx starting world x coordinate
+     * @param dc
      * @param wy starting world y coordinate
+     * @param wx starting world x coordinate
      */
-    public MovingEntity(final float wx, final float wy, int pid) {
+    public MovingEntity(Main dc, final float wy, int pid, final float wx) {
         super(wx, wy);
+        this.dc = dc;
         hitPoints = 0;
         armorPoints = 0;
         worldCoordinates = new Vector(wx, wy);
+
+        tileWorldCoordinates = getTileWorldCoordinates();
         speed = 0;
         mana = 0;
         this.pid = pid;
@@ -299,6 +305,8 @@ public class MovingEntity extends Entity {
     public void setWorldCoordinates(float x, float y){
         setWorldCoordinates(new Vector(x, y));
     }
+
+
     /**
      * Returns the client.MovingEntity's current world coordinates.
      * @return Vector world coordinates
@@ -306,6 +314,26 @@ public class MovingEntity extends Entity {
     public Vector getWorldCoordinates(){
         return worldCoordinates;
     }
+
+
+//    /**
+//     * Set the entities tile coordinates for the world
+//     * @param tileWC
+//     */
+//    public void setTileWorldCoordinates(Vector tileWC) {
+//        tileWorldCoordinates = tileWC;
+//    }
+
+    /**
+     * Get the entities world coordinates in tiles
+     * @return
+     */
+    public Vector getTileWorldCoordinates() {
+        float x = Math.round((worldCoordinates.getX() + dc.offset)/dc.tilesize);
+        float y = Math.round((worldCoordinates.getY() + dc.tilesize + dc.doubleOffset)/dc.tilesize);
+        return new Vector(x, y);
+    }
+
 
     /**
      * Adds hit points by specified amount
