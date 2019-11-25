@@ -4,12 +4,21 @@ import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
 import client.RenderMap;
+import org.lwjgl.Sys;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Server extends Thread{
     // Static Objects for each thread.
-    private static BlockingQueue<PlayerPosition> serverQueue = new LinkedBlockingQueue<>(10);
-    private static int [][] map;
+    public static BlockingQueue<String> serverQueue = new ArrayBlockingQueue<>(50);
+    public static int [][] map;
 
+    // Keep track of all the clients connected
+    private ArrayList<ClientHandler> clients;
+    /**
+     * Static method getMap, that gets a random map from file.
+     */
     private static void getMap() {
         try {
             map = RenderMap.getRandomMap();
@@ -18,48 +27,56 @@ public class Server extends Thread{
         }
     }
 
-    // Objects that are only server
-    private Socket socket;
-    private ObjectInputStream is;
-    private ObjectOutputStream os;
-    private BlockingQueue<String> threadQueue;
-
-    public Server(Socket socket) throws IOException{
-        this.socket = socket;
-        is = new ObjectInputStream(socket.getInputStream());
-        os = new ObjectOutputStream(socket.getOutputStream());
-        threadQueue = new LinkedBlockingQueue<>(10);
+    public Server() {
+        clients = new ArrayList<>(4);
     }
 
     @Override
     public void run() {
-        String message = "";
+        System.out.println("Run Started.");
+        while(true){
+         sendToClients();
+        }
+    }
+
+    public void sendToClients(){
+            try {
+                String playerInfo = serverQueue.take();
+//                    if (playerInfo.split(" ")[1].equals("Exit")) {
+//                        clients.removeIf(clientHandler ->
+//                                clientHandler.getClientId() == Integer.parseInt(playerInfo.split(" ")[0]));
+//                    }
+                    System.out.println(playerInfo);
+                    for (Iterator<ClientHandler> i = clients.iterator(); i.hasNext(); ) {
+                        i.next().threadQueue.put(playerInfo);
+                        Thread.sleep(10);
+                    }
+                } catch(InterruptedException e){
+                    e.printStackTrace();
+                }
+    }
+
+    public static void main(String [] args){
         try {
-            os.writeObject(map);
-            message = is.readUTF();
-            while(true){
+            ServerSocket ss = new ServerSocket(5000);
+            getMap();
+            Server server = new Server();
+            server.start();
+            while (true) { ;
+                Socket s = ss.accept();
+                System.out.println("A new client has connected " + s);
+                ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
+                ObjectInputStream is = new ObjectInputStream(s.getInputStream());
+                ClientHandler t = new ClientHandler(s, is, os);
+                t.start();
+                server.clients.add(t);
 
             }
-        } catch(IOException e){
-            e.printStackTrace();
-        }
-
-    }
-    private void toQueue(String m){
-        try {
-            serverQueue.put(new PlayerPosition(socket.getPort(), m.split(" ")[0],
-                    Float.parseFloat(m.split(" ")[1]),
-                    Float.parseFloat(m.split(" ")[2])));
-        } catch (InterruptedException e){
+        }catch(IOException e){
             e.printStackTrace();
         }
     }
 
-    public static void main(String [] args) throws IOException{
-        ServerSocket ss = new ServerSocket(5000);
-        getMap();
-
-    }
 
 
 }

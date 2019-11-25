@@ -92,6 +92,7 @@ public class Level extends BasicGameState {
 
         try {
            dc.map = (int[][])dis.readObject();
+           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -152,6 +153,7 @@ public class Level extends BasicGameState {
         String type = "knight_iron";
         String coord = type + " " + wx + " " + wy;
         try {
+            System.out.println("Sending my player info.");
             dos.writeUTF(coord);
             dos.flush();
         }catch(IOException e){
@@ -371,7 +373,7 @@ public class Level extends BasicGameState {
             return;
         }
         dc.hero.move(getKeystroke(input));
-        positionToServer(dc.hero.getWorldCoordinates());  // Get the player's updated position onto the server.
+        positionToServer(dc);  // Get the player's updated position onto the server.
         updateOtherPlayers(dc);
         
         if( input.isKeyPressed(Input.KEY_I) ){
@@ -464,16 +466,16 @@ public class Level extends BasicGameState {
     /**
       * Update the players position on the server.
       */
-    public void positionToServer(Vector wc){
-        String position = wc.getX() + " " + wc.getY();
-       //System.out.println("Client position: "+ position);
+    public void positionToServer(Main dc){
+        float wx = dc.hero.getWorldCoordinates().getX();
+        float wy = dc.hero.getWorldCoordinates().getY();
+        String toServer = dc.hero.getType() + " " + wx + " " + wy;
         try {
-            this.dos.writeUTF(position);
-            this.dos.flush();
+            dos.writeUTF(toServer);
+            dos.flush();
         }catch(IOException e){
             e.printStackTrace();
         }
-
     }
 
     /*
@@ -486,42 +488,9 @@ public class Level extends BasicGameState {
     }
 
     public void updateOtherPlayers(Main dc){
-        String update = "";
-        boolean isRendered = false;
         try {
-            update = dis.readUTF();
-             //Return if there are no other players.
-                if(update.equals("1")){
-                    //System.out.println("No other clients.");
-                    return;
-                }
-                int num_characters = Integer.parseInt(update);
-                int id = 0;
-                    update = dis.readUTF();
-                    //System.out.println(update);
-                    id = Integer.parseInt(update.split(" ")[1]);
-                    // Go through and check to see if the character already exists.
-                    for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
-                        Character c = i.next();
-                        if (c.getPid() == id) {
-                            c.animate.setPosition(Float.parseFloat(update.split(" ")[2]),
-                                    Float.parseFloat(update.split(" ")[3]));
-                            isRendered = true;
-                            break;
-                        }
-                    }
-                    if (!isRendered) {
-                        Float wx = Float.parseFloat(update.split(" ")[2]);
-                        Float wy = Float.parseFloat(update.split(" ")[3]);
-                        String type = update.split(" ")[0];
-                        dc.characters.add(new Character(dc, wx, wy, type, id));
-                        return;
-                    }
-
-
-
-
-        } catch(IOException e){
+            System.out.println("Read: " + dis.readUTF());
+        }catch(IOException e){
             e.printStackTrace();
         }
     }
