@@ -82,6 +82,10 @@ public class ItemManager {
 		}
 	}
 	
+	public void removeFromWorldItems(Item item){
+		worldItems.remove(item);
+	}
+	
 	public void take(Item i, Character c, Vector wc, boolean use ){
 		if( wc != null ){
 			i.setWorldCoordinates(wc);

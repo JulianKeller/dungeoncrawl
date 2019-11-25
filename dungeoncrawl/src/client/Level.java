@@ -732,7 +732,7 @@ public class Level extends BasicGameState {
         		selectedEquippedItem++;
         	}else if( input.isKeyPressed(Input.KEY_ENTER) ){
         		//attack with item
-        		System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
+        		//System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
         		attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
         	}else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
         		//use item on own character
@@ -824,10 +824,25 @@ public class Level extends BasicGameState {
         for( ThrownItem ti : thrownItems ){
         	if( throwItem(ti, dc) ){
         		reachedDestination.add(ti);
+        		//Main.im.removeFromWorldItems(ti.itm);
+        	}
+        	for( Character ch : dc.characters){
+        		//manhattan distance
+        		float distance = Math.abs(ch.getWorldCoordinates().getX() - ti.itm.getWorldCoordinates().getX()) +
+        					Math.abs(ch.getWorldCoordinates().getY() - ti.itm.getWorldCoordinates().getY());
+        		if( distance <= dc.tilesize*1.5 ){
+        			addMessage("thrown item hit enemy");
+        			reachedDestination.add(ti);
+        			//Main.im.removeFromWorldItems(ti.itm);
+        		}
         	}
         }
         //remove any that have reached their destination
         thrownItems.removeAll(reachedDestination);
+        //itemsToRender.removeAll(reachedDestination);
+        for( ThrownItem ti : reachedDestination ){
+        	Main.im.removeFromWorldItems(ti.itm);
+        }
         
 
         //check if a character has hit an item
@@ -972,7 +987,7 @@ public class Level extends BasicGameState {
     		//throw potion image 5 tiles in the direction the character
     		//  is facing
     		
-    		System.out.println("Throwing potion");
+    		//System.out.println("Throwing potion");
     		
     		Vector heroWC = new Vector( (int) (dc.hero.animate.getX()/dc.tilesize), (int) (dc.hero.animate.getY()/dc.tilesize));
     		
@@ -994,17 +1009,17 @@ public class Level extends BasicGameState {
     	//if the item is not at the final location
     	if( !ti.itm.getWorldCoordinates().equals(ti.finalLocation) ){
     		
-    		System.out.print("moving item from " + ti.itm.getWorldCoordinates());
+    		//System.out.print("moving item from " + ti.itm.getWorldCoordinates());
     		
     		ti.itm.setWorldCoordinates(ti.itm.getWorldCoordinates().add(ti.step));
     		
-    		System.out.print(" to " + ti.itm.getWorldCoordinates());
-    		System.out.println();
+    		//System.out.print(" to " + ti.itm.getWorldCoordinates());
+    		//System.out.println();
     		
     		return false;
     	}
 
-    	System.out.println("thrown item reached destination");
+    	//System.out.println("thrown item reached destination");
     	return true;
     }
 
