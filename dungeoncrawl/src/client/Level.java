@@ -822,15 +822,25 @@ public class Level extends BasicGameState {
         //advance any thrown items along their path
         ArrayList<ThrownItem> reachedDestination = new ArrayList<ThrownItem>();
         for( ThrownItem ti : thrownItems ){
+        	if( ti.itm.getWorldCoordinates().getX() < 0 || ti.itm.getWorldCoordinates().getX() > dc.ScreenWidth/dc.tilesize){
+        		reachedDestination.add(ti);
+        	}else if( ti.itm.getWorldCoordinates().getY() < 0 || ti.itm.getWorldCoordinates().getY() > dc.ScreenHeight/dc.tilesize){
+        		reachedDestination.add(ti);
+        	}
         	if( throwItem(ti, dc) ){
         		reachedDestination.add(ti);
-        		//Main.im.removeFromWorldItems(ti.itm);
         	}
         	for( Character ch : dc.characters){
-        		//manhattan distance
-        		float distance = Math.abs(ch.getWorldCoordinates().getX() - ti.itm.getWorldCoordinates().getX()) +
-        					Math.abs(ch.getWorldCoordinates().getY() - ti.itm.getWorldCoordinates().getY());
-        		if( distance <= dc.tilesize*1.5 ){
+        		
+        		if( ch.getPid() == dc.hero.getPid() ){
+        			continue;
+        		}
+        		
+        		Vector chwc = new Vector( ch.animate.getX()/dc.tilesize, ch.animate.getY()/dc.tilesize);
+        	
+        		//System.out.println(chwc.toString());
+        		
+        		if( Math.abs(chwc.getX() - ti.itm.getWorldCoordinates().getX()) < 1.5 && Math.abs(chwc.getY() - ti.itm.getWorldCoordinates().getY()) < 1.5 ){
         			addMessage("thrown item hit enemy");
         			reachedDestination.add(ti);
         			//Main.im.removeFromWorldItems(ti.itm);
@@ -847,6 +857,9 @@ public class Level extends BasicGameState {
 
         //check if a character has hit an item
         for( Character ch : dc.characters ){
+        	if( ch.ai ){
+        		continue;
+        	}
         	float x = (ch.animate.getX()/dc.tilesize);
         	float y = (ch.animate.getY()/dc.tilesize);
         	Vector aniPos = new Vector((int)x, (int)y);
@@ -987,8 +1000,6 @@ public class Level extends BasicGameState {
     		//throw potion image 5 tiles in the direction the character
     		//  is facing
     		
-    		//System.out.println("Throwing potion");
-    		
     		Vector heroWC = new Vector( (int) (dc.hero.animate.getX()/dc.tilesize), (int) (dc.hero.animate.getY()/dc.tilesize));
     		
     		itm.setWorldCoordinates(heroWC);
@@ -997,7 +1008,7 @@ public class Level extends BasicGameState {
     		
     		Vector destination = heroWC.add(direction.scale(5));
 
-    		thrownItems.add(new ThrownItem(itm, direction, destination, direction));
+    		thrownItems.add(new ThrownItem(itm, direction, destination, direction.scale(0.1f)));
 
     	}else if( itm.getType().equals("Staff") ){
     		
@@ -1007,19 +1018,17 @@ public class Level extends BasicGameState {
     
     private boolean throwItem(ThrownItem ti, Main dc){
     	//if the item is not at the final location
-    	if( !ti.itm.getWorldCoordinates().equals(ti.finalLocation) ){
-    		
-    		//System.out.print("moving item from " + ti.itm.getWorldCoordinates());
-    		
+    	
+    	//these need to be floored because otherwise the item will go past its destination due to
+    	//  a small decimal difference
+    	Vector flooredWC = new Vector( (int) ti.itm.getWorldCoordinates().getX(), (int) ti.itm.getWorldCoordinates().getY() );
+    	Vector flooredDest = new Vector( (int) ti.finalLocation.getX(), (int) ti.finalLocation.getY() );
+    	
+    	if(  !flooredWC.equals(flooredDest) ){
     		ti.itm.setWorldCoordinates(ti.itm.getWorldCoordinates().add(ti.step));
-    		
-    		//System.out.print(" to " + ti.itm.getWorldCoordinates());
-    		//System.out.println();
-    		
     		return false;
     	}
 
-    	//System.out.println("thrown item reached destination");
     	return true;
     }
 
