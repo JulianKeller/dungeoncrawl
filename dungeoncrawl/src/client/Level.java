@@ -64,6 +64,24 @@ public class Level extends BasicGameState {
     	}	
     }
     private ArrayList<ItemLockTimer> itemLockTimers;
+    
+    
+    
+    private class ThrownItem{
+    	Item itm;
+    	Vector direction;
+    	Vector finalLocation;
+    	Vector step;
+    	
+    	public ThrownItem(Item itm, Vector direction, Vector finalLocation, Vector step){
+    		this.itm = itm;
+    		this.direction = direction;
+    		this.finalLocation = finalLocation;
+    		this.step = step;
+    	}
+    }
+    
+    private ArrayList<ThrownItem> thrownItems;
 
     @Override
     public int getID() {
@@ -215,6 +233,9 @@ public class Level extends BasicGameState {
         RenderMap.setMap(dc, dc.hero);
 
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
+        
+        
+        thrownItems = new ArrayList<ThrownItem>();
 
         // test items can be deleted
         /*
@@ -710,9 +731,8 @@ public class Level extends BasicGameState {
         	}else if( input.isKeyPressed(Input.KEY_RIGHT) ){
         		selectedEquippedItem++;
         	}else if( input.isKeyPressed(Input.KEY_ENTER) ){
-        		//TODO: add use functionality
-        		//throw/attack with item (i.e. throw potion or swing sword)
-        		//addMessage("threw "+dc.hero.getEquipped()[selectedEquippedItem]+".");
+        		//attack with item
+        		System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
         		attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
         	}else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
         		//use item on own character
@@ -798,6 +818,17 @@ public class Level extends BasicGameState {
                 ch.moveAI();
             }
         }
+        
+        //advance any thrown items along their path
+        ArrayList<ThrownItem> reachedDestination = new ArrayList<ThrownItem>();
+        for( ThrownItem ti : thrownItems ){
+        	if( throwItem(ti, dc) ){
+        		reachedDestination.add(ti);
+        	}
+        }
+        //remove any that have reached their destination
+        thrownItems.removeAll(reachedDestination);
+        
 
         //check if a character has hit an item
         for( Character ch : dc.characters ){
@@ -937,12 +968,46 @@ public class Level extends BasicGameState {
 			dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 			
     	}else if( itm.getType().equals("Potion") ){
+    		//ranged attack, need to throw potion
+    		//throw potion image 5 tiles in the direction the character
+    		//  is facing
     		
+    		System.out.println("Throwing potion");
+    		
+    		Vector heroWC = new Vector( (int) (dc.hero.animate.getX()/dc.tilesize), (int) (dc.hero.animate.getY()/dc.tilesize));
+    		
+    		itm.setWorldCoordinates(heroWC);
+    		
+    		Main.im.take(itm, dc.hero, itm.getWorldCoordinates(), true);
+    		
+    		Vector destination = heroWC.add(direction.scale(5));
+
+    		thrownItems.add(new ThrownItem(itm, direction, destination, direction));
+
     	}else if( itm.getType().equals("Staff") ){
     		
     	}
     	
     }
+    
+    private boolean throwItem(ThrownItem ti, Main dc){
+    	//if the item is not at the final location
+    	if( !ti.itm.getWorldCoordinates().equals(ti.finalLocation) ){
+    		
+    		System.out.print("moving item from " + ti.itm.getWorldCoordinates());
+    		
+    		ti.itm.setWorldCoordinates(ti.itm.getWorldCoordinates().add(ti.step));
+    		
+    		System.out.print(" to " + ti.itm.getWorldCoordinates());
+    		System.out.println();
+    		
+    		return false;
+    	}
+
+    	System.out.println("thrown item reached destination");
+    	return true;
+    }
+
 
     // pause the game
     public void pause(Input input) {

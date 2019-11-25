@@ -40,7 +40,7 @@ public class Item extends StationaryObject{
 		//currently developed item types, for debugging purposes only
 		String[] currentTypes = {"Potion", "Sword", "Armor"};
 		//TODO
-		this.type = "Sword"; //currentTypes[ rand.nextInt(currentTypes.length) ];
+		this.type = "Potion"; //currentTypes[ rand.nextInt(currentTypes.length) ];
 		
 		//choose materials from the appropriate list
 		if( type.equals("Sword") ){

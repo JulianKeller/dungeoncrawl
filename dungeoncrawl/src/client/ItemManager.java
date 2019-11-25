@@ -82,6 +82,16 @@ public class ItemManager {
 		}
 	}
 	
+	public void take(Item i, Character c, Vector wc, boolean use ){
+		if( wc != null ){
+			i.setWorldCoordinates(wc);
+			i.setOID(0);
+			worldItems.add(i);
+		}
+		
+		c.discardItem(i.getID(), use);
+	}
+	
 	private int currentItemID = 0;
 	
 	public int getCurrentItemID(){
