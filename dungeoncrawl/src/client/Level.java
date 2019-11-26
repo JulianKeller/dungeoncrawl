@@ -822,6 +822,8 @@ public class Level extends BasicGameState {
         //advance any thrown items along their path
         ArrayList<ThrownItem> reachedDestination = new ArrayList<ThrownItem>();
         for( ThrownItem ti : thrownItems ){
+        	
+        	//check if a thrown item went off the screen
         	if( ti.itm.getWorldCoordinates().getX() < 0 || ti.itm.getWorldCoordinates().getX() > dc.ScreenWidth/dc.tilesize){
         		reachedDestination.add(ti);
         	}else if( ti.itm.getWorldCoordinates().getY() < 0 || ti.itm.getWorldCoordinates().getY() > dc.ScreenHeight/dc.tilesize){
@@ -830,6 +832,8 @@ public class Level extends BasicGameState {
         	if( throwItem(ti, dc) ){
         		reachedDestination.add(ti);
         	}
+        	
+        	//check if a thrown item hit a character
         	for( Character ch : dc.characters){
         		
         		if( ch.getPid() == dc.hero.getPid() ){
@@ -841,7 +845,7 @@ public class Level extends BasicGameState {
         		//System.out.println(chwc.toString());
         		
         		if( Math.abs(chwc.getX() - ti.itm.getWorldCoordinates().getX()) < 1.5 && Math.abs(chwc.getY() - ti.itm.getWorldCoordinates().getY()) < 1.5 ){
-        			addMessage("thrown item hit enemy");
+        			//addMessage("thrown item hit enemy");
         			
         			//potions do no damage but cause status effects on the target
         			ch.takeDamage(0, ti.itm.getEffect());
@@ -849,7 +853,16 @@ public class Level extends BasicGameState {
         			reachedDestination.add(ti);
         			//Main.im.removeFromWorldItems(ti.itm);
         		}
+        		
+
         	}
+        	
+    		//check if an item hit a wall tile
+    		if( rotatedMap[(int) ti.itm.getWorldCoordinates().getX()][(int) ti.itm.getWorldCoordinates().getY()] == 1 ){
+    			//addMessage("thrown item hit wall");
+    			
+    			reachedDestination.add(ti);
+    		}
         }
         //remove any that have reached their destination
         thrownItems.removeAll(reachedDestination);
@@ -1021,7 +1034,6 @@ public class Level extends BasicGameState {
     	}else if( itm.getType().equals("Staff") ){
     		
     	}
-    	
     }
     
     private boolean throwItem(ThrownItem ti, Main dc){
