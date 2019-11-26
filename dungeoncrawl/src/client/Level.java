@@ -842,6 +842,10 @@ public class Level extends BasicGameState {
         		
         		if( Math.abs(chwc.getX() - ti.itm.getWorldCoordinates().getX()) < 1.5 && Math.abs(chwc.getY() - ti.itm.getWorldCoordinates().getY()) < 1.5 ){
         			addMessage("thrown item hit enemy");
+        			
+        			//potions do no damage but cause status effects on the target
+        			ch.takeDamage(0, ti.itm.getEffect());
+        			dc.hero.addToCodex(ti.itm);
         			reachedDestination.add(ti);
         			//Main.im.removeFromWorldItems(ti.itm);
         		}
@@ -1004,12 +1008,16 @@ public class Level extends BasicGameState {
     		
     		itm.setWorldCoordinates(heroWC);
     		
-    		Main.im.take(itm, dc.hero, itm.getWorldCoordinates(), true);
+    		dc.hero.unequipItem(selectedEquippedItem);
+    		
+    		
+    		//throw the potion but do not identify it unless it hits an enemy
+    		Main.im.take(itm, dc.hero, itm.getWorldCoordinates(), false);
     		
     		Vector destination = heroWC.add(direction.scale(5));
 
     		thrownItems.add(new ThrownItem(itm, direction, destination, direction.scale(0.1f)));
-
+    		
     	}else if( itm.getType().equals("Staff") ){
     		
     	}
