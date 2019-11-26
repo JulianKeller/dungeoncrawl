@@ -26,6 +26,7 @@ public class Character extends MovingEntity {
     ArrayList<int[]> shortest;
     ArrayList<Arrow> arrows;
     float[][] weights;
+    int range;          // range to player in tiles to use dijkstra's
 
     /**
      * Create a new Character (wx, wy)
@@ -53,6 +54,7 @@ public class Character extends MovingEntity {
         ai = AI;            //
         shortest = new ArrayList<>();
         arrows = new ArrayList<>();
+        range = 10;
     }
 
 
@@ -212,6 +214,7 @@ public class Character extends MovingEntity {
      */
     public void moveAI() {
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
+        String next = null;
         String currentDirection = direction;
         // moved the character fixed to the grid
         if (!canMove) {
@@ -220,28 +223,30 @@ public class Character extends MovingEntity {
         }
 
         // run dijkstra's so enemies attack the player
+        if (playerNearby(range)) {
 //        PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), dc.hero.getTileWorldCoordinates());
-        PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), dc.hero.getTileWorldCoordinates());
-        int startX = (int) getTileWorldCoordinates().getX();
-        int startY = (int) getTileWorldCoordinates().getY();
+            PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), dc.hero.getTileWorldCoordinates());
+            int startX = (int) getTileWorldCoordinates().getX();
+            int startY = (int) getTileWorldCoordinates().getY();
 
-        shortest = find.dijkstra(dc, startX, startY);
+            shortest = find.dijkstra(dc, startX, startY);
 //        shortest = find.dijkstra(dc, startY, startX);
 
-        System.out.println("Hero: " + dc.hero.getTileWorldCoordinates());
-        System.out.println("AI: " + getTileWorldCoordinates());
-        PathFinding.printShortestPath(shortest);
-        System.out.println();
+            System.out.println("Hero: " + dc.hero.getTileWorldCoordinates());
+            System.out.println("AI: " + getTileWorldCoordinates());
+            PathFinding.printShortestPath(shortest);
+            System.out.println();
 
-        // load arrows for dijkstra's debugging
-        if (dc.showPath) {
-            Arrow.removeArrows(this);
-            Arrow.loadPathArrows(dc, this);
-            weights = find.getWeights();
+            // load arrows for dijkstra's debugging
+            if (dc.showPath) {
+                Arrow.removeArrows(this);
+                Arrow.loadPathArrows(dc, this);
+                weights = find.getWeights();
+            }
+            next = getNextDirection(dc);
         }
         // move based on the shortest path
 
-        String next = getNextDirection(dc);
         if (next != null) {
             direction = next;
         }
@@ -254,8 +259,6 @@ public class Character extends MovingEntity {
                 return;
             }
         }
-
-
 
         // TODO this can be simplified
         String movement = null;
@@ -309,11 +312,23 @@ public class Character extends MovingEntity {
         }
     }
 
-
+    /**
+     *
+     * @return Checks if the player is within range of the ai
+     */
+    public boolean playerNearby(int range) {
+        Vector heroWC = dc.hero.getTileWorldCoordinates();
+        Vector aiWC = getTileWorldCoordinates();
+        if (Math.abs(heroWC.getX() - aiWC.getX()) <= range && (Math.abs(heroWC.getY() - aiWC.getY()) <= range)) {
+            System.out.println("Player Nearby!");
+            return true;
+        }
+        return false;
+    }
 
     // get next direction based on Dijkstra shortest path
     public String getNextDirection(Main dc) {
-        if (shortest.isEmpty() || shortest.size() < 2) {
+        if (shortest.isEmpty() || shortest.size() <= 2) {
             return null;
         }
 //        int px = (int) dc.hero.getWorldCoordinates().getX() / dc.tilesize - 1;
