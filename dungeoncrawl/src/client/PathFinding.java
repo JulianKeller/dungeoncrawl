@@ -76,6 +76,7 @@ public class PathFinding {
                 break;
             }
 
+            // TODO this is null on 79/47
             int[] prev = path[prevx][prevy];
             if (prev == null) {
                 break;
@@ -124,14 +125,20 @@ public class PathFinding {
         int ax = adjacent[0];
         int ay = adjacent[1];
 
+        if (cx == 79 || cy == 47 || ax == 79 || ay == 47) {
+//            System.out.println();
+        }
+
         if (!inRange(current) || !inRange(adjacent))
             return;
 
         // TODO here seems to be the problem
         int weight = 1;
         if (map[ay][ax] == 1) {
-            weight = Integer.MAX_VALUE;
+            weight = MAX;   //     Integer.MAX_VALUE;
         }
+
+        System.out.printf("distance[%s][%s]: %s > distance[%s][%s]: %s + %s\n", ax, ay, distance[ax][ay], cx, cy, distance[cx][cy], weight);
         if (distance[ax][ay] > distance[cx][cy] + weight) {
             distance[ax][ay] = distance[cx][cy] + weight;
             path[ax][ay] = current;
