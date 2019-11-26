@@ -220,11 +220,13 @@ public class Character extends MovingEntity {
         }
 
         // run dijkstra's so enemies attack the player
+//        PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), dc.hero.getTileWorldCoordinates());
         PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), dc.hero.getTileWorldCoordinates());
         int startX = (int) getTileWorldCoordinates().getX();
         int startY = (int) getTileWorldCoordinates().getY();
 
         shortest = find.dijkstra(dc, startX, startY);
+//        shortest = find.dijkstra(dc, startY, startX);
 
         System.out.println("Hero: " + dc.hero.getTileWorldCoordinates());
         System.out.println("AI: " + getTileWorldCoordinates());

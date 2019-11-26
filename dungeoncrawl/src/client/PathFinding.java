@@ -18,12 +18,18 @@ public class PathFinding {
     private final int MAX = 20000;
 
     public PathFinding(Main dc, Vector start, Vector target) {
-        this.x = dc.map.length - 1;
-        this.y = dc.map[0].length;
+        this.y = dc.map.length;
+        this.x = dc.map[0].length;
         this.targetX = (int) target.getX();
         this.targetY = (int) target.getY();
         this.startX = (int) start.getX();
         this.startY = (int) start.getY();
+
+        // reversed
+//        this.targetX = (int) target.getY();
+//        this.targetY = (int) target.getX();
+//        this.startX = (int) start.getY();
+//        this.startY = (int) start.getX();
     }
 
     // runs dijkstra's and then returns the shortest found path
@@ -66,8 +72,10 @@ public class PathFinding {
         while (count < 200) {
             //stop dijkstra's early if we found the player
             if (prevx == startX && prevy == startY) {
+                System.out.println("Player is found");
                 break;
             }
+
             int[] prev = path[prevx][prevy];
             if (prev == null) {
                 break;
@@ -115,24 +123,32 @@ public class PathFinding {
         int cy = current[1];
         int ax = adjacent[0];
         int ay = adjacent[1];
+
         if (!inRange(current) || !inRange(adjacent))
             return;
 
         // TODO here seems to be the problem
         int weight = 1;
-        if (map[ax][ay] == 1) {
+        if (map[ay][ax] == 1) {
             weight = Integer.MAX_VALUE;
         }
         if (distance[ax][ay] > distance[cx][cy] + weight) {
             distance[ax][ay] = distance[cx][cy] + weight;
             path[ax][ay] = current;
         }
+
     }
 
     // make sure everything is in range of the map
     private Boolean inRange(int[] vertex) {
         // set to >= 1 because edges of map have infinite walls
-        return (vertex[0] < x && vertex[0] >= 1 && vertex[1] < y && vertex[1] >= 1);
+        return (vertex[0] < x && vertex[0] >= 0 && vertex[1] < y && vertex[1] >= 0);
+    }
+
+    // make sure everything is in range of the map
+    private Boolean inRange(int vertexX, int vertexY) {
+        // set to >= 1 because edges of map have infinite walls
+        return (vertexX < x && vertexX >= 0 && vertexY < y && vertexY >= 0);
     }
 
     // print the shortest path based on dijkstra

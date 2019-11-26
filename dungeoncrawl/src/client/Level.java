@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -111,9 +112,19 @@ public class Level extends BasicGameState {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+
+
+        // use the debug map instead
+//        dc.map = RenderMap.getDebugMap();
+        try {
+            dc.map = RenderMap.getDebugMap2();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         //*/
         //dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
-        System.out.printf("Map Size: %s, %s\n", dc.map.length, dc.map[0].length);
+        System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
 
         //rotated map verified correct
         rotatedMap = new int[dc.map[0].length][dc.map.length];
@@ -303,30 +314,41 @@ public class Level extends BasicGameState {
     }
 
     private void renderPathWeights(Main dc, Graphics g) {
+        boolean scaled = false;
         for (Character ai : dc.characters) {
             if (ai.weights != null) {
-                for (int i = 0; i < ai.weights[0].length; i++) {
-                    for (int j = 0; j < ai.weights.length; j++) {
+                for (int i = 0; i < ai.weights.length; i++) {
+                    for (int j = 0; j < ai.weights[0].length; j++) {
                         Color tmp = g.getColor();
+                        g.setColor(new Color(255, 255, 255, 1f));
 
                         //make the messages fade away based on their timers
-                        String msg = String.valueOf((int) ai.weights[j][i]);
-                        g.setColor(new Color(255, 255, 255, 1f));
-                        g.scale(.5f, .5f);
+                        String msg = String.valueOf((int) ai.weights[i][j]);
+                        if (ai.weights[i][j] > 200) {
+                            msg = "INF";
+                        }
 
+                        if (!scaled) {
+                            Vector wc = new Vector(i * dc.tilesize, j * dc.tilesize);
+                            Vector sc = world2screenCoordinates(dc, wc);
+                            g.drawString(msg, sc.getX(), sc.getY());
+                        }
+                        else {
+                            g.scale(.5f, .5f);
+                            Vector wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize);
+                            Vector sc = world2screenCoordinates(dc, wc);
+                            g.drawString(msg, sc.getX(), sc.getY());
 
-                        Vector wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize);
-                        Vector sc = world2screenCoordinates(dc, wc);
-                        g.drawString(msg, sc.getX(), sc.getY());
-
-                        // draw x, y tile values
-//                        wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize + dc.offset);
-//                        sc = world2screenCoordinates(dc, wc);
-//                        msg = "(" + String.valueOf(i) + "," + String.valueOf(j) + ")";
-//                        g.drawString(msg, sc.getX(), sc.getY());
-
-
-                        g.scale(2f, 2f);
+                            // draw x, y tile values
+                            g.setColor(new Color(255, 255, 255, .8f));
+                            wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize + dc.offset);
+                            sc = world2screenCoordinates(dc, wc);
+                            String I = String.valueOf(i + 1);
+                            String J = String.valueOf(j + 1);
+                            msg = "(" + I + "," + J + ")";
+                            g.drawString(msg, sc.getX(), sc.getY());
+                            g.scale(2f, 2f);
+                        }
                         g.setColor(tmp);
                     }
                 }
