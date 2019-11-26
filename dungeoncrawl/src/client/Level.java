@@ -147,19 +147,21 @@ public class Level extends BasicGameState {
         // setup the knight character
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
-        System.out.printf("setting character at %s, %s\n", wx, wy);
+        //System.out.printf("setting character at %s, %s\n", wx, wy);
 
         // Setting starting position for the hero.
         String type = "knight_iron";
         String coord = type + " " + wx + " " + wy;
+        int id = 0;
         try {
-            System.out.println("Sending my player info.");
+            id = Integer.parseInt(dis.readUTF());
+            //System.out.println("Sending my player info.");
             dos.writeUTF(coord);
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();
         }
-        dc.hero = new Character(dc, wx, wy, type, 1);
+        dc.hero = new Character(dc, wx, wy, type, id);
         //dc.characters.add(dc.hero);
         currentOX = dc.hero.ox;
         currentOY = dc.hero.oy;
@@ -489,7 +491,29 @@ public class Level extends BasicGameState {
 
     public void updateOtherPlayers(Main dc){
         try {
-            System.out.println("Read: " + dis.readUTF());
+            String read = dis.readUTF();
+            //System.out.println("Read: " + read);
+            if (read.split(" ").length > 3) {
+                int id = Integer.parseInt(read.split(" ")[0]);
+                if (read.split(" ")[1].equals("Exit")) {
+                    dc.characters.removeIf(character -> character.getPid() == id);
+                    return;
+                }
+                for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
+                    Character c = i.next();
+                    if (c.getPid() == id) {
+                        float x = Float.parseFloat(read.split(" ")[2]);
+                        float y = Float.parseFloat(read.split(" ")[3]);
+                        c.animate.setPosition(new Vector(x,y));
+                        return;
+                    }
+                }
+                float x = Float.parseFloat(read.split(" ")[2]);
+                float y = Float.parseFloat(read.split(" ")[3]);
+                if(id != dc.hero.getPid()) {
+                    dc.characters.add(new Character(dc, x, y, read.split(" ")[1], id));
+                }
+            }
         }catch(IOException e){
             e.printStackTrace();
         }

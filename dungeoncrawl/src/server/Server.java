@@ -4,18 +4,12 @@ import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
 import client.RenderMap;
-import org.lwjgl.Sys;
-
-import java.util.ArrayList;
-import java.util.Iterator;
 
 public class Server extends Thread{
     // Static Objects for each thread.
-    public static BlockingQueue<String> serverQueue = new ArrayBlockingQueue<>(50);
+    public static BlockingQueue<String> serverQueue = new LinkedBlockingQueue<>();
     public static int [][] map;
-
-    // Keep track of all the clients connected
-    private ArrayList<ClientHandler> clients;
+    private BlockingQueue<String> threadQs;
     /**
      * Static method getMap, that gets a random map from file.
      */
@@ -27,13 +21,11 @@ public class Server extends Thread{
         }
     }
 
-    public Server() {
-        clients = new ArrayList<>(4);
+    public Server(BlockingQueue<String> queue){
+        threadQs = queue;
     }
-
     @Override
     public void run() {
-        System.out.println("Run Started.");
         while(true){
          sendToClients();
         }
@@ -42,15 +34,8 @@ public class Server extends Thread{
     public void sendToClients(){
             try {
                 String playerInfo = serverQueue.take();
-//                    if (playerInfo.split(" ")[1].equals("Exit")) {
-//                        clients.removeIf(clientHandler ->
-//                                clientHandler.getClientId() == Integer.parseInt(playerInfo.split(" ")[0]));
-//                    }
-                    System.out.println(playerInfo);
-                    for (Iterator<ClientHandler> i = clients.iterator(); i.hasNext(); ) {
-                        i.next().threadQueue.put(playerInfo);
-                        Thread.sleep(10);
-                    }
+                threadQs.put(playerInfo);
+
                 } catch(InterruptedException e){
                     e.printStackTrace();
                 }
@@ -58,18 +43,24 @@ public class Server extends Thread{
 
     public static void main(String [] args){
         try {
+            // Create a new Socket for the server
             ServerSocket ss = new ServerSocket(5000);
+            // Generate the map
             getMap();
-            Server server = new Server();
+            // Create a blocking queue for the threads
+            BlockingQueue<String> threadQ = new LinkedBlockingQueue<>();
+            // Start a Server thread that will handle distributing to the client and servers.
+            Server server = new Server(threadQ);
             server.start();
+            // This listens for new connections.
             while (true) { ;
                 Socket s = ss.accept();
                 System.out.println("A new client has connected " + s);
                 ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
                 ObjectInputStream is = new ObjectInputStream(s.getInputStream());
-                ClientHandler t = new ClientHandler(s, is, os);
+                // This is the client handler thread.
+                ClientHandler t = new ClientHandler(s, is, os, threadQ);
                 t.start();
-                server.clients.add(t);
 
             }
         }catch(IOException e){
