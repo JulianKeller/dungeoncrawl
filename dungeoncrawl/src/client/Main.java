@@ -166,7 +166,7 @@ public class Main extends StateBasedGame {
     
     //item effects
     public static final String[] PotionEffects = {"Healing", "Strength", "Flame", "Mana", "Invisibility"};
-    public static final String[] ArrowEffects = {"Flaming", "Poisoned", "Ice"};
+    public static final String[] ArrowEffects = {"Flame", "Poison", "Ice", ""};
     public static final String[] StaffEffects = {"Healing", "Lightning", "Flame", "Ice"};
     public static final String[] ArmorEffects = {"Stench", "Iron Skin", "Thorns", "Swiftness"};
     public static final String[] SwordEffects = {"Fright", "Might", "Flame", "Ice"};

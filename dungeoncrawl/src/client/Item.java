@@ -40,7 +40,7 @@ public class Item extends StationaryObject{
 		//currently developed item types, for debugging purposes only
 		String[] currentTypes = {"Potion", "Sword", "Armor"};
 		//TODO
-		this.type = "Potion"; //currentTypes[ rand.nextInt(currentTypes.length) ];
+		this.type = "Arrow"; //currentTypes[ rand.nextInt(currentTypes.length) ];
 		
 		//choose materials from the appropriate list
 		if( type.equals("Sword") ){
@@ -127,6 +127,18 @@ public class Item extends StationaryObject{
 				image = ResourceManager.getImage(Main.ARMOR_GOLD);
 			}else{
 				throw new SlickException("Error: invalid armor material '"+material+"'");
+			}
+		}else if( type.equals("Arrow") ){
+			if( effect.equals("Flame") ){
+				image = ResourceManager.getImage(Main.ARROW_FLAME);
+			}else if( effect.equals("Poison") ){
+				image = ResourceManager.getImage(Main.ARROW_POISON);
+			}else if( effect.equals("Ice") ){
+				image = ResourceManager.getImage(Main.ARROW_ICE);
+			}else if( effect.equals("") ){
+				image = ResourceManager.getImage(Main.ARROW_NORMAL);
+			}else{
+				throw new SlickException("Invalid arrow effect.");
 			}
 		}
 	}
