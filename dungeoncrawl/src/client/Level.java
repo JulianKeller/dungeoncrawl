@@ -704,11 +704,15 @@ public class Level extends BasicGameState {
         	}else if( input.isKeyPressed(Input.KEY_ENTER) ){
         		System.out.println("Equipping "+((itemy*4)+itemx)+"...");
         		//dc.hero.equipItem( dc.hero.getInventory().get((itemy*4)+itemx).getID(), 0);
-        		String m = dc.hero.equipItem((itemy*4)+itemx);
-        		itemx = 0;
-        		itemy = 0;
-        		if( m != null ){
-        			addMessage(m);
+        		try{
+	        		String m = dc.hero.equipItem((itemy*4)+itemx);
+	        		itemx = 0;
+	        		itemy = 0;
+	        		if( m != null ){
+	        			addMessage(m);
+	        		}
+        		}catch(IndexOutOfBoundsException ex){
+        			System.out.println("Out of bounds.");
         		}
         	}
         	
@@ -735,7 +739,11 @@ public class Level extends BasicGameState {
         	}else if( input.isKeyPressed(Input.KEY_ENTER) ){
         		//attack with item
         		//System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
-        		attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
+        		try{
+        			attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
+        		}catch(IndexOutOfBoundsException ex){
+        			System.out.println("Out of bounds.");
+        		}
         	}else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
         		//use item on own character
         		Item i = dc.hero.getEquipped()[selectedEquippedItem];
