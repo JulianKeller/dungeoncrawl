@@ -98,8 +98,8 @@ public class Main extends StateBasedGame {
     // Arrow Item
     public static final String ARROW_NORMAL = "resources/arrows/normal_arrows.png";
     public static final String ARROW_ICE = "resources/arrows/ice_arrows.png";
-    public static final String ARROW_POISON = "resources/arrows/flaming_arrows.png";
-    public static final String ARROW_FLAME = "resources/arrows/poison_arrows.png";
+    public static final String ARROW_POISON = "resources/arrows/poison_arrows.png";
+    public static final String ARROW_FLAME = "resources/arrows/flaming_arrows.png";
     
     // Fire Arrows
     public static final String ARROW_FLAME_UP = "resources/arrows/up/up_arrow_fire.png";
