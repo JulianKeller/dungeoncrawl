@@ -208,4 +208,8 @@ public class ItemManager {
 		return worldItems;
 	}
 	
+	public void addToWorldItems(Item itm){
+		worldItems.add(itm);
+	}
+	
 }

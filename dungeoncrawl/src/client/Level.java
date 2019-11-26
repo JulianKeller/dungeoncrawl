@@ -11,11 +11,13 @@ import java.util.Scanner;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import jig.ResourceManager;
 import jig.Vector;
 
 
@@ -845,7 +847,7 @@ public class Level extends BasicGameState {
         		//System.out.println(chwc.toString());
         		
         		if( Math.abs(chwc.getX() - ti.itm.getWorldCoordinates().getX()) < 1.5 && Math.abs(chwc.getY() - ti.itm.getWorldCoordinates().getY()) < 1.5 ){
-        			//addMessage("thrown item hit enemy");
+        			addMessage("thrown " + ti.itm.getType() + " hit enemy");
         			
         			//potions do no damage but cause status effects on the target
         			ch.takeDamage(0, ti.itm.getEffect());
@@ -859,7 +861,7 @@ public class Level extends BasicGameState {
         	
     		//check if an item hit a wall tile
     		if( rotatedMap[(int) ti.itm.getWorldCoordinates().getX()][(int) ti.itm.getWorldCoordinates().getY()] == 1 ){
-    			//addMessage("thrown item hit wall");
+    			addMessage("thrown " + ti.itm.getType() + " hit wall");
     			
     			reachedDestination.add(ti);
     		}
@@ -1033,6 +1035,68 @@ public class Level extends BasicGameState {
     		
     	}else if( itm.getType().equals("Staff") ){
     		
+    	}else if( itm.getType().equals("Arrow") ){
+    		//Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
+    		
+    		
+    		
+    		//get image based on effect and direction
+    		Image image = null;
+    		if( dir.equals("up") ){
+    			if( itm.getEffect().equals("Poison") ){
+    				image = ResourceManager.getImage(Main.ARROW_POISON_UP);
+    			}else if( itm.getEffect().equals("Flame") ){
+    				image = ResourceManager.getImage(Main.ARROW_FLAME_UP);
+    			}else if( itm.getEffect().equals("Ice") ){
+    				image = ResourceManager.getImage(Main.ARROW_ICE_UP);
+    			}else if( itm.getEffect().equals("") ){
+    				image = ResourceManager.getImage(Main.ARROW_NORMAL_UP);
+    			}
+    		}else if( dir.equals("down") ){
+    			if( itm.getEffect().equals("Poison") ){
+    				image = ResourceManager.getImage(Main.ARROW_POISON_DOWN);
+    			}else if( itm.getEffect().equals("Flame") ){
+    				image = ResourceManager.getImage(Main.ARROW_FLAME_DOWN);
+    			}else if( itm.getEffect().equals("Ice") ){
+    				image = ResourceManager.getImage(Main.ARROW_ICE_DOWN);
+    			}else if( itm.getEffect().equals("") ){
+    				image = ResourceManager.getImage(Main.ARROW_NORMAL_DOWN);
+    			}
+    		}else if( dir.equals("left") ){
+    			if( itm.getEffect().equals("Poison") ){
+    				image = ResourceManager.getImage(Main.ARROW_POISON_LEFT);
+    			}else if( itm.getEffect().equals("Flame") ){
+    				image = ResourceManager.getImage(Main.ARROW_FLAME_LEFT);
+    			}else if( itm.getEffect().equals("Ice") ){
+    				image = ResourceManager.getImage(Main.ARROW_ICE_LEFT);
+    			}else if( itm.getEffect().equals("") ){
+    				image = ResourceManager.getImage(Main.ARROW_NORMAL_LEFT);
+    			}
+    		}else if( dir.equals("right") ){
+    			if( itm.getEffect().equals("Poison") ){
+    				image = ResourceManager.getImage(Main.ARROW_POISON_RIGHT);
+    			}else if( itm.getEffect().equals("Flame") ){
+    				image = ResourceManager.getImage(Main.ARROW_FLAME_RIGHT);
+    			}else if( itm.getEffect().equals("Ice") ){
+    				image = ResourceManager.getImage(Main.ARROW_ICE_RIGHT);
+    			}else if( itm.getEffect().equals("") ){
+    				image = ResourceManager.getImage(Main.ARROW_NORMAL_RIGHT);
+    			}
+    		}
+    		if( image == null ){
+    			throw new SlickException("Invalid arrow effect " + itm.getEffect());
+    		}
+    		
+    		//spawn at the world coordinate of the player's animation
+    		Vector wc = new Vector(dc.hero.animate.getX()/dc.tilesize, (dc.hero.animate.getY()/dc.tilesize)-1);
+    		Item flyingArrow = new Item(wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, image);
+    		
+    		//add this to the list of items so it can be rendered
+    		Main.im.addToWorldItems(flyingArrow);
+    		
+    		//this thrown item should travel until it hits a wall or an enemy
+    		//  thus the final destination is effectively infinite (past the level boundary)
+    		thrownItems.add( new ThrownItem(flyingArrow, direction, direction.scale(10000), direction.scale(0.1f) )); 
     	}
     }
     
