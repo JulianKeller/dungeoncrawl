@@ -851,7 +851,9 @@ public class Level extends BasicGameState {
         			
         			//potions do no damage but cause status effects on the target
         			ch.takeDamage(0, ti.itm.getEffect());
-        			dc.hero.addToCodex(ti.itm);
+        			if( ti.itm.getType().equals("Potion") ){
+        				dc.hero.addToCodex(ti.itm);
+        			}
         			reachedDestination.add(ti);
         			//Main.im.removeFromWorldItems(ti.itm);
         		}
