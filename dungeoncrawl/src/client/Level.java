@@ -1090,7 +1090,7 @@ public class Level extends BasicGameState {
     		}
     		
     		//spawn at the world coordinate of the player's animation
-    		Vector wc = new Vector(dc.hero.animate.getX()/dc.tilesize, (dc.hero.animate.getY()/dc.tilesize)-1);
+    		Vector wc = new Vector((dc.hero.animate.getX()/dc.tilesize)-0.5f, (dc.hero.animate.getY()/dc.tilesize)-1);
     		Item flyingArrow = new Item(wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, image);
     		
     		//add this to the list of items so it can be rendered
@@ -1098,7 +1098,7 @@ public class Level extends BasicGameState {
     		
     		//this thrown item should travel until it hits a wall or an enemy
     		//  thus the final destination is effectively infinite (past the level boundary)
-    		thrownItems.add( new ThrownItem(flyingArrow, direction, direction.scale(10000), direction.scale(0.1f) )); 
+    		thrownItems.add( new ThrownItem(flyingArrow, direction, direction.scale(10000), direction.scale(0.3f) )); 
     	}
     }
     
