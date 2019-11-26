@@ -821,6 +821,9 @@ public class Level extends BasicGameState {
         	}
         }
         
+        //remove dead characters
+        dc.characters.removeIf(b -> b.getHitPoints() <= 0);
+        
 
         // cause AI players to move around
         for( Character ch : dc.characters ) {
@@ -855,18 +858,37 @@ public class Level extends BasicGameState {
         		//System.out.println(chwc.toString());
         		
         		if( Math.abs(chwc.getX() - ti.itm.getWorldCoordinates().getX()) < 1.5 && Math.abs(chwc.getY() - ti.itm.getWorldCoordinates().getY()) < 1.5 ){
-        			addMessage("thrown " + ti.itm.getType() + " hit enemy");
+        			//addMessage("thrown " + ti.itm.getType() + " hit enemy");
         			
         			//potions do no damage but cause status effects on the target
-        			ch.takeDamage(0, ti.itm.getEffect());
         			if( ti.itm.getType().equals("Potion") ){
-        				dc.hero.addToCodex(ti.itm);
-        			}
-        			reachedDestination.add(ti);
-        			//Main.im.removeFromWorldItems(ti.itm);
+	        			ch.takeDamage(0, ti.itm.getEffect());
+	        			dc.hero.addToCodex(ti.itm);
+	        			reachedDestination.add(ti);
+	        		}else if( ti.itm.getType().equals("Arrow") ){
+	        			//roll random damage, similarly to a sword
+	        			rand.setSeed(System.nanoTime());
+	        			int r = rand.nextInt(100);
+	        			
+	        			float damagePercent = r/(float) 100;
+	        			
+	        			String m;
+	        			if( damagePercent == 0 ){
+	        				m = "Missed.";
+	        			}else{
+		        			if( ch.takeDamage(10*damagePercent, ti.itm.getEffect()) ){
+		        				//set character action to die
+		        				ch.updateAnimation("die");
+		        			}
+		        			
+		        			m = "Hit enemy for " + (int) (10*damagePercent) + " damage.";
+		        			if( damagePercent >= 0.8 ){
+		        				m = m + " Critical hit!";
+		        			}
+	        			}
+	        			addMessage(m);
+	        		}
         		}
-        		
-
         	}
         	
     		//check if an item hit a wall tile
@@ -954,7 +976,7 @@ public class Level extends BasicGameState {
     		throw new SlickException("Invalid attack direction " + dir);
     	}
     	
-    	if( itm.getType().equals("Sword") ){
+    	if( itm.getType().equals("Sword") || itm.getType().equals("Glove")){
     		rand.setSeed(System.nanoTime());
     		int r = rand.nextInt(100);
     		if( r < 50 ){
