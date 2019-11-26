@@ -15,7 +15,8 @@ public class PathFinding {
     private int targetY;
     private int startX;
     private int startY;
-    private final int MAX = 20000;
+//    private final int MAX = 20000;
+private final int MAX = Integer.MAX_VALUE;
 
     public PathFinding(Main dc, Vector start, Vector target) {
         this.y = dc.map.length;
@@ -70,9 +71,8 @@ public class PathFinding {
         prevy = targetY;
         int count = 0;
         while (count < 200) {
-            //stop dijkstra's early if we found the player
+            //stop loop early if we found the player
             if (prevx == startX && prevy == startY) {
-                System.out.println("Player is found");
                 break;
             }
 
@@ -125,21 +125,16 @@ public class PathFinding {
         int ax = adjacent[0];
         int ay = adjacent[1];
 
-        if (cx == 79 || cy == 47 || ax == 79 || ay == 47) {
-//            System.out.println();
-        }
-
         if (!inRange(current) || !inRange(adjacent))
             return;
 
         // TODO here seems to be the problem
         int weight = 1;
         if (map[ay][ax] == 1) {
-            weight = MAX;   //     Integer.MAX_VALUE;
+            weight = 200000;
         }
 
-        System.out.printf("distance[%s][%s]: %s > distance[%s][%s]: %s + %s\n", ax, ay, distance[ax][ay], cx, cy, distance[cx][cy], weight);
-        if (distance[ax][ay] > distance[cx][cy] + weight) {
+        if (distance[ax][ay] > (distance[cx][cy] + weight)) {
             distance[ax][ay] = distance[cx][cy] + weight;
             path[ax][ay] = current;
         }

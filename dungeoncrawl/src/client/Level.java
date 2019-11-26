@@ -314,7 +314,8 @@ public class Level extends BasicGameState {
     }
 
     private void renderPathWeights(Main dc, Graphics g) {
-        boolean scaled = false;
+        boolean scaled = true;
+        boolean coords = false;
         for (Character ai : dc.characters) {
             if (ai.weights != null) {
                 for (int i = 0; i < ai.weights.length; i++) {
@@ -324,9 +325,9 @@ public class Level extends BasicGameState {
 
                         //make the messages fade away based on their timers
                         String msg = String.valueOf((int) ai.weights[i][j]);
-                        if (ai.weights[i][j] > 200) {
-                            msg = "INF";
-                        }
+//                        if (ai.weights[i][j] > 200) {
+//                            msg = "INF";
+//                        }
 
                         if (!scaled) {
                             Vector wc = new Vector(i * dc.tilesize, j * dc.tilesize);
@@ -340,13 +341,15 @@ public class Level extends BasicGameState {
                             g.drawString(msg, sc.getX(), sc.getY());
 
                             // draw x, y tile values
-                            g.setColor(new Color(255, 255, 255, .8f));
-                            wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize + dc.offset);
-                            sc = world2screenCoordinates(dc, wc);
-                            String I = String.valueOf(i + 1);
-                            String J = String.valueOf(j + 1);
-                            msg = "(" + I + "," + J + ")";
-                            g.drawString(msg, sc.getX(), sc.getY());
+                            if (coords) {
+                                g.setColor(new Color(255, 255, 255, .8f));
+                                wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize + dc.offset);
+                                sc = world2screenCoordinates(dc, wc);
+                                String I = String.valueOf(i + 1);
+                                String J = String.valueOf(j + 1);
+                                msg = "(" + I + "," + J + ")";
+                                g.drawString(msg, sc.getX(), sc.getY());
+                            }
                             g.scale(2f, 2f);
                         }
                         g.setColor(tmp);
