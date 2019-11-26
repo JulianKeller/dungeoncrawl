@@ -38,9 +38,9 @@ public class Item extends StationaryObject{
 		//this.type = client.Main.ItemTypes[ rand.nextInt(client.Main.ItemTypes.length) ];
 		
 		//currently developed item types, for debugging purposes only
-		String[] currentTypes = {"Potion", "Sword", "Armor"};
+		String[] currentTypes = {"Potion", "Sword", "Armor", "Arrow"};
 		//TODO
-		this.type = "Arrow"; //currentTypes[ rand.nextInt(currentTypes.length) ];
+		this.type = currentTypes[ rand.nextInt(currentTypes.length) ];
 		
 		//choose materials from the appropriate list
 		if( type.equals("Sword") ){
