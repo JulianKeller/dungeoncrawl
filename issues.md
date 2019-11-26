@@ -9,6 +9,8 @@
 **[ 7 ]** Get world coordinates from client and update with new world coordinates on
 server for player.<br>
 **[ 8 ]** Get other Clients' position rendering on the client.<br>
+
+## Pending Further Testing ##
+**[ 10 ]** Convert Server to take multiple clients instead of making new threads.
 ## PENDING ISSUES ##
 **[ 9 ]** Get item managment working on the server.<br>
-**[ 10 ]** Convert Server to take multiple clients instead of making new threads.
