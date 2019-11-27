@@ -412,6 +412,8 @@ public class Level extends BasicGameState {
         g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
         g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
         g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
+        g.drawString("Pos: " + dc.hero.animate.getPosition(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*7));
+        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*8));
 
         if (dc.showPath) {
             renderShortestPath(dc, g);
@@ -946,13 +948,16 @@ public class Level extends BasicGameState {
         for( ThrownItem ti : thrownItems ){
 
             //check if a thrown item went off the screen
-            if( ti.itm.getWorldCoordinates().getX() < 0 || ti.itm.getWorldCoordinates().getX() > dc.ScreenWidth/dc.tilesize){
+            if( ti.itm.getWorldCoordinates().getX() < 0 + dc.hero.getOrigin().getX() || ti.itm.getWorldCoordinates().getX() > dc.hero.getOrigin().getX() + (dc.ScreenWidth/dc.tilesize)){
                 reachedDestination.add(ti);
-            }else if( ti.itm.getWorldCoordinates().getY() < 0 || ti.itm.getWorldCoordinates().getY() > dc.ScreenHeight/dc.tilesize){
+                addMessage("thrown " + ti.itm.getType() + " went off screen");
+            }else if( ti.itm.getWorldCoordinates().getY() < 0 + dc.hero.getOrigin().getY() || ti.itm.getWorldCoordinates().getY() > dc.hero.getOrigin().getY() + (dc.ScreenHeight/dc.tilesize)){
                 reachedDestination.add(ti);
+                addMessage("thrown " + ti.itm.getType() + " went off screen");
             }
             if( throwItem(ti, dc) ){
                 reachedDestination.add(ti);
+                addMessage("thrown " + ti.itm.getType() + " reached destination");
             }
 
             //check if a thrown item hit a character
@@ -1190,17 +1195,20 @@ public class Level extends BasicGameState {
             //throw potion image 5 tiles in the direction the character
             //  is facing
 
-            Vector heroWC = new Vector( (int) (dc.hero.animate.getX()/dc.tilesize), (int) (dc.hero.animate.getY()/dc.tilesize));
-
-            itm.setWorldCoordinates(heroWC);
-
+            Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
+            		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
+            
+            itm.setWorldCoordinates(wc);
+        	
+        	
+        	
             dc.hero.unequipItem(selectedEquippedItem);
 
 
             //throw the potion but do not identify it unless it hits an enemy
             Main.im.take(itm, dc.hero, itm.getWorldCoordinates(), false);
 
-            Vector destination = heroWC.add(direction.scale(5));
+            Vector destination = wc.add(direction.scale(5));
 
             thrownItems.add(new ThrownItem(itm, direction, destination, direction.scale(0.1f)));
 
@@ -1259,11 +1267,16 @@ public class Level extends BasicGameState {
             }
 
             //spawn at the world coordinate of the player's animation
-            Vector wc = new Vector((dc.hero.animate.getX()/dc.tilesize)-0.5f, (dc.hero.animate.getY()/dc.tilesize)-1);
+            //also add the hero origin, or the number of tiles that have been scrolled in either direction
+            Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
+            		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
+
             Item flyingArrow = new Item(wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, image, 1);
 
             //add this to the list of items so it can be rendered
             Main.im.addToWorldItems(flyingArrow);
+            
+            System.out.println("added arrow at " + wc.toString());
 
             //this thrown item should travel until it hits a wall or an enemy
             //  thus the final destination is effectively infinite (past the level boundary)

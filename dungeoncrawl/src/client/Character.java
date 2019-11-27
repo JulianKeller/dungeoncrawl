@@ -58,6 +58,10 @@ public class Character extends MovingEntity {
         arrows = new ArrayList<>();
         range = 10;
     }
+    
+    public Vector getOrigin(){
+    	return new Vector(ox, oy);
+    }
 
 
     /**
@@ -512,6 +516,8 @@ public class Character extends MovingEntity {
         float wx = (ox * dc.tilesize) + sc.getX();
         float wy = (oy * dc.tilesize) + sc.getY();
         setWorldCoordinates(wx, wy);    // world coordinates
+        
+        //set the world coordinates to the origin times the tile size plus the character's screen coords
     }
 
 
