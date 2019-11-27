@@ -224,18 +224,11 @@ public class Character extends MovingEntity {
 
         // run dijkstra's so enemies attack the player
         if (playerNearby(range)) {
-//        PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), dc.hero.getTileWorldCoordinates());
             PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), dc.hero.getTileWorldCoordinates());
             int startX = (int) getTileWorldCoordinates().getX();
             int startY = (int) getTileWorldCoordinates().getY();
-
             shortest = find.dijkstra(dc, startX, startY);
-//        shortest = find.dijkstra(dc, startY, startX);
-
-            System.out.println("Hero: " + dc.hero.getTileWorldCoordinates());
-            System.out.println("AI: " + getTileWorldCoordinates());
-            PathFinding.printShortestPath(shortest);
-            System.out.println();
+//            PathFinding.printShortestPath(shortest);      // print shortest path to console for debugging
 
             // load arrows for dijkstra's debugging
             if (dc.showPath) {
@@ -263,68 +256,31 @@ public class Character extends MovingEntity {
                 return;
             }
         }
-
-        // TODO this can be simplified
-        String movement = null;
-        switch (direction) {
-            case "walk_up":
-                movement = "walk_up";
-                break;
-            case "walk_down":
-                movement = "walk_down";
-                break;
-            case "walk_left":
-                movement = "walk_left";
-                break;
-            case "walk_right":
-                movement = "walk_right";
-                break;
-            case "4":       // speed up
-                if (moveSpeed >= 32) {
-                    System.out.println("Speed at Maximum: " + moveSpeed);
-                    break;
-                }
-                setSpeed(getSpeed() / 2);
-                moveSpeed *= 2;
-                System.out.println("Speed increased to: " + moveSpeed);
-                break;
-            case "5":        // slow down
-                if (moveSpeed <= 1) {
-                    System.out.println("Speed at Minimum: " + moveSpeed);
-                    break;
-                }
-                setSpeed(getSpeed() * 2);
-                moveSpeed /= 2;
-                System.out.println("Speed Decreased to: " + moveSpeed);
-                break;
+        String movement = direction;
+        canMove = false;
+        movesLeft = dc.tilesize;
+        if (!movement.equals(currentDirection)) {
+            updateAnimation(movement);
+            direction = movement;
+        } else {
+            animate.start();
         }
-        if (movement != null) {
-            canMove = false;
-            movesLeft = dc.tilesize;
-            if (!movement.equals(currentDirection)) {
-                updateAnimation(movement);
-                direction = movement;
-            } else {
-                animate.start();
-            }
-            // check for collisions with the wall
-            if (collision() && dc.collisions) {
-                canMove = true;
-                return;
-            }
-            changeOrigin();     // check if the screen origin needs to change
+        // check for collisions with the wall
+        if (collision() && dc.collisions) {
+            canMove = true;
+            return;
         }
+        changeOrigin();     // check if the screen origin needs to change
     }
 
     /**
      *
-     * @return Checks if the player is within range of the ai
+     * @return Checks if the player is within range of the ai, true if so
      */
     public boolean playerNearby(int range) {
         Vector heroWC = dc.hero.getTileWorldCoordinates();
         Vector aiWC = getTileWorldCoordinates();
         if (Math.abs(heroWC.getX() - aiWC.getX()) <= range && (Math.abs(heroWC.getY() - aiWC.getY()) <= range)) {
-            System.out.println("Player Nearby!");
             return true;
         }
         return false;
@@ -335,8 +291,6 @@ public class Character extends MovingEntity {
         if (shortest.isEmpty() || shortest.size() <= 2) {
             return null;
         }
-//        int px = (int) dc.hero.getWorldCoordinates().getX() / dc.tilesize - 1;
-//        int py = (int) dc.hero.getWorldCoordinates().getY() / dc.tilesize;
         int px = (int) getTileWorldCoordinates().getX();
         int py = (int) getTileWorldCoordinates().getY();
         String dir = null;
