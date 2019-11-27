@@ -3,15 +3,17 @@ package server;
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
+import client.Character;
 
 public class ClientHandler extends Thread{
     private Socket socket;   // Socket of client and server
     private ObjectOutputStream os;  // the output stream
     private ObjectInputStream is;  // the input stream
     private int id;    /// the thread id (based on port number in socket)
-    private BlockingQueue<String> threadQueue;
+    private BlockingQueue<Object> threadQueue;
+    private Character clientCharacter;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
-                         BlockingQueue<String> queue){
+                         BlockingQueue<Object> queue){
         socket = s;
         this.is = is;
         this.os = os;
@@ -20,6 +22,9 @@ public class ClientHandler extends Thread{
 
     }
 
+    private void getCharacter(){
+
+    }
     @Override
     public void run(){
         try{
@@ -66,7 +71,7 @@ public class ClientHandler extends Thread{
      */
     private void writeToClient() {
         try {
-            String toClient = threadQueue.take();
+            String toClient = (String)threadQueue.take();
             os.writeUTF(toClient);
             os.flush();
         } catch (IOException | InterruptedException e) {
