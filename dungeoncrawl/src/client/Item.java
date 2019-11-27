@@ -44,7 +44,21 @@ public class Item extends StationaryObject{
 		//currently developed item types, for debugging purposes only
 		String[] currentTypes = {"Potion", "Sword", "Armor", "Arrow"};
 		//TODO
-		this.type = currentTypes[ rand.nextInt(currentTypes.length) ];
+		//this.type = currentTypes[ rand.nextInt(currentTypes.length) ];
+		
+		//rarity: armor, sword/other weapons, potion, arrow
+		//armor: 20%, sword: 30%, potion: 40%, arrow: 50%
+		int r = rand.nextInt(100);
+		if( r < 20 ){
+			type = "Armor";
+		}else if( r < 30 ){
+			type = "Sword";
+		}else if( r < 40 ){
+			type = "Potion";
+		}else{
+			type = "Arrow";
+		}
+		
 		
 		//choose materials from the appropriate list
 		if( type.equals("Sword") ){
@@ -89,7 +103,7 @@ public class Item extends StationaryObject{
 
 		//get an image based on item type
 		if( type.equals("Potion") ){
-			int r = rand.nextInt(5);
+			r = rand.nextInt(5);
 			switch( r ){
 			case 0:
 				this.image = ResourceManager.getImage(Main.POTION_BLUE);
