@@ -1112,7 +1112,9 @@ public class Level extends BasicGameState {
         }else{
             throw new SlickException("Invalid attack direction " + dir);
         }
-
+        if( itm == null ){
+        	return;
+        }
         if( itm.getType().equals("Sword") || itm.getType().equals("Glove")){
             rand.setSeed(System.nanoTime());
             int r = rand.nextInt(100);
@@ -1266,6 +1268,11 @@ public class Level extends BasicGameState {
             //this thrown item should travel until it hits a wall or an enemy
             //  thus the final destination is effectively infinite (past the level boundary)
             thrownItems.add( new ThrownItem(flyingArrow, direction, direction.scale(10000), direction.scale(0.3f) ));
+            
+            if( itm.count == 1 ){
+            	dc.hero.unequipItem(selectedEquippedItem);
+            }
+            dc.hero.discardItem(itm, true);
         }
     }
 

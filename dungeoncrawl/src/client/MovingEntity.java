@@ -445,11 +445,35 @@ Reflection:
     					addToCodex(inventory.get(i));
     				}
     			}
-    			return inventory.remove(i);
+    			//return inventory.remove(i);
+    			if( inventory.get(i).count == 1 ){
+    				return inventory.remove(i);
+    			}else{
+    				inventory.get(i).count--;
+    				return inventory.get(i);
+    			}
     		}
     	}
     	return null;
         //inventory.removeIf(item -> item.getID() == i_id);
+    }
+    
+    public Item discardItem(Item i, boolean use){
+    	if( i.count == 1 ){
+    		inventory.remove(i);
+    	}else{
+    		i.count--;
+    	}
+    	
+    	if( use ){
+    		i.identify();
+    	}
+    	
+    	if( i.getType().equals("Potion") ){
+    		addToCodex(i);
+    	}
+    	
+    	return i;
     }
     
     public String equipItem(int index){
