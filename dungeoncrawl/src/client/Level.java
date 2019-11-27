@@ -158,13 +158,6 @@ public class Level extends BasicGameState {
         //dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
 
-
-
-
-
-
-
-
         //rotated map verified correct
         rotatedMap = new int[dc.map[0].length][dc.map.length];
         for( int i = 0; i < dc.map.length; i++ ){
@@ -220,6 +213,7 @@ public class Level extends BasicGameState {
         System.out.printf("setting character at %s, %s\n", wx, wy);
 
         dc.hero = new Character(dc, wx, wy, "knight_leather", 1, this, false);
+        dc.characters.add(dc.hero);
 
         //give the hero leather armor with no effect
         //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
@@ -229,7 +223,7 @@ public class Level extends BasicGameState {
 
         Main.im.give(a, dc.hero);
         */
-        dc.characters.add(dc.hero);
+
 
         // setup a skeleton enemy
         wx = (dc.tilesize * 20) - dc.offset;
@@ -252,10 +246,6 @@ public class Level extends BasicGameState {
         }catch(IOException e){
             e.printStackTrace();
         }
-        dc.hero = new Character(dc, wx, wy, type, id,this,false);
-        //dc.characters.add(dc.hero);
-        currentOX = dc.hero.ox;
-        currentOY = dc.hero.oy;
 
         // render map
         RenderMap.setMap(dc, dc.hero);
@@ -437,6 +427,9 @@ public class Level extends BasicGameState {
     private void renderShortestPath(Main dc, Graphics g) {
         // only load arrows if the player wants to show the dijkstra's path
         for (Character ai : dc.characters) {
+            if (!ai.ai) {
+                continue;
+            }
             for (Arrow a : ai.arrows) {
                 Vector sc = world2screenCoordinates(dc, a.getWorldCoordinates());
                 a.setPosition(sc);
@@ -687,8 +680,10 @@ public class Level extends BasicGameState {
      */
     private void renderCharacters(Main dc, Graphics g) {
         for (Character ch : dc.characters) {
-            Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
-            ch.animate.setPosition(sc);
+            if (!ch.equals(dc.hero)) {
+                Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
+                ch.animate.setPosition(sc);
+            }
             if (characterInRegion(dc, ch)) {
                 ch.animate.render(g);
             }
@@ -1012,13 +1007,14 @@ public class Level extends BasicGameState {
         }
 
 
+        // TODO refactor into a method
         //check if a character has hit an item
         for( Character ch : dc.characters ){
             if( ch.ai ){
                 continue;
             }
-            float x = (ch.animate.getX()/dc.tilesize);
-            float y = (ch.animate.getY()/dc.tilesize);
+            float x = ch.getTileWorldCoordinates().getX();
+            float y = ch.getTileWorldCoordinates().getY();
             Vector aniPos = new Vector((int)x, (int)y);
 
             Item i = Main.im.getItemAt(aniPos);
@@ -1036,6 +1032,28 @@ public class Level extends BasicGameState {
                 itemsToRender.remove(i);
             }
         }
+
+//        // check if the hero has hit an item
+//        float x = dc.hero.getTileWorldCoordinates().getX();
+//        float y = dc.hero.getTileWorldCoordinates().getY();
+//        Vector aniPos = new Vector((int)x, (int)y);
+//
+//        Item item= Main.im.getItemAt(aniPos);
+//        if( item!= null && !item.isLocked() ){
+//            if( item.isIdentified() ){
+//                addMessage("Picked up " + item.getMaterial() + " " +item.getType() + " of " + item.getEffect() + ".");
+//            }else{
+//                addMessage("Picked up unidentified "+item.getMaterial().toLowerCase()+" "+item.getType().toLowerCase()+".");
+//            }
+//            //give removes item from the world's inventory
+//            //  and adds it to the player's inventory
+//            Main.im.give(item.getID(), dc.hero.getPid());
+//
+//            //stop rendering the item
+//            itemsToRender.remove(item);
+//        }
+
+
 
         //update message timers
         for( int i = 0; i < messagebox.length; i++ ){
