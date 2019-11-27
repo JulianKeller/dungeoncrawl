@@ -202,6 +202,7 @@ public class Level extends BasicGameState {
 
         Main.im.give(a, dc.hero);
         */
+        dc.characters.add(dc.hero);
 
         // setup a skeleton enemy
         wx = (dc.tilesize * 20) - dc.offset;
@@ -374,6 +375,9 @@ public class Level extends BasicGameState {
     private void renderShortestPath(Main dc, Graphics g) {
         // only load arrows if the player wants to show the dijkstra's path
         for (Character ai : dc.characters) {
+            if (!ai.ai || ai.equals(dc.hero)) {       // continue if not AI
+                continue;
+            }
             for (Arrow a : ai.arrows) {
                 Vector sc = world2screenCoordinates(dc, a.getWorldCoordinates());
                 a.setPosition(sc);
@@ -626,8 +630,10 @@ public class Level extends BasicGameState {
      */
     private void renderCharacters(Main dc, Graphics g) {
         for (Character ch : dc.characters) {
-            Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
-            ch.animate.setPosition(sc);
+            if (!ch.equals(dc.hero)) {      // don't update the hero's position
+                Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
+                ch.animate.setPosition(sc);
+            }
             if (characterInRegion(dc, ch)) {
                 ch.animate.render(g);
             }
