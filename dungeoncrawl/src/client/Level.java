@@ -240,11 +240,8 @@ public class Level extends BasicGameState {
 
         Main.im.give(a, dc.hero);
         */
-        dc.characters.add(dc.hero);
-        //currentOX = dc.hero.ox;
-        //currentOY = dc.hero.oy;
 
-                // setup a skeleton enemy
+        // setup a skeleton enemy
         wx = (dc.tilesize * 20) - dc.offset;
         wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
         dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, this, true));
@@ -419,9 +416,6 @@ public class Level extends BasicGameState {
         g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
         g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
         g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
-
-
-
     }
 
     /** Renders the AI's shortest path
@@ -436,11 +430,6 @@ public class Level extends BasicGameState {
                 a.render(g);
             }
         }
-
-
-
-
-
     }
 
     /**
@@ -685,6 +674,7 @@ public class Level extends BasicGameState {
         for (Character ch : dc.characters) {
             Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
             ch.animate.setPosition(sc);
+//            System.out.println("Render characters: " + ch.animate.getPosition());
             if (characterInRegion(dc, ch)) {
                 ch.animate.render(g);
             }

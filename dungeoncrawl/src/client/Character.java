@@ -359,37 +359,54 @@ public class Character extends MovingEntity {
     Should only be called from the move method.
      */
     private void moveMapHelper() {
+        int movespeed = super.getMovementSpeed();
         if (movesLeft > 0) {
             switch (direction) {
                 case "walk_up":
                     dx = 0f;
-                    dy -= super.getMovementSpeed();
+                    dy -= movespeed;
+//                    updateWorldCoordinates(0, -movespeed);
                     break;
                 case "walk_down":
                     dx = 0f;
-                    dy += super.getMovementSpeed();
+                    dy += movespeed;
+//                    updateWorldCoordinates(0, movespeed);
                     break;
                 case "walk_left":
-                    dx -= super.getMovementSpeed();
+                    dx -= movespeed;
                     dy = 0f;
+//                    updateWorldCoordinates(-movespeed, 0);
                     break;
                 case "walk_right":
-                    dx += super.getMovementSpeed();
+                    dx += movespeed;
                     dy = 0f;
+//                    updateWorldCoordinates(-movespeed, 0);
                     break;
             }
-            movesLeft -= super.getMovementSpeed();
+            movesLeft -= movespeed;
             RenderMap.setMap(dc, this);
             pixelX = (ox * dc.tilesize) + dx;        // columns
             pixelY = (oy * dc.tilesize) + dy;        // columns
+//            System.out.print("World Coords: " + getWorldCoordinates());
+//            System.out.print(", movespeed: " + movespeed);
         } else {
             ox = newx;
             oy = newy;
             pixelX = (ox * dc.tilesize);// + (float) dc.tilesize / 2);
             pixelY = (oy * dc.tilesize);// + (float) dc.tilesize / 2);
             nearEdge = false;
+            System.out.println();
         }
-        updateWorldCoordinates();
+
+//        System.out.println("World Coords: " + getWorldCoordinates());
+    }
+
+    /**
+     * True if player is scrolling
+     * @return
+     */
+    public boolean isScrolling() {
+        return movesLeft > 0;
     }
 
 
@@ -512,8 +529,21 @@ public class Character extends MovingEntity {
      */
     private void updateWorldCoordinates() {
         Vector sc = animate.getPosition();
+//        System.out.println(", sc position: " + sc);
         float wx = (ox * dc.tilesize) + sc.getX();
         float wy = (oy * dc.tilesize) + sc.getY();
+        setWorldCoordinates(wx, wy);    // world coordinates
+    }
+
+
+    /**
+     * Updates the characters world position when the screen is scrolling
+     */
+    private void updateWorldCoordinates(float x, float y) {
+//        Vector sc = animate.getPosition();
+//        System.out.println(", sc position: " + sc);
+        float wx = x + (ox * dc.tilesize);
+        float wy = y + (oy * dc.tilesize);
         setWorldCoordinates(wx, wy);    // world coordinates
     }
 
