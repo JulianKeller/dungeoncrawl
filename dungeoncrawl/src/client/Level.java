@@ -27,11 +27,15 @@ import jig.Vector;
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-    int tilesize = 32;
-    int offset = tilesize/2;
-    int doubleOffset = offset/2;
-    int xOffset = tilesize - doubleOffset;
-    int yOffset = tilesize + doubleOffset/2;
+    int offset;
+    int tilesize;
+    int doubleOffset;
+    int yOffset;
+    int xOffset;
+    int tilesWide;  // num tiles in width
+    int tilesHigh; // num tiles in height
+    int mapWidth;
+    int mapHeight;
 
     private int[][] rotatedMap;
 
@@ -102,6 +106,13 @@ public class Level extends BasicGameState {
     public void enter(GameContainer container, StateBasedGame game) {
         serverMessage = "";
         Main dc = (Main) game;
+        mapWidth = 0;
+        mapHeight = 0;
+        tilesize = 32;
+        offset = tilesize/2;
+        doubleOffset = offset/2;
+        xOffset = tilesize - doubleOffset;
+        yOffset = tilesize + doubleOffset/2;
         if(dc.socket == null){
             System.out.println("ERROR: Make sure you start the server before starting the client!");
             System.exit(1);
