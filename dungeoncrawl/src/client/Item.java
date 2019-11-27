@@ -24,7 +24,7 @@ public class Item extends StationaryObject{
 	
 	private Random rand;
 	
-	private int count; //the number of this item in the inventory
+	public int count; //the number of this item in the inventory
 	
 	
 	public Item(Vector wc, boolean locked, int id, int oid) throws SlickException{
@@ -189,9 +189,6 @@ public class Item extends StationaryObject{
 	}
 	public boolean isLocked(){
 		return super.isLocked();
-	}
-	public int getCount(){
-		return count;
 	}
 	
 	//setter functions

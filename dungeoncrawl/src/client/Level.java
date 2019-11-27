@@ -543,7 +543,7 @@ public class Level extends BasicGameState {
                 g.drawImage(dc.hero.getEquipped()[i].getImage(), x+(dc.tilesize*i), y);
                 Color tmp2 = g.getColor();
                 g.setColor(Color.white);
-                g.drawString(dc.hero.getEquipped()[i].getCount()+"", x, y);
+                g.drawString(dc.hero.getEquipped()[i].count+"", x, y);
                 g.setColor(tmp2);
                 
             }
@@ -602,7 +602,7 @@ public class Level extends BasicGameState {
                 int col = 1;
                 for( int i = 0; i < items.size(); i++ ){
                     g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
-                    g.drawString(items.get(i).getCount()+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-15);
+                    g.drawString(items.get(i).count+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-15);
                     col++;
                     if( i > 4 && i % 4 == 0 ){
                         row++;

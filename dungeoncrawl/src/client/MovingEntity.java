@@ -400,7 +400,17 @@ Reflection:
     }
 
     public void addItem(Item i){
-        inventory.add(i);
+    	boolean add = true;
+    	for( Item itm : inventory ){
+    		if( itm.getMaterial().equals(i.getMaterial()) && itm.getType().equals(i.getType()) && itm.getEffect().equals(i.getEffect()) ){
+    			itm.count += i.count;
+    			add = false;
+    			break;
+    		}
+    	}
+    	if( add ){
+    		inventory.add(i);
+    	}
         if( i.isIdentified() && i.getType().equals("Potion") ){
         	addToCodex(i);
         }
