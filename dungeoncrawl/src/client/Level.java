@@ -36,19 +36,13 @@ public class Level extends BasicGameState {
     int tilesHigh; // num tiles in height
     int mapWidth;
     int mapHeight;
-
     private int[][] rotatedMap;
-
     Socket socket;
     ObjectInputStream dis;
     ObjectOutputStream dos;
     String serverMessage;
-
     private final int messageTimer = 2000;
-
-
     private ArrayList<Item> itemsToRender;
-
     //whether to display player inventory/codex on the screen
     private boolean displayInventory = false;
     private boolean displayCodex = false;
@@ -78,7 +72,6 @@ public class Level extends BasicGameState {
     	}	
     }
     private ArrayList<ItemLockTimer> itemLockTimers;
-
 
 
     private class ThrownItem{
@@ -113,6 +106,7 @@ public class Level extends BasicGameState {
         doubleOffset = offset/2;
         xOffset = tilesize - doubleOffset;
         yOffset = tilesize + doubleOffset/2;
+
         if(dc.socket == null){
             System.out.println("ERROR: Make sure you start the server before starting the client!");
             System.exit(1);
@@ -123,26 +117,12 @@ public class Level extends BasicGameState {
 
         messagebox = new Message[messages]; //display four messages at a time
 
-            // TODO This section is the original map generator.
-//            dc.map = client.RenderMap.getDebugMap(dc);
-//            try {
-//                dc.map = client.RenderMap.getRandomMap();        // grab a randomly generated map
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            // server.Server sockets for reading/writing to server.
-
         this.socket = dc.socket;
         this.dis = dc.dis;
         this.dos = dc.dos;
 
-
-        //dc.map = RenderMap.getDebugMap(dc);
-        ///*
-
-
         // TODO this section requires that you run the server prior to client.Main.
         // Grab the map from the server.Server
-
         try {
             Integer[][] mapData = (Integer[][]) this.dis.readObject();
             // Convert it into an 2d int array
@@ -167,16 +147,7 @@ public class Level extends BasicGameState {
 //            e.printStackTrace();
 //        }
 
-        //*/
-        //dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
-
-
-
-
-
-
-
 
         //rotated map verified correct
         rotatedMap = new int[dc.map[0].length][dc.map.length];
@@ -198,7 +169,6 @@ public class Level extends BasicGameState {
 
         // initialize itemsToRender
         itemsToRender = new ArrayList<>();
-//        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
         
         //find a tile with no walls in its horizontal adjacencies
         rand = new Random();
@@ -213,15 +183,7 @@ public class Level extends BasicGameState {
 			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 		}
 
-		/*
-        float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
-        float wy = (dc.tilesize * row) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
-
-        dc.hero = new Character(dc, wx, wy, "dc.hero_iron", 1);
-        dc.characters.add(dc.hero);
-        */
         // map variables
-    	//Main dc = (Main) game;
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
@@ -274,17 +236,6 @@ public class Level extends BasicGameState {
         dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_gold"));
         */
 
-//        dc.testItems.add(new DisplayItem((dc.tilesize * 14)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_ice"));
-//        dc.testItems.add(new DisplayItem((dc.tilesize * 15)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_poison"));
-//        dc.testItems.add(new DisplayItem((dc.tilesize * 16)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_flame"));
-//        dc.testItems.add(new DisplayItem((dc.tilesize * 17)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_normal"));
-//        dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_normal"));
-
-        
-        /*
-        currentOrigin = dc.hero.origin;
-        RenderMap.setMap(dc, dc.hero.origin);                   // renders the map Tiles
-        */
     }
     
     private boolean wallAdjacent(int row, int col, int[][] map){
@@ -305,8 +256,6 @@ public class Level extends BasicGameState {
     		return true;
     	}
     	return false;
-
-
     }
 
 
@@ -363,6 +312,11 @@ public class Level extends BasicGameState {
          //draw the player's equipped items
         renderEquippedItems(dc, g);
 
+        //draw the player's equipped items
+        renderEquippedItems(dc, g);
+
+//         renderDebug(dc, g);
+
         //display player inventory
         //use the dc.hero for now
         if( displayInventory ){
@@ -401,10 +355,6 @@ public class Level extends BasicGameState {
             	g.setColor(tmp);
         	}
         }
-        //draw the player's equipped items
-        renderEquippedItems(dc, g);
-
-//         renderDebug(dc, g);
 
         if (dc.showPath) {
             renderShortestPath(dc, g);
@@ -484,6 +434,7 @@ public class Level extends BasicGameState {
         }
     }
 
+
     /**
      * Render debug information on the screen
      * @param dc
@@ -518,6 +469,7 @@ public class Level extends BasicGameState {
         }
     }
 
+
  /**
      * Renders the players equipped items
      * @param dc
@@ -540,7 +492,6 @@ public class Level extends BasicGameState {
         g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
         g.setColor(tmp);
     }
-
 
 
     /**
@@ -606,6 +557,7 @@ public class Level extends BasicGameState {
         }
     }
 
+
     /**
      * Renders messages
      * @param dc
@@ -633,6 +585,7 @@ public class Level extends BasicGameState {
         }
     }
 
+
     /**
      * Renders the visible items on the map
      * @param dc
@@ -656,6 +609,7 @@ public class Level extends BasicGameState {
         }
     }
 
+
     /**
      * Renders new items which are being tested
      * @param dc
@@ -674,13 +628,10 @@ public class Level extends BasicGameState {
         for (Character ch : dc.characters) {
             Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
             ch.animate.setPosition(sc);
-//            System.out.println("Render characters: " + ch.animate.getPosition());
             if (characterInRegion(dc, ch)) {
                 ch.animate.render(g);
             }
         }
-        //*/
-
     }
 
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
@@ -693,9 +644,7 @@ public class Level extends BasicGameState {
     	g.setColor(Color.white);
     	g.drawString(title, dc.tilesize + 10, dc.tilesize + 10);
 
-
     	g.setColor(tmp);
-
     }
 
     private Scanner scan = new Scanner(System.in);
@@ -746,12 +695,6 @@ public class Level extends BasicGameState {
         	lastKnownDirection = vectorFromKeystroke(ks);
         }
         dc.hero.move(ks);
-        /*
-        if (currentOrigin.getX() != dc.hero.origin.getX() && currentOrigin.getY() != dc.hero.origin.getY()) {
-            RenderMap.setMap(dc, dc.hero.origin);
-            currentOrigin = dc.hero.origin;
-        }
-        */
 
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){

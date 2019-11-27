@@ -27,6 +27,7 @@ public class Character extends MovingEntity {
     ArrayList<Arrow> arrows;
     float[][] weights;
     int range;          // range to player in tiles to use dijkstra's
+    private String action;
 
     /**
      * Create a new Character (wx, wy)
@@ -365,48 +366,32 @@ public class Character extends MovingEntity {
                 case "walk_up":
                     dx = 0f;
                     dy -= movespeed;
-//                    updateWorldCoordinates(0, -movespeed);
                     break;
                 case "walk_down":
                     dx = 0f;
                     dy += movespeed;
-//                    updateWorldCoordinates(0, movespeed);
                     break;
                 case "walk_left":
                     dx -= movespeed;
                     dy = 0f;
-//                    updateWorldCoordinates(-movespeed, 0);
                     break;
                 case "walk_right":
                     dx += movespeed;
                     dy = 0f;
-//                    updateWorldCoordinates(-movespeed, 0);
                     break;
             }
             movesLeft -= movespeed;
             RenderMap.setMap(dc, this);
             pixelX = (ox * dc.tilesize) + dx;        // columns
             pixelY = (oy * dc.tilesize) + dy;        // columns
-//            System.out.print("World Coords: " + getWorldCoordinates());
-//            System.out.print(", movespeed: " + movespeed);
         } else {
             ox = newx;
             oy = newy;
-            pixelX = (ox * dc.tilesize);// + (float) dc.tilesize / 2);
-            pixelY = (oy * dc.tilesize);// + (float) dc.tilesize / 2);
+            pixelX = (ox * dc.tilesize);
+            pixelY = (oy * dc.tilesize);
             nearEdge = false;
             System.out.println();
         }
-
-//        System.out.println("World Coords: " + getWorldCoordinates());
-    }
-
-    /**
-     * True if player is scrolling
-     * @return
-     */
-    public boolean isScrolling() {
-        return movesLeft > 0;
     }
 
 
@@ -481,14 +466,9 @@ public class Character extends MovingEntity {
                 x += 1;
                 break;
         }
-//        if (y < 0 || y > dc.tilesWide || x < 0 || x > dc.tilesHigh) {
-//            return true;
-//        }
         return dc.map[y][x] != 0;
     }
 
-
-    private String action;
 
     /**
      * Updates the animation that is currently in use
