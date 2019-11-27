@@ -541,10 +541,16 @@ public class Level extends BasicGameState {
                 x = dc.ScreenWidth-(dc.tilesize*(dc.hero.getEquipped().length+1));
                 y = dc.ScreenHeight-(dc.tilesize*2);
                 g.drawImage(dc.hero.getEquipped()[i].getImage(), x+(dc.tilesize*i), y);
+                Color tmp2 = g.getColor();
+                g.setColor(Color.white);
+                g.drawString(dc.hero.getEquipped()[i].getCount()+"", x, y);
+                g.setColor(tmp2);
+                
             }
         }
         g.setColor(Color.white);
         g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
+        
         g.setColor(tmp);
     }
 
@@ -596,7 +602,6 @@ public class Level extends BasicGameState {
                 int col = 1;
                 for( int i = 0; i < items.size(); i++ ){
                     g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
-                    
                     g.drawString(items.get(i).getCount()+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-15);
                     col++;
                     if( i > 4 && i % 4 == 0 ){
