@@ -105,10 +105,8 @@ public class ItemManager {
 		currentItemID++;
 	}
 	
-	public void plant(int numItems, int[][] map) throws SlickException{
-		int maxcol = game.ScreenWidth/game.tilesize;
-		int maxrow = game.ScreenHeight/game.tilesize;
-		
+	public void plant(int numItems, int[][] map, int maxcol, int maxrow) throws SlickException{
+
 		rand.setSeed(System.nanoTime());
 		
 		//int[][] potionAt = new int[game.map.length][game.map.length];

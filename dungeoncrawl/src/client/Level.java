@@ -168,7 +168,7 @@ public class Level extends BasicGameState {
         }
 
         try {
-            Main.im.plant(5, rotatedMap);
+            Main.im.plant(20, rotatedMap, 48, 80);
         } catch (SlickException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
