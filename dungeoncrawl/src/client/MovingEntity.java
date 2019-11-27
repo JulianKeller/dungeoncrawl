@@ -36,6 +36,8 @@ public class MovingEntity extends Entity {
     private ArrayList<Item> codex; //list of identified items
     private Item [] equipped;
     private Vector position;
+    private Vector tileWorldCoordinates;
+    private Main dc;
     
     //random number generator
     private Random rand = new Random();
@@ -56,22 +58,24 @@ public class MovingEntity extends Entity {
     }
     /**
      * Create a new Entity (x,y)
-     * @param wx starting world x coordinate
      * @param wy starting world y coordinate
+     * @param wx starting world x coordinate
      */
+
     public MovingEntity(final float wx, final float wy, int pid, Level level) {
         super(wx, wy);
         
         currentLevel = level;
-        
-        
+
         hitPoints = 0;
         //startingHitPoints = hitPoints;
         armorPoints = 1;
         worldCoordinates = new Vector(wx, wy);
         animationSpeed = 1;
         initialMovementSpeed = movementSpeed = 1;
-        
+
+        tileWorldCoordinates = getTileWorldCoordinates();
+
         mana = 0;
         strength = 1;
         this.pid = pid;
@@ -647,6 +651,8 @@ Reflection:
     public void setWorldCoordinates(float x, float y){
         setWorldCoordinates(new Vector(x, y));
     }
+
+
     /**
      * Returns the client.MovingEntity's current world coordinates.
      * @return Vector world coordinates
@@ -654,6 +660,26 @@ Reflection:
     public Vector getWorldCoordinates(){
         return worldCoordinates;
     }
+
+
+//    /**
+//     * Set the entities tile coordinates for the world
+//     * @param tileWC
+//     */
+//    public void setTileWorldCoordinates(Vector tileWC) {
+//        tileWorldCoordinates = tileWC;
+//    }
+
+    /**
+     * Get the entities world coordinates in tiles
+     * @return
+     */
+    public Vector getTileWorldCoordinates() {
+        float x = Math.round((worldCoordinates.getX() + currentLevel.offset)/currentLevel.tilesize) - 1;
+        float y = Math.round((worldCoordinates.getY() + currentLevel.tilesize + currentLevel.doubleOffset)/currentLevel.tilesize) - 1;
+        return new Vector(x, y);
+    }
+
 
     /**
      * Adds hit points by specified amount

@@ -140,7 +140,7 @@ public class Main extends StateBasedGame {
     int mapWidth;
     int mapHeight;
     int[][] map;
-//    Entity[][] mapTiles;
+    boolean showPath = false;   // shows dijkstra or not
     ArrayList<BaseMap> maptiles;
     boolean collisions;
     ArrayList<DisplayItem> testItems;
