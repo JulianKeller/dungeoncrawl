@@ -586,6 +586,9 @@ public class Level extends BasicGameState {
      */
     private void renderInventory(Main dc, Graphics g) {
         if( displayInventory ){
+            Color tmp = g.getColor();
+            g.setColor(Color.white);
+            
             renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
             ArrayList<Item> items = dc.hero.getInventory();
             if( items.size() != 0 ){
@@ -593,6 +596,8 @@ public class Level extends BasicGameState {
                 int col = 1;
                 for( int i = 0; i < items.size(); i++ ){
                     g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
+                    
+                    g.drawString(items.get(i).getCount()+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-15);
                     col++;
                     if( i > 4 && i % 4 == 0 ){
                         row++;
@@ -600,8 +605,7 @@ public class Level extends BasicGameState {
                     }
                 }
                 //draw a square around the selected item
-                Color tmp = g.getColor();
-                g.setColor(Color.white);
+
                 g.drawRect(
                         (itemx + 1)*dc.tilesize,
                         (itemy + 2)*dc.tilesize,
