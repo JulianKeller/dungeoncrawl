@@ -4,15 +4,12 @@ import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
 import client.RenderMap;
-import client.Character;
-import java.util.ArrayList;
 
 public class Server extends Thread{
     // Static Objects for each thread.
-    public static BlockingQueue<Object> serverQueue = new LinkedBlockingQueue<>();
+    public static BlockingQueue<String> serverQueue = new LinkedBlockingQueue<>();
     public static int [][] map;
-    private BlockingQueue<Object> threadQs;
-    public ArrayList<Character> characters;
+    private BlockingQueue<String> threadQs;
     /**
      * Static method getMap, that gets a random map from file.
      */
@@ -24,7 +21,7 @@ public class Server extends Thread{
         }
     }
 
-    public Server(BlockingQueue<Object> queue){
+    public Server(BlockingQueue<String> queue){
         threadQs = queue;
     }
     @Override
@@ -36,7 +33,7 @@ public class Server extends Thread{
 
     public void sendToClients(){
             try {
-                String playerInfo = (String)serverQueue.take();
+                String playerInfo = serverQueue.take();
                 threadQs.put(playerInfo);
 
                 } catch(InterruptedException e){
@@ -51,7 +48,7 @@ public class Server extends Thread{
             // Generate the map
             getMap();
             // Create a blocking queue for the threads
-            BlockingQueue<Object> threadQ = new LinkedBlockingQueue<>();
+            BlockingQueue<String> threadQ = new LinkedBlockingQueue<>();
             // Start a Server thread that will handle distributing to the client and servers.
             Server server = new Server(threadQ);
             server.start();

@@ -95,6 +95,36 @@ public class Main extends StateBasedGame {
     public static final String SWORD_IRON = "resources/swords/iron_sword.png";
     public static final String SWORD_GOLD = "resources/swords/gold_sword.png";
 
+    // Arrow Item
+    public static final String ARROW_NORMAL = "resources/arrows/normal_arrows.png";
+    public static final String ARROW_ICE = "resources/arrows/ice_arrows.png";
+    public static final String ARROW_POISON = "resources/arrows/poison_arrows.png";
+    public static final String ARROW_FLAME = "resources/arrows/flaming_arrows.png";
+    
+    // Fire Arrows
+    public static final String ARROW_FLAME_UP = "resources/arrows/up/up_arrow_fire.png";
+    public static final String ARROW_FLAME_DOWN = "resources/arrows/down/down_arrow_fire.png";
+    public static final String ARROW_FLAME_LEFT = "resources/arrows/left/left_arrow_fire.png";
+    public static final String ARROW_FLAME_RIGHT = "resources/arrows/right/right_arrow_fire.png";
+    
+    // Ice Arrows
+    public static final String ARROW_ICE_UP = "resources/arrows/up/up_arrow_ice.png";
+    public static final String ARROW_ICE_DOWN = "resources/arrows/down/down_arrow_ice.png";
+    public static final String ARROW_ICE_LEFT = "resources/arrows/left/left_arrow_ice.png";
+    public static final String ARROW_ICE_RIGHT = "resources/arrows/right/right_arrow_ice.png";
+    
+    // Normal Arrows
+    public static final String ARROW_NORMAL_UP = "resources/arrows/up/up_arrow_normal.png";
+    public static final String ARROW_NORMAL_DOWN = "resources/arrows/down/down_arrow_normal.png";
+    public static final String ARROW_NORMAL_LEFT = "resources/arrows/left/left_arrow_normal.png";
+    public static final String ARROW_NORMAL_RIGHT = "resources/arrows/right/right_arrow_normal.png";
+    
+    // Poison Arrows
+    public static final String ARROW_POISON_UP = "resources/arrows/up/up_arrow_poison.png";
+    public static final String ARROW_POISON_DOWN = "resources/arrows/down/down_arrow_poison.png";
+    public static final String ARROW_POISON_LEFT = "resources/arrows/left/left_arrow_poison.png";
+    public static final String ARROW_POISON_RIGHT = "resources/arrows/right/right_arrow_poison.png";
+
     // Screen Size
     public final int ScreenWidth;
     public final int ScreenHeight;
@@ -115,19 +145,28 @@ public class Main extends StateBasedGame {
     boolean collisions;
     ArrayList<DisplayItem> testItems;
     Character hero;
+    public ArrayList<Character> characters;
+    ArrayList<Character> enemies;
+
+    // create an item manager
+    public static ItemManager im;
+    Entity[][] potions;
+    ArrayList<AnimateEntity> animations;
+
+
     
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
     
     //item materials
-    public static final String[] ArmorMaterials = {"Leather", "Iron", "Turtle Shell"};
+    public static final String[] ArmorMaterials = {"Iron", "Gold"};
     public static final String[] SwordMaterials = {"Wooden", "Iron", "Gold"};
     public static final String[] StaffMaterials = {"Ruby", "Emerald", "Amethyst"};
     public static final String[] GloveMaterials = {"Leather", "Iron", "Gold"};
     
     //item effects
     public static final String[] PotionEffects = {"Healing", "Strength", "Flame", "Mana", "Invisibility"};
-    public static final String[] ArrowEffects = {"Flaming", "Poisoned", "Ice"};
+    public static final String[] ArrowEffects = {"Flame", "Poison", "Ice", ""};
     public static final String[] StaffEffects = {"Healing", "Lightning", "Flame", "Ice"};
     public static final String[] ArmorEffects = {"Stench", "Iron Skin", "Thorns", "Swiftness"};
     public static final String[] SwordEffects = {"Fright", "Might", "Flame", "Ice"};
@@ -136,12 +175,7 @@ public class Main extends StateBasedGame {
     //displayed item name should be of the form "material type of effect" using whatever fields are filled in
     
     
-    // create an item manager
-    public static ItemManager im;
-    Entity[][] potions;
-    ArrayList<AnimateEntity> animations;
-    
-    public ArrayList<Character> characters;
+
 
 
     /**
@@ -167,6 +201,7 @@ public class Main extends StateBasedGame {
         this.dos = dos;
 
         characters = new ArrayList<>();
+        enemies = new ArrayList<>();
         testItems = new ArrayList<>(50);
 
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);    // set a rectangle
@@ -235,9 +270,41 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(ARMOR_IRON);
 
         // SWORDS
-        ResourceManager.loadImage((SWORD_IRON));
+        ResourceManager.loadImage(SWORD_IRON);
         ResourceManager.loadImage(SWORD_WOOD);
         ResourceManager.loadImage(SWORD_GOLD);
+
+        // ARROWS
+        ResourceManager.loadImage(ARROW_NORMAL);
+        ResourceManager.loadImage(ARROW_FLAME);
+        ResourceManager.loadImage(ARROW_ICE);
+        ResourceManager.loadImage(ARROW_POISON);
+        
+        // FLAME ARROWS
+        ResourceManager.loadImage(ARROW_FLAME_UP);
+        ResourceManager.loadImage(ARROW_FLAME_DOWN);
+        ResourceManager.loadImage(ARROW_FLAME_LEFT);
+        ResourceManager.loadImage(ARROW_FLAME_RIGHT);
+        
+        // ICE ARROWS
+        ResourceManager.loadImage(ARROW_ICE_UP);
+        ResourceManager.loadImage(ARROW_ICE_DOWN);
+        ResourceManager.loadImage(ARROW_ICE_LEFT);
+        ResourceManager.loadImage(ARROW_ICE_RIGHT);
+        
+        // NORMAL ARROWS
+        ResourceManager.loadImage(ARROW_NORMAL_UP);
+        ResourceManager.loadImage(ARROW_NORMAL_DOWN);
+        ResourceManager.loadImage(ARROW_NORMAL_LEFT);
+        ResourceManager.loadImage(ARROW_NORMAL_RIGHT);
+        
+        // POISON ARROWS
+        ResourceManager.loadImage(ARROW_POISON_UP);
+        ResourceManager.loadImage(ARROW_POISON_DOWN);
+        ResourceManager.loadImage(ARROW_POISON_LEFT);
+        ResourceManager.loadImage(ARROW_POISON_RIGHT);
+
+
     }
 
     // Send close to the server and close connections before exiting.
@@ -265,7 +332,7 @@ public class Main extends StateBasedGame {
         ObjectOutputStream dos = null;
         if(!localMode) {
             try {
-                byte[] ipAddr = new byte[]{127, 0, 0, 1};
+                byte[] ipAddr = new byte[]{127,0,0,1};
 
                 // getting localhost ip
                 InetAddress ip = InetAddress.getByAddress(ipAddr);

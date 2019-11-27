@@ -25,7 +25,17 @@ public class ItemManager {
 		identifiedPotionEffects = new String[uniquePotions];
 		//populate this list ahead of time
 		for( int i = 0; i < uniquePotions; i++ ){
-			identifiedPotionEffects[i] = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length)];
+			String effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length)];
+			for( int j = 0; j < identifiedPotionEffects.length; j++ ){
+				if( identifiedPotionEffects[j] != null && identifiedPotionEffects[j].equals(effect) ){
+					i--;
+					break;
+				}
+				if( j == identifiedPotionEffects.length-1 ){
+					identifiedPotionEffects[i] = effect;
+				}
+			}
+			
 		}
 	}
 	
@@ -33,6 +43,9 @@ public class ItemManager {
 		//give an item with given id to the player with given id
 		for( Item i : worldItems ){
 			if( i.getID() == itemID ){
+				if(i.isLocked() ){
+					return;
+				}
 				//add to the player's inventory
 				for( Character c : game.characters ){
 					if( c.getPid() == playerID ){
@@ -43,7 +56,10 @@ public class ItemManager {
 				}
 			}
 		}
-
+	}
+	
+	public void give( Item i, Character c ){
+		c.addItem(i);
 	}
 	
 	public void take(int itemID, int playerID, Vector wc, boolean use){
@@ -66,7 +82,28 @@ public class ItemManager {
 		}
 	}
 	
+	public void removeFromWorldItems(Item item){
+		worldItems.remove(item);
+	}
+	
+	public void take(Item i, Character c, Vector wc, boolean use ){
+		if( wc != null ){
+			i.setWorldCoordinates(wc);
+			i.setOID(0);
+			worldItems.add(i);
+		}
+		
+		c.discardItem(i.getID(), use);
+	}
+	
 	private int currentItemID = 0;
+	
+	public int getCurrentItemID(){
+		return currentItemID;
+	}
+	public void updateCurrentItemID(){
+		currentItemID++;
+	}
 	
 	public void plant(int numItems, int[][] map) throws SlickException{
 		int maxcol = game.ScreenWidth/game.tilesize;
@@ -112,19 +149,21 @@ public class ItemManager {
 				}else{
 					//this would suggest that the list of potion colors in this class
 					//  is incomplete
-					throw new SlickException("Error: invalid potion color.");
+					throw new SlickException("Error: invalid potion color "+i.getMaterial());
 				}
 			}
-			
+
 			worldItems.add(i);
-			
+
 			currentItemID++;
-			
+
 			numItems--;
 		}
 
 	}
-	
+
+
+
 	public ArrayList<Item> itemsInRegion(Vector min, Vector max){
 		//return items in the specified region
 		ArrayList<Item> items = new ArrayList<Item>();
@@ -154,6 +193,23 @@ public class ItemManager {
 			}
 		}
 		return null;
+	}
+	
+	public Item getWorldItemByID(int id){
+		for( Item i : worldItems ){
+			if( i.getID() == id ){
+				return i;
+			}
+		}
+		return null;
+	}
+	
+	public ArrayList<Item> getWorldItems(){
+		return worldItems;
+	}
+	
+	public void addToWorldItems(Item itm){
+		worldItems.add(itm);
 	}
 	
 }

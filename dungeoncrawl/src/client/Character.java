@@ -2,6 +2,8 @@ package client;
 
 import jig.Vector;
 
+import java.util.Random;
+
 public class Character extends MovingEntity {
     private Main dc;
     AnimateEntity animate;
@@ -9,10 +11,13 @@ public class Character extends MovingEntity {
     private String direction;
     private boolean canMove = true;
     private boolean nearEdge = false;
+    public boolean ai;
     private int movesLeft;
     private int moveSpeed;
     int ox;             // origin x
     int oy;             // origin y
+    float pixelX;       // players exact origin in pixels
+    float pixelY;       // players exact origin in pixels
     private int newx;   // next origin x
     private int newy;   // next origin y
     float dx = 0f;      // delta x
@@ -20,25 +25,27 @@ public class Character extends MovingEntity {
 
     /**
      * Create a new Character (wx, wy)
-     *
-     * @param wx   world coordinates x
+     *  @param wx   world coordinates x
      * @param wy   world coordinates y
      * @param type entity animation to get "knight_leather" for example see the AnimateEntity Class
      * @param id   id for MovingEntity
+     * @param AI: true if this is an AI character
      */
-    public Character(Main dc, final float wx, final float wy, String type, int id) {
-        super(wx, wy, id);
+    public Character(Main dc, final float wx, final float wy, String type, int id, Level level, boolean AI) {
+        super(wx, wy, id, level);
         this.dc = dc;
         this.type = type;
         setStats();
-        animate = new AnimateEntity(wx, wy, getSpeed(), this.type);
+        animate = new AnimateEntity(wx, wy, getAnimationSpeed(), this.type);
         direction = "walk_down";
         animate.selectAnimation(direction);
         animate.stop();
         ox = 0;
         oy = 0;
-        setSpeed(50);       // speed of the animation
-        moveSpeed = 2;      // speed that character moves across the screen
+        pixelX = 0f;
+        pixelY = 0f;
+        setAnimationSpeed(50);       // speed of the animation
+        ai = AI;            //
     }
 
 
@@ -49,11 +56,20 @@ public class Character extends MovingEntity {
      * @param type 'K'night, 'M'age, 'A'rcher, 'T'ank
      * @param id   id for MovingEntity
      */
-    public Character(Vector wc, String type, int id) {
-        super(wc, id);
+    public Character(Vector wc, String type, int id, Level level) {
+        super(wc, id, level);
         this.type = type;
         setStats();
+        
     }
+    
+    public void setType(String type){
+    	this.type = type;
+    	float hp = getHitPoints();
+    	setStats();
+    	setHitPoints(hp);
+    }
+
 
     /**
      * Sets Character HP, AP, and Mana based on type given.
@@ -65,29 +81,40 @@ public class Character extends MovingEntity {
             case "knight_gold":
                 setHitPoints(100);
                 setArmorPoints(100);
-                setSpeed(50);
+                setAnimationSpeed(50);
                 break;
             case "mage_leather": // Mage
             case "mage_improved":
                 setHitPoints(80);
                 setArmorPoints(50);
-                setSpeed(75);
+                setAnimationSpeed(75);
                 setMana(100);
                 break;
             case "archer_leather": // Archer
                 setHitPoints(100);
                 setArmorPoints(50);
-                setSpeed(75);
+                setAnimationSpeed(75);
                 break;
             case "tank_leather": // Tank
+                break;
             case "tank_iron":
+                break;
             case "tank_gold":
                 setHitPoints(150);
                 setArmorPoints(100);
-                setSpeed(25);
+                setAnimationSpeed(25);
+                break;
+            case "skeleton_basic":
+                setHitPoints(150);
+                setArmorPoints(100);
+                setAnimationSpeed(25);
                 break;
             default:
-                System.out.println("ERROR: No matching Character type specified.\n");
+                System.out.println("ERROR: No matching Character type specified." +
+                        " Setting default values\n");
+                setHitPoints(100);
+                setArmorPoints(100);
+                setAnimationSpeed(25);
                 break;
         }
     }
@@ -118,7 +145,7 @@ public class Character extends MovingEntity {
 
         // moved the character fixed to the grid
         if (!canMove) {
-            moveTranslationHelper();
+            moveTranslationHelper(animate.getPosition());
             return;
         }
 
@@ -142,22 +169,10 @@ public class Character extends MovingEntity {
                 movement = "walk_right";
                 break;
             case "4":       // speed up
-                if (moveSpeed >= 32) {
-                    System.out.println("Speed at Maximum: " + moveSpeed);
-                    break;
-                }
-                setSpeed(getSpeed() / 2);
-                moveSpeed *= 2;
-                System.out.println("Speed increased to: " + moveSpeed);
+            	doubleMoveSpeed();
                 break;
             case "5":        // slow down
-                if (moveSpeed <= 1) {
-                    System.out.println("Speed at Minimum: " + moveSpeed);
-                    break;
-                }
-                setSpeed(getSpeed() * 2);
-                moveSpeed /= 2;
-                System.out.println("Speed Decreased to: " + moveSpeed);
+            	halfMoveSpeed();
                 break;
         }
         if (movement != null) {
@@ -179,36 +194,118 @@ public class Character extends MovingEntity {
     }
 
 
-    /*
-    This method updates the players position such that it is a smooth transition without jumps. It is
-    called from the move method and should not be called by any other methods. Updates the characters coordinates.
+    /**
+     * Move the AI randomly until the character is within range
+     * This is the method that should be called from the level class to move the AI
+     *
      */
-    private void moveTranslationHelper() {
-        Vector sc = animate.getPosition();
-        float sx = sc.getX();
-        float sy = sc.getY();
-        float x = 0, y = 0;
+    public void moveAI() {
+//        if(true)
+//            return;
+        String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
+        // moved the character fixed to the grid
+        if (!canMove) {
+            moveTranslationHelper(getWorldCoordinates());
+            return;
+        }
+        int rand = new Random().nextInt(moves.length);
+        String currentDirection = direction;
+        direction = moves[rand];
+
+        if (direction.equals("wait")) {
+            animate.stop();
+            return;
+        }
+
+        // TODO this can be simplified
+        String movement = null;
+        switch (direction) {
+            case "walk_up":
+                movement = "walk_up";
+                break;
+            case "walk_down":
+                movement = "walk_down";
+                break;
+            case "walk_left":
+                movement = "walk_left";
+                break;
+            case "walk_right":
+                movement = "walk_right";
+                break;
+            case "4":       // speed up
+                if (moveSpeed >= 32) {
+                    System.out.println("Speed at Maximum: " + moveSpeed);
+                    break;
+                }
+                setAnimationSpeed(getAnimationSpeed() / 2);
+                moveSpeed *= 2;
+                System.out.println("Speed increased to: " + moveSpeed);
+                break;
+            case "5":        // slow down
+                if (moveSpeed <= 1) {
+                    System.out.println("Speed at Minimum: " + moveSpeed);
+                    break;
+                }
+                setAnimationSpeed(getAnimationSpeed() * 2);
+                moveSpeed /= 2;
+                System.out.println("Speed Decreased to: " + moveSpeed);
+                break;
+        }
+        if (movement != null) {
+            canMove = false;
+            movesLeft = dc.tilesize;
+            if (!movement.equals(currentDirection)) {
+                updateAnimation(movement);
+                direction = movement;
+            } else {
+                animate.start();
+            }
+            // check for collisions with the wall
+            if (collision() && dc.collisions) {
+                canMove = true;
+                return;
+            }
+            changeOrigin();     // check if the screen origin needs to change
+        }
+    }
+
+
+    /**
+     This method updates the characters position such that it is a smooth transition without jumps. It is
+     called from the move method and should not be called by any other methods. Updates the characters coordinates.
+     @param position animate.getPosition() for the player and getWorldCoordinates() for ai
+     */
+    private void moveTranslationHelper(Vector position) {
+        float sx = position.getX();
+        float sy = position.getY();
+        float x = 0;
+        float y = 0;
         if (movesLeft > 0) {
             switch (direction) {
                 case "walk_up":
                     x = sx;
-                    y = sy - moveSpeed;
+                    y = sy - super.getMovementSpeed();
                     break;
                 case "walk_down":
                     x = sx;
-                    y = sy + moveSpeed;
+                    y = sy + super.getMovementSpeed();
                     break;
                 case "walk_left":
-                    x = sx - moveSpeed;
+                    x = sx - super.getMovementSpeed();
                     y = sy;
                     break;
                 case "walk_right":
-                    x = sx + moveSpeed;
+                    x = sx + super.getMovementSpeed();
                     y = sy;
                     break;
             }
-            movesLeft -= moveSpeed;
-            updatePosition(x, y);
+            movesLeft -= super.getMovementSpeed();
+            if (ai) {
+                setWorldCoordinates(x, y);
+            }
+            else {
+                updatePosition(x, y);
+            }
         } else {
             canMove = true;
         }
@@ -224,29 +321,33 @@ public class Character extends MovingEntity {
             switch (direction) {
                 case "walk_up":
                     dx = 0f;
-                    dy -= moveSpeed;
+                    dy -= super.getMovementSpeed();
                     break;
                 case "walk_down":
                     dx = 0f;
-                    dy += moveSpeed;
+                    dy += super.getMovementSpeed();
                     break;
                 case "walk_left":
-                    dx -= moveSpeed;
+                    dx -= super.getMovementSpeed();
                     dy = 0f;
                     break;
                 case "walk_right":
-                    dx += moveSpeed;
+                    dx += super.getMovementSpeed();
                     dy = 0f;
                     break;
             }
-            movesLeft -= moveSpeed;
+            movesLeft -= super.getMovementSpeed();
             RenderMap.setMap(dc, this);
+            pixelX = (ox * dc.tilesize) + dx;        // columns
+            pixelY = (oy * dc.tilesize) + dy;        // columns
         } else {
             ox = newx;
             oy = newy;
-            updateWorldCoordinates();
+            pixelX = (ox * dc.tilesize);// + (float) dc.tilesize / 2);
+            pixelY = (oy * dc.tilesize);// + (float) dc.tilesize / 2);
             nearEdge = false;
         }
+        updateWorldCoordinates();
     }
 
 
@@ -290,7 +391,7 @@ public class Character extends MovingEntity {
                 newx++;
             }
         }
-        if (nearEdge) {
+        if (nearEdge && !ai) {
             movesLeft = dc.tilesize;
             dx = 0f;
             dy = 0f;
@@ -304,6 +405,7 @@ public class Character extends MovingEntity {
      */
     private boolean collision() {
         Vector wc = getWorldCoordinates();
+        boolean collided = false;
         int x = (((int) wc.getX() + dc.offset) / dc.tilesize) - 1;
         int y = (((int) wc.getY() + dc.tilesize + dc.doubleOffset) / dc.tilesize) - 1;
         switch (direction) {
@@ -320,21 +422,31 @@ public class Character extends MovingEntity {
                 x += 1;
                 break;
         }
-        return (dc.map[y][x] != 0);
+//        if (y < 0 || y > dc.tilesWide || x < 0 || x > dc.tilesHigh) {
+//            return true;
+//        }
+        return dc.map[y][x] != 0;
     }
 
+    
+    private String action;
 
     /**
      * Updates the animation that is currently in use
      *
      * @param action a new animations action to be selected
      */
-    private void updateAnimation(String action) {
+    public void updateAnimation(String action) {
         if (action != null) {
+        	this.action = action;
             Vector sc = animate.getPosition();
-            animate = new AnimateEntity(sc.getX(), sc.getY(), getSpeed(), this.type);
+            animate = new AnimateEntity(sc.getX(), sc.getY(), getAnimationSpeed(), this.type);
             animate.selectAnimation(action);
         }
+    }
+    
+    public String getAction(){
+    	return action;
     }
 
 
@@ -345,6 +457,7 @@ public class Character extends MovingEntity {
      * @param y The new y screen position
      */
     private void updatePosition(float x, float y) {
+        // set the position but convert the world coordinates to screen coordinates first
         animate.setPosition(x, y);      // screen coordinates
         float wx = x + (ox * dc.tilesize);
         float wy = y + (oy * dc.tilesize);
@@ -361,4 +474,35 @@ public class Character extends MovingEntity {
         float wy = (oy * dc.tilesize) + sc.getY();
         setWorldCoordinates(wx, wy);    // world coordinates
     }
+
+
+    /**
+     * Translates the ai's screen position when the player scrolls on screen
+     *
+     * @param dx The new x screen position
+     * @param dy The new y screen position
+     */
+//    private void updateAIscreenPosition(float dx, float dy) {
+//        Vector position = animate.getPosition();
+////        System.out.println("Position is: " + position);
+////
+////
+////        animate.setPosition(position.getX() + dx*-1, position.getY() + dy*-1);      // screen coordinates
+////        System.out.println("Updated position is: " + animate.getPosition());
+////        System.out.println();
+//
+//
+//
+//        // set the position but convert the world coordinates to screen coordinates first
+//        if (dc.hero.animate.isActive()) {
+//            Vector sc = world2screenCoordinates(getWorldCoordinates());
+//            animate.setPosition(sc);
+//        }
+//        else {
+//            animate.setPosition(position.getX() + dx, position.getY() + dy);      // screen coordinates
+//        }
+//    }
+
+
+
 }

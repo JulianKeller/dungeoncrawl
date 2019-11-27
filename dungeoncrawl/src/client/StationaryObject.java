@@ -3,7 +3,7 @@ package client;
 import jig.Entity;
 import jig.Vector;
 
-public class StationaryObject extends Entity{
+public class StationaryObject extends Entity {
 	/**
 	 * Represents an object which remains in the same position on the level.
 	 */
@@ -26,5 +26,12 @@ public class StationaryObject extends Entity{
 	
 	public boolean isLocked(){
 		return locked;
+	}
+	
+	public void lock(){
+		locked = true;
+	}
+	public void unlock(){
+		locked = false;
 	}
 }
