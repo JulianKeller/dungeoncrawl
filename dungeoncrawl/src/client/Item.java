@@ -74,20 +74,27 @@ public class Item extends StationaryObject{
 		}
 		
 		//choose effects from the appropriate list
-		if( type.equals("Sword") ){
-			this.effect = Main.SwordEffects[ rand.nextInt(Main.SwordEffects.length) ];
-		}else if( type.equals("Armor") ){
-			this.effect = Main.ArmorEffects[ rand.nextInt(Main.ArmorEffects.length) ];
+		//chance of effect: 50%
+		r = rand.nextInt(100);
+		if ( r < 50 ){
+			if( type.equals("Sword") ){
+				this.effect = Main.SwordEffects[ rand.nextInt(Main.SwordEffects.length) ];
+			}else if( type.equals("Armor") ){
+				this.effect = Main.ArmorEffects[ rand.nextInt(Main.ArmorEffects.length) ];
+			}else if( type.equals("Glove") ){
+				this.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
+			}else if( type.equals("Arrow") ){
+				this.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
+			}else{
+				this.effect = "";
+			}
+		//except potions and staffs, which will always have an effect
+		}else if( type.equals("Potion") ){
+				this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
 		}else if( type.equals("Staff") ){
 			this.effect = Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ];
-		}else if( type.equals("Glove") ){
-			this.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
-		}else if( type.equals("Potion") ){
-			this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
-		}else if( type.equals("Arrow") ){
-			this.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
 		}else{
-			this.effect = "";
+			effect = "";
 		}
 		
 		//items have a 50% chance to be cursed (for now?)
@@ -98,7 +105,7 @@ public class Item extends StationaryObject{
 		}
 		
 		//all items start unidentified
-		identified = false;
+		identified = true;
 		
 
 		//get an image based on item type
