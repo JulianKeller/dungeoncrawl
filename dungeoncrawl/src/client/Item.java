@@ -24,6 +24,8 @@ public class Item extends StationaryObject{
 	
 	private Random rand;
 	
+	private int count; //the number of this item in the inventory
+	
 	
 	public Item(Vector wc, boolean locked, int id, int oid) throws SlickException{
 		super(wc, locked); //superconstructor
@@ -33,6 +35,8 @@ public class Item extends StationaryObject{
 		
 		this.id = id;
 		this.oid = oid;
+		
+		count = 1;
 		
 		//first get the item type
 		//this.type = client.Main.ItemTypes[ rand.nextInt(client.Main.ItemTypes.length) ];
@@ -143,7 +147,7 @@ public class Item extends StationaryObject{
 		}
 	}
 	
-	public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image){
+	public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image, int count){
 		super(wc, locked);
 		//create item with given properties
 		this.id = id;
@@ -154,6 +158,7 @@ public class Item extends StationaryObject{
 		this.cursed = cursed;
 		this.identified = identified;
 		this.image = image;
+		this.count = count;
 	}
 	
 	
@@ -184,6 +189,9 @@ public class Item extends StationaryObject{
 	}
 	public boolean isLocked(){
 		return super.isLocked();
+	}
+	public int getCount(){
+		return count;
 	}
 	
 	//setter functions

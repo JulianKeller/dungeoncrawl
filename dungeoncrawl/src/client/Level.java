@@ -1244,7 +1244,7 @@ public class Level extends BasicGameState {
 
             //spawn at the world coordinate of the player's animation
             Vector wc = new Vector((dc.hero.animate.getX()/dc.tilesize)-0.5f, (dc.hero.animate.getY()/dc.tilesize)-1);
-            Item flyingArrow = new Item(wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, image);
+            Item flyingArrow = new Item(wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, image, 1);
 
             //add this to the list of items so it can be rendered
             Main.im.addToWorldItems(flyingArrow);
