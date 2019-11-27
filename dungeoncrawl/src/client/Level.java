@@ -10,7 +10,6 @@ import java.util.Random;
 import java.util.Scanner;
 
 
-import org.lwjgl.Sys;
 
 import jig.Vector;
 
