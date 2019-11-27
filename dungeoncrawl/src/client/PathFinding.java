@@ -25,12 +25,6 @@ private final int MAX = Integer.MAX_VALUE;
         this.targetY = (int) target.getY();
         this.startX = (int) start.getX();
         this.startY = (int) start.getY();
-
-        // reversed
-//        this.targetX = (int) target.getY();
-//        this.targetY = (int) target.getX();
-//        this.startX = (int) start.getY();
-//        this.startY = (int) start.getX();
     }
 
     // runs dijkstra's and then returns the shortest found path
@@ -66,7 +60,10 @@ private final int MAX = Integer.MAX_VALUE;
         ArrayList<int[]> shortest = new ArrayList<>();
         int prevx, prevy;
         // start at target, push onto stack, then pop off
-        stack.push(new int[]{targetX, targetY});
+
+        int[] prev = path[targetX][targetY];
+        stack.push(prev);
+
         prevx = targetX;
         prevy = targetY;
         int count = 0;
@@ -76,8 +73,7 @@ private final int MAX = Integer.MAX_VALUE;
                 break;
             }
 
-            // TODO this is null on 79/47
-            int[] prev = path[prevx][prevy];
+            prev = path[prevx][prevy];
             if (prev == null) {
                 break;
             }
@@ -110,7 +106,7 @@ private final int MAX = Integer.MAX_VALUE;
         visited = new boolean[x][y];
         for (int j = 0; j < y; j++) {
             for (int i = 0; i < x; i++) {
-                distance[i][j] = MAX;
+                distance[i][j] = Integer.MAX_VALUE;
                 path[i][j] = null;
                 visited[i][j] = false;
             }
@@ -131,7 +127,7 @@ private final int MAX = Integer.MAX_VALUE;
         // TODO here seems to be the problem
         int weight = 1;
         if (map[ay][ax] == 1) {
-            weight = 200000;
+            weight = Integer.MAX_VALUE;
         }
 
         if (distance[ax][ay] > (distance[cx][cy] + weight)) {

@@ -61,8 +61,11 @@ public class Arrow extends Entity {
                 dir = "up";
             }
 
-            Arrow a = new Arrow(x * tilesize - dc.offset, y * tilesize - dc.offset, dir);
-            a.worldCoordinates = new Vector(x * tilesize - dc.offset, y * tilesize - dc.offset);
+            Arrow a = new Arrow(x * tilesize + dc.offset, y * tilesize + dc.offset, dir);
+            a.worldCoordinates = new Vector(x * tilesize + dc.offset, y * tilesize + dc.offset);
+            
+//            Arrow a = new Arrow(x * tilesize - dc.offset, y * tilesize - dc.offset, dir);
+//            a.worldCoordinates = new Vector(x * tilesize - dc.offset, y * tilesize - dc.offset);
             ai.arrows.add(a);
             px = x;
             py = y;

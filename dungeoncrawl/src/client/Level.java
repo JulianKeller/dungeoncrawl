@@ -116,11 +116,11 @@ public class Level extends BasicGameState {
 
         // use the debug map instead
 //        dc.map = RenderMap.getDebugMap();
-        try {
-            dc.map = RenderMap.getDebugMap2();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            dc.map = RenderMap.getDebugMap2();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         //*/
         //dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
@@ -155,7 +155,7 @@ public class Level extends BasicGameState {
         int row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
 		int col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 
-		while( dc.map[row][col] == 1 || wallAdjacent(row, col, dc.map) ){
+		while(dc.map[row][col] == 1 || wallAdjacent(row, col, dc.map) ){
 			//spawn on a floor tile with 4 adjacent floor tiles
 	        row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
 			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
@@ -313,8 +313,14 @@ public class Level extends BasicGameState {
         }
     }
 
+    /**
+     * set scaled to true to show the values smaller in the top
+     * set coords true to see the game coordinates, this really drops fps, be warned
+     * @param dc
+     * @param g
+     */
     private void renderPathWeights(Main dc, Graphics g) {
-        boolean scaled = true;
+        boolean scaled = false;
         boolean coords = false;
         for (Character ai : dc.characters) {
             if (ai.weights != null) {
@@ -325,11 +331,11 @@ public class Level extends BasicGameState {
 
                         //make the messages fade away based on their timers
                         String msg = String.valueOf((int) ai.weights[i][j]);
-//                        if (ai.weights[i][j] > 200) {
-//                            msg = "INF";
-//                        }
 
                         if (!scaled) {
+                            if (ai.weights[i][j] > 200000) {
+                                msg = "INF";
+                            }
                             Vector wc = new Vector(i * dc.tilesize, j * dc.tilesize);
                             Vector sc = world2screenCoordinates(dc, wc);
                             g.drawString(msg, sc.getX(), sc.getY());
@@ -345,8 +351,8 @@ public class Level extends BasicGameState {
                                 g.setColor(new Color(255, 255, 255, .8f));
                                 wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize + dc.offset);
                                 sc = world2screenCoordinates(dc, wc);
-                                String I = String.valueOf(i + 1);
-                                String J = String.valueOf(j + 1);
+                                String I = String.valueOf(i);
+                                String J = String.valueOf(j);
                                 msg = "(" + I + "," + J + ")";
                                 g.drawString(msg, sc.getX(), sc.getY());
                             }

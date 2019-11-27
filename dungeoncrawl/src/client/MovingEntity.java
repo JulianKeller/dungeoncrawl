@@ -329,8 +329,8 @@ public class MovingEntity extends Entity {
      * @return
      */
     public Vector getTileWorldCoordinates() {
-        float x = Math.round((worldCoordinates.getX() + dc.offset)/dc.tilesize);
-        float y = Math.round((worldCoordinates.getY() + dc.tilesize + dc.doubleOffset)/dc.tilesize);
+        float x = Math.round((worldCoordinates.getX() + dc.offset)/dc.tilesize) - 1;
+        float y = Math.round((worldCoordinates.getY() + dc.tilesize + dc.doubleOffset)/dc.tilesize) - 1;
         return new Vector(x, y);
     }
 
