@@ -3,12 +3,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
 
+
 import org.lwjgl.Sys;
+
+import jig.Vector;
+
+
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -18,8 +24,9 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+
 import jig.ResourceManager;
-import jig.Vector;
+
 
 
 public class Level extends BasicGameState {
@@ -34,6 +41,10 @@ public class Level extends BasicGameState {
     ObjectInputStream dis;
     ObjectOutputStream dos;
     String serverMessage;
+
+    int tilesize = 32;
+    int offset = tilesize/2;
+    int doubleOffset = offset/2;
 
     private final int messageTimer = 2000;
 
@@ -133,9 +144,19 @@ public class Level extends BasicGameState {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+
+
+        // use the debug map instead
+//        dc.map = RenderMap.getDebugMap();
+//        try {
+//            dc.map = RenderMap.getDebugMap2();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
         //*/
         //dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
-        System.out.printf("Map Size: %s, %s\n", dc.map.length, dc.map[0].length);
+        System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
 
 
 
@@ -173,11 +194,12 @@ public class Level extends BasicGameState {
         int row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
         int col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 
-        while( dc.map[row][col] == 1 || wallAdjacent(row, col, dc.map) ){
-            //spawn on a floor tile with 4 adjacent floor tiles
-            row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
-            col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
-        }
+		while(dc.map[row][col] == 1 || wallAdjacent(row, col, dc.map) ){
+			//spawn on a floor tile with 4 adjacent floor tiles
+	        row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
+			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
+		}
+
 
 		/*
         float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
@@ -208,13 +230,12 @@ public class Level extends BasicGameState {
         Main.im.give(a, dc.hero);
         */
         dc.characters.add(dc.hero);
-        //currentOX = dc.hero.ox;
-        //currentOY = dc.hero.oy;
 
         // setup a skeleton enemy
         wx = (dc.tilesize * 20) - dc.offset;
         wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
         dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, this, true));
+
 
         // render map
         RenderMap.setMap(dc, dc.hero);
@@ -403,11 +424,79 @@ public class Level extends BasicGameState {
         g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
         g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
 
-
-
+        if (dc.showPath) {
+            renderShortestPath(dc, g);
+            renderPathWeights(dc, g);
+        }
 
     }
 
+    /** Renders the AI's shortest path
+     *
+     */
+    private void renderShortestPath(Main dc, Graphics g) {
+        // only load arrows if the player wants to show the dijkstra's path
+        for (Character ai : dc.characters) {
+            for (Arrow a : ai.arrows) {
+                Vector sc = world2screenCoordinates(dc, a.getWorldCoordinates());
+                a.setPosition(sc);
+                a.render(g);
+            }
+        }
+
+    }
+
+    /**
+     * set scaled to true to show the values smaller in the top
+     * set coords true to see the game coordinates, this really drops fps, be warned
+     * @param dc
+     * @param g
+     */
+    private void renderPathWeights(Main dc, Graphics g) {
+        boolean scaled = false;
+        boolean coords = false;
+        for (Character ai : dc.characters) {
+            if (ai.weights != null) {
+                for (int i = 0; i < ai.weights.length; i++) {
+                    for (int j = 0; j < ai.weights[0].length; j++) {
+                        Color tmp = g.getColor();
+                        g.setColor(new Color(255, 255, 255, 1f));
+
+                        //make the messages fade away based on their timers
+                        String msg = String.valueOf((int) ai.weights[i][j]);
+
+                        if (!scaled) {
+                            if (ai.weights[i][j] > 200000) {
+                                msg = "INF";
+                            }
+                            Vector wc = new Vector(i * dc.tilesize, j * dc.tilesize);
+                            Vector sc = world2screenCoordinates(dc, wc);
+                            g.drawString(msg, sc.getX(), sc.getY());
+                        }
+                        else {
+                            g.scale(.5f, .5f);
+                            Vector wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize);
+                            Vector sc = world2screenCoordinates(dc, wc);
+                            g.drawString(msg, sc.getX(), sc.getY());
+
+                            // draw x, y tile values
+                            if (coords) {
+                                g.setColor(new Color(255, 255, 255, .8f));
+                                wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize + dc.offset);
+                                sc = world2screenCoordinates(dc, wc);
+                                String I = String.valueOf(i);
+                                String J = String.valueOf(j);
+                                msg = "(" + I + "," + J + ")";
+                                g.drawString(msg, sc.getX(), sc.getY());
+                            }
+                            g.scale(2f, 2f);
+                        }
+                        g.setColor(tmp);
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Render debug information on the screen

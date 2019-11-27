@@ -25,6 +25,9 @@ public class Cheats {
         else if (input.isKeyPressed(Input.KEY_3)) {
             dc.enterState(Main.STARTUPSTATE);
         }
+        else if (input.isKeyPressed(Input.KEY_6)) {
+            dc.showPath = !dc.showPath;
+        }
         else if (input.isKeyPressed(Input.KEY_C)) {     // disable collisions with walls
             dc.collisions = !dc.collisions;
         }
