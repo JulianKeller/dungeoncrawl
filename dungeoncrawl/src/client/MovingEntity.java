@@ -402,7 +402,7 @@ Reflection:
     public void addItem(Item i){
     	boolean add = true;
     	for( Item itm : inventory ){
-    		if( itm.getMaterial().equals(i.getMaterial()) && itm.getType().equals(i.getType()) && itm.getEffect().equals(i.getEffect()) ){
+    		if( itm.equals(i) ){
     			itm.count += i.count;
     			add = false;
     			break;

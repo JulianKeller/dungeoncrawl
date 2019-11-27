@@ -391,9 +391,9 @@ public class Level extends BasicGameState {
                 try{
                     Item sItem = items.get((itemy*4)+itemx);
                     if( sItem.isIdentified() ){
-                        g.drawString(sItem.getMaterial() + " " + sItem.getType() + " of " + sItem.getEffect(), dc.tilesize+10, dc.tilesize*8);
+                        g.drawString(sItem.toString(), dc.tilesize+10, dc.tilesize*8);
                     }else{
-                        g.drawString("Unidentified " + sItem.getMaterial() + " " + sItem.getType(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));
+                        g.drawString("Unidentified " + sItem.toString(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));
                     }
                 }catch(IndexOutOfBoundsException ex){
 
@@ -518,7 +518,7 @@ public class Level extends BasicGameState {
                 g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
                 Color tmp = g.getColor();
                 g.setColor(Color.white);
-                g.drawString(i.getMaterial()+" "+i.getType()+" of "+i.getEffect(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
+                g.drawString(i.toString(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
                 g.setColor(tmp);
                 row++;
             }
@@ -578,7 +578,7 @@ public class Level extends BasicGameState {
                 g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
                 Color tmp = g.getColor();
                 g.setColor(Color.white);
-                g.drawString(i.getMaterial()+" "+i.getType()+" of "+i.getEffect(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
+                g.drawString(i.toString(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
                 g.setColor(tmp);
                 row++;
             }
@@ -864,7 +864,7 @@ public class Level extends BasicGameState {
                 }else{
                     x = "Used";
                 }
-                addMessage(x + " " + i.getMaterial() + " " + i.getType() + " of " + i.getEffect() );
+                addMessage(x + " " + i.toString());
                 //TODO: add potion effects to character
                 if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
                     //add effect to character
@@ -1028,9 +1028,9 @@ public class Level extends BasicGameState {
             Item i = Main.im.getItemAt(aniPos);
             if( i != null && !i.isLocked() ){
                 if( i.isIdentified() ){
-                    addMessage("Picked up " + i.getMaterial() + " " +i.getType() + " of " + i.getEffect() + ".");
+                    addMessage("Picked up " + i.toString() + ".");
                 }else{
-                    addMessage("Picked up unidentified "+i.getMaterial().toLowerCase()+" "+i.getType().toLowerCase()+".");
+                    addMessage("Picked up unidentified "+i.toString()+".");
                 }
 
                 
@@ -1065,26 +1065,6 @@ public class Level extends BasicGameState {
                 Main.im.removeFromWorldItems(i);
             }
         }
-
-//        // check if the hero has hit an item
-//        float x = dc.hero.getTileWorldCoordinates().getX();
-//        float y = dc.hero.getTileWorldCoordinates().getY();
-//        Vector aniPos = new Vector((int)x, (int)y);
-//
-//        Item item= Main.im.getItemAt(aniPos);
-//        if( item!= null && !item.isLocked() ){
-//            if( item.isIdentified() ){
-//                addMessage("Picked up " + item.getMaterial() + " " +item.getType() + " of " + item.getEffect() + ".");
-//            }else{
-//                addMessage("Picked up unidentified "+item.getMaterial().toLowerCase()+" "+item.getType().toLowerCase()+".");
-//            }
-//            //give removes item from the world's inventory
-//            //  and adds it to the player's inventory
-//            Main.im.give(item.getID(), dc.hero.getPid());
-//
-//            //stop rendering the item
-//            itemsToRender.remove(item);
-//        }
 
 
 
@@ -1195,7 +1175,7 @@ public class Level extends BasicGameState {
                         //reveal the effect to the character
                         // if it is not known
                         if( !itm.isIdentified() ){
-                            addMessage("It is " + itm.getType() + " of " + itm.getEffect() );
+                            addMessage("It is " + itm.toString() );
                             itm.identify();
                         }
                     }

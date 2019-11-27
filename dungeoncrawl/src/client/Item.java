@@ -162,6 +162,33 @@ public class Item extends StationaryObject{
 	}
 	
 	
+	public boolean equals(Item b){
+		if( getMaterial().equals(b.getMaterial()) && getType().equals(b.getType()) && getEffect().equals(b.getEffect()) ){
+			return true;
+		}
+		return false;
+	}
+	
+	public String toString(){
+		String tmp = "";
+		
+		if( isIdentified() ){
+			if( getMaterial() != "" ){
+				tmp = tmp + getMaterial() + " ";
+			}
+			tmp = tmp + getType();
+			if( getEffect() != "" ){
+				tmp = tmp + " of " + getEffect();
+			}
+		}else{
+			if( getMaterial() != "" ){
+				tmp = tmp + getMaterial() + " ";
+			}
+			tmp = tmp + getType();
+		}
+		return tmp;
+	}
+	
 	//getter functions
 	public int getID(){
 		return id;
