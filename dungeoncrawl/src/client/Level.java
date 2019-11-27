@@ -949,9 +949,9 @@ public class Level extends BasicGameState {
         	if( ch.ai ){
         		continue;
         	}
-        	float x = (ch.animate.getX()/dc.tilesize);
-        	float y = (ch.animate.getY()/dc.tilesize);
-        	Vector aniPos = new Vector((int)x, (int)y);
+        	int x = (int) ch.getTileWorldCoordinates().getX();
+        	int y = (int) ch.getTileWorldCoordinates().getY();
+        	Vector aniPos = new Vector(x, y);
         	
 	        Item i = Main.im.getItemAt(aniPos);
 	        if( i != null && !i.isLocked() ){
