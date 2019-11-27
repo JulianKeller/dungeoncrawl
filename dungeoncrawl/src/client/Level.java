@@ -313,9 +313,15 @@ public class Level extends BasicGameState {
         }
     }
 
+    /**
+     * set scaled to true to show the values smaller in the top
+     * set coords true to see the game coordinates, this really drops fps, be warned
+     * @param dc
+     * @param g
+     */
     private void renderPathWeights(Main dc, Graphics g) {
-        boolean scaled = true;
-        boolean coords = true;
+        boolean scaled = false;
+        boolean coords = false;
         for (Character ai : dc.characters) {
             if (ai.weights != null) {
                 for (int i = 0; i < ai.weights.length; i++) {
@@ -327,7 +333,7 @@ public class Level extends BasicGameState {
                         String msg = String.valueOf((int) ai.weights[i][j]);
 
                         if (!scaled) {
-                            if (ai.weights[i][j] > 20000) {
+                            if (ai.weights[i][j] > 200000) {
                                 msg = "INF";
                             }
                             Vector wc = new Vector(i * dc.tilesize, j * dc.tilesize);

@@ -245,6 +245,10 @@ public class Character extends MovingEntity {
             }
             next = getNextDirection(dc);
         }
+        else {
+            Arrow.removeArrows(this);
+            weights = null;
+        }
         // move based on the shortest path
 
         if (next != null) {

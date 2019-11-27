@@ -127,7 +127,7 @@ private final int MAX = Integer.MAX_VALUE;
         // TODO here seems to be the problem
         int weight = 1;
         if (map[ay][ax] == 1) {
-            weight = 200000;
+            weight = Integer.MAX_VALUE;
         }
 
         if (distance[ax][ay] > (distance[cx][cy] + weight)) {
