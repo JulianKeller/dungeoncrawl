@@ -1032,12 +1032,37 @@ public class Level extends BasicGameState {
                 }else{
                     addMessage("Picked up unidentified "+i.getMaterial().toLowerCase()+" "+i.getType().toLowerCase()+".");
                 }
-                //give removes item from the world's inventory
-                //  and adds it to the player's inventory
-                Main.im.give(i.getID(), ch.getPid());
+
+                
+                if( i.getType().equals("Arrow") ){
+                	Image image = null;
+                	if( i.getEffect().equals("Poison") ){
+                		image = ResourceManager.getImage(Main.ARROW_POISON_UP);
+                	}else if( i.getEffect().equals("Flame") ){
+                		image = ResourceManager.getImage(Main.ARROW_FLAME_UP);
+                	}else if( i.getEffect().equals("Ice") ){
+                		image = ResourceManager.getImage(Main.ARROW_ICE_UP);
+                	}else if( i.getEffect().equals("") ){
+                		image = ResourceManager.getImage(Main.ARROW_NORMAL_UP);
+                	}
+                	if( image == null){
+                		throw new SlickException("Invalid arrow effect.");
+                	}
+                	
+                	//give the character 5 arrows
+                	Item arrow = new Item(i.getWorldCoordinates(), i.isLocked(), i.getID(), ch.getPid(), i.getEffect(), "Arrow", i.getMaterial(), 
+                			i.isCursed(), i.isIdentified(), image, 5);
+                	Main.im.give(arrow, ch);
+                	i.lock();
+                }else{
+                    //give removes item from the world's inventory
+                    //  and adds it to the player's inventory
+                    Main.im.give(i.getID(), ch.getPid());
+                }
 
                 //stop rendering the item
                 itemsToRender.remove(i);
+                Main.im.removeFromWorldItems(i);
             }
         }
 
