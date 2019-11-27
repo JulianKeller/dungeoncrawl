@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
 
+import org.lwjgl.Sys;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -23,6 +24,8 @@ import jig.Vector;
 
 public class Level extends BasicGameState {
     private Boolean paused;
+    int currentOX;
+    int currentOY;
     private Random rand;
 
     private int[][] rotatedMap;
@@ -125,17 +128,9 @@ public class Level extends BasicGameState {
         // Grab the map from the server.Server
 
         try {
-            Integer[][] mapData = (Integer[][]) this.dis.readObject();
-            // Convert it into an 2d int array
-            dc.map = new int[mapData.length][mapData[0].length];
-            for (int i = 0; i < mapData.length; i++) {
-                for (int j = 0; j < mapData[i].length; j++) {
-                    dc.map[i][j] = mapData[i][j];
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+           dc.map = (int[][])dis.readObject();
+           System.out.println("I got the map!");
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         //*/
@@ -199,6 +194,7 @@ public class Level extends BasicGameState {
         // setup the dc.hero character
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
+
         System.out.printf("setting character at %s, %s\n", wx, wy);
 
         dc.hero = new Character(dc, wx, wy, "knight_leather", 1, this, false);
@@ -223,13 +219,27 @@ public class Level extends BasicGameState {
         // render map
         RenderMap.setMap(dc, dc.hero);
 
-        String coord = wx + " " + wy;
+        // Setting starting position for the hero.
+        String type = "knight_iron";
+        String coord = type + " " + wx + " " + wy;
+        int id = 0;
         try {
+            id = Integer.parseInt(dis.readUTF());
+            //System.out.println("Sending my player info.");
             dos.writeUTF(coord);
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();
         }
+        dc.hero = new Character(dc, wx, wy, type, id,this,false);
+        //dc.characters.add(dc.hero);
+        currentOX = dc.hero.ox;
+        currentOY = dc.hero.oy;
+
+        // render map
+        RenderMap.setMap(dc, dc.hero);
+
+
 
         // render map
         RenderMap.setMap(dc, dc.hero);
@@ -325,6 +335,10 @@ public class Level extends BasicGameState {
 
         // draw the hero
         dc.hero.animate.render(g);
+
+        // draw other characters
+        for(Iterator<Character> i = dc.characters.iterator(); i.hasNext();)
+            i.next().animate.render(g);
 
         //render messages
         renderMessages(dc, g);
@@ -657,6 +671,8 @@ public class Level extends BasicGameState {
             lastKnownDirection = vectorFromKeystroke(ks);
         }
         dc.hero.move(ks);
+        positionToServer(dc);  // Get the player's updated position onto the server.
+        updateOtherPlayers(dc);
         /*
         if (currentOrigin.getX() != dc.hero.origin.getX() && currentOrigin.getY() != dc.hero.origin.getY()) {
             RenderMap.setMap(dc, dc.hero.origin);
@@ -678,6 +694,7 @@ public class Level extends BasicGameState {
 
             dc.hero.addEffect(effect);
         }
+
 
         if( input.isKeyPressed(Input.KEY_I) ){
             displayInventory = !displayInventory;
@@ -1192,18 +1209,18 @@ public class Level extends BasicGameState {
     }
 
     /**
-     * Update the players position on the server.
-     */
-    public void positionToServer(Vector wc){
-        String position = wc.getX() + " " + wc.getY();
-        //System.out.println("Client position: "+ position);
+      * Update the players position on the server.
+      */
+    public void positionToServer(Main dc){
+        float wx = dc.hero.getWorldCoordinates().getX();
+        float wy = dc.hero.getWorldCoordinates().getY();
+        String toServer = dc.hero.getType() + " " + wx + " " + wy;
         try {
-            this.dos.writeUTF(position);
-            this.dos.flush();
+            dos.writeUTF(toServer);
+            dos.flush();
         }catch(IOException e){
             e.printStackTrace();
         }
-
     }
 
     /*
@@ -1216,42 +1233,34 @@ public class Level extends BasicGameState {
     }
 
     public void updateOtherPlayers(Main dc){
-        String update = "";
-        boolean isRendered = false;
         try {
-            update = dis.readUTF();
-            //Return if there are no other players.
-            if(update.equals("1")){
-                //System.out.println("No other clients.");
-                return;
-            }
-            int num_characters = Integer.parseInt(update);
-            int id = 0;
-            update = dis.readUTF();
-            //System.out.println(update);
-            id = Integer.parseInt(update.split(" ")[1]);
-            // Go through and check to see if the character already exists.
-            for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
-                Character c = i.next();
-                if (c.getPid() == id) {
-                    c.animate.setPosition(Float.parseFloat(update.split(" ")[2]),
-                            Float.parseFloat(update.split(" ")[3]));
-                    isRendered = true;
-                    break;
+            String read = dis.readUTF();
+            //System.out.println("Read: " + read);
+            if (read.split(" ").length > 3) {
+                int id = Integer.parseInt(read.split(" ")[0]);
+                if (read.split(" ")[1].equals("Exit")) {
+                    dc.characters.removeIf(character -> character.getPid() == id);
+                    return;
+                }
+                for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
+                    Character c = i.next();
+                    if (c.getPid() == id) {
+                        float x = Float.parseFloat(read.split(" ")[2]);
+                        float y = Float.parseFloat(read.split(" ")[3]);
+                        c.animate.setPosition(new Vector(x,y));
+                        return;
+                    }
+                }
+                float x = Float.parseFloat(read.split(" ")[2]);
+                float y = Float.parseFloat(read.split(" ")[3]);
+                if(id != dc.hero.getPid()) {
+                    dc.characters.add(new Character(dc, x, y, read.split(" ")[1], id,this,false));
                 }
             }
-            if (!isRendered) {
-                Float wx = Float.parseFloat(update.split(" ")[2]);
-                Float wy = Float.parseFloat(update.split(" ")[3]);
-                String type = update.split(" ")[0];
-                dc.characters.add(new Character(dc, wx, wy, type, id, this, false));
-                return;
-            }
-        } catch(IOException e){
+        }catch(IOException e){
             e.printStackTrace();
         }
     }
-
     /**
      * Check if the Character is in the Hero's screen +- one tile wide and high
      * @param dc the Main class
