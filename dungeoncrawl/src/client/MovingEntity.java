@@ -18,14 +18,14 @@ public class MovingEntity extends Entity {
     private int initialArmorPoints = -1;
     private float mana;
     private int strength; //determines what level of items the player can pick up
-    
+
     //boolean effects for AI
     private boolean invisible = false;
     private boolean stinky = false;
     private boolean thorny = false;
     private boolean frightening = false;
     private boolean reflecting = false;
-    
+
     private Vector worldCoordinates;
     private int animationSpeed;
     private int initialMovementSpeed;
@@ -36,14 +36,16 @@ public class MovingEntity extends Entity {
     private ArrayList<Item> codex; //list of identified items
     private Item [] equipped;
     private Vector position;
-    
+    private Vector tileWorldCoordinates;
+    private Main dc;
+
     //random number generator
     private Random rand = new Random();
-    
+
     //provides ability to add messages to the level
     private Level currentLevel;
-   
-    
+
+
     private ArrayList<Effect> activeEffects; //list of things currently affecting the character
     private final int defaultEffectTimer = 5000;
     private class Effect{
@@ -58,20 +60,24 @@ public class MovingEntity extends Entity {
      * Create a new Entity (x,y)
      * @param wx starting world x coordinate
      * @param wy starting world y coordinate
+     * @param wx starting world x coordinate
      */
     public MovingEntity(final float wx, final float wy, int pid, Level level) {
         super(wx, wy);
-        
+
         currentLevel = level;
-        
-        
+
+
         hitPoints = 0;
         //startingHitPoints = hitPoints;
         armorPoints = 1;
         worldCoordinates = new Vector(wx, wy);
         animationSpeed = 1;
         initialMovementSpeed = movementSpeed = 1;
-        
+
+
+        tileWorldCoordinates = getTileWorldCoordinates();
+
         mana = 0;
         strength = 1;
         this.pid = pid;
@@ -96,11 +102,11 @@ public class MovingEntity extends Entity {
      */
     public MovingEntity(Vector wc, int pid, Level level) {
         super(wc.getX(), wc.getY());
-        
-        
+
+
         currentLevel = level;
-        
-        
+
+
         hitPoints = 0;
         //startingHitPoints = hitPoints;
         armorPoints = 0;
@@ -132,7 +138,7 @@ public class MovingEntity extends Entity {
     public boolean isReflecting(){
     	return reflecting;
     }
-    
+
     /*
      * Note on effects:
      * -Effects to be removed automatically after a period of time
@@ -143,7 +149,7 @@ public class MovingEntity extends Entity {
      * -Effects to be removed in any other situation can be manually
      *  removed with the removeEffect method
      */
-    
+
     public void addEffect(String name){
     	//if the character already has the effect,
     	// reset the timer
@@ -159,7 +165,7 @@ public class MovingEntity extends Entity {
     public ArrayList<Effect> getActiveEffects(){
     	return activeEffects;
     }
-    
+
     /**
      * Use this function to remove effects caused by
      * an equipped item when said item is unequipped
@@ -181,7 +187,7 @@ public class MovingEntity extends Entity {
 			reflecting = false;
 		}
     }
-    
+
     /**
      * Use this function every update loop for
      * the automatic removal of timed effects
@@ -196,7 +202,7 @@ public class MovingEntity extends Entity {
     		if( e.timer <= 0 ){
     			//set special exit properties
     			//  for certain effects
-    			if( e.name.equals("Swiftness") || e.name.equals("Ice") ){	
+    			if( e.name.equals("Swiftness") || e.name.equals("Ice") ){
     				//reset to initial movement speed
     				movementSpeed = initialMovementSpeed;
     			}else if( e.name.equals("Iron Skin") ){
@@ -222,13 +228,13 @@ public class MovingEntity extends Entity {
     	}
     	//remove any expired effects
     	activeEffects.removeIf(b -> b.timer <= 0);
-    	
+
     	//add any new effects
     	for( String s : effectsToAdd ){
     		addEffect(s);
     	}
     }
-    
+
     /*
      * Healing:
 	Restore 25% of lost HP
@@ -265,9 +271,9 @@ Regeneration:
 Reflection:
 	Attacking enemies will take 50% of the damage they deal.
      */
-    
 
-    
+
+
     public void implementEffects() throws SlickException{
     	for( Effect e : activeEffects ){
     		//System.out.println(e.name);
@@ -279,23 +285,23 @@ Reflection:
 	    			float diff = startingHitPoints - hitPoints;
 	    			hitPoints += (diff*0.25);
     			}
-    			
+
     		}else if( e.name.equals("Strength") ){
     			//increment the player's strength variable
     			strength++;
     			//this should only happen once
-    			
+
     		}else if( e.name.equals("Flame") ){
     			//decrease health by 10 every second
     			//	want to lose 10 hp per second
     			//	assume 60 frames per second
     			//	10/60 = amount of hp lost per frame
     			hitPoints -= ( (float) 10/60);
-    			
+
     		}else if( e.name.equals("Mana") ){
     			//add 15% to the current maximum mana
     			mana += (mana*0.15);
-    			
+
     		}else if( e.name.equals("Invisibility") ){
     			//little too complicated for this function,
     			//  just set a boolean value
@@ -303,12 +309,12 @@ Reflection:
     		}else if( e.name.equals("Poisoned") ){
     			//decrease health by 5 every second
     			hitPoints -= ( (float) 5/60);
-    			
+
     		}else if( e.name.equals("Ice") ){
     			//set movement speed to zero
     			movementSpeed = 0;
     			//animationSpeed = 0;
-    			
+
     		}else if( e.name.equals("Lightning") ){
     			//roll 30% change to take 20 damage
     			rand.setSeed(System.nanoTime());
@@ -318,22 +324,22 @@ Reflection:
     				currentLevel.addMessage("Struck by lightning!");
     				System.out.println("Struck by lightning!");
     			}
-    			
+
     		}else if( e.name.equals("Stench") ){
     			//another AI problem, set a boolean
     			stinky = true;
-    			
+
     		}else if( e.name.equals("Iron Skin") ){
     			//double the armor points variable
     			if( armorPoints == initialArmorPoints ){
     				armorPoints *= 2;
     			}
-    			
-    			
+
+
     		}else if( e.name.equals("Thorns") ){
     			//AI problem
     			thorny = true;
-    			
+
     		}else if( e.name.equals("Swiftness") ){
     			//double movement speed
     			//  only if the current speed is equal to the
@@ -341,15 +347,15 @@ Reflection:
     			if( movementSpeed == initialMovementSpeed ){
     				doubleMoveSpeed();
     			}
-    			
+
     		}else if( e.name.equals("Fright") ){
     			//AI problem, see stench
     			frightening = true;
-    			
+
     		}else if( e.name.equals("Might") ){
     			//double player's attack damage
     			//TODO: add attack system
-    			
+
     		}else if( e.name.equals("Regeneration") ){
     			//roll 50% chance to restore 3 hp
     			rand.setSeed(System.nanoTime());
@@ -357,36 +363,36 @@ Reflection:
     			if( r < 50 ){
     				hitPoints += 3;
     			}
-    			
+
     		}else if( e.name.equals("Reflection") ){
     			//AI problem, see thorns
     			reflecting = true;
-    			
+
     		}else{
     			throw new SlickException("Unknown character effect.");
     		}
-    		
+
 
     	}
-    	
+
 		/*
 		 * Some effects should only be applied once.
 		 * For example, swiftness will double the speed every loop
 		 *   if it remains in the list
-		 */ 
-		activeEffects.removeIf(b -> b.name.equals("Strength") || 
+		 */
+		activeEffects.removeIf(b -> b.name.equals("Strength") ||
 									b.name.equals("Healing") ||
 									b.name.equals("Lightning") ||
 									b.name.equals("Mana"));
-					
+
     }
-    
+
     public boolean takeDamage(float amount, String effect ){
     	hitPoints -= amount;
     	if( !effect.equals("") ){
     		addEffect(effect);
     	}
-    	
+
     	//check if this entity is dead
     	if( hitPoints <= 0 ){
     		return true;
@@ -522,7 +528,7 @@ Reflection:
             }
         }
     }
-    
+
 
     /**
      * Unequips the item from client.MovingEntity's equipped list and places it in inventory.
@@ -577,14 +583,14 @@ Reflection:
         	initialAnimationSpeed = sp;
         }
     }
-    
+
     public void setMovementSpeed(int sp){
         if (sp <= 0) {
             return;
         }
         movementSpeed = sp;
     }
-    
+
     public void doubleMoveSpeed(){
         if (movementSpeed >= 32) {
             System.out.println("Speed at Maximum: " + movementSpeed);
@@ -594,7 +600,7 @@ Reflection:
         movementSpeed *= 2;
         System.out.println("Speed increased to: " + movementSpeed);
     }
-    
+
     public void halfMoveSpeed(){
         if (movementSpeed <= 1) {
             System.out.println("Speed at Minimum: " + movementSpeed);
@@ -604,7 +610,7 @@ Reflection:
         movementSpeed /= 2;
         System.out.println("Speed Decreased to: " + movementSpeed);
     }
-    
+
     /**
      * Retreive client.MovingEntity's speed
      * @return speed
@@ -647,6 +653,8 @@ Reflection:
     public void setWorldCoordinates(float x, float y){
         setWorldCoordinates(new Vector(x, y));
     }
+
+
     /**
      * Returns the client.MovingEntity's current world coordinates.
      * @return Vector world coordinates
@@ -654,6 +662,26 @@ Reflection:
     public Vector getWorldCoordinates(){
         return worldCoordinates;
     }
+
+
+//    /**
+//     * Set the entities tile coordinates for the world
+//     * @param tileWC
+//     */
+//    public void setTileWorldCoordinates(Vector tileWC) {
+//        tileWorldCoordinates = tileWC;
+//    }
+
+    /**
+     * Get the entities world coordinates in tiles
+     * @return
+     */
+    public Vector getTileWorldCoordinates() {
+        float x = Math.round((worldCoordinates.getX() + currentLevel.offset)/currentLevel.tilesize) - 1;
+        float y = Math.round((worldCoordinates.getY() + currentLevel.tilesize + currentLevel.doubleOffset)/currentLevel.tilesize) - 1;
+        return new Vector(x, y);
+    }
+
 
     /**
      * Adds hit points by specified amount

@@ -3,10 +3,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
+
+import jig.Vector;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -24,19 +27,24 @@ import jig.Vector;
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-    
+    int tilesize = 32;
+    int offset = tilesize/2;
+    int doubleOffset = offset/2;
+    int xOffset = tilesize - doubleOffset;
+    int yOffset = tilesize + doubleOffset/2;
+
     private int[][] rotatedMap;
 
     Socket socket;
     ObjectInputStream dis;
     ObjectOutputStream dos;
     String serverMessage;
-    
+
     private final int messageTimer = 2000;
 
-    
+
     private ArrayList<Item> itemsToRender;
-    
+
     //whether to display player inventory/codex on the screen
     private boolean displayInventory = false;
     private boolean displayCodex = false;
@@ -66,15 +74,15 @@ public class Level extends BasicGameState {
     	}	
     }
     private ArrayList<ItemLockTimer> itemLockTimers;
-    
-    
-    
+
+
+
     private class ThrownItem{
     	Item itm;
     	Vector direction;
     	Vector finalLocation;
     	Vector step;
-    	
+
     	public ThrownItem(Item itm, Vector direction, Vector finalLocation, Vector step){
     		this.itm = itm;
     		this.direction = direction;
@@ -82,7 +90,7 @@ public class Level extends BasicGameState {
     		this.step = step;
     	}
     }
-    
+
     private ArrayList<ThrownItem> thrownItems;
 
     @Override
@@ -138,17 +146,27 @@ public class Level extends BasicGameState {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+
+
+        // use the debug map instead
+//        dc.map = RenderMap.getDebugMap();
+//        try {
+//            dc.map = RenderMap.getDebugMap2();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
         //*/
         //dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
-        System.out.printf("Map Size: %s, %s\n", dc.map.length, dc.map[0].length);
+        System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
 
 
 
-        
 
-        
-  
-        
+
+
+
+
         //rotated map verified correct
         rotatedMap = new int[dc.map[0].length][dc.map.length];
         for( int i = 0; i < dc.map.length; i++ ){
@@ -178,16 +196,16 @@ public class Level extends BasicGameState {
         int row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
 		int col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 
-		while( dc.map[row][col] == 1 || wallAdjacent(row, col, dc.map) ){
+		while(dc.map[row][col] == 1 || wallAdjacent(row, col, dc.map) ){
 			//spawn on a floor tile with 4 adjacent floor tiles
 	        row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
 			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 		}
-        
+
 		/*
         float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
         float wy = (dc.tilesize * row) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
-        
+
         dc.hero = new Character(dc, wx, wy, "dc.hero_iron", 1);
         dc.characters.add(dc.hero);
         */
@@ -200,21 +218,21 @@ public class Level extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         System.out.printf("setting character at %s, %s\n", wx, wy);
-        
+
         dc.hero = new Character(dc, wx, wy, "knight_leather", 1, this, false);
-        
+
         //give the hero leather armor with no effect
         //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
         /*
-        Item a = new Item(null, false, Main.im.getCurrentItemID(), dc.hero.getPid(), "", "Armor", "Leather", false, true, 
+        Item a = new Item(null, false, Main.im.getCurrentItemID(), dc.hero.getPid(), "", "Armor", "Leather", false, true,
         		ResourceManager.getImage(Main.ARMOR_IRON));
-        
+
         Main.im.give(a, dc.hero);
         */
         dc.characters.add(dc.hero);
         //currentOX = dc.hero.ox;
         //currentOY = dc.hero.oy;
-        
+
                 // setup a skeleton enemy
         wx = (dc.tilesize * 20) - dc.offset;
         wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
@@ -235,8 +253,8 @@ public class Level extends BasicGameState {
         RenderMap.setMap(dc, dc.hero);
 
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
-        
-        
+
+
         thrownItems = new ArrayList<ThrownItem>();
 
         // test items can be deleted
@@ -247,6 +265,13 @@ public class Level extends BasicGameState {
         dc.testItems.add(new DisplayItem((dc.tilesize * 7)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_wood"));
         dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_gold"));
         */
+
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 14)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_ice"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 15)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_poison"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 16)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_flame"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 17)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_normal"));
+//        dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "arrow_normal"));
+
         
         /*
         currentOrigin = dc.hero.origin;
@@ -301,16 +326,7 @@ public class Level extends BasicGameState {
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
-        // render tiles
-        /*
-        for (int i = 0; i < dc.map.length; i++) {
-            for (int j = 0; j < dc.map[i].length; j++) {
-                if (dc.mapTiles[i][j] == null)
-                    continue;
-                dc.mapTiles[i][j].render(g);
-            }
-        }
-        */
+        // render map tiles
         displayMap(dc, g);
         
         //render all visible items
@@ -338,7 +354,7 @@ public class Level extends BasicGameState {
         
          //draw the player's equipped items
         renderEquippedItems(dc, g);
-        
+
         //display player inventory
         //use the dc.hero for now
         if( displayInventory ){
@@ -369,10 +385,10 @@ public class Level extends BasicGameState {
 	            	if( sItem.isIdentified() ){
 	            		g.drawString(sItem.getMaterial() + " " + sItem.getType() + " of " + sItem.getEffect(), dc.tilesize+10, dc.tilesize*8);
 	            	}else{
-	            		g.drawString("Unidentified " + sItem.getMaterial() + " " + sItem.getType(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));          		
+	            		g.drawString("Unidentified " + sItem.getMaterial() + " " + sItem.getType(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));
 	            	}
             	}catch(IndexOutOfBoundsException ex){
-            		
+
             	}
             	g.setColor(tmp);
         	}
@@ -381,19 +397,92 @@ public class Level extends BasicGameState {
         renderEquippedItems(dc, g);
 
 //         renderDebug(dc, g);
-        
-        
+
+        if (dc.showPath) {
+            renderShortestPath(dc, g);
+            renderPathWeights(dc, g);
+        }
+
         //minimal HUD
         g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*3));
         g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
         g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
         g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
-        
-        
-        
+
+
 
     }
 
+    /** Renders the AI's shortest path
+     *
+     */
+    private void renderShortestPath(Main dc, Graphics g) {
+        // only load arrows if the player wants to show the dijkstra's path
+        for (Character ai : dc.characters) {
+            for (Arrow a : ai.arrows) {
+                Vector sc = world2screenCoordinates(dc, a.getWorldCoordinates());
+                a.setPosition(sc);
+                a.render(g);
+            }
+        }
+
+
+
+
+
+    }
+
+    /**
+     * set scaled to true to show the values smaller in the top
+     * set coords true to see the game coordinates, this really drops fps, be warned
+     * @param dc
+     * @param g
+     */
+    private void renderPathWeights(Main dc, Graphics g) {
+        boolean scaled = false;
+        boolean coords = false;
+        for (Character ai : dc.characters) {
+            if (ai.weights != null) {
+                for (int i = 0; i < ai.weights.length; i++) {
+                    for (int j = 0; j < ai.weights[0].length; j++) {
+                        Color tmp = g.getColor();
+                        g.setColor(new Color(255, 255, 255, 1f));
+
+                        //make the messages fade away based on their timers
+                        String msg = String.valueOf((int) ai.weights[i][j]);
+
+                        if (!scaled) {
+                            if (ai.weights[i][j] > 200000) {
+                                msg = "INF";
+                            }
+                            Vector wc = new Vector(i * dc.tilesize, j * dc.tilesize);
+                            Vector sc = world2screenCoordinates(dc, wc);
+                            g.drawString(msg, sc.getX(), sc.getY());
+                        }
+                        else {
+                            g.scale(.5f, .5f);
+                            Vector wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize);
+                            Vector sc = world2screenCoordinates(dc, wc);
+                            g.drawString(msg, sc.getX(), sc.getY());
+
+                            // draw x, y tile values
+                            if (coords) {
+                                g.setColor(new Color(255, 255, 255, .8f));
+                                wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize + dc.offset);
+                                sc = world2screenCoordinates(dc, wc);
+                                String I = String.valueOf(i);
+                                String J = String.valueOf(j);
+                                msg = "(" + I + "," + J + ")";
+                                g.drawString(msg, sc.getX(), sc.getY());
+                            }
+                            g.scale(2f, 2f);
+                        }
+                        g.setColor(tmp);
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Render debug information on the screen
@@ -404,7 +493,6 @@ public class Level extends BasicGameState {
         for( int i = 0; i < dc.map.length; i++ ){
         	for( int j = 0; j < dc.map[i].length; j++ ){
         		g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
-        		//i is y, j is x
         	}
         }
         if( displayCodex ){
@@ -414,9 +502,9 @@ public class Level extends BasicGameState {
         	if( displayInventory ){
         		x *= 4;
         	}
-        	
+
         	renderItemBox(dc, g, "Codex", x, dc.tilesize, dc.tilesize * 10, dc.tilesize*8);
-        	
+
         	ArrayList<Item> items = dc.hero.getCodex();
         	int row = 2;
         	for( Item i : items ){
@@ -429,7 +517,7 @@ public class Level extends BasicGameState {
         	}
         }
     }
-        
+
  /**
      * Renders the players equipped items
      * @param dc
@@ -452,7 +540,7 @@ public class Level extends BasicGameState {
         g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
         g.setColor(tmp);
     }
-        
+
 
 
     /**
@@ -591,9 +679,9 @@ public class Level extends BasicGameState {
             }
         }
         //*/
-        
+
     }
-    
+
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
     	Color tmp = g.getColor();
     	g.setColor(new Color(0, 0, 0, 0.5f));
@@ -603,16 +691,16 @@ public class Level extends BasicGameState {
     	
     	g.setColor(Color.white);
     	g.drawString(title, dc.tilesize + 10, dc.tilesize + 10);
-    	
+
 
     	g.setColor(tmp);
 
     }
 
     private Scanner scan = new Scanner(System.in);
-    
+
     private String prevks = "";
-    
+
     private Vector vectorFromKeystroke(String ks){
         if( ks.equals("w") ){
         	return new Vector(0, -1);
@@ -636,14 +724,14 @@ public class Level extends BasicGameState {
         if (paused) {
             return;
         }
-        
+
         //implement effects on the character
         dc.hero.implementEffects();
         //reduce the effect timers by a constant value each frame
         //  if delta is used instead of a constant, tabbing away from
         //  the game window can cause all effects to disappear instantly
         dc.hero.updateEffectTimers(16);
-        
+
         String ks = getKeystroke(input);
         if( prevks.equals("") ){
         	prevks = ks;
@@ -663,22 +751,22 @@ public class Level extends BasicGameState {
             currentOrigin = dc.hero.origin;
         }
         */
-        
+
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){
         	System.out.println("Game window frozen, expecting user input.");
         	System.out.println("Enter valid effect name (e.g. Healing): ");
-        	
+
         	String effect = scan.next().trim();
-        	
+
         	if( effect.equals("Iron") ){
         		effect = "Iron Skin";
         	}
         	System.out.println("Got effect '"+effect+"'");
-        	
+
         	dc.hero.addEffect(effect);
         }
-        
+
         if( input.isKeyPressed(Input.KEY_I) ){
         	displayInventory = !displayInventory;
         	displayCodex = false;
@@ -687,7 +775,7 @@ public class Level extends BasicGameState {
         	displayCodex = !displayCodex;
         	displayInventory = false;
         }
-        
+
         if( displayInventory ){
         	if( input.isKeyPressed(Input.KEY_UP) ){
         		//selectedItem.setY(selectedItem.getY()-1);
@@ -715,8 +803,8 @@ public class Level extends BasicGameState {
         			System.out.println("Out of bounds.");
         		}
         	}
-        	
-        	
+
+
         	if( itemx < 0 ){
         		itemx = 0;
         	}
@@ -772,7 +860,7 @@ public class Level extends BasicGameState {
         			dc.hero.discardItem(i.getID(), true);
         		}else if( i.getType().equals("Armor") ){
         			i.identify();
-        			
+
         			//set the hero type to change the armor
         			if( dc.hero.getType().contains("knight") ){
         				dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
@@ -823,7 +911,7 @@ public class Level extends BasicGameState {
         
         //remove dead characters
         dc.characters.removeIf(b -> b.getHitPoints() <= 0);
-        
+
 
         // cause AI players to move around
         for( Character ch : dc.characters ) {
@@ -831,11 +919,11 @@ public class Level extends BasicGameState {
                 ch.moveAI();
             }
         }
-        
+
         //advance any thrown items along their path
         ArrayList<ThrownItem> reachedDestination = new ArrayList<ThrownItem>();
         for( ThrownItem ti : thrownItems ){
-        	
+
         	//check if a thrown item went off the screen
         	if( ti.itm.getWorldCoordinates().getX() < 0 || ti.itm.getWorldCoordinates().getX() > dc.ScreenWidth/dc.tilesize){
         		reachedDestination.add(ti);
@@ -845,21 +933,21 @@ public class Level extends BasicGameState {
         	if( throwItem(ti, dc) ){
         		reachedDestination.add(ti);
         	}
-        	
+
         	//check if a thrown item hit a character
         	for( Character ch : dc.characters){
-        		
+
         		if( ch.getPid() == dc.hero.getPid() ){
         			continue;
         		}
-        		
+
         		Vector chwc = new Vector( ch.animate.getX()/dc.tilesize, ch.animate.getY()/dc.tilesize);
-        	
+
         		//System.out.println(chwc.toString());
-        		
+
         		if( Math.abs(chwc.getX() - ti.itm.getWorldCoordinates().getX()) < 1.5 && Math.abs(chwc.getY() - ti.itm.getWorldCoordinates().getY()) < 1.5 ){
         			//addMessage("thrown " + ti.itm.getType() + " hit enemy");
-        			
+
         			//potions do no damage but cause status effects on the target
         			if( ti.itm.getType().equals("Potion") ){
 	        			ch.takeDamage(0, ti.itm.getEffect());
@@ -869,9 +957,9 @@ public class Level extends BasicGameState {
 	        			//roll random damage, similarly to a sword
 	        			rand.setSeed(System.nanoTime());
 	        			int r = rand.nextInt(100);
-	        			
+
 	        			float damagePercent = r/(float) 100;
-	        			
+
 	        			String m;
 	        			if( damagePercent == 0 ){
 	        				m = "Missed.";
@@ -880,7 +968,7 @@ public class Level extends BasicGameState {
 		        				//set character action to die
 		        				ch.updateAnimation("die");
 		        			}
-		        			
+
 		        			m = "Hit enemy for " + (int) (10*damagePercent) + " damage.";
 		        			if( damagePercent >= 0.8 ){
 		        				m = m + " Critical hit!";
@@ -890,11 +978,11 @@ public class Level extends BasicGameState {
 	        		}
         		}
         	}
-        	
+
     		//check if an item hit a wall tile
     		if( rotatedMap[(int) ti.itm.getWorldCoordinates().getX()][(int) ti.itm.getWorldCoordinates().getY()] == 1 ){
     			addMessage("thrown " + ti.itm.getType() + " hit wall");
-    			
+
     			reachedDestination.add(ti);
     		}
         }
@@ -904,7 +992,7 @@ public class Level extends BasicGameState {
         for( ThrownItem ti : reachedDestination ){
         	Main.im.removeFromWorldItems(ti.itm);
         }
-        
+
 
         //check if a character has hit an item
         for( Character ch : dc.characters ){
@@ -959,7 +1047,7 @@ public class Level extends BasicGameState {
         //remove expired timers
         itemLockTimers.removeIf(b -> b.timer <= 0);
     }
-    
+
     private void attack(Item itm, Main dc, Vector direction) throws SlickException{
     	//attack with the given item
     	//Vector[] directions = {new Vector(0, -1), new Vector(0, 1), new Vector(-1, 0), new Vector(1, 0)};
@@ -975,7 +1063,7 @@ public class Level extends BasicGameState {
     	}else{
     		throw new SlickException("Invalid attack direction " + dir);
     	}
-    	
+
     	if( itm.getType().equals("Sword") || itm.getType().equals("Glove")){
     		rand.setSeed(System.nanoTime());
     		int r = rand.nextInt(100);
@@ -988,23 +1076,23 @@ public class Level extends BasicGameState {
     			dc.hero.updateAnimation("jab_" + dir );
     			//addMessage("Jabbed " + dir );
     		}
-    		
+
     		for( Character c : dc.characters ){
 				if( c.ai ){
 					//if the ai character is within one tilesize of the player
 					//in the given direction
 					Vector aipos = c.animate.getPosition();
 					Vector plpos = dc.hero.animate.getPosition();
-					
-					double x = Math.pow(aipos.getX()-plpos.getX(), 2); 
+
+					double x = Math.pow(aipos.getX()-plpos.getX(), 2);
 					double y = Math.pow(aipos.getY()-plpos.getY(), 2);
 					float distance = (float) Math.sqrt(x + y);
-					
+
     				if(  distance <= (dc.tilesize*1.5) ){
     					//roll damage amount
     					rand.setSeed(System.nanoTime());
     					float percentOfMaxDamage = rand.nextInt(100)/(float) 100;
-    					
+
     					float damage = 0;
     					if( itm.getMaterial().equals("Wooden") ){
     						//max damage: 30
@@ -1016,15 +1104,15 @@ public class Level extends BasicGameState {
     						//max damage: 100
     						damage = 100 * percentOfMaxDamage;
     					}
-    					
+
     					//pass damage and effect to enemy
-    					
+
     					if( c.takeDamage(damage, itm.getEffect()) ){
     						//returns true if the enemy died
     						c.updateAnimation("die");
-    						
+
     					}
-    					
+
     					if( percentOfMaxDamage == 0 ){
     						addMessage("Missed.");
     					}else{
@@ -1034,7 +1122,7 @@ public class Level extends BasicGameState {
 	    					}
 	    					addMessage(m);
     					}
-    					
+
     					//reveal the effect to the character
     					// if it is not known
     					if( !itm.isIdentified() ){
@@ -1045,33 +1133,33 @@ public class Level extends BasicGameState {
 				}
 			}
 			dc.characters.removeIf(b -> b.getHitPoints() <= 0);
-			
+
     	}else if( itm.getType().equals("Potion") ){
     		//ranged attack, need to throw potion
     		//throw potion image 5 tiles in the direction the character
     		//  is facing
-    		
+
     		Vector heroWC = new Vector( (int) (dc.hero.animate.getX()/dc.tilesize), (int) (dc.hero.animate.getY()/dc.tilesize));
-    		
+
     		itm.setWorldCoordinates(heroWC);
-    		
+
     		dc.hero.unequipItem(selectedEquippedItem);
-    		
-    		
+
+
     		//throw the potion but do not identify it unless it hits an enemy
     		Main.im.take(itm, dc.hero, itm.getWorldCoordinates(), false);
-    		
+
     		Vector destination = heroWC.add(direction.scale(5));
 
     		thrownItems.add(new ThrownItem(itm, direction, destination, direction.scale(0.1f)));
-    		
+
     	}else if( itm.getType().equals("Staff") ){
-    		
+
     	}else if( itm.getType().equals("Arrow") ){
     		//Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
-    		
-    		
-    		
+
+
+
     		//get image based on effect and direction
     		Image image = null;
     		if( dir.equals("up") ){
@@ -1118,28 +1206,28 @@ public class Level extends BasicGameState {
     		if( image == null ){
     			throw new SlickException("Invalid arrow effect " + itm.getEffect());
     		}
-    		
+
     		//spawn at the world coordinate of the player's animation
     		Vector wc = new Vector((dc.hero.animate.getX()/dc.tilesize)-0.5f, (dc.hero.animate.getY()/dc.tilesize)-1);
     		Item flyingArrow = new Item(wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, image);
-    		
+
     		//add this to the list of items so it can be rendered
     		Main.im.addToWorldItems(flyingArrow);
-    		
+
     		//this thrown item should travel until it hits a wall or an enemy
     		//  thus the final destination is effectively infinite (past the level boundary)
-    		thrownItems.add( new ThrownItem(flyingArrow, direction, direction.scale(10000), direction.scale(0.3f) )); 
+    		thrownItems.add( new ThrownItem(flyingArrow, direction, direction.scale(10000), direction.scale(0.3f) ));
     	}
     }
-    
+
     private boolean throwItem(ThrownItem ti, Main dc){
     	//if the item is not at the final location
-    	
+
     	//these need to be floored because otherwise the item will go past its destination due to
     	//  a small decimal difference
     	Vector flooredWC = new Vector( (int) ti.itm.getWorldCoordinates().getX(), (int) ti.itm.getWorldCoordinates().getY() );
     	Vector flooredDest = new Vector( (int) ti.finalLocation.getX(), (int) ti.finalLocation.getY() );
-    	
+
     	if(  !flooredWC.equals(flooredDest) ){
     		ti.itm.setWorldCoordinates(ti.itm.getWorldCoordinates().add(ti.step));
     		return false;

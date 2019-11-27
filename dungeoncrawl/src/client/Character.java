@@ -2,6 +2,7 @@ package client;
 
 import jig.Vector;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Character extends MovingEntity {
@@ -22,6 +23,10 @@ public class Character extends MovingEntity {
     private int newy;   // next origin y
     float dx = 0f;      // delta x
     float dy = 0f;      // delta y
+    ArrayList<int[]> shortest;
+    ArrayList<Arrow> arrows;
+    float[][] weights;
+    int range;          // range to player in tiles to use dijkstra's
 
     /**
      * Create a new Character (wx, wy)
@@ -46,6 +51,9 @@ public class Character extends MovingEntity {
         pixelY = 0f;
         setAnimationSpeed(50);       // speed of the animation
         ai = AI;            //
+        shortest = new ArrayList<>();
+        arrows = new ArrayList<>();
+        range = 10;
     }
 
 
@@ -60,9 +68,9 @@ public class Character extends MovingEntity {
         super(wc, id, level);
         this.type = type;
         setStats();
-        
+
     }
-    
+
     public void setType(String type){
     	this.type = type;
     	float hp = getHitPoints();
@@ -84,6 +92,7 @@ public class Character extends MovingEntity {
                 setAnimationSpeed(50);
                 break;
             case "mage_leather": // Mage
+                break;
             case "mage_improved":
                 setHitPoints(80);
                 setArmorPoints(50);
@@ -200,75 +209,108 @@ public class Character extends MovingEntity {
      *
      */
     public void moveAI() {
-//        if(true)
-//            return;
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
+        String next = null;
+        String currentDirection = direction;
         // moved the character fixed to the grid
         if (!canMove) {
             moveTranslationHelper(getWorldCoordinates());
             return;
         }
-        int rand = new Random().nextInt(moves.length);
-        String currentDirection = direction;
-        direction = moves[rand];
 
-        if (direction.equals("wait")) {
-            animate.stop();
-            return;
-        }
+        // run dijkstra's so enemies attack the player
+        if (playerNearby(range)) {
+            PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), dc.hero.getTileWorldCoordinates());
+            int startX = (int) getTileWorldCoordinates().getX();
+            int startY = (int) getTileWorldCoordinates().getY();
+            shortest = find.dijkstra(dc, startX, startY);
+//            PathFinding.printShortestPath(shortest);      // print shortest path to console for debugging
 
-        // TODO this can be simplified
-        String movement = null;
-        switch (direction) {
-            case "walk_up":
-                movement = "walk_up";
-                break;
-            case "walk_down":
-                movement = "walk_down";
-                break;
-            case "walk_left":
-                movement = "walk_left";
-                break;
-            case "walk_right":
-                movement = "walk_right";
-                break;
-            case "4":       // speed up
-                if (moveSpeed >= 32) {
-                    System.out.println("Speed at Maximum: " + moveSpeed);
-                    break;
-                }
-                setAnimationSpeed(getAnimationSpeed() / 2);
-                moveSpeed *= 2;
-                System.out.println("Speed increased to: " + moveSpeed);
-                break;
-            case "5":        // slow down
-                if (moveSpeed <= 1) {
-                    System.out.println("Speed at Minimum: " + moveSpeed);
-                    break;
-                }
-                setAnimationSpeed(getAnimationSpeed() * 2);
-                moveSpeed /= 2;
-                System.out.println("Speed Decreased to: " + moveSpeed);
-                break;
-        }
-        if (movement != null) {
-            canMove = false;
-            movesLeft = dc.tilesize;
-            if (!movement.equals(currentDirection)) {
-                updateAnimation(movement);
-                direction = movement;
-            } else {
-                animate.start();
+            // load arrows for dijkstra's debugging
+            if (dc.showPath) {
+                Arrow.removeArrows(this);
+                Arrow.loadPathArrows(dc, this);
+                weights = find.getWeights();
             }
-            // check for collisions with the wall
-            if (collision() && dc.collisions) {
-                canMove = true;
+            next = getNextDirection(dc);
+        }
+        else {
+            Arrow.removeArrows(this);
+            weights = null;
+        }
+        // move based on the shortest path
+
+        if (next != null) {
+            direction = next;
+        }
+        else {
+            // get a random direction to move in
+            int rand = new Random().nextInt(moves.length);
+            direction = moves[rand];
+            if (direction.equals("wait")) {
+                animate.stop();
                 return;
             }
-            changeOrigin();     // check if the screen origin needs to change
         }
+        String movement = direction;
+        canMove = false;
+        movesLeft = dc.tilesize;
+        if (!movement.equals(currentDirection)) {
+            updateAnimation(movement);
+            direction = movement;
+        } else {
+            animate.start();
+        }
+        // check for collisions with the wall
+        if (collision() && dc.collisions) {
+            canMove = true;
+            return;
+        }
+        changeOrigin();     // check if the screen origin needs to change
     }
 
+    /**
+     *
+     * @return Checks if the player is within range of the ai, true if so
+     */
+    public boolean playerNearby(int range) {
+        Vector heroWC = dc.hero.getTileWorldCoordinates();
+        Vector aiWC = getTileWorldCoordinates();
+        if (Math.abs(heroWC.getX() - aiWC.getX()) <= range && (Math.abs(heroWC.getY() - aiWC.getY()) <= range)) {
+            return true;
+        }
+        return false;
+    }
+
+    // get next direction based on Dijkstra shortest path
+    public String getNextDirection(Main dc) {
+        if (shortest.isEmpty() || shortest.size() <= 2) {
+            return null;
+        }
+        int px = (int) getTileWorldCoordinates().getX();
+        int py = (int) getTileWorldCoordinates().getY();
+        String dir = null;
+
+        int[] v = shortest.get(1);
+        int x = v[0];
+        int y = v[1];
+        if (x == px && y == py) {
+            v = shortest.get(2);
+            x = v[0];
+            y = v[1];
+            dir = "wait";
+        }
+        else if (x > px) {
+            dir = "walk_right";
+        } else if (x < px) {
+            dir = "walk_left";
+        } else if (y > py) {
+            dir = "walk_down";
+        } else if (y < py) {
+            dir = "walk_up";
+        }
+        return dir;
+    }
 
     /**
      This method updates the characters position such that it is a smooth transition without jumps. It is
@@ -428,7 +470,7 @@ public class Character extends MovingEntity {
         return dc.map[y][x] != 0;
     }
 
-    
+
     private String action;
 
     /**
@@ -444,7 +486,7 @@ public class Character extends MovingEntity {
             animate.selectAnimation(action);
         }
     }
-    
+
     public String getAction(){
     	return action;
     }
@@ -474,35 +516,6 @@ public class Character extends MovingEntity {
         float wy = (oy * dc.tilesize) + sc.getY();
         setWorldCoordinates(wx, wy);    // world coordinates
     }
-
-
-    /**
-     * Translates the ai's screen position when the player scrolls on screen
-     *
-     * @param dx The new x screen position
-     * @param dy The new y screen position
-     */
-//    private void updateAIscreenPosition(float dx, float dy) {
-//        Vector position = animate.getPosition();
-////        System.out.println("Position is: " + position);
-////
-////
-////        animate.setPosition(position.getX() + dx*-1, position.getY() + dy*-1);      // screen coordinates
-////        System.out.println("Updated position is: " + animate.getPosition());
-////        System.out.println();
-//
-//
-//
-//        // set the position but convert the world coordinates to screen coordinates first
-//        if (dc.hero.animate.isActive()) {
-//            Vector sc = world2screenCoordinates(getWorldCoordinates());
-//            animate.setPosition(sc);
-//        }
-//        else {
-//            animate.setPosition(position.getX() + dx, position.getY() + dy);      // screen coordinates
-//        }
-//    }
-
 
 
 }
