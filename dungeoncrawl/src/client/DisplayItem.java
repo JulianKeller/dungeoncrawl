@@ -71,6 +71,31 @@ public class DisplayItem extends Entity {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.ARROW_FLAME));
                 break;
             }
+            // staffs
+            case "staff_emerald": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.STAFF_EMERALD));
+                break;
+            }
+            case "staff_ameythst": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.STAFF_AMETHYST));
+                break;
+            }
+            case "staff_ruby": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.STAFF_RUBY));
+                break;
+            }
+            case "gloves_red": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_REGENERATION));
+                break;
+            }
+            case "gloves_white": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_REFLECTION));
+                break;
+            }
+            case "gloves_yellow": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_SWIFTNESS));
+                break;
+            }
         }
     }
 }

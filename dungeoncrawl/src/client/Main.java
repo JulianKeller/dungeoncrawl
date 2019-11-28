@@ -125,6 +125,16 @@ public class Main extends StateBasedGame {
     public static final String ARROW_POISON_LEFT = "resources/arrows/left/left_arrow_poison.png";
     public static final String ARROW_POISON_RIGHT = "resources/arrows/right/right_arrow_poison.png";
 
+    // staffs
+    public static final String STAFF_RUBY = "resources/staffs/staff-red.png";
+    public static final String STAFF_EMERALD = "resources/staffs/staff-green.png";
+    public static final String STAFF_AMETHYST = "resources/staffs/staff-purple.png";
+
+    // gloves
+    public static final String GLOVES_REGENERATION = "resources/gloves/gloves-red.png";
+    public static final String GLOVES_SWIFTNESS = "resources/gloves/gloves-yellow.png";
+    public static final String GLOVES_REFLECTION = "resources/gloves/gloves-white.png";
+
     // Screen Size
     public final int ScreenWidth;
     public final int ScreenHeight;
@@ -303,6 +313,16 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(ARROW_POISON_DOWN);
         ResourceManager.loadImage(ARROW_POISON_LEFT);
         ResourceManager.loadImage(ARROW_POISON_RIGHT);
+
+        //STAFFS
+        ResourceManager.loadImage(STAFF_RUBY);
+        ResourceManager.loadImage(STAFF_AMETHYST);
+        ResourceManager.loadImage(STAFF_EMERALD);
+
+        // GLOVES
+        ResourceManager.loadImage(GLOVES_REFLECTION);
+        ResourceManager.loadImage(GLOVES_REGENERATION);
+        ResourceManager.loadImage(GLOVES_SWIFTNESS);
 
 
     }
