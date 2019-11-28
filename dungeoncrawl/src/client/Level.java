@@ -187,14 +187,6 @@ public class Level extends BasicGameState {
 			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 		}
 
-
-		/*
-        float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
-        float wy = (dc.tilesize * row) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
-
-        dc.hero = new Character(dc, wx, wy, "dc.hero_iron", 1);
-        dc.characters.add(dc.hero);
-        */
         // map variables
         //Main dc = (Main) game;
         dc.mapWidth = dc.map[0].length;
@@ -262,19 +254,6 @@ public class Level extends BasicGameState {
 
         thrownItems = new ArrayList<ThrownItem>();
 
-        // test items can be deleted
-        /*
-        dc.testItems.add(new DisplayItem((dc.tilesize * 4)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_gold"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 5)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_iron"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 6)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_iron"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 7)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_wood"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_gold"));
-        */
-
-        /*
-        currentOrigin = dc.hero.origin;
-        RenderMap.setMap(dc, dc.hero.origin);                   // renders the map Tiles
-        */
     }
 
     private boolean wallAdjacent(int row, int col, int[][] map){
@@ -339,9 +318,6 @@ public class Level extends BasicGameState {
         //render all visible items
         renderItems(dc, g);
 
-        // draw test items
-        renderTestItems(dc, g);
-
         // TODO will need to sort the lists and draw in order so players draw on top of others
         // draw other characters
         renderCharacters(dc, g);
@@ -402,6 +378,9 @@ public class Level extends BasicGameState {
         }
         //draw the player's equipped items
         renderEquippedItems(dc, g);
+
+        // draw test items
+        renderTestItems(dc, g);
 
 //         renderDebug(dc, g);
 
@@ -681,10 +660,28 @@ public class Level extends BasicGameState {
      * @param g
      */
     private void renderTestItems(Main dc, Graphics g) {
+        addTestItems(dc);
         for (DisplayItem i : dc.testItems) {
             i.render(g);
         }
     }
+
+    /**
+     * helper Used for testing new items
+     */
+    private void addTestItems(Main dc) {
+        String[] itemList = new String[] {
+                "staff_emerald", "staff_ameythst", "staff_ruby",
+                "gloves_red", "gloves_white", "gloves_yellow"
+        };
+        int position = 16;
+        for (int i = 0; i < itemList.length; i++) {
+            position += 1;
+            dc.testItems.add(new DisplayItem((dc.tilesize * position)- dc.offset, (dc.tilesize * 4)- dc.offset, itemList[i]));
+        }
+    }
+
+
 
     /*
     Renders the other characters and AI on the screen if they are in the players screen
