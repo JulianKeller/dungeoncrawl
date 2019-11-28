@@ -407,12 +407,13 @@ public class Level extends BasicGameState {
 
 
         //minimal HUD
-        g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*3));
-        g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
-        g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
-        g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
+        g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*3));
+        g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*4));
+        g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*5));
+        g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*6));
         g.drawString("Pos: " + dc.hero.animate.getPosition(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*7));
-        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*8));
+        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*8));
+        g.drawString("Weight: " + dc.hero.getInventoryWeight(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*9));
 
         if (dc.showPath) {
             renderShortestPath(dc, g);
@@ -913,7 +914,8 @@ public class Level extends BasicGameState {
                 System.out.println("placing item at "+wc.getX() + ", " + wc.getY());
                 //this will remove the item from the dc.hero's inventory and place it on the world
 
-                Main.im.take(itm.getID(), dc.hero.getPid(), wc, false);
+                //Main.im.take(itm.getID(), dc.hero.getPid(), wc, false);
+                Main.im.take(itm, dc.hero, wc, false);
 
                 //lock the item with a timer
                 itm.lock();
@@ -1044,6 +1046,8 @@ public class Level extends BasicGameState {
                 }else{
                     addMessage("Picked up unidentified "+i.toString()+".");
                 }
+                
+                
 
                 
                 if( i.getType().equals("Arrow") ){
@@ -1069,7 +1073,7 @@ public class Level extends BasicGameState {
                 }else{
                     //give removes item from the world's inventory
                     //  and adds it to the player's inventory
-                    Main.im.give(i.getID(), ch.getPid());
+                    Main.im.give(i, ch);
                 }
 
                 //stop rendering the item

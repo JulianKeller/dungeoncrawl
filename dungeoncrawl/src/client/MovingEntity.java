@@ -18,6 +18,7 @@ public class MovingEntity extends Entity {
     private int initialArmorPoints = -1;
     private float mana;
     private int strength; //determines what level of items the player can pick up
+    private int inventoryWeight = 0; //weight of items factored into movement speed
     
     //boolean effects for AI
     private boolean invisible = false;
@@ -401,16 +402,20 @@ Reflection:
     }
 
     public void addItem(Item i){
+    	System.out.println(i.toString());
     	boolean add = true;
     	for( Item itm : inventory ){
+    		System.out.println(itm.toString());
     		if( itm.equals(i) ){
     			itm.count += i.count;
+    			inventoryWeight += i.getWeight();
     			add = false;
     			break;
     		}
     	}
     	if( add ){
     		inventory.add(i);
+    		inventoryWeight += i.getWeight();
     	}
         if( i.isIdentified() && i.getType().equals("Potion") ){
         	addToCodex(i);
@@ -446,13 +451,24 @@ Reflection:
     					addToCodex(inventory.get(i));
     				}
     			}
+    			Item ret;
     			//return inventory.remove(i);
     			if( inventory.get(i).count == 1 ){
-    				return inventory.remove(i);
+    				inventory.get(i).count--;
+    				ret = inventory.remove(i);
     			}else{
     				inventory.get(i).count--;
-    				return inventory.get(i);
+    				ret = inventory.get(i);
     			}
+    	    	//update weight
+    	    	//take off the whole stack
+    	    	inventoryWeight -= inventory.get(i).getWeight();
+    	    	//get the weight of the new stack
+    	    	inventory.get(i).updateWeight();
+    	    	//add the new weight
+    	    	inventoryWeight += inventory.get(i).getWeight();
+    	    	
+    	    	return ret;
     		}
     	}
     	return null;
@@ -461,6 +477,7 @@ Reflection:
     
     public Item discardItem(Item i, boolean use){
     	if( i.count == 1 ){
+    		i.count--;
     		inventory.remove(i);
     	}else{
     		i.count--;
@@ -473,6 +490,14 @@ Reflection:
     	if( i.getType().equals("Potion") ){
     		addToCodex(i);
     	}
+    	
+    	//update weight
+    	//take off the whole stack
+    	inventoryWeight -= i.getWeight();
+    	//get the weight of the new stack
+    	i.updateWeight();
+    	//add the new weight
+    	inventoryWeight += i.getWeight();
     	
     	return i;
     }
@@ -605,6 +630,9 @@ Reflection:
     }
     public int getStrength(){
     	return strength;
+    }
+    public int getInventoryWeight(){
+    	return inventoryWeight;
     }
 
     public void setAnimationSpeed(int sp){
