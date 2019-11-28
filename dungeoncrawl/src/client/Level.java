@@ -850,46 +850,55 @@ public class Level extends BasicGameState {
             }else if( input.isKeyPressed(Input.KEY_ENTER) ){
                 //attack with item
                 //System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
-                try{
-                    attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
-                }catch(IndexOutOfBoundsException ex){
-                    System.out.println("Out of bounds.");
-                }
+            	if( dc.hero.getEquipped()[selectedEquippedItem].getRequiredLevel() > dc.hero.getStrength() ){
+            		addMessage("You are not strong enough to use this.");
+            	}else{
+	                try{
+	                    attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
+	                }catch(IndexOutOfBoundsException ex){
+	                    System.out.println("Out of bounds.");
+	                }
+            	}
             }else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
                 //use item on own character
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
-                String x = "";
-                if( i.getType().equals("Potion") ){
-                    x = "Drank";
-                }else if( i.getType().equals("Armor") ){
-                    x = "Put on";
+                
+                if( i.getRequiredLevel() > dc.hero.getStrength() ){
+                	addMessage("You are not strong enough to use this.");
                 }else{
-                    x = "Used";
-                }
-                addMessage(x + " " + i.toString());
-                //TODO: add potion effects to character
-                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
-                    //add effect to character
-                    dc.hero.addEffect(i.getEffect());
-                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
-                }
-
-                //remove the item from hands
-                dc.hero.unequipItem(selectedEquippedItem);
-
-                //only remove the item from the inventory if it is a potion/consumable
-                //armor should remain in the player's inventory
-                if( i.getType().equals("Potion") ){
-                    dc.hero.discardItem(i.getID(), true);
-                }else if( i.getType().equals("Armor") ){
-                    i.identify();
-
-                    //set the hero type to change the armor
-                    if( dc.hero.getType().contains("knight") ){
-                        dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
-                    }else if( dc.hero.getType().contains("tank") ){
-                        dc.hero.setType("tank_"+i.getMaterial().toLowerCase());
-                    }
+	                String x = "";
+	                if( i.getType().equals("Potion") ){
+	                    x = "Drank";
+	                }else if( i.getType().equals("Armor") ){
+	                    x = "Put on";
+	                }else{
+	                    x = "Used";
+	                }
+	                addMessage(x + " " + i.toString());
+	                //TODO: add potion effects to character
+	                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
+	                    //add effect to character
+	                    dc.hero.addEffect(i.getEffect());
+	                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
+	                }
+	
+	                //remove the item from hands
+	                dc.hero.unequipItem(selectedEquippedItem);
+	
+	                //only remove the item from the inventory if it is a potion/consumable
+	                //armor should remain in the player's inventory
+	                if( i.getType().equals("Potion") ){
+	                    dc.hero.discardItem(i.getID(), true);
+	                }else if( i.getType().equals("Armor") ){
+	                    i.identify();
+	
+	                    //set the hero type to change the armor
+	                    if( dc.hero.getType().contains("knight") ){
+	                        dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
+	                    }else if( dc.hero.getType().contains("tank") ){
+	                        dc.hero.setType("tank_"+i.getMaterial().toLowerCase());
+	                    }
+	                }
                 }
 
             }else if( input.isKeyPressed(Input.KEY_BACKSLASH) ){
