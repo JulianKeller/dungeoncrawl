@@ -61,14 +61,33 @@ public class Item extends StationaryObject{
 		
 		
 		//choose materials from the appropriate list
+		
+		r = rand.nextInt(100);
+		
 		if( type.equals("Sword") ){
-			this.material = Main.SwordMaterials[ rand.nextInt(Main.SwordMaterials.length) ];
+			if( r < 20 ){
+				material = "Gold";
+			}else if( r < 40 ){
+				material = "Iron";
+			}else{
+				material = "Wooden";
+			}
 		}else if( type.equals("Armor") ){
-			this.material = Main.ArmorMaterials[ rand.nextInt(Main.ArmorMaterials.length) ];
+			if( r < 30 ){
+				material = "Gold";
+			}else{
+				material = "Iron";
+			}
 		}else if( type.equals("Staff") ){
 			this.material = Main.StaffMaterials[ rand.nextInt(Main.StaffMaterials.length) ];
 		}else if( type.equals("Glove") ){
-			this.material = Main.GloveMaterials[ rand.nextInt(Main.GloveMaterials.length) ];
+			if( r < 20 ){
+				material = "Gold";
+			}else if( r < 50 ){
+				material = "Iron";
+			}else{
+				material = "Leather";
+			}
 		}else{
 			this.material = "";
 		}
@@ -105,7 +124,7 @@ public class Item extends StationaryObject{
 		}
 		
 		//all items start unidentified
-		identified = true;
+		identified = false;
 		
 
 		//get an image based on item type
