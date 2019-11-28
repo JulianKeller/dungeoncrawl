@@ -634,6 +634,9 @@ Reflection:
     public int getInventoryWeight(){
     	return inventoryWeight;
     }
+    public int getMaxInventoryWeight(){
+    	return (int) startingHitPoints * strength;
+    }
 
     public void setAnimationSpeed(int sp){
         if (sp <= 0) {

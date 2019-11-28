@@ -1041,44 +1041,54 @@ public class Level extends BasicGameState {
 
             Item i = Main.im.getItemAt(aniPos);
             if( i != null && !i.isLocked() ){
-                if( i.isIdentified() ){
-                    addMessage("Picked up " + i.toString() + ".");
-                }else{
-                    addMessage("Picked up unidentified "+i.toString()+".");
-                }
-                
-                
-
-                
-                if( i.getType().equals("Arrow") ){
-                	Image image = null;
-                	if( i.getEffect().equals("Poison") ){
-                		image = ResourceManager.getImage(Main.ARROW_POISON_UP);
-                	}else if( i.getEffect().equals("Flame") ){
-                		image = ResourceManager.getImage(Main.ARROW_FLAME_UP);
-                	}else if( i.getEffect().equals("Ice") ){
-                		image = ResourceManager.getImage(Main.ARROW_ICE_UP);
-                	}else if( i.getEffect().equals("") ){
-                		image = ResourceManager.getImage(Main.ARROW_NORMAL_UP);
-                	}
-                	if( image == null){
-                		throw new SlickException("Invalid arrow effect.");
-                	}
-                	
-                	//give the character 5 arrows
-                	Item arrow = new Item(i.getWorldCoordinates(), i.isLocked(), i.getID(), ch.getPid(), i.getEffect(), "Arrow", i.getMaterial(), 
-                			i.isCursed(), i.isIdentified(), image, 5);
-                	Main.im.give(arrow, ch);
-                	i.lock();
-                }else{
-                    //give removes item from the world's inventory
-                    //  and adds it to the player's inventory
-                    Main.im.give(i, ch);
-                }
-
-                //stop rendering the item
-                itemsToRender.remove(i);
-                Main.im.removeFromWorldItems(i);
+            	if( ch.getInventoryWeight() >= ch.getMaxInventoryWeight() ){
+            		addMessage("You cannot carry any more.");
+            	}else{
+	            		
+	            	
+	                if( i.isIdentified() ){
+	                    addMessage("Picked up " + i.toString() + ".");
+	                }else{
+	                    addMessage("Picked up unidentified "+i.toString()+".");
+	                }
+	                
+                    if( ch.getInventoryWeight() >= ch.getMaxInventoryWeight()*0.7 ){
+                    	addMessage("You are encumbered.");
+                    }
+	                
+	                
+	
+	                
+	                if( i.getType().equals("Arrow") ){
+	                	Image image = null;
+	                	if( i.getEffect().equals("Poison") ){
+	                		image = ResourceManager.getImage(Main.ARROW_POISON_UP);
+	                	}else if( i.getEffect().equals("Flame") ){
+	                		image = ResourceManager.getImage(Main.ARROW_FLAME_UP);
+	                	}else if( i.getEffect().equals("Ice") ){
+	                		image = ResourceManager.getImage(Main.ARROW_ICE_UP);
+	                	}else if( i.getEffect().equals("") ){
+	                		image = ResourceManager.getImage(Main.ARROW_NORMAL_UP);
+	                	}
+	                	if( image == null){
+	                		throw new SlickException("Invalid arrow effect.");
+	                	}
+	                	
+	                	//give the character 5 arrows
+	                	Item arrow = new Item(i.getWorldCoordinates(), i.isLocked(), i.getID(), ch.getPid(), i.getEffect(), "Arrow", i.getMaterial(), 
+	                			i.isCursed(), i.isIdentified(), image, 5);
+	                	Main.im.give(arrow, ch);
+	                	i.lock();
+	                }else{
+	                    //give removes item from the world's inventory
+	                    //  and adds it to the player's inventory
+	                    Main.im.give(i, ch);
+	                }
+	
+	                //stop rendering the item
+	                itemsToRender.remove(i);
+	                Main.im.removeFromWorldItems(i);
+	            }
             }
         }
 
