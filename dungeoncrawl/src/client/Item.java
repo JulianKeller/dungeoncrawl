@@ -26,7 +26,8 @@ public class Item extends StationaryObject{
 	
 	public int count; //the number of this item in the inventory
 	private int requiredLevel;
-	private String requiredClasses;
+	//private String requiredClasses = "";
+	private String[] requiredClasses = {"", "", "", ""};
 	
 	public Item(Vector wc, boolean locked, int id, int oid) throws SlickException{
 		super(wc, locked); //superconstructor
@@ -40,28 +41,29 @@ public class Item extends StationaryObject{
 		count = 1;
 		
 		//first get the item type
-		//this.type = client.Main.ItemTypes[ rand.nextInt(client.Main.ItemTypes.length) ];
 		
 		//currently developed item types, for debugging purposes only
-		String[] currentTypes = {"Potion", "Sword", "Armor", "Arrow"};
-		//TODO
-		//this.type = currentTypes[ rand.nextInt(currentTypes.length) ];
+		//String[] currentTypes = {"Potion", "Sword", "Armor", "Arrow"};
 		
 		//rarity: armor, sword/other weapons, potion, arrow
 		//armor: 20%, sword: 30%, potion: 40%, arrow: 50%
 		int r = rand.nextInt(100);
 		if( r < 20 ){
 			type = "Armor";
-			requiredClasses = "Knight Tank";
+			requiredClasses[0] = "knight";
+			requiredClasses[1] = "tank";
 		}else if( r < 30 ){
 			type = "Sword";
-			requiredClasses = "Knight";
+			requiredClasses[0] = "knight";
 		}else if( r < 40 ){
 			type = "Potion";
-			requiredClasses = "Knight Tank Mage Archer";
+			requiredClasses[0] = "knight";
+			requiredClasses[1] = "tank";
+			requiredClasses[2] = "mage";
+			requiredClasses[3] = "archer";
 		}else{
 			type = "Arrow";
-			requiredClasses = "Archer";
+			requiredClasses[0] = "archer";
 		}
 		
 		
@@ -262,7 +264,7 @@ public class Item extends StationaryObject{
 	public boolean isLocked(){
 		return super.isLocked();
 	}
-	public String getRequiredClasses(){
+	public String[] getRequiredClasses(){
 		return requiredClasses;
 	}
 	public int getRequiredLevel(){

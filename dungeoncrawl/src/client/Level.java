@@ -854,9 +854,7 @@ public class Level extends BasicGameState {
             }else if( input.isKeyPressed(Input.KEY_ENTER) ){
                 //attack with item
                 //System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
-            	if( dc.hero.getEquipped()[selectedEquippedItem].getRequiredLevel() > dc.hero.getStrength() ){
-            		addMessage("You are not strong enough to use this.");
-            	}else{
+            	if( dc.hero.getEquipped()[selectedEquippedItem] != null && canUse(dc.hero.getEquipped()[selectedEquippedItem], dc.hero) ){
 	                try{
 	                    attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
 	                }catch(IndexOutOfBoundsException ex){
@@ -867,9 +865,7 @@ public class Level extends BasicGameState {
                 //use item on own character
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
                 
-                if( i.getRequiredLevel() > dc.hero.getStrength() ){
-                	addMessage("You are not strong enough to use this.");
-                }else{
+                if( canUse(i, dc.hero) ){
 	                String x = "";
 	                if( i.getType().equals("Potion") ){
 	                    x = "Drank";
@@ -1300,6 +1296,28 @@ public class Level extends BasicGameState {
             }
             dc.hero.discardItem(itm, true);
         }
+    }
+    
+    private boolean canUse(Item i, Character hero){
+    	//return true if the hero can use an item
+    	//  based on required level and class
+    	//return false otherwise
+    	
+    	//check item level
+    	if( i.getRequiredLevel() > hero.getStrength() ){
+    		addMessage("You are not strong enough to use this.");
+    		return false;
+    	}
+    	
+    	//check class
+    	String type = hero.getType().substring(0, hero.getType().indexOf("_"));
+    	for( String st : i.getRequiredClasses() ){
+    		if( st.equals(type) ){
+    			return true;
+    		}
+    	}
+    	addMessage("This item is for a different class.");
+    	return false;
     }
 
     private boolean throwItem(ThrownItem ti, Main dc){
