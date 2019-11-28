@@ -9,6 +9,7 @@ public class ClientHandler extends Thread{
     private ObjectOutputStream os;  // the output stream
     private ObjectInputStream is;  // the input stream
     private int id;    /// the thread id (based on port number in socket)
+    private boolean writeSuccess;
     private BlockingQueue<String> threadQueue;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
                          BlockingQueue<String> queue){
@@ -17,6 +18,7 @@ public class ClientHandler extends Thread{
         this.os = os;
         id = s.getPort();
         threadQueue = queue;
+        writeSuccess = true;
 
     }
 
@@ -29,14 +31,20 @@ public class ClientHandler extends Thread{
             os.writeUTF(Integer.toString(id));
             os.flush();
             while(true) {
-                // Receive coordinate message from the client
-                String message = is.readUTF();
-                if(message.split(" ")[0].equals("Exit")){
-                    toServer(message);
+                try {
+                    // Receive coordinate message from the client
+                    String message = is.readUTF();
+                    if(message.split(" ").length > 2) {
+                        toServer(message);
+                        writeSuccess = writeToClient();
+                        if (!writeSuccess || message.split(" ")[0].equals("Exit"))
+                            break;
+                    }
+                }catch(SocketException e){
+                    System.out.println("Client "+id+" closed unexpectedly.\nClosing connections " +
+                            "and terminating thread.");
                     break;
                 }
-                toServer(message);
-                writeToClient();
             }
             os.close();
             is.close();
@@ -64,15 +72,17 @@ public class ClientHandler extends Thread{
      * This method takes from what the server gives to the client
      * and writes to the client.
      */
-    private void writeToClient() {
+    private boolean writeToClient() {
         try {
             String toClient = threadQueue.take();
+            System.out.println("Writing to client "+id+": "+toClient);
             os.writeUTF(toClient);
             os.flush();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            return false;
         }
-
+        return true;
     }
     public int getClientId(){
         return id;
