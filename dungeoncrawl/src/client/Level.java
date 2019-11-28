@@ -547,8 +547,8 @@ public class Level extends BasicGameState {
                 g.drawImage(dc.hero.getEquipped()[i].getImage(), x+(dc.tilesize*i), y);
                 Color tmp2 = g.getColor();
                 g.setColor(Color.white);
-                g.drawString(dc.hero.getEquipped()[i].count+"", x, y+15);
-                g.drawString(dc.hero.getEquipped()[i].getRequiredLevel()+"", x, y);
+                g.drawString(dc.hero.getEquipped()[i].count+"", x+(dc.tilesize*i), y+15);
+                g.drawString(dc.hero.getEquipped()[i].getRequiredLevel()+"", x+(dc.tilesize*i), y);
                 g.setColor(tmp2);
                 
             }
