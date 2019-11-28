@@ -34,6 +34,7 @@ public class Level extends BasicGameState {
     int currentOX;
     int currentOY;
     private Random rand;
+    private int serverId;
 
     private int[][] rotatedMap;
 
@@ -212,7 +213,20 @@ public class Level extends BasicGameState {
 
         System.out.printf("setting character at %s, %s\n", wx, wy);
 
-        dc.hero = new Character(dc, wx, wy, "knight_leather", 1, this, false);
+        // Setting starting position for the hero.
+        String coord = wx + " " + wy;
+        int id = 0;
+        try {
+            id = Integer.parseInt(dis.readUTF());
+            //System.out.println("Sending my player info.");
+            serverId = id;
+            dos.writeUTF("knight_leather "+coord);
+            dos.flush();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+        dc.hero = new Character(dc, wx, wy, "knight_leather", id, this, false);
         dc.characters.add(dc.hero);
 
         //give the hero leather armor with no effect
@@ -233,19 +247,6 @@ public class Level extends BasicGameState {
 
         // render map
         RenderMap.setMap(dc, dc.hero);
-
-        // Setting starting position for the hero.
-        String type = "knight_iron";
-        String coord = type + " " + wx + " " + wy;
-        int id = 0;
-        try {
-            id = Integer.parseInt(dis.readUTF());
-            //System.out.println("Sending my player info.");
-            dos.writeUTF(coord);
-            dos.flush();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
 
         // render map
         RenderMap.setMap(dc, dc.hero);
@@ -346,10 +347,6 @@ public class Level extends BasicGameState {
 
         // draw the hero
         dc.hero.animate.render(g);
-
-        // draw other characters
-        for(Iterator<Character> i = dc.characters.iterator(); i.hasNext();)
-            i.next().animate.render(g);
 
         //render messages
         renderMessages(dc, g);
@@ -683,10 +680,11 @@ public class Level extends BasicGameState {
             if (!ch.equals(dc.hero)) {
                 Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
                 ch.animate.setPosition(sc);
+                if (characterInRegion(dc, ch)) {
+                    ch.animate.render(g);
+                }
             }
-            if (characterInRegion(dc, ch)) {
-                ch.animate.render(g);
-            }
+
         }
         //*/
 
@@ -1341,28 +1339,38 @@ public class Level extends BasicGameState {
 
     public void updateOtherPlayers(Main dc){
         try {
-            String read = dis.readUTF();
-            //System.out.println("Read: " + read);
+            String read = dis.readUTF(); // message from server
+            System.out.println("("+serverId+") Read: " + read);
+            // Making sure that it what is read is formatted correctly
             if (read.split(" ").length > 3) {
+                //System.out.println("in if statement.");
+                // parse the clientId
                 int id = Integer.parseInt(read.split(" ")[0]);
+                // If "Exit" is read as Type, remove the character.
                 if (read.split(" ")[1].equals("Exit")) {
                     dc.characters.removeIf(character -> character.getPid() == id);
+                   // System.out.println("Deleted character with id "+id);
                     return;
                 }
+                // Go through each character until the id's match
                 for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
                     Character c = i.next();
+                    // If theres a match update their coordinates.
                     if (c.getPid() == id) {
+                        if(c.getPid() == serverId){
+                            return;
+                        }
                         float x = Float.parseFloat(read.split(" ")[2]);
                         float y = Float.parseFloat(read.split(" ")[3]);
-                        c.animate.setPosition(new Vector(x,y));
+                        c.setWorldCoordinates(x,y);
                         return;
+
                     }
                 }
+                // If none matches, create a new character.
                 float x = Float.parseFloat(read.split(" ")[2]);
                 float y = Float.parseFloat(read.split(" ")[3]);
-                if(id != dc.hero.getPid()) {
-                    dc.characters.add(new Character(dc, x, y, read.split(" ")[1], id,this,false));
-                }
+                dc.characters.add(new Character(dc, x, y, read.split(" ")[1], id,this,false));
             }
         }catch(IOException e){
             e.printStackTrace();
