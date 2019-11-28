@@ -312,7 +312,17 @@ public class Level extends BasicGameState {
 
 
     public void addMessage(String message){
-        //add a message to the first index of the message box
+        //check for a duplicate message
+    	for( Message m : messagebox ){
+    		if( m == null ){
+    			break;
+    		}
+    		if( m.text.equals(message)){
+    			return;
+    		}
+    	}
+    	
+    	//add a message to the first index of the message box
         //  and shift everything else down
         for( int i = messagebox.length-1; i > 0; i-- ){
             messagebox[i] = messagebox[i-1];
