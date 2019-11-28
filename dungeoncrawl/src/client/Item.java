@@ -321,6 +321,8 @@ public class Item extends StationaryObject{
 			}
 		}else if( type.equals("Arrow") ){
 			weight = 2*count;
+		}else if( type.equals("Potion") ){
+			weight = 15*count;
 		}
 	}
 	
