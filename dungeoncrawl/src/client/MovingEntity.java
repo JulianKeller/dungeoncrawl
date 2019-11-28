@@ -38,6 +38,7 @@ public class MovingEntity extends Entity {
     private Vector position;
     private Vector tileWorldCoordinates;
     private Main dc;
+
     
     //random number generator
     private Random rand = new Random();
@@ -675,6 +676,7 @@ Reflection:
     public Vector getPosition(){
         return position;
     }
+
     /**
      * Sets the moving entity's worldcoordinates
      * @param wc Vector to set entity's world coordinates.

@@ -126,6 +126,21 @@ public class ItemManager {
 			//create a random item at the given position
 			Item i = new Item(wc, false, currentItemID, 0);
 			
+			if( i.getType().equals("Potion") || i.getType().equals("Arrow") ){
+				i.setRequiredLevel(0);
+			}else{
+				//set the item's required level to the average level of the team
+				int levelSum = 0;
+				for( Character ch : game.characters ){
+					levelSum += ch.getStrength();
+				}
+				int levelAverage = levelSum / game.characters.size();
+				
+				int r = rand.nextInt(3);
+				i .setRequiredLevel(levelAverage + r); 
+			}
+			
+			
 			//check if the item is a potion and set its effect
 			//0: blue, 1: orange, 2: pink, 3: red, 4: yellow
 			if( i.getType().equals("Potion") ){

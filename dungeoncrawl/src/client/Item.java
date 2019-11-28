@@ -25,7 +25,8 @@ public class Item extends StationaryObject{
 	private Random rand;
 	
 	public int count; //the number of this item in the inventory
-	
+	private int requiredLevel;
+	private String requiredClasses;
 	
 	public Item(Vector wc, boolean locked, int id, int oid) throws SlickException{
 		super(wc, locked); //superconstructor
@@ -51,12 +52,16 @@ public class Item extends StationaryObject{
 		int r = rand.nextInt(100);
 		if( r < 20 ){
 			type = "Armor";
+			requiredClasses = "Knight Tank";
 		}else if( r < 30 ){
 			type = "Sword";
+			requiredClasses = "Knight";
 		}else if( r < 40 ){
 			type = "Potion";
+			requiredClasses = "Knight Tank Mage Archer";
 		}else{
 			type = "Arrow";
+			requiredClasses = "Archer";
 		}
 		
 		
@@ -257,6 +262,12 @@ public class Item extends StationaryObject{
 	public boolean isLocked(){
 		return super.isLocked();
 	}
+	public String getRequiredClasses(){
+		return requiredClasses;
+	}
+	public int getRequiredLevel(){
+		return requiredLevel;
+	}
 	
 	//setter functions
 	public void setOID( int oid ){
@@ -273,6 +284,9 @@ public class Item extends StationaryObject{
 	}
 	public void unlock(){
 		super.unlock();
+	}
+	public void setRequiredLevel(int level){
+		requiredLevel = level;
 	}
 	
 	//render function
