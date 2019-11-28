@@ -131,10 +131,17 @@ public class ItemManager {
 			}else{
 				//set the item's required level to the average level of the team
 				int levelSum = 0;
+				int numCharacters = 0;
 				for( Character ch : game.characters ){
-					levelSum += ch.getStrength();
+					if( !ch.ai ){
+						numCharacters++;
+						levelSum += ch.getStrength();
+					}
 				}
-				int levelAverage = levelSum / game.characters.size();
+				if( numCharacters == 0 ){
+					throw new SlickException("Load the list of characters before planting items.");
+				}
+				int levelAverage = levelSum / numCharacters;
 				
 				int r = rand.nextInt(3);
 				i .setRequiredLevel(levelAverage + r); 

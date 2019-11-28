@@ -167,13 +167,7 @@ public class Level extends BasicGameState {
             }
         }
 
-        try {
-            Main.im.plant(20, rotatedMap, 48, 80);
-        } catch (SlickException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return;
-        }
+
 
         // initialize itemsToRender
         itemsToRender = new ArrayList<>();
@@ -228,6 +222,14 @@ public class Level extends BasicGameState {
         wx = (dc.tilesize * 20) - dc.offset;
         wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
         dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, this, true));
+        
+        try {
+            Main.im.plant(20, rotatedMap, 48, 80);
+        } catch (SlickException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        }
 
 
         // render map
@@ -605,6 +607,7 @@ public class Level extends BasicGameState {
                 for( int i = 0; i < items.size(); i++ ){
                     g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
                     g.drawString(items.get(i).count+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-15);
+                    g.drawString(items.get(i).getRequiredLevel()+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-30);
                     col++;
                     if( i > 4 && i % 4 == 0 ){
                         row++;
