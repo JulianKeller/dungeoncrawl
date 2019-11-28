@@ -9,6 +9,7 @@
 **[ 7 ]** Get world coordinates from client and update with new world coordinates on
 server for player.<br>
 **[ 8 ]** Get other Clients' position rendering on the client.<br>
+**[ 17 ]** Fix syncing issue between other clients.<br>
 
 ## Pending Further Testing ##
 **[ 10 ]** Convert Server to take multiple clients instead of making new threads.
@@ -18,4 +19,4 @@ server for player.<br>
 **[ 14 ]** When user presses 'space', set hero character and go into Level<br>
 **[ 15 ]** Create placeholders for future artwork<br>
 **[ 16 ]** Modify Level.java to work with the StartUpState<br>
-**[ 17 ]** Fix syncing issue between other clients.<br>
+**[ 18 ]** Make sure all clients are receiving the same server messages<br>
