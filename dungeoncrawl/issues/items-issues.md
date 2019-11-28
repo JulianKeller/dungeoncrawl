@@ -8,8 +8,8 @@
 [30] Add animations for thrown items breaking
 [31] Scale thrown items to give the appearance of arc
 [33] Check item level and class before picking up
-[33] Add weight to items and characters to slow them down
-[34] Implement cursed items that have half stats and cannot be removed
+[34] Add weight to items and characters to slow them down
+[35] Implement cursed items that have half stats and cannot be removed
 
 ##Resolved Issues##
 [1] Create database schema to hold items and player inventories
