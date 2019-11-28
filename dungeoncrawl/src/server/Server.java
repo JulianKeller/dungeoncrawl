@@ -60,6 +60,7 @@ public class Server extends Thread{
                 ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
                 ObjectInputStream is = new ObjectInputStream(s.getInputStream());
                 // This is the client handler thread.
+                System.out.println("Creating new thread for this client...");
                 ClientHandler t = new ClientHandler(s, is, os, threadQ);
                 t.start();
 

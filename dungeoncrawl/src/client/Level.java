@@ -1340,7 +1340,7 @@ public class Level extends BasicGameState {
     public void updateOtherPlayers(Main dc){
         try {
             String read = dis.readUTF(); // message from server
-            System.out.println("("+serverId+") Read: " + read);
+            //System.out.println("("+serverId+") Read: " + read);
             // Making sure that it what is read is formatted correctly
             if (read.split(" ").length > 3) {
                 //System.out.println("in if statement.");
