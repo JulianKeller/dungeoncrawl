@@ -27,7 +27,8 @@ public class Server extends Thread{
     @Override
     public void run() {
         while(true){
-         sendToClients();
+            sendToClients();
+
         }
     }
 

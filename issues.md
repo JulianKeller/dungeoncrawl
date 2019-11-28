@@ -18,3 +18,4 @@ server for player.<br>
 **[ 14 ]** When user presses 'space', set hero character and go into Level<br>
 **[ 15 ]** Create placeholders for future artwork<br>
 **[ 16 ]** Modify Level.java to work with the StartUpState<br>
+**[ 17 ]** Fix syncing issue between other clients.<br>
