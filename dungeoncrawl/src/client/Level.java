@@ -660,9 +660,16 @@ public class Level extends BasicGameState {
      * @param g
      */
     private void renderTestItems(Main dc, Graphics g) {
+        Vector wc;
         addTestItems(dc);
         for (DisplayItem i : dc.testItems) {
-            i.render(g);
+            wc = i.getWorldCoordinates();
+            // draw the objects on the screen
+            if (objectInRegion(dc, wc)) {
+                Vector sc = world2screenCoordinates(dc, wc);
+                i.setPosition(sc);
+                i.render(g);
+            }
         }
     }
 

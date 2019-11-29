@@ -2,15 +2,18 @@ package client;
 
 import jig.Entity;
 import jig.ResourceManager;
+import jig.Vector;
 
 /*
 This class exists solely for the purpose of displaying an item in the game to see how it looks.
  */
 public class DisplayItem extends Entity {
     String type;
+    Vector worldCoordinates;
 
     public DisplayItem(final float x, final float y, String type) {
         super(x, y);
+        setWorldCoordinates(x, y);
         this.type = type;
         switch (type) {
             case "health": {
@@ -97,5 +100,15 @@ public class DisplayItem extends Entity {
                 break;
             }
         }
+    }
+
+    public Vector getWorldCoordinates(){
+        return worldCoordinates;
+    }
+    public void setWorldCoordinates(Vector wc){
+        worldCoordinates = wc;
+    }
+    public void setWorldCoordinates(float x, float y){
+        setWorldCoordinates(new Vector(x, y));
     }
 }
