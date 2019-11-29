@@ -130,6 +130,12 @@ public class Main extends StateBasedGame {
     public static final String STAFF_EMERALD = "resources/staffs/staff-green.png";
     public static final String STAFF_AMETHYST = "resources/staffs/staff-purple.png";
 
+    // spells
+    public static final String SPELL_RED = "resources/spells/spell-red.png";
+    public static final String SPELL_GREEN = "resources/spells/spell-green.png";
+    public static final String SPELL_PURPLE = "resources/spells/spell-purple.png";
+
+
     // gloves
     public static final String GLOVES_REGENERATION = "resources/gloves/gloves-red.png";
     public static final String GLOVES_SWIFTNESS = "resources/gloves/gloves-yellow.png";
@@ -318,6 +324,11 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(STAFF_RUBY);
         ResourceManager.loadImage(STAFF_AMETHYST);
         ResourceManager.loadImage(STAFF_EMERALD);
+
+        // SPELLS
+        ResourceManager.loadImage(SPELL_GREEN);
+        ResourceManager.loadImage(SPELL_RED);
+        ResourceManager.loadImage(SPELL_PURPLE);
 
         // GLOVES
         ResourceManager.loadImage(GLOVES_REFLECTION);

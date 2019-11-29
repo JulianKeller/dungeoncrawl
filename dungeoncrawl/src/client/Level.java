@@ -679,7 +679,8 @@ public class Level extends BasicGameState {
     private void addTestItems(Main dc) {
         String[] itemList = new String[] {
                 "staff_emerald", "staff_ameythst", "staff_ruby",
-                "gloves_red", "gloves_white", "gloves_yellow"
+                "spell_emerald", "spell_ameythst", "spell_ruby",
+                "gloves_red", "gloves_white", "gloves_yellow",
         };
         int position = 16;
         for (int i = 0; i < itemList.length; i++) {

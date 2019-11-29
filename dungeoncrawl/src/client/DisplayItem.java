@@ -87,6 +87,19 @@ public class DisplayItem extends Entity {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.STAFF_RUBY));
                 break;
             }
+            case "spell_emerald": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.SPELL_GREEN));
+                break;
+            }
+            case "spell_ameythst": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.SPELL_PURPLE));
+                break;
+            }
+            case "spell_ruby": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.SPELL_RED));
+                break;
+            }
+            //gloves
             case "gloves_red": {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_REGENERATION));
                 break;
