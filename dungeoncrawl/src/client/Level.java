@@ -193,10 +193,10 @@ public class Level extends BasicGameState {
         */
 
         // TODO spawning enemies and items should be done on the server
-        wx = (dc.tilesize * 18) - dc.offset;
-        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
-        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
-//        spawnEnemies(dc, 20);
+//        wx = (dc.tilesize * 18) - dc.offset;
+//        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
+//        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
+        spawnEnemies(dc, 20);
         try {
             int maxcol =  dc.map.length - 2;
             int maxrow = dc.map[0].length - 2;
@@ -1460,9 +1460,9 @@ public class Level extends BasicGameState {
             while(row < 2 || col < 2 || dc.map[col][row] == 1){
                 col = rand.nextInt(maxcol) - 1;
                 row = rand.nextInt(maxrow) - 1;
-                System.out.printf("getting %s, %s\n", col, row);
+//                System.out.printf("getting %s, %s\n", col, row);
             }
-            System.out.printf("\nSpawning at %s, %s\n", col, row);
+//            System.out.printf("\nSpawning at %s, %s\n", col, row);
             float wx = (dc.tilesize * row) - dc.offset;
             float wy = (dc.tilesize * col) - dc.tilesize - dc.doubleOffset;
             dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
