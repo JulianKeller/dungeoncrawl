@@ -32,6 +32,7 @@ public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
     private int serverId;
+    private String activeCheats;
 
     private int[][] rotatedMap;
 
@@ -348,6 +349,41 @@ public class Level extends BasicGameState {
             renderShortestPath(dc, g);
 //            renderPathWeights(dc, g);     // this method really only works well when one AI is present
         }
+
+        // display a paused message
+        if (paused) {
+            renderPauseMessage(dc, g);
+            renderActiveCheats(dc, g);
+        }
+    }
+
+    private void renderPauseMessage(Main dc, Graphics g) {
+        // TODO render paused message
+        Color tmp = g.getColor();
+        g.setColor(new Color(0, 0, 0, .3f));
+        g.fillRect(0, 0, dc.ScreenWidth, dc.ScreenHeight);
+        g.setColor(new Color(255, 255, 255, 1f));
+        g.drawString("PAUSED", (float) dc.ScreenWidth/2 - 12, (float) dc.ScreenHeight/2 - 10);
+        g.setColor(tmp);
+    }
+
+    private void renderActiveCheats(Main dc, Graphics g) {
+        Color tmp = g.getColor();
+        g.setColor(new Color(255, 255, 255, 1f));
+        // render cheats
+        if (!dc.showPath){
+            g.drawString("Display Paths: Disabled", 50, 50);
+        }
+        else {
+            g.drawString("Display Paths: Enabled", 50, 50);
+        }
+        if (dc.collisions) {
+            g.drawString("Collisions: Enabled", 50, 75);
+        }
+        else {
+            g.drawString("Collisions: Disabled", 50, 75);
+        }
+        g.setColor(tmp);
     }
 
     /** Renders the AI's shortest path
@@ -1324,7 +1360,7 @@ public class Level extends BasicGameState {
 
     // pause the game
     public void pause(Input input) {
-        if (input.isKeyPressed(Input.KEY_SPACE)) {
+        if (input.isKeyPressed(Input.KEY_P)) {
             paused = !paused;
         }
     }

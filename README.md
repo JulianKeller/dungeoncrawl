@@ -9,6 +9,8 @@ Dungeon Crawl is a 2D dungeon crawler in which up to four players must crawl the
 - s: move down
 - d: move right
 
+- p: pause game
+
 ### Inventory
 - i: display inventory
 - o: display codex
@@ -25,4 +27,9 @@ Dungeon Crawl is a 2D dungeon crawler in which up to four players must crawl the
 - c: no collisions with walls
 - Left Alt: apply a status effect
    - valid effect names are capitalized (e.g. "Healing")
+        - Invisibility
+        - Stench
+        - Thorns
+        - Fright
+        - Reflection
    - entering an invalid status effect will crash the client

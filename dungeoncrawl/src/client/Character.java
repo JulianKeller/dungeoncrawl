@@ -230,9 +230,6 @@ public class Character extends MovingEntity {
         String next = null;
         String currentDirection = direction;
 
-        // regulates how fast the AI can attack
-
-
         // moved the character fixed to the grid
         if (!canMove) {
             // update the animation to walking
@@ -245,10 +242,8 @@ public class Character extends MovingEntity {
             return;
         }
 
-
-        // check if player is within 1 tile, if so turn towards player and attack
+        // turn towards player and attack if within 1 tile
         if (canAttackPlayer()) {
-
             String action = "jab_" + direction.substring("walk_".length());
             // update the animation to jabbing
             if (!currentAction.equals(action)) {
@@ -258,6 +253,11 @@ public class Character extends MovingEntity {
             if (attackTimer <= 0) {
                 dc.hero.takeDamage(getAttackDamage(), "");
                 attackTimer = getAttackSpeed();
+
+                // thorns effect, AI takes 50% damage delt
+                if (dc.hero.isThorny() || dc.hero.isReflecting()) {
+                    takeDamage((float) getAttackDamage()/2, "");
+                }
             }
             else {
                 attackTimer -= delta;
@@ -266,13 +266,33 @@ public class Character extends MovingEntity {
         }
 
 
-        // run dijkstra's so enemies attack the player
-        if (playerNearby(range)) {
-            PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), dc.hero.getTileWorldCoordinates());
+        // run dijkstra's so enemies attack the player if the player is in range and not invisible
+        // TODO test this
+        if (playerNearby(range) && !dc.hero.isInvisible()) {
+            Vector heroWC = dc.hero.getTileWorldCoordinates();
+
+            // if the player has the stench effect there is a 30% chance the AI will pathfind to the wrong coordinates
+            if (dc.hero.isStinky() || dc.hero.isFrightening()) {
+                System.out.println("Player is Stinky!");
+                Random rand = new Random();
+                int value = rand.nextInt(100);
+                int chance = 50;    // isFrigtening chance 50%
+                if (dc.hero.isStinky()) {
+                    chance = 30;    // stinky chance 30%
+                }
+                if (value <= chance) {
+                    // TODO this could be more complex to determine the AI's new direction
+                    heroWC = new Vector(
+                            dc.hero.getTileWorldCoordinates().getX() + 10,
+                            dc.hero.getTileWorldCoordinates().getY() + 10
+                    );
+                }
+            }
+
+            PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), heroWC);
             int startX = (int) getTileWorldCoordinates().getX();
             int startY = (int) getTileWorldCoordinates().getY();
             shortest = find.dijkstra(dc, startX, startY);
-//            PathFinding.printShortestPath(shortest);      // print shortest path to console for debugging
 
             // load arrows for dijkstra's debugging
             if (dc.showPath) {
