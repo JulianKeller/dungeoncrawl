@@ -584,6 +584,11 @@ Reflection:
         	startingHitPoints = hitPoints;
         }
     }
+
+    public float getStartingHitPoints() {
+        return startingHitPoints;
+    }
+
     public float getHitPoints(){
         return hitPoints;
     }

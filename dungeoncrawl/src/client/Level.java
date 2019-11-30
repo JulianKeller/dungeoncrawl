@@ -180,7 +180,7 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
 
-        dc.hero = new Character(dc, wx, wy, "knight_leather", id, this, false);
+        dc.hero = new Character(dc, wx, wy, "mage_purple", id, this, false);
         dc.characters.add(dc.hero);
 
         //give the hero leather armor with no effect
@@ -270,9 +270,10 @@ public class Level extends BasicGameState {
         // TODO will need to sort the lists and draw in order so players draw on top of others
         // draw other characters
         renderCharacters(dc, g);
-
         // draw the hero
         dc.hero.animate.render(g);
+
+        renderHealthBar(dc, g);
 
         //render messages
         renderMessages(dc, g);
@@ -577,6 +578,42 @@ public class Level extends BasicGameState {
             g.drawString(messagebox[i].text, 30, dc.ScreenHeight-(20 * (messagebox.length - i)));
             g.setColor(tmp);
         }
+    }
+
+
+    /**
+     * Renders the players healthbar if the players health is below 100%
+     * @param dc
+     * @param g
+     */
+    private void renderHealthBar(Main dc, Graphics g) {
+        Vector sc;
+        float x;
+        float y;
+        float remaining;
+        Color tmp = g.getColor();
+        int width = 30;
+        for (Character ch : dc.characters) {
+            if (ch.getHitPoints() == ch.getStartingHitPoints()) {
+                continue;
+            }
+            if (characterInRegion(dc, ch)) {
+                sc = world2screenCoordinates(dc, ch);
+                x = sc.getX() - offset + 1;
+                y = sc.getY() - tilesize + 2;// + offset;
+                remaining = (ch.getHitPoints()/ch.getStartingHitPoints())* width;
+
+                // total health
+                g.setColor(new Color(255, 0, 0, 0.5f));
+                g.fillRoundRect(x, y, width, 3, 0);
+
+                // remaining health
+                g.setColor(new Color(0, 255, 0, 0.5f));
+                g.fillRoundRect(x, y, remaining, 3, 0);
+
+            }
+        }
+        g.setColor(tmp);
     }
 
     /**
