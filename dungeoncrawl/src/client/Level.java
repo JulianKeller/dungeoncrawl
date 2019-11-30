@@ -857,7 +857,8 @@ public class Level extends BasicGameState {
 
                 //place the item on the world at the dc.hero's position
                 //get world coords of dc.hero position
-                Vector wc = new Vector((int) dc.hero.animate.getX()/dc.tilesize, (int) dc.hero.animate.getY()/dc.tilesize);
+//                Vector wc = new Vector((int) dc.hero.animate.getX()/dc.tilesize, (int) dc.hero.animate.getY()/dc.tilesize);
+                Vector wc = new Vector((int) dc.hero.getTileWorldCoordinates().getX(), (int) dc.hero.getTileWorldCoordinates().getY());
                 System.out.println("placing item at "+wc.getX() + ", " + wc.getY());
                 //this will remove the item from the dc.hero's inventory and place it on the world
 
@@ -1091,8 +1092,10 @@ public class Level extends BasicGameState {
                 if( c.ai ){
                     //if the ai character is within one tilesize of the player
                     //in the given direction
-                    Vector aipos = c.animate.getPosition();
-                    Vector plpos = dc.hero.animate.getPosition();
+//                    Vector aipos = c.animate.getPosition();
+//                    Vector plpos = dc.hero.animate.getPosition();
+                    Vector aipos = c.getWorldCoordinates();
+                    Vector plpos = dc.hero.getWorldCoordinates();
 
                     double x = Math.pow(aipos.getX()-plpos.getX(), 2);
                     double y = Math.pow(aipos.getY()-plpos.getY(), 2);

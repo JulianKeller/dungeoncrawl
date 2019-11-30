@@ -194,8 +194,6 @@ public class Character extends MovingEntity {
         }
         if (movement != null) {
             movesLeft = dc.tilesize;
-            // TODO calculate next Tile
-//            System.out.println("Setting next position");
             setNextTileWorldCoordinates(movement);
             if (!movement.equals(direction)) {
                 updateAnimation(movement);
@@ -229,7 +227,19 @@ public class Character extends MovingEntity {
         String currentDirection = direction;
         // moved the character fixed to the grid
         if (!canMove) {
+//            System.out.println("DirectioN: " + direction);
+//            updateAnimation(direction);
+////            animate.start();
             moveTranslationHelper(getWorldCoordinates());
+            return;
+        }
+
+        // TODO check if player is within 1 block, if so turn towards player and attack
+        if (canAttackPlayer()) {
+            // TODO set animation
+            String action = "jab_" + direction.substring("walk_".length());
+//            animate.start();
+            updateAnimation(action);
             return;
         }
 
@@ -288,11 +298,55 @@ public class Character extends MovingEntity {
     /**
      * @return Checks if the player is within range of the ai, true if so
      */
-    public boolean playerNearby(int range) {
+    private boolean playerNearby(int range) {
         Vector heroWC = dc.hero.getTileWorldCoordinates();
         Vector aiWC = getTileWorldCoordinates();
         if (Math.abs(heroWC.getX() - aiWC.getX()) <= range && (Math.abs(heroWC.getY() - aiWC.getY()) <= range)) {
             return true;
+        }
+        return false;
+    }
+
+    /*
+    If a player within 1 tile, set direction and return true
+     */
+    private boolean canAttackPlayer() {
+        // player position
+        int px = (int) getTileWorldCoordinates().getX();
+        int py = (int) getTileWorldCoordinates().getY();
+
+        // character position
+        int cx;
+        int cy;
+        for (Character ch : dc.characters) {
+            if (ch.ai || ch.equals(this)) {     // ignore ai players
+                continue;
+            }
+
+            cx = (int) ch.getTileWorldCoordinates().getX();
+            cy = (int) ch.getTileWorldCoordinates().getY();
+
+            // player is above
+            if (cy == py - 1 && cx == px) {
+                canMove = false;
+                direction = "walk_up";
+                return true;
+            }
+            else if (cy == py + 1 && cx == px) {
+                canMove = false;
+                direction = "walk_down";
+                return true;
+            }
+            else if (cy == py && cx == px - 1) {
+                canMove = false;
+                direction = "walk_left";
+                return true;
+            }
+            else if (cy == py && cx == px + 1) {
+                canMove = false;
+                direction = "walk_right";
+                return true;
+            }
         }
         return false;
     }
@@ -536,6 +590,7 @@ public class Character extends MovingEntity {
      * @param action a new animations action to be selected
      */
     public void updateAnimation(String action) {
+        System.out.println("Setting animation to: " + action);
         if (action != null) {
             this.action = action;
             Vector sc = animate.getPosition();
