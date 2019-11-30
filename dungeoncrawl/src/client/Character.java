@@ -15,7 +15,6 @@ public class Character extends MovingEntity {
     private boolean canMove = true;
     private boolean nearEdge = false;
     public boolean ai;
-    private boolean attack;
     private int movesLeft;
     private int moveSpeed;
     int ox;             // origin x
@@ -30,6 +29,8 @@ public class Character extends MovingEntity {
     ArrayList<Arrow> arrows;
     float[][] weights;
     int range;          // range to player in tiles to use dijkstra's
+    private int attackTimer = 0;
+
 
     /**
      * Create a new Character (wx, wy)
@@ -62,7 +63,6 @@ public class Character extends MovingEntity {
         shortest = new ArrayList<>();
         arrows = new ArrayList<>();
         range = 10;
-        attack = false;
     }
 
     public Vector getOrigin() {
@@ -129,6 +129,8 @@ public class Character extends MovingEntity {
                 setHitPoints(150);
                 setArmorPoints(100);
                 setAnimationSpeed(25);
+                setAttackDamage(1);
+                setAttackSpeed(300);
                 break;
             default:
                 System.out.println("ERROR: No matching Character type specified." +
@@ -223,28 +225,42 @@ public class Character extends MovingEntity {
      * Move the AI randomly until the character is within range
      * This is the method that should be called from the level class to move the AI
      */
-    public void moveAI() {
-//        if (true)
-//            return;
+    public void moveAI(int delta) {
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
         String next = null;
         String currentDirection = direction;
+
+        // regulates how fast the AI can attack
+
+
         // moved the character fixed to the grid
         if (!canMove) {
-//            System.out.println("DirectioN: " + direction);
-//            updateAnimation(direction);
-////            animate.start();
+            // update the animation to walking
+            if (!direction.equals(currentAction)) {
+                currentAction = direction;
+                updateAnimation(direction);
+                animate.start();
+            }
             moveTranslationHelper(getWorldCoordinates());
             return;
         }
-//        animate.stop();
 
-        // check if player is within 1 block, if so turn towards player and attack
+
+        // check if player is within 1 tile, if so turn towards player and attack
         if (canAttackPlayer()) {
+
             String action = "jab_" + direction.substring("walk_".length());
+            // update the animation to jabbing
             if (!currentAction.equals(action)) {
                 updateAnimation(action);
                 animate.start();
+            }
+            if (attackTimer <= 0) {
+                dc.hero.takeDamage(getAttackDamage(), "");
+                attackTimer = getAttackSpeed();
+            }
+            else {
+                attackTimer -= delta;
             }
             return;
         }
@@ -321,6 +337,7 @@ public class Character extends MovingEntity {
         // player position
         int px = (int) getTileWorldCoordinates().getX();
         int py = (int) getTileWorldCoordinates().getY();
+        boolean canAttack = false;
 
         // character position
         int cx;
@@ -335,27 +352,26 @@ public class Character extends MovingEntity {
 
             // player is above
             if (cy == py - 1 && cx == px) {
-                canMove = false;
                 direction = "walk_up";
-                return true;
+                canAttack = true;
             }
             else if (cy == py + 1 && cx == px) {
-                canMove = false;
+//                canMove = false;
                 direction = "walk_down";
-                return true;
+                canAttack = true;
             }
             else if (cy == py && cx == px - 1) {
-                canMove = false;
+//                canMove = false;
                 direction = "walk_left";
-                return true;
+                canAttack = true;
             }
             else if (cy == py && cx == px + 1) {
-                canMove = false;
+//                canMove = false;
                 direction = "walk_right";
-                return true;
+                canAttack = true;
             }
         }
-        return false;
+        return canAttack;
     }
 
     // get next direction based on Dijkstra shortest path
@@ -598,8 +614,8 @@ public class Character extends MovingEntity {
      */
     public void updateAnimation(String action) {
 //        System.out.println("Setting animation to: " + action);
-        currentAction = action;
         if (action != null) {
+            currentAction = action;
             this.action = action;
             Vector sc = animate.getPosition();
             animate = new AnimateEntity(sc.getX(), sc.getY(), getAnimationSpeed(), this.type);

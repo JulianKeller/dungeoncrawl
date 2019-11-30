@@ -18,6 +18,8 @@ public class MovingEntity extends Entity {
     private int initialArmorPoints = -1;
     private float mana;
     private int strength; //determines what level of items the player can pick up
+    private int attackDamage;   // determines the amount of damage AI can deal
+    private int attackSpeed;    // determines how fast the ai deal the attackDamage
     
     //boolean effects for AI
     private boolean invisible = false;
@@ -585,6 +587,23 @@ Reflection:
     public float getHitPoints(){
         return hitPoints;
     }
+
+    public void setAttackDamage(int dmg) {
+        attackDamage = dmg;
+    }
+
+    public int getAttackDamage() {
+        return attackDamage;
+    }
+
+    public void setAttackSpeed(int speed) {
+        attackSpeed = speed;
+    }
+
+    public int getAttackSpeed() {
+        return attackSpeed;
+    }
+
 
     public void setArmorPoints(int ap){
         armorPoints = ap;

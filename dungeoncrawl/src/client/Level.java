@@ -894,7 +894,7 @@ public class Level extends BasicGameState {
         // cause AI players to move around
         for( Character ch : dc.characters ) {
             if (ch.ai) {        // if the player is an AI player, move them
-                ch.moveAI();
+                ch.moveAI(delta);
             }
         }
 
