@@ -59,12 +59,24 @@ public class AnimateEntity extends Entity {
                 spritesheet = Main.MAGE_LEATHER;
                 break;
             }
-            case "mage_improved": {
-                spritesheet = Main.MAGE_IMPROVED;
+            case "mage_blue": {
+                spritesheet = Main.MAGE_BLUE;
+                break;
+            }
+            case "mage_purple": {
+                spritesheet = Main.MAGE_PURPLE;
                 break;
             }
             case "archer_leather": {
                 spritesheet = Main.ARCHER_LEATHER;
+                break;
+            }
+            case "archer_iron": {
+                spritesheet = Main.ARCHER_IRON;
+                break;
+            }
+            case "archer_green": {
+                spritesheet = Main.ARCHER_GREEN;
                 break;
             }
             case "tank_leather": {

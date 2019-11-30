@@ -230,30 +230,23 @@ public class Level extends BasicGameState {
         dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, this, true));
         
         try {
-            Main.im.plant(20, rotatedMap, 48, 80);
+            int maxcol = dc.tilesHigh;
+            int maxrow = dc.tilesWide;
+            Main.im.plant(20, rotatedMap, maxcol, maxrow);
         } catch (SlickException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return;
         }
 
-
-        // render map
-        RenderMap.setMap(dc, dc.hero);
-
-        // render map
-        RenderMap.setMap(dc, dc.hero);
-
-
-
         // render map
         RenderMap.setMap(dc, dc.hero);
 
         itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
-
-
         thrownItems = new ArrayList<ThrownItem>();
 
+        // Test Items
+        addTestItems(dc);
     }
 
     private boolean wallAdjacent(int row, int col, int[][] map){
@@ -304,15 +297,6 @@ public class Level extends BasicGameState {
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
         // render tiles
-        /*
-        for (int i = 0; i < dc.map.length; i++) {
-            for (int j = 0; j < dc.map[i].length; j++) {
-                if (dc.mapTiles[i][j] == null)
-                    continue;
-                dc.mapTiles[i][j].render(g);
-            }
-        }
-        */
         displayMap(dc, g);
 
         //render all visible items
@@ -329,7 +313,6 @@ public class Level extends BasicGameState {
         renderMessages(dc, g);
 
         //display player inventory
-        //use the dc.hero for now
         renderInventory(dc, g);
 
         // render the codex
@@ -380,7 +363,7 @@ public class Level extends BasicGameState {
         renderEquippedItems(dc, g);
 
         // draw test items
-        renderTestItems(dc, g);
+//        renderTestItems(dc, g);
 
 //         renderDebug(dc, g);
 
@@ -390,8 +373,8 @@ public class Level extends BasicGameState {
         g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
         g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
         g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
-        g.drawString("Pos: " + dc.hero.animate.getPosition(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*7));
-        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*8));
+        g.drawString("Pos: " + dc.hero.animate.getPosition(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*7));
+        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*8));
 
         if (dc.showPath) {
             renderShortestPath(dc, g);
@@ -660,9 +643,15 @@ public class Level extends BasicGameState {
      * @param g
      */
     private void renderTestItems(Main dc, Graphics g) {
-        addTestItems(dc);
+        Vector wc;
         for (DisplayItem i : dc.testItems) {
-            i.render(g);
+            wc = i.getWorldCoordinates();
+            // draw the objects on the screen
+            if (objectInRegion(dc, wc)) {
+                Vector sc = world2screenCoordinates(dc, wc);
+                i.setPosition(sc);
+                i.render(g);
+            }
         }
     }
 
@@ -672,7 +661,10 @@ public class Level extends BasicGameState {
     private void addTestItems(Main dc) {
         String[] itemList = new String[] {
                 "staff_emerald", "staff_ameythst", "staff_ruby",
-                "gloves_red", "gloves_white", "gloves_yellow"
+                "spell_emerald", "spell_ameythst", "spell_ruby",
+                "gloves_red", "gloves_white", "gloves_yellow",
+                "robes_blue", "robes_purple",
+                "archer_clothes_green", "archer_clothes_iron"
         };
         int position = 16;
         for (int i = 0; i < itemList.length; i++) {
@@ -680,7 +672,6 @@ public class Level extends BasicGameState {
             dc.testItems.add(new DisplayItem((dc.tilesize * position)- dc.offset, (dc.tilesize * 4)- dc.offset, itemList[i]));
         }
     }
-
 
 
     /*
@@ -697,8 +688,6 @@ public class Level extends BasicGameState {
             }
 
         }
-        //*/
-
     }
 
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
@@ -710,10 +699,7 @@ public class Level extends BasicGameState {
 
         g.setColor(Color.white);
         g.drawString(title, dc.tilesize + 10, dc.tilesize + 10);
-
-
         g.setColor(tmp);
-
     }
 
     private Scanner scan = new Scanner(System.in);

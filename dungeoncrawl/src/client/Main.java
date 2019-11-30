@@ -32,7 +32,6 @@ public class Main extends StateBasedGame {
     // levels
     public static final String STARTUP_BANNER = "resources/startup/startup_screen.png";
 
-
     // walls
     public static final String WALL = "resources/wall/wall_2d.png";
     public static final String WALL_TOP = "resources/wall/wall_2dtop.png";
@@ -43,7 +42,6 @@ public class Main extends StateBasedGame {
     public static final String SHADOW_FLOOR_R = "resources/floor/floor_2d_shadow_right.png";
     public static final String SHADOW_FLOOR_CORNER = "resources/floor/floor_2d_shadow_corner.png";
     public static final String SHADOW_FLOOR_DOUBLE_CORNER = "resources/floor/floor_2d_dual_shadows.png";
-
 
     // path finding arrows
     public static final String ARROW_U = "resources/arrows/up.png";
@@ -58,10 +56,13 @@ public class Main extends StateBasedGame {
 
     // Mage
     public static final String MAGE_LEATHER = "resources/mage/mage_leather.png";
-    public static final String MAGE_IMPROVED = "resources/mage/mage_improved.png";
+    public static final String MAGE_BLUE = "resources/mage/mage_blue.png";
+    public static final String MAGE_PURPLE = "resources/mage/mage_purple.png";
 
     // Archer
     public static final String ARCHER_LEATHER = "resources/archer/archer_leather.png";
+    public static final String ARCHER_IRON = "resources/archer/archer_iron.png";
+    public static final String ARCHER_GREEN = "resources/archer/archer_green.png";
 
     // Tank
     public static final String TANK_LEATHER = "resources/tank/tank_leather.png";
@@ -89,6 +90,14 @@ public class Main extends StateBasedGame {
     // Armor
     public static final String ARMOR_GOLD = "resources/armor/gold_armor.png";
     public static final String ARMOR_IRON = "resources/armor/iron_armor.png";
+
+    // robes
+    public static final String ROBES_BLUE = "resources/robes/robes-blue.png";
+    public static final String ROBES_PURPLE = "resources/robes/robes-purple.png";
+
+    // archer clothes
+    public static final String ARCHER_CLOTHES_GREEN = "resources/archer_clothes/archer-green.png";
+    public static final String ARCHER_CLOTHES_IRON = "resources/archer_clothes/archer-iron.png";
 
     // Swords
     public static final String SWORD_WOOD = "resources/swords/wood_sword.png";
@@ -129,6 +138,11 @@ public class Main extends StateBasedGame {
     public static final String STAFF_RUBY = "resources/staffs/staff-red.png";
     public static final String STAFF_EMERALD = "resources/staffs/staff-green.png";
     public static final String STAFF_AMETHYST = "resources/staffs/staff-purple.png";
+
+    // spells
+    public static final String SPELL_RED = "resources/spells/spell-red.png";
+    public static final String SPELL_GREEN = "resources/spells/spell-green.png";
+    public static final String SPELL_PURPLE = "resources/spells/spell-purple.png";
 
     // gloves
     public static final String GLOVES_REGENERATION = "resources/gloves/gloves-red.png";
@@ -249,10 +263,13 @@ public class Main extends StateBasedGame {
 
         // MAGE
         ResourceManager.loadImage(MAGE_LEATHER);
-        ResourceManager.loadImage(MAGE_IMPROVED);
+        ResourceManager.loadImage(MAGE_BLUE);
+        ResourceManager.loadImage(MAGE_PURPLE);
 
         // ARCHER
         ResourceManager.loadImage(ARCHER_LEATHER);
+        ResourceManager.loadImage(ARCHER_IRON);
+        ResourceManager.loadImage(ARCHER_GREEN);
 
         // TANK
         ResourceManager.loadImage(TANK_LEATHER);
@@ -278,6 +295,14 @@ public class Main extends StateBasedGame {
         // ARMOR
         ResourceManager.loadImage(ARMOR_GOLD);
         ResourceManager.loadImage(ARMOR_IRON);
+
+        // ARCHER CLOTHES
+        ResourceManager.loadImage(ARCHER_CLOTHES_GREEN);
+        ResourceManager.loadImage(ARCHER_CLOTHES_IRON);
+
+        // ROBES
+        ResourceManager.loadImage(ROBES_BLUE);
+        ResourceManager.loadImage(ROBES_PURPLE);
 
         // SWORDS
         ResourceManager.loadImage(SWORD_IRON);
@@ -318,6 +343,11 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(STAFF_RUBY);
         ResourceManager.loadImage(STAFF_AMETHYST);
         ResourceManager.loadImage(STAFF_EMERALD);
+
+        // SPELLS
+        ResourceManager.loadImage(SPELL_GREEN);
+        ResourceManager.loadImage(SPELL_RED);
+        ResourceManager.loadImage(SPELL_PURPLE);
 
         // GLOVES
         ResourceManager.loadImage(GLOVES_REFLECTION);
