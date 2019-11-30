@@ -8,6 +8,9 @@
 [26] - add in sound
 [27] - refactor main to use a splash screen 
 [28] - write method to be called in enter() on the client to generate all the AI characters
+[29] - order characters on screen so they draw correctly
+[30] - adjust AI so they take each other into account when pathfinding
+[31] - implement player AI effects
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
