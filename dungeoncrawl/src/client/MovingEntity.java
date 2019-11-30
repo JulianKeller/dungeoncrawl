@@ -626,22 +626,18 @@ Reflection:
     
     public void doubleMoveSpeed(){
         if (movementSpeed >= 32) {
-            System.out.println("Speed at Maximum: " + movementSpeed);
             return;
         }
         setAnimationSpeed(getAnimationSpeed() / 2);
         movementSpeed *= 2;
-        System.out.println("Speed increased to: " + movementSpeed);
     }
     
     public void halfMoveSpeed(){
         if (movementSpeed <= 1) {
-            System.out.println("Speed at Minimum: " + movementSpeed);
             return;
         }
         setAnimationSpeed(getAnimationSpeed() * 2);
         movementSpeed /= 2;
-        System.out.println("Speed Decreased to: " + movementSpeed);
     }
     
     /**

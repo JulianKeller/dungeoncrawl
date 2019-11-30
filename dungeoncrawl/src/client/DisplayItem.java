@@ -112,6 +112,24 @@ public class DisplayItem extends Entity {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_SWIFTNESS));
                 break;
             }
+            // robes
+            case "robes_blue": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ROBES_BLUE));
+                break;
+            }
+            case "robes_purple": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ROBES_PURPLE));
+                break;
+            }
+            // archer clothes
+            case "archer_clothes_green": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ARCHER_CLOTHES_GREEN));
+                break;
+            }
+            case "archer_clothes_iron": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ARCHER_CLOTHES_IRON));
+                break;
+            }
         }
     }
 
