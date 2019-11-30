@@ -105,7 +105,7 @@ public class ItemManager {
 		currentItemID++;
 	}
 	
-	public void plant(int numItems, int[][] map, int maxcol, int maxrow) throws SlickException{
+	public void plant(int numItems, int[][] map, int maxcol, int maxrow) throws SlickException {
 
 		rand.setSeed(System.nanoTime());
 

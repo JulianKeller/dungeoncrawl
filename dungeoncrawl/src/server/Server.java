@@ -1,7 +1,11 @@
 package server;
 
+import client.Main;
+import org.newdawn.slick.SlickException;
+
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.concurrent.*;
 
 public class Server extends Thread{
@@ -37,6 +41,13 @@ public class Server extends Thread{
             ServerSocket ss = new ServerSocket(5000);
             // Generate the map
             map = LoadMap.getRandomMap();
+
+            // TODO generate AI characters
+            //
+//            Arraylist<String> AIcharacterList = Spawn.spawnEnemies(map, 20);
+
+            // TODO generate items here
+
             // Create a blocking queue for the threads
             BlockingQueue<String> threadQ = new LinkedBlockingQueue<>();
             // Start a Server thread that will handle distributing to the client and servers.

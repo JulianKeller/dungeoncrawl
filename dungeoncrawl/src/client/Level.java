@@ -192,6 +192,7 @@ public class Level extends BasicGameState {
         Main.im.give(a, dc.hero);
         */
 
+        // TODO move the spawnEnemies and plan methods to the Spawn class on the server
         spawnEnemies(dc, 20);
         try {
             int maxcol =  dc.map.length - 2;
@@ -1437,8 +1438,9 @@ public class Level extends BasicGameState {
     }
 
 
+    // TODO this will be called from the server side
     /**
-     * Populate the world with AI characterts
+     * Populate the world with AI characters
      */
     public void spawnEnemies(Main dc, int numItems) {
         int maxcol =  dc.map.length - 2;
