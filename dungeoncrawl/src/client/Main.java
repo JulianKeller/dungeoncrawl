@@ -213,8 +213,10 @@ public class Main extends StateBasedGame {
         ScreenHeight = height;
         mapWidth = 0;
         mapHeight = 0;
-
         tilesize = 32;
+        tilesHigh = ScreenHeight/tilesize;
+        tilesWide = ScreenWidth/tilesize;
+
         offset = tilesize/2;
         doubleOffset = offset/2;
         xOffset = tilesize - doubleOffset;

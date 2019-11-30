@@ -30,8 +30,6 @@ import jig.ResourceManager;
 
 public class Level extends BasicGameState {
     private Boolean paused;
-    int currentOX;
-    int currentOY;
     private Random rand;
     private int serverId;
 
@@ -113,27 +111,12 @@ public class Level extends BasicGameState {
             System.exit(1);
         }
         paused = false;
-        dc.tilesWide = dc.ScreenWidth/dc.tilesize;
-        dc.tilesHigh = dc.ScreenHeight/dc.tilesize;
 
         messagebox = new Message[messages]; //display four messages at a time
-
-        // TODO This section is the original map generator.
-//            dc.map = client.RenderMap.getDebugMap(dc);
-//            try {
-//                dc.map = client.RenderMap.getRandomMap();        // grab a randomly generated map
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            // server.Server sockets for reading/writing to server.
 
         this.socket = dc.socket;
         this.dis = dc.dis;
         this.dos = dc.dos;
-
-
-        //dc.map = RenderMap.getDebugMap(dc);
-        ///*
-
 
         // TODO this section requires that you run the server prior to client.Main.
         // Grab the map from the server.Server
@@ -145,17 +128,6 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
 
-
-        // use the debug map instead
-//        dc.map = RenderMap.getDebugMap();
-//        try {
-//            dc.map = RenderMap.getDebugMap2();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-        //*/
-        //dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
 
         //rotated map verified correct
@@ -167,8 +139,6 @@ public class Level extends BasicGameState {
                 rotatedMap[j][i] = dc.map[i][j];
             }
         }
-
-
 
         // initialize itemsToRender
         itemsToRender = new ArrayList<>();
@@ -188,7 +158,6 @@ public class Level extends BasicGameState {
 		}
 
         // map variables
-        //Main dc = (Main) game;
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
@@ -223,15 +192,10 @@ public class Level extends BasicGameState {
         Main.im.give(a, dc.hero);
         */
 
-
-        // setup a skeleton enemy
-        wx = (dc.tilesize * 20) - dc.offset;
-        wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
-        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, this, true));
-        
+        spawnEnemies(dc, 20);
         try {
-            int maxcol = dc.tilesHigh;
-            int maxrow = dc.tilesWide;
+            int maxcol =  dc.map.length - 2;
+            int maxrow = dc.map[0].length - 2;
             Main.im.plant(20, rotatedMap, maxcol, maxrow);
         } catch (SlickException e) {
             // TODO Auto-generated catch block
@@ -242,11 +206,10 @@ public class Level extends BasicGameState {
         // render map
         RenderMap.setMap(dc, dc.hero);
 
-        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
         thrownItems = new ArrayList<ThrownItem>();
 
         // Test Items
-        addTestItems(dc);
+//        addTestItems(dc);
     }
 
     private boolean wallAdjacent(int row, int col, int[][] map){
@@ -267,8 +230,6 @@ public class Level extends BasicGameState {
             return true;
         }
         return false;
-
-
     }
 
 
@@ -279,7 +240,7 @@ public class Level extends BasicGameState {
         itemLockTimers = new ArrayList<ItemLockTimer>();
 
         //TODO: make the restoration boundary cover only the screen area + a buffer
-        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
+//        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
 
 
@@ -380,7 +341,6 @@ public class Level extends BasicGameState {
             renderShortestPath(dc, g);
             renderPathWeights(dc, g);
         }
-
     }
 
     /** Renders the AI's shortest path
@@ -398,7 +358,6 @@ public class Level extends BasicGameState {
                 a.render(g);
             }
         }
-
     }
 
     /**
@@ -905,8 +864,7 @@ public class Level extends BasicGameState {
                 System.out.println("Locked dropped item.");
 
                 //add the item to the render list
-                // TODO may need to be changed to be added to worldItems
-                itemsToRender.add(itm);
+//                itemsToRender.add(itm);
 
                 addMessage("Dropped "+dc.hero.getEquipped()[selectedEquippedItem]+".");
             }else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
@@ -1477,6 +1435,33 @@ public class Level extends BasicGameState {
         float sy = wc.getY() - dc.hero.pixelY;
         return new Vector(sx, sy);
     }
+
+
+    /**
+     * Populate the world with AI characterts
+     */
+    public void spawnEnemies(Main dc, int numItems) {
+        int maxcol =  dc.map.length - 2;
+        int maxrow = dc.map[0].length - 2;
+        Random rand = new Random();
+        while( numItems > 0 ){
+            int col = rand.nextInt(maxcol);
+            int row = rand.nextInt(maxrow);
+            while(row < 2 || col < 2 || dc.map[col][row] == 1){
+                col = rand.nextInt(maxcol) - 1;
+                row = rand.nextInt(maxrow) - 1;
+                System.out.printf("getting %s, %s\n", col, row);
+            }
+            System.out.printf("\nSpawning at %s, %s\n", col, row);
+            float wx = (dc.tilesize * row) - dc.offset;
+            float wy = (dc.tilesize * col) - dc.tilesize - dc.doubleOffset;
+            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
+
+            //create a random item at the given position
+            numItems--;
+        }
+    }
+
 
 
 }

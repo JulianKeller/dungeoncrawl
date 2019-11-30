@@ -108,12 +108,12 @@ public class ItemManager {
 	public void plant(int numItems, int[][] map, int maxcol, int maxrow) throws SlickException{
 
 		rand.setSeed(System.nanoTime());
-		
+
 		//int[][] potionAt = new int[game.map.length][game.map.length];
-		
-		
+
+
 		while( numItems > 0 ){
-			
+
 			int col = rand.nextInt(maxcol);
 			int row = rand.nextInt(maxrow);
 			//Vector wc = new Vector( rand.nextInt(maxx), rand.nextInt(maxy) );
@@ -181,7 +181,6 @@ public class ItemManager {
 		}
 
 	}
-
 
 
 	public ArrayList<Item> itemsInRegion(Vector min, Vector max){

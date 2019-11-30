@@ -41,6 +41,7 @@ public class Character extends MovingEntity {
     public Character(Main dc, final float wx, final float wy, String type, int id, Level level, boolean AI) {
         super(wx, wy, id, level);
 
+        System.out.println("Character added at: " + getWorldCoordinates());
         this.dc = dc;
         this.type = type;
         setStats();
@@ -516,9 +517,10 @@ public class Character extends MovingEntity {
         float wx = (ox * dc.tilesize) + sc.getX();
         float wy = (oy * dc.tilesize) + sc.getY();
         setWorldCoordinates(wx, wy);    // world coordinates
-        
+
         //set the world coordinates to the origin times the tile size plus the character's screen coords
     }
+
 
 
 }
