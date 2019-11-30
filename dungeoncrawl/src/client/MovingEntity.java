@@ -714,7 +714,7 @@ Reflection:
         return new Vector(x, y);
     }
 
-    public Vector setNextTileWorldCoordinates(String direction) {
+    public void setNextTileWorldCoordinates(String direction) {
         int x = (int) getTileWorldCoordinates().getX();
         int y = (int) getTileWorldCoordinates().getY();
         switch (direction) {
@@ -731,7 +731,7 @@ Reflection:
                 x += 1;
                 break;
         }
-        return new Vector(x, y);
+        nextTileWorldCoordinates = new Vector(x, y);
     }
 
     /*

@@ -61,8 +61,8 @@ public class Character extends MovingEntity {
         range = 10;
     }
 
-    public Vector getOrigin(){
-    	return new Vector(ox, oy);
+    public Vector getOrigin() {
+        return new Vector(ox, oy);
     }
 
 
@@ -195,6 +195,7 @@ public class Character extends MovingEntity {
         if (movement != null) {
             movesLeft = dc.tilesize;
             // TODO calculate next Tile
+//            System.out.println("Setting next position");
             setNextTileWorldCoordinates(movement);
             if (!movement.equals(direction)) {
                 updateAnimation(movement);
@@ -210,7 +211,7 @@ public class Character extends MovingEntity {
                     canMove = true;
                     return;
                 }
-        }
+            }
             changeOrigin();     // check if the screen origin needs to change
         }
     }
@@ -221,8 +222,8 @@ public class Character extends MovingEntity {
      * This is the method that should be called from the level class to move the AI
      */
     public void moveAI() {
-        if (true)
-            return;
+//        if (true)
+//            return;
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
         String next = null;
         String currentDirection = direction;
@@ -486,8 +487,6 @@ public class Character extends MovingEntity {
     private boolean characterCollision() {
         int x = (int) getTileWorldCoordinates().getX();
         int y = (int) getTileWorldCoordinates().getY();
-        int cx = x; // current x, y
-        int cy = y;
         int chX;
         int chY;
         switch (direction) {
@@ -510,14 +509,18 @@ public class Character extends MovingEntity {
             }
             chX = (int) ch.getTileWorldCoordinates().getX();
             chY = (int) ch.getTileWorldCoordinates().getY();
-
-            System.out.printf("This current: %s, %s -> next: %s, %s\n", x, y, getNextTileWorldCoordinates().getX(), getNextTileWorldCoordinates().getY());
-            System.out.printf("Other current: %s, %s -> next: %s, %s\n\n", chX, chY, ch.getNextTileWorldCoordinates().getX(), ch.getNextTileWorldCoordinates().getY());
-//              && (collides(ch) != null)
-            if ((chX == x && chY == y) ||
-//                (chX == cx && chY == cy) ||
-                (getNextTileWorldCoordinates().getX() == ch.getNextTileWorldCoordinates().getX() &&
-                getNextTileWorldCoordinates().getY() == ch.getNextTileWorldCoordinates().getY()) ) {
+            // if character pos == playeres next position
+            if (chX == x && chY == y) {
+                return true;
+            }
+            if ((getNextTileWorldCoordinates().getX() == ch.getNextTileWorldCoordinates().getX() &&
+                    getNextTileWorldCoordinates().getY() == ch.getNextTileWorldCoordinates().getY())) {
+                return true;
+            }
+            // else if coordinates in x and y are less than 32 pixels apart, expect collision
+            float diffX = Math.abs(getWorldCoordinates().getX() - ch.getWorldCoordinates().getX());
+            float diffY = Math.abs(getWorldCoordinates().getY() - ch.getWorldCoordinates().getY());
+            if (diffX < 32 && diffY < 32) {
                 return true;
             }
         }
@@ -572,7 +575,6 @@ public class Character extends MovingEntity {
 
         //set the world coordinates to the origin times the tile size plus the character's screen coords
     }
-
 
 
 }
