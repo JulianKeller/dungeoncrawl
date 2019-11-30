@@ -30,8 +30,6 @@ public class AnimateEntity extends Entity {
      */
     public AnimateEntity(float x, float y, int speed, String sprite) {
         super(x, y);
-//        System.out.printf("Animate Entity %s, %s\n", x, y);
-        //this.action = action;
         this.speed = speed;
         this.sprite = sprite;
         this.spritesheet = getSpritesheet();
@@ -246,6 +244,9 @@ public class AnimateEntity extends Entity {
                 endx = 5;
                 break;
             }
+        }
+        if (animation != null) {
+            removeAnimation(animation);
         }
         animation = new Animation(ResourceManager.getSpriteSheet(spritesheet, spritesize, spritesize), startx, row, endx, row, true, speed, true);
         animation.setLooping(true);

@@ -11,9 +11,11 @@ public class Character extends MovingEntity {
     AnimateEntity animate;
     private String type;
     private String direction;
+    private String currentAction;
     private boolean canMove = true;
     private boolean nearEdge = false;
     public boolean ai;
+    private boolean attack;
     private int movesLeft;
     private int moveSpeed;
     int ox;             // origin x
@@ -48,6 +50,7 @@ public class Character extends MovingEntity {
         setStats();
         animate = new AnimateEntity(wx, wy, getAnimationSpeed(), this.type);
         direction = "walk_down";
+        currentAction = direction;
         animate.selectAnimation(direction);
         animate.stop();
         ox = 0;
@@ -59,6 +62,7 @@ public class Character extends MovingEntity {
         shortest = new ArrayList<>();
         arrows = new ArrayList<>();
         range = 10;
+        attack = false;
     }
 
     public Vector getOrigin() {
@@ -202,7 +206,7 @@ public class Character extends MovingEntity {
                 animate.start();
             }
             canMove = false;
-//            // if collisions are on
+            // if collisions are on
             if (dc.collisions) {
                 // if no wall collisions and no character collisions, then player can move again
                 if (wallCollision() || characterCollision()) {
@@ -233,15 +237,18 @@ public class Character extends MovingEntity {
             moveTranslationHelper(getWorldCoordinates());
             return;
         }
+//        animate.stop();
 
-        // TODO check if player is within 1 block, if so turn towards player and attack
+        // check if player is within 1 block, if so turn towards player and attack
         if (canAttackPlayer()) {
-            // TODO set animation
             String action = "jab_" + direction.substring("walk_".length());
-//            animate.start();
-            updateAnimation(action);
+            if (!currentAction.equals(action)) {
+                updateAnimation(action);
+                animate.start();
+            }
             return;
         }
+
 
         // run dijkstra's so enemies attack the player
         if (playerNearby(range)) {
@@ -590,7 +597,8 @@ public class Character extends MovingEntity {
      * @param action a new animations action to be selected
      */
     public void updateAnimation(String action) {
-        System.out.println("Setting animation to: " + action);
+//        System.out.println("Setting animation to: " + action);
+        currentAction = action;
         if (action != null) {
             this.action = action;
             Vector sc = animate.getPosition();
