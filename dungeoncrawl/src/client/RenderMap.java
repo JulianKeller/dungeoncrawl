@@ -16,22 +16,10 @@ This class exists for the purpose of rendering the floors and walls of the map.
  */
 public class RenderMap extends Entity {
 
-    // grabs a random map and returns it as a 2d array
-    public static int[][] getRandomMap() throws IOException {
-        File f;
-        if( System.getProperty("os.name").toLowerCase().contains("windows")){
-        	f = new File("src/maps");
-        }else{
-        	f = new File("dungeoncrawl/src/maps");
-        }
-        Random r = new Random();
-        int rand = r.nextInt(100);
-        String filepath = f.getAbsolutePath() + "/map" + rand + ".txt";
-        System.out.println("Loading Map: " + "map" + rand + ".txt");
-        return loadMapFromFile(Paths.get(filepath));
-    }
 
-
+    /*
+    loads a plain debug map for client testing
+     */
     public static int[][] getDebugMap2() throws IOException {
         File f;
         if( System.getProperty("os.name").toLowerCase().contains("windows")){
@@ -42,6 +30,21 @@ public class RenderMap extends Entity {
         String filepath = f.getAbsolutePath() + "/mapDebug.txt";
         System.out.println("Loading Map: " + "mapDebug.txt");
         return loadMapFromFile(Paths.get(filepath));
+    }
+
+
+    /*
+    Used for client testing
+    Based on Streams from: https://stackoverflow.com/questions/22185683/read-txt-file-into-2d-array
+    Uses Java's Stream API to convert a text file to a 2d int array
+     */
+    static public int[][] loadMapFromFile(Path path) throws IOException {
+        return Files.lines(path)                        // Read all lines from the filepath
+                .map(line -> line.split("\\s"))   // for each line, get an array chars split by spaces
+                .map((sa) -> Stream.of(sa)              // convert char array to a sequential ordered stream
+                        .mapToInt(Integer::parseInt)            // map the char array to an int stream
+                        .toArray())                             // convert the int stream to an array
+                .toArray(int[][]::new);                 // add the array to a 2d array
     }
 
     /*
@@ -94,18 +97,6 @@ public class RenderMap extends Entity {
         };
     }
 
-    /*
-    Based on Streams from: https://stackoverflow.com/questions/22185683/read-txt-file-into-2d-array
-    Uses Java's Stream API to convert a text file to a 2d int array
-     */
-    static public int[][] loadMapFromFile(Path path) throws IOException {
-        return Files.lines(path)                        // Read all lines from the filepath
-                .map(line -> line.split("\\s"))   // for each line, get an array chars split by spaces
-                .map((sa) -> Stream.of(sa)              // convert char array to a sequential ordered stream
-                .mapToInt(Integer::parseInt)            // map the char array to an int stream
-                .toArray())                             // convert the int stream to an array
-                .toArray(int[][]::new);                 // add the array to a 2d array
-    }
 
 
     /**
