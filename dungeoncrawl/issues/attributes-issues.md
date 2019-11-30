@@ -9,7 +9,6 @@
 [26] - add in sound
 [27] - refactor main to use a splash screen 
 [28] - write method to be called in enter() on the client to generate all the AI characters
-
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
