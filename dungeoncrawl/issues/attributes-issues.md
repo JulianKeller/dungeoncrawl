@@ -4,7 +4,6 @@
 ## Open Issues ##
 [12] - update floor tiles
 [13] - update wall tiles
-[24] - Refactor renderMap into client/server components
 [25] - create art for splash screen
 [26] - add in sound
 [27] - refactor main to use a splash screen 
@@ -26,3 +25,4 @@
 [20] - fix map slowing down FPS when nearing edge of screen
 [21] - update world coordinates every increment when scrolling
 [23] - make items stay in place when player scrolls on screen
+[24] - Refactor renderMap into client/server components

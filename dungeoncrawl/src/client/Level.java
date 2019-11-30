@@ -142,7 +142,6 @@ public class Level extends BasicGameState {
 
         // initialize itemsToRender
         itemsToRender = new ArrayList<>();
-//        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
 
         //find a tile with no walls in its horizontal adjacencies
         rand = new Random();
@@ -161,6 +160,7 @@ public class Level extends BasicGameState {
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
+        // TODO setting the hero coordinates/type should be done on the server
         // setup the dc.hero character
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
@@ -192,8 +192,11 @@ public class Level extends BasicGameState {
         Main.im.give(a, dc.hero);
         */
 
-        // TODO move the spawnEnemies and plan methods to the Spawn class on the server
-        spawnEnemies(dc, 20);
+        // TODO spawning enemies and items should be done on the server
+        wx = (dc.tilesize * 18) - dc.offset;
+        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
+        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
+//        spawnEnemies(dc, 20);
         try {
             int maxcol =  dc.map.length - 2;
             int maxrow = dc.map[0].length - 2;
@@ -284,7 +287,7 @@ public class Level extends BasicGameState {
         renderEquippedItems(dc, g);
 
         //display player inventory
-        //use the dc.hero for now
+//        renderInventory(dc, g);
         if( displayInventory ){
             renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
             ArrayList<Item> items = dc.hero.getInventory();
@@ -335,12 +338,14 @@ public class Level extends BasicGameState {
         g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
         g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
         g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
-        g.drawString("Pos: " + dc.hero.animate.getPosition(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*7));
+        g.drawString("Coord : " + dc.hero.animate.getPosition(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*7));
+        g.drawString("Pos   : <" + (int) dc.hero.getTileWorldCoordinates().getX() + ", " +  (int) dc.hero.getTileWorldCoordinates().getY() + ">", dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*9));
         g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*8));
+
 
         if (dc.showPath) {
             renderShortestPath(dc, g);
-            renderPathWeights(dc, g);
+//            renderPathWeights(dc, g);     // this method really only works well when one AI is present
         }
     }
 

@@ -37,6 +37,7 @@ public class MovingEntity extends Entity {
     private Item [] equipped;
     private Vector position;
     private Vector tileWorldCoordinates;
+    private Vector nextTileWorldCoordinates;
     private Main dc;
 
     
@@ -76,6 +77,7 @@ public class MovingEntity extends Entity {
         initialMovementSpeed = movementSpeed = 1;
 
         tileWorldCoordinates = getTileWorldCoordinates();
+        nextTileWorldCoordinates = tileWorldCoordinates;
 
         mana = 0;
         strength = 1;
@@ -710,6 +712,33 @@ Reflection:
         float x = Math.round((worldCoordinates.getX() + currentLevel.offset)/currentLevel.tilesize) - 1;
         float y = Math.round((worldCoordinates.getY() + currentLevel.tilesize + currentLevel.doubleOffset)/currentLevel.tilesize) - 1;
         return new Vector(x, y);
+    }
+
+    public Vector setNextTileWorldCoordinates(String direction) {
+        int x = (int) getTileWorldCoordinates().getX();
+        int y = (int) getTileWorldCoordinates().getY();
+        switch (direction) {
+            case "walk_up":
+                y -= 1;
+                break;
+            case "walk_down":
+                y += 1;
+                break;
+            case "walk_left":
+                x -= 1;
+                break;
+            case "walk_right":
+                x += 1;
+                break;
+        }
+        return new Vector(x, y);
+    }
+
+    /*
+    The players next coordinates
+     */
+    public Vector getNextTileWorldCoordinates() {
+        return nextTileWorldCoordinates;
     }
 
 
