@@ -33,7 +33,8 @@ public class Spawn {
             float wy = (tilesize * col) - tilesize - doubleOffset;
 
             // TODO will need to fix the structure of this string for parsing
-            String message = wx + " " + wy + " skeleton_basic " + System.nanoTime();   // "x y id"
+            String message = (int)System.nanoTime()+" skeleton_basic "+wx + " " + wy;   // "x y id"
+            System.out.println("Created "+message.split(" ")[0]);
             enemies.add(message);
 //            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
 

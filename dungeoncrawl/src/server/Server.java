@@ -44,7 +44,7 @@ public class Server extends Thread{
 
             // TODO generate AI characters
             //
-//            Arraylist<String> AIcharacterList = Spawn.spawnEnemies(map, 20);
+            ArrayList<String> AIcharacterList = Spawn.spawnEnemies(map, 20);
 
             // TODO generate items here
 
