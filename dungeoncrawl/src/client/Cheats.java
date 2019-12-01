@@ -17,6 +17,9 @@ public class Cheats {
 
     public static void enableCheats(Main dc, Input input) {
         // show the path of dijkstra
+        if (input.isKeyPressed(Input.KEY_0)) {
+            dc.enterState(Main.STARTUPSTATE);
+        }
         if (input.isKeyPressed(Input.KEY_1)) {
             dc.enterState(Main.LEVEL1);
         }
