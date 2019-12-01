@@ -20,6 +20,7 @@ public class SplashScreen extends BasicGameState {
     int characterOption = 0;
     boolean selectCharacter = true;
     boolean connect = false;
+    boolean enterAddress = false;
 
     
     @Override
@@ -49,11 +50,15 @@ public class SplashScreen extends BasicGameState {
         renderName(dc, g);
         renderCharacters(dc, g);
         renderIP(dc, g);
+        renderLaunch(dc, g);
         if (selectCharacter) {
             g.drawRect(160, 160, 500, 75);
         }
-        else if (connect) {
+        else if (enterAddress) {
             g.drawRect(160, 235, 500, 75);
+        }
+        else if (connect) {
+            g.drawRect(160, 310, 500, 75);
         }
     }
 
@@ -67,7 +72,11 @@ public class SplashScreen extends BasicGameState {
         if (selectCharacter) {
             selectCharacter(input);
         }
-        if (connect) { 
+        if (enterAddress) {
+            enterIP(input);
+        }
+        if (connect) {
+
             if (input.isKeyPressed(Input.KEY_ENTER)) {
                 connectToSever(dc);
             }
@@ -75,8 +84,54 @@ public class SplashScreen extends BasicGameState {
     }
 
 
+    private void enterIP(Input input) {
+        if (input.isKeyPressed(Input.KEY_0)) {
+            ip += "0";
+        }
+        else if (input.isKeyPressed(Input.KEY_1)) {
+            ip += "1";
+        }
+        else if (input.isKeyPressed(Input.KEY_2)) {
+            ip += "2";
+        }
+        else if (input.isKeyPressed(Input.KEY_3)) {
+            ip += "3";
+        }
+        else if (input.isKeyPressed(Input.KEY_4)) {
+            ip += "4";
+        }
+        else if (input.isKeyPressed(Input.KEY_5)) {
+            ip += "5";
+        }
+        else if (input.isKeyPressed(Input.KEY_6)) {
+            ip += "6";
+        }
+        else if (input.isKeyPressed(Input.KEY_7)) {
+            ip += "7";
+        }
+        else if (input.isKeyPressed(Input.KEY_8)) {
+            ip += "8";
+        }
+        else if (input.isKeyPressed(Input.KEY_9)) {
+            ip += "9";
+        }
+        else if (input.isKeyPressed(Input.KEY_PERIOD)) {
+            ip += ",";
+        }
+        else if (input.isKeyPressed(Input.KEY_COMMA)) {
+            ip += ",";
+        }
+        else if (input.isKeyPressed(Input.KEY_DELETE) || input.isKeyPressed(Input.KEY_BACK)) {
+            if (ip.length() > 0) {
+                ip = ip.substring(0, ip.length() - 1);
+            }
+        }
+    }
+
+
+
     /*
-    Allows player to choose their character
+    Allows player to choose their character, currently selected character is in red
      */
     private void selectCharacter(Input input) {
         if (input.isKeyPressed(Input.KEY_LEFT)) {
@@ -109,46 +164,62 @@ public class SplashScreen extends BasicGameState {
     }
 
     /*
-    Selects the sub menu
+    Selects the sub menu, outlines it in a white box
      */
     private void selectNextSubMenu(Input input) {
-        if (input.isKeyPressed(Input.KEY_UP)) {
+
+        if (input.isKeyPressed(Input.KEY_DOWN)) {
+            if (menuOption >= 2) {
+                menuOption = 2;
+            }
+            else {
+                menuOption++;
+            }
+        }
+        else if (input.isKeyPressed(Input.KEY_UP)) {
             if (menuOption <= 0) {
                 menuOption = 0;
-                return;
             }
-            menuOption--;
-        }
-        else if (input.isKeyPressed(Input.KEY_DOWN)) {
-            if (menuOption >= 2) {
-                menuOption = 1;
-                return;
+            else {
+                menuOption--;
             }
-            menuOption++;
         }
 
         switch (menuOption) {
-            case 1:
+            case 0:
                 selectCharacter = true;
+                enterAddress = false;
+                connect = false;
+                break;
+            case 1:
+                selectCharacter = false;
+                enterAddress = true;
                 connect = false;
                 break;
             case 2:
                 selectCharacter = false;
+                enterAddress = false;
                 connect = true;
                 break;
             default:
                 selectCharacter = true;
+                enterAddress = false;
                 connect = false;
+                break;
 
         }
-//        SubMenu sub = menus.get(menuOption);
-//        sub.selected = true;
-//        for (SubMenu s : menus) {
-//            if (s.equals(sub)) {
-//                continue;
-//            }
-//            s.selected = false;
-//        }
+    }
+
+
+    private void renderLaunch(Main dc, Graphics g) {
+        Color tmp = g.getColor();
+        g.setColor(new Color(255, 255, 255, 1f));
+        g.drawString("Press ", 200, 325);
+        g.setColor(new Color(0, 255, 0, 1f));
+        g.drawString("<enter>", 255, 325);
+        g.setColor(new Color(255, 255, 255, 1f));
+        g.drawString(" to start the game.", 320, 325);
+        g.setColor(tmp);
     }
 
     /**
@@ -160,9 +231,7 @@ public class SplashScreen extends BasicGameState {
         Color tmp = g.getColor();
         g.setColor(new Color(255, 255, 255, 1f));
         g.drawString("Enter Server IP Address:", 200, 250);
-
         g.drawString(ip, 200, 275);
-
         g.setColor(tmp);
     }
 
