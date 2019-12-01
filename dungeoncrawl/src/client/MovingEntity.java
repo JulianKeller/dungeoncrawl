@@ -18,6 +18,8 @@ public class MovingEntity extends Entity {
     private int initialArmorPoints = -1;
     private float mana;
     private int strength; //determines what level of items the player can pick up
+    private int attackDamage;   // determines the amount of damage AI can deal
+    private int attackSpeed;    // determines how fast the ai deal the attackDamage
     
     //boolean effects for AI
     private boolean invisible = false;
@@ -37,7 +39,9 @@ public class MovingEntity extends Entity {
     private Item [] equipped;
     private Vector position;
     private Vector tileWorldCoordinates;
+    private Vector nextTileWorldCoordinates;
     private Main dc;
+
     
     //random number generator
     private Random rand = new Random();
@@ -75,6 +79,7 @@ public class MovingEntity extends Entity {
         initialMovementSpeed = movementSpeed = 1;
 
         tileWorldCoordinates = getTileWorldCoordinates();
+        nextTileWorldCoordinates = tileWorldCoordinates;
 
         mana = 0;
         strength = 1;
@@ -400,7 +405,17 @@ Reflection:
     }
 
     public void addItem(Item i){
-        inventory.add(i);
+    	boolean add = true;
+    	for( Item itm : inventory ){
+    		if( itm.equals(i) ){
+    			itm.count += i.count;
+    			add = false;
+    			break;
+    		}
+    	}
+    	if( add ){
+    		inventory.add(i);
+    	}
         if( i.isIdentified() && i.getType().equals("Potion") ){
         	addToCodex(i);
         }
@@ -435,11 +450,35 @@ Reflection:
     					addToCodex(inventory.get(i));
     				}
     			}
-    			return inventory.remove(i);
+    			//return inventory.remove(i);
+    			if( inventory.get(i).count == 1 ){
+    				return inventory.remove(i);
+    			}else{
+    				inventory.get(i).count--;
+    				return inventory.get(i);
+    			}
     		}
     	}
     	return null;
         //inventory.removeIf(item -> item.getID() == i_id);
+    }
+    
+    public Item discardItem(Item i, boolean use){
+    	if( i.count == 1 ){
+    		inventory.remove(i);
+    	}else{
+    		i.count--;
+    	}
+    	
+    	if( use ){
+    		i.identify();
+    	}
+    	
+    	if( i.getType().equals("Potion") ){
+    		addToCodex(i);
+    	}
+    	
+    	return i;
     }
     
     public String equipItem(int index){
@@ -545,9 +584,31 @@ Reflection:
         	startingHitPoints = hitPoints;
         }
     }
+
+    public float getStartingHitPoints() {
+        return startingHitPoints;
+    }
+
     public float getHitPoints(){
         return hitPoints;
     }
+
+    public void setAttackDamage(int dmg) {
+        attackDamage = dmg;
+    }
+
+    public int getAttackDamage() {
+        return attackDamage;
+    }
+
+    public void setAttackSpeed(int speed) {
+        attackSpeed = speed;
+    }
+
+    public int getAttackSpeed() {
+        return attackSpeed;
+    }
+
 
     public void setArmorPoints(int ap){
         armorPoints = ap;
@@ -591,22 +652,18 @@ Reflection:
     
     public void doubleMoveSpeed(){
         if (movementSpeed >= 32) {
-            System.out.println("Speed at Maximum: " + movementSpeed);
             return;
         }
         setAnimationSpeed(getAnimationSpeed() / 2);
         movementSpeed *= 2;
-        System.out.println("Speed increased to: " + movementSpeed);
     }
     
     public void halfMoveSpeed(){
         if (movementSpeed <= 1) {
-            System.out.println("Speed at Minimum: " + movementSpeed);
             return;
         }
         setAnimationSpeed(getAnimationSpeed() * 2);
         movementSpeed /= 2;
-        System.out.println("Speed Decreased to: " + movementSpeed);
     }
     
     /**
@@ -641,6 +698,7 @@ Reflection:
     public Vector getPosition(){
         return position;
     }
+
     /**
      * Sets the moving entity's worldcoordinates
      * @param wc Vector to set entity's world coordinates.
@@ -678,6 +736,33 @@ Reflection:
         float x = Math.round((worldCoordinates.getX() + currentLevel.offset)/currentLevel.tilesize) - 1;
         float y = Math.round((worldCoordinates.getY() + currentLevel.tilesize + currentLevel.doubleOffset)/currentLevel.tilesize) - 1;
         return new Vector(x, y);
+    }
+
+    public void setNextTileWorldCoordinates(String direction) {
+        int x = (int) getTileWorldCoordinates().getX();
+        int y = (int) getTileWorldCoordinates().getY();
+        switch (direction) {
+            case "walk_up":
+                y -= 1;
+                break;
+            case "walk_down":
+                y += 1;
+                break;
+            case "walk_left":
+                x -= 1;
+                break;
+            case "walk_right":
+                x += 1;
+                break;
+        }
+        nextTileWorldCoordinates = new Vector(x, y);
+    }
+
+    /*
+    The players next coordinates
+     */
+    public Vector getNextTileWorldCoordinates() {
+        return nextTileWorldCoordinates;
     }
 
 

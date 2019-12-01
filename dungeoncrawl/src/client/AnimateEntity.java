@@ -30,8 +30,6 @@ public class AnimateEntity extends Entity {
      */
     public AnimateEntity(float x, float y, int speed, String sprite) {
         super(x, y);
-//        System.out.printf("Animate Entity %s, %s\n", x, y);
-        //this.action = action;
         this.speed = speed;
         this.sprite = sprite;
         this.spritesheet = getSpritesheet();
@@ -59,12 +57,24 @@ public class AnimateEntity extends Entity {
                 spritesheet = Main.MAGE_LEATHER;
                 break;
             }
-            case "mage_improved": {
-                spritesheet = Main.MAGE_IMPROVED;
+            case "mage_blue": {
+                spritesheet = Main.MAGE_BLUE;
+                break;
+            }
+            case "mage_purple": {
+                spritesheet = Main.MAGE_PURPLE;
                 break;
             }
             case "archer_leather": {
                 spritesheet = Main.ARCHER_LEATHER;
+                break;
+            }
+            case "archer_iron": {
+                spritesheet = Main.ARCHER_IRON;
+                break;
+            }
+            case "archer_green": {
+                spritesheet = Main.ARCHER_GREEN;
                 break;
             }
             case "tank_leather": {
@@ -234,6 +244,9 @@ public class AnimateEntity extends Entity {
                 endx = 5;
                 break;
             }
+        }
+        if (animation != null) {
+            removeAnimation(animation);
         }
         animation = new Animation(ResourceManager.getSpriteSheet(spritesheet, spritesize, spritesize), startx, row, endx, row, true, speed, true);
         animation.setLooping(true);

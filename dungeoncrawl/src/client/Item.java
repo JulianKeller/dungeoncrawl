@@ -24,6 +24,10 @@ public class Item extends StationaryObject{
 	
 	private Random rand;
 	
+	public int count; //the number of this item in the inventory
+	private int requiredLevel;
+	//private String requiredClasses = "";
+	private String[] requiredClasses = {"", "", "", ""};
 	
 	public Item(Vector wc, boolean locked, int id, int oid) throws SlickException{
 		super(wc, locked); //superconstructor
@@ -34,42 +38,89 @@ public class Item extends StationaryObject{
 		this.id = id;
 		this.oid = oid;
 		
+		count = 1;
+		
 		//first get the item type
-		//this.type = client.Main.ItemTypes[ rand.nextInt(client.Main.ItemTypes.length) ];
 		
 		//currently developed item types, for debugging purposes only
-		String[] currentTypes = {"Potion", "Sword", "Armor", "Arrow"};
-		//TODO
-		this.type = currentTypes[ rand.nextInt(currentTypes.length) ];
+		//String[] currentTypes = {"Potion", "Sword", "Armor", "Arrow"};
+		
+		//rarity: armor, sword/other weapons, potion, arrow
+		//armor: 20%, sword: 30%, potion: 40%, arrow: 50%
+		int r = rand.nextInt(100);
+		if( r < 20 ){
+			type = "Armor";
+			requiredClasses[0] = "knight";
+			requiredClasses[1] = "tank";
+		}else if( r < 30 ){
+			type = "Sword";
+			requiredClasses[0] = "knight";
+		}else if( r < 40 ){
+			type = "Potion";
+			requiredClasses[0] = "knight";
+			requiredClasses[1] = "tank";
+			requiredClasses[2] = "mage";
+			requiredClasses[3] = "archer";
+		}else{
+			type = "Arrow";
+			requiredClasses[0] = "archer";
+		}
+		
 		
 		//choose materials from the appropriate list
+		
+		r = rand.nextInt(100);
+		
 		if( type.equals("Sword") ){
-			this.material = Main.SwordMaterials[ rand.nextInt(Main.SwordMaterials.length) ];
+			if( r < 20 ){
+				material = "Gold";
+			}else if( r < 40 ){
+				material = "Iron";
+			}else{
+				material = "Wooden";
+			}
 		}else if( type.equals("Armor") ){
-			this.material = Main.ArmorMaterials[ rand.nextInt(Main.ArmorMaterials.length) ];
+			if( r < 30 ){
+				material = "Gold";
+			}else{
+				material = "Iron";
+			}
 		}else if( type.equals("Staff") ){
 			this.material = Main.StaffMaterials[ rand.nextInt(Main.StaffMaterials.length) ];
 		}else if( type.equals("Glove") ){
-			this.material = Main.GloveMaterials[ rand.nextInt(Main.GloveMaterials.length) ];
+			if( r < 20 ){
+				material = "Gold";
+			}else if( r < 50 ){
+				material = "Iron";
+			}else{
+				material = "Leather";
+			}
 		}else{
 			this.material = "";
 		}
 		
 		//choose effects from the appropriate list
-		if( type.equals("Sword") ){
-			this.effect = Main.SwordEffects[ rand.nextInt(Main.SwordEffects.length) ];
-		}else if( type.equals("Armor") ){
-			this.effect = Main.ArmorEffects[ rand.nextInt(Main.ArmorEffects.length) ];
+		//chance of effect: 50%
+		r = rand.nextInt(100);
+		if ( r < 50 ){
+			if( type.equals("Sword") ){
+				this.effect = Main.SwordEffects[ rand.nextInt(Main.SwordEffects.length) ];
+			}else if( type.equals("Armor") ){
+				this.effect = Main.ArmorEffects[ rand.nextInt(Main.ArmorEffects.length) ];
+			}else if( type.equals("Glove") ){
+				this.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
+			}else if( type.equals("Arrow") ){
+				this.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
+			}else{
+				this.effect = "";
+			}
+		//except potions and staffs, which will always have an effect
+		}else if( type.equals("Potion") ){
+				this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
 		}else if( type.equals("Staff") ){
 			this.effect = Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ];
-		}else if( type.equals("Glove") ){
-			this.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
-		}else if( type.equals("Potion") ){
-			this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
-		}else if( type.equals("Arrow") ){
-			this.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
 		}else{
-			this.effect = "";
+			effect = "";
 		}
 		
 		//items have a 50% chance to be cursed (for now?)
@@ -85,7 +136,7 @@ public class Item extends StationaryObject{
 
 		//get an image based on item type
 		if( type.equals("Potion") ){
-			int r = rand.nextInt(5);
+			r = rand.nextInt(5);
 			switch( r ){
 			case 0:
 				this.image = ResourceManager.getImage(Main.POTION_BLUE);
@@ -143,7 +194,7 @@ public class Item extends StationaryObject{
 		}
 	}
 	
-	public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image){
+	public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image, int count){
 		super(wc, locked);
 		//create item with given properties
 		this.id = id;
@@ -154,8 +205,36 @@ public class Item extends StationaryObject{
 		this.cursed = cursed;
 		this.identified = identified;
 		this.image = image;
+		this.count = count;
 	}
 	
+	
+	public boolean equals(Item b){
+		if( getMaterial().equals(b.getMaterial()) && getType().equals(b.getType()) && getEffect().equals(b.getEffect()) ){
+			return true;
+		}
+		return false;
+	}
+	
+	public String toString(){
+		String tmp = "";
+		
+		if( isIdentified() ){
+			if( getMaterial() != "" ){
+				tmp = tmp + getMaterial() + " ";
+			}
+			tmp = tmp + getType();
+			if( getEffect() != "" ){
+				tmp = tmp + " of " + getEffect();
+			}
+		}else{
+			if( getMaterial() != "" ){
+				tmp = tmp + getMaterial() + " ";
+			}
+			tmp = tmp + getType();
+		}
+		return tmp;
+	}
 	
 	//getter functions
 	public int getID(){
@@ -185,6 +264,12 @@ public class Item extends StationaryObject{
 	public boolean isLocked(){
 		return super.isLocked();
 	}
+	public String[] getRequiredClasses(){
+		return requiredClasses;
+	}
+	public int getRequiredLevel(){
+		return requiredLevel;
+	}
 	
 	//setter functions
 	public void setOID( int oid ){
@@ -201,6 +286,9 @@ public class Item extends StationaryObject{
 	}
 	public void unlock(){
 		super.unlock();
+	}
+	public void setRequiredLevel(int level){
+		requiredLevel = level;
 	}
 	
 	//render function

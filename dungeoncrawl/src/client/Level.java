@@ -10,7 +10,6 @@ import java.util.Random;
 import java.util.Scanner;
 
 
-import org.lwjgl.Sys;
 
 import jig.Vector;
 
@@ -31,8 +30,6 @@ import jig.ResourceManager;
 
 public class Level extends BasicGameState {
     private Boolean paused;
-    int currentOX;
-    int currentOY;
     private Random rand;
     private int serverId;
 
@@ -114,27 +111,12 @@ public class Level extends BasicGameState {
             System.exit(1);
         }
         paused = false;
-        dc.tilesWide = dc.ScreenWidth/dc.tilesize;
-        dc.tilesHigh = dc.ScreenHeight/dc.tilesize;
 
         messagebox = new Message[messages]; //display four messages at a time
-
-        // TODO This section is the original map generator.
-//            dc.map = client.RenderMap.getDebugMap(dc);
-//            try {
-//                dc.map = client.RenderMap.getRandomMap();        // grab a randomly generated map
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            // server.Server sockets for reading/writing to server.
 
         this.socket = dc.socket;
         this.dis = dc.dis;
         this.dos = dc.dos;
-
-
-        //dc.map = RenderMap.getDebugMap(dc);
-        ///*
-
 
         // TODO this section requires that you run the server prior to client.Main.
         // Grab the map from the server.Server
@@ -146,17 +128,6 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
 
-
-        // use the debug map instead
-//        dc.map = RenderMap.getDebugMap();
-//        try {
-//            dc.map = RenderMap.getDebugMap2();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-        //*/
-        //dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
 
         //rotated map verified correct
@@ -169,17 +140,8 @@ public class Level extends BasicGameState {
             }
         }
 
-        try {
-            Main.im.plant(5, rotatedMap);
-        } catch (SlickException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return;
-        }
-
         // initialize itemsToRender
         itemsToRender = new ArrayList<>();
-//        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
 
         //find a tile with no walls in its horizontal adjacencies
         rand = new Random();
@@ -194,19 +156,11 @@ public class Level extends BasicGameState {
 			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 		}
 
-
-		/*
-        float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
-        float wy = (dc.tilesize * row) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
-
-        dc.hero = new Character(dc, wx, wy, "dc.hero_iron", 1);
-        dc.characters.add(dc.hero);
-        */
         // map variables
-        //Main dc = (Main) game;
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
+        // TODO setting the hero coordinates/type should be done on the server
         // setup the dc.hero character
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
@@ -226,7 +180,7 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
 
-        dc.hero = new Character(dc, wx, wy, "knight_leather", id, this, false);
+        dc.hero = new Character(dc, wx, wy, "mage_purple", id, this, false);
         dc.characters.add(dc.hero);
 
         //give the hero leather armor with no effect
@@ -238,42 +192,28 @@ public class Level extends BasicGameState {
         Main.im.give(a, dc.hero);
         */
 
-
-        // setup a skeleton enemy
-        wx = (dc.tilesize * 20) - dc.offset;
-        wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
-        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, this, true));
-
+        // TODO spawning enemies and items should be done on the server
+//        wx = (dc.tilesize * 18) - dc.offset;
+//        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
+//        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
+        spawnEnemies(dc, 20);
+        try {
+            int maxcol =  dc.map.length - 2;
+            int maxrow = dc.map[0].length - 2;
+            Main.im.plant(20, rotatedMap, maxcol, maxrow);
+        } catch (SlickException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        }
 
         // render map
         RenderMap.setMap(dc, dc.hero);
-
-        // render map
-        RenderMap.setMap(dc, dc.hero);
-
-
-
-        // render map
-        RenderMap.setMap(dc, dc.hero);
-
-        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
-
 
         thrownItems = new ArrayList<ThrownItem>();
 
-        // test items can be deleted
-        /*
-        dc.testItems.add(new DisplayItem((dc.tilesize * 4)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_gold"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 5)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_iron"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 6)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_iron"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 7)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_wood"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_gold"));
-        */
-
-        /*
-        currentOrigin = dc.hero.origin;
-        RenderMap.setMap(dc, dc.hero.origin);                   // renders the map Tiles
-        */
+        // Test Items
+//        addTestItems(dc);
     }
 
     private boolean wallAdjacent(int row, int col, int[][] map){
@@ -294,8 +234,6 @@ public class Level extends BasicGameState {
             return true;
         }
         return false;
-
-
     }
 
 
@@ -306,7 +244,7 @@ public class Level extends BasicGameState {
         itemLockTimers = new ArrayList<ItemLockTimer>();
 
         //TODO: make the restoration boundary cover only the screen area + a buffer
-        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
+//        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
 
 
@@ -324,35 +262,23 @@ public class Level extends BasicGameState {
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
         // render tiles
-        /*
-        for (int i = 0; i < dc.map.length; i++) {
-            for (int j = 0; j < dc.map[i].length; j++) {
-                if (dc.mapTiles[i][j] == null)
-                    continue;
-                dc.mapTiles[i][j].render(g);
-            }
-        }
-        */
         displayMap(dc, g);
 
         //render all visible items
         renderItems(dc, g);
 
-        // draw test items
-        renderTestItems(dc, g);
-
         // TODO will need to sort the lists and draw in order so players draw on top of others
         // draw other characters
         renderCharacters(dc, g);
-
         // draw the hero
         dc.hero.animate.render(g);
+
+        renderHealthBar(dc, g);
 
         //render messages
         renderMessages(dc, g);
 
         //display player inventory
-        //use the dc.hero for now
         renderInventory(dc, g);
 
         // render the codex
@@ -362,7 +288,7 @@ public class Level extends BasicGameState {
         renderEquippedItems(dc, g);
 
         //display player inventory
-        //use the dc.hero for now
+//        renderInventory(dc, g);
         if( displayInventory ){
             renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
             ArrayList<Item> items = dc.hero.getInventory();
@@ -389,9 +315,9 @@ public class Level extends BasicGameState {
                 try{
                     Item sItem = items.get((itemy*4)+itemx);
                     if( sItem.isIdentified() ){
-                        g.drawString(sItem.getMaterial() + " " + sItem.getType() + " of " + sItem.getEffect(), dc.tilesize+10, dc.tilesize*8);
+                        g.drawString(sItem.toString(), dc.tilesize+10, dc.tilesize*8);
                     }else{
-                        g.drawString("Unidentified " + sItem.getMaterial() + " " + sItem.getType(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));
+                        g.drawString("Unidentified " + sItem.toString(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));
                     }
                 }catch(IndexOutOfBoundsException ex){
 
@@ -402,6 +328,9 @@ public class Level extends BasicGameState {
         //draw the player's equipped items
         renderEquippedItems(dc, g);
 
+        // draw test items
+//        renderTestItems(dc, g);
+
 //         renderDebug(dc, g);
 
 
@@ -410,12 +339,15 @@ public class Level extends BasicGameState {
         g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
         g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
         g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
+        g.drawString("Coord : " + dc.hero.animate.getPosition(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*7));
+        g.drawString("Pos   : <" + (int) dc.hero.getTileWorldCoordinates().getX() + ", " +  (int) dc.hero.getTileWorldCoordinates().getY() + ">", dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*9));
+        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*8));
+
 
         if (dc.showPath) {
             renderShortestPath(dc, g);
-            renderPathWeights(dc, g);
+//            renderPathWeights(dc, g);     // this method really only works well when one AI is present
         }
-
     }
 
     /** Renders the AI's shortest path
@@ -433,7 +365,6 @@ public class Level extends BasicGameState {
                 a.render(g);
             }
         }
-
     }
 
     /**
@@ -516,7 +447,7 @@ public class Level extends BasicGameState {
                 g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
                 Color tmp = g.getColor();
                 g.setColor(Color.white);
-                g.drawString(i.getMaterial()+" "+i.getType()+" of "+i.getEffect(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
+                g.drawString(i.toString(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
                 g.setColor(tmp);
                 row++;
             }
@@ -539,10 +470,17 @@ public class Level extends BasicGameState {
                 x = dc.ScreenWidth-(dc.tilesize*(dc.hero.getEquipped().length+1));
                 y = dc.ScreenHeight-(dc.tilesize*2);
                 g.drawImage(dc.hero.getEquipped()[i].getImage(), x+(dc.tilesize*i), y);
+                Color tmp2 = g.getColor();
+                g.setColor(Color.white);
+                g.drawString(dc.hero.getEquipped()[i].count+"", x+(dc.tilesize*i), y+15);
+                g.drawString(dc.hero.getEquipped()[i].getRequiredLevel()+"", x+(dc.tilesize*i), y);
+                g.setColor(tmp2);
+                
             }
         }
         g.setColor(Color.white);
         g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
+        
         g.setColor(tmp);
     }
 
@@ -570,7 +508,7 @@ public class Level extends BasicGameState {
                 g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
                 Color tmp = g.getColor();
                 g.setColor(Color.white);
-                g.drawString(i.getMaterial()+" "+i.getType()+" of "+i.getEffect(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
+                g.drawString(i.toString(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
                 g.setColor(tmp);
                 row++;
             }
@@ -584,6 +522,9 @@ public class Level extends BasicGameState {
      */
     private void renderInventory(Main dc, Graphics g) {
         if( displayInventory ){
+            Color tmp = g.getColor();
+            g.setColor(Color.white);
+            
             renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
             ArrayList<Item> items = dc.hero.getInventory();
             if( items.size() != 0 ){
@@ -591,6 +532,8 @@ public class Level extends BasicGameState {
                 int col = 1;
                 for( int i = 0; i < items.size(); i++ ){
                     g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
+                    g.drawString(items.get(i).count+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-15);
+                    g.drawString(items.get(i).getRequiredLevel()+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-30);
                     col++;
                     if( i > 4 && i % 4 == 0 ){
                         row++;
@@ -598,8 +541,7 @@ public class Level extends BasicGameState {
                     }
                 }
                 //draw a square around the selected item
-                Color tmp = g.getColor();
-                g.setColor(Color.white);
+
                 g.drawRect(
                         (itemx + 1)*dc.tilesize,
                         (itemy + 2)*dc.tilesize,
@@ -638,6 +580,42 @@ public class Level extends BasicGameState {
         }
     }
 
+
+    /**
+     * Renders the players healthbar if the players health is below 100%
+     * @param dc
+     * @param g
+     */
+    private void renderHealthBar(Main dc, Graphics g) {
+        Vector sc;
+        float x;
+        float y;
+        float remaining;
+        Color tmp = g.getColor();
+        int width = 30;
+        for (Character ch : dc.characters) {
+            if (ch.getHitPoints() == ch.getStartingHitPoints()) {
+                continue;
+            }
+            if (characterInRegion(dc, ch)) {
+                sc = world2screenCoordinates(dc, ch);
+                x = sc.getX() - offset + 1;
+                y = sc.getY() - tilesize + 2;// + offset;
+                remaining = (ch.getHitPoints()/ch.getStartingHitPoints())* width;
+
+                // total health
+                g.setColor(new Color(255, 0, 0, 0.5f));
+                g.fillRoundRect(x, y, width, 3, 0);
+
+                // remaining health
+                g.setColor(new Color(0, 255, 0, 0.5f));
+                g.fillRoundRect(x, y, remaining, 3, 0);
+
+            }
+        }
+        g.setColor(tmp);
+    }
+
     /**
      * Renders the visible items on the map
      * @param dc
@@ -667,10 +645,36 @@ public class Level extends BasicGameState {
      * @param g
      */
     private void renderTestItems(Main dc, Graphics g) {
+        Vector wc;
         for (DisplayItem i : dc.testItems) {
-            i.render(g);
+            wc = i.getWorldCoordinates();
+            // draw the objects on the screen
+            if (objectInRegion(dc, wc)) {
+                Vector sc = world2screenCoordinates(dc, wc);
+                i.setPosition(sc);
+                i.render(g);
+            }
         }
     }
+
+    /**
+     * helper Used for testing new items
+     */
+    private void addTestItems(Main dc) {
+        String[] itemList = new String[] {
+                "staff_emerald", "staff_ameythst", "staff_ruby",
+                "spell_emerald", "spell_ameythst", "spell_ruby",
+                "gloves_red", "gloves_white", "gloves_yellow",
+                "robes_blue", "robes_purple",
+                "archer_clothes_green", "archer_clothes_iron"
+        };
+        int position = 16;
+        for (int i = 0; i < itemList.length; i++) {
+            position += 1;
+            dc.testItems.add(new DisplayItem((dc.tilesize * position)- dc.offset, (dc.tilesize * 4)- dc.offset, itemList[i]));
+        }
+    }
+
 
     /*
     Renders the other characters and AI on the screen if they are in the players screen
@@ -684,10 +688,7 @@ public class Level extends BasicGameState {
                     ch.animate.render(g);
                 }
             }
-
         }
-        //*/
-
     }
 
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
@@ -699,10 +700,7 @@ public class Level extends BasicGameState {
 
         g.setColor(Color.white);
         g.drawString(title, dc.tilesize + 10, dc.tilesize + 10);
-
-
         g.setColor(tmp);
-
     }
 
     private Scanner scan = new Scanner(System.in);
@@ -838,46 +836,51 @@ public class Level extends BasicGameState {
             }else if( input.isKeyPressed(Input.KEY_ENTER) ){
                 //attack with item
                 //System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
-                try{
-                    attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
-                }catch(IndexOutOfBoundsException ex){
-                    System.out.println("Out of bounds.");
-                }
+            	if( dc.hero.getEquipped()[selectedEquippedItem] != null && canUse(dc.hero.getEquipped()[selectedEquippedItem], dc.hero) ){
+	                try{
+	                    attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
+	                }catch(IndexOutOfBoundsException ex){
+	                    System.out.println("Out of bounds.");
+	                }
+            	}
             }else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
                 //use item on own character
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
-                String x = "";
-                if( i.getType().equals("Potion") ){
-                    x = "Drank";
-                }else if( i.getType().equals("Armor") ){
-                    x = "Put on";
-                }else{
-                    x = "Used";
-                }
-                addMessage(x + " " + i.getMaterial() + " " + i.getType() + " of " + i.getEffect() );
-                //TODO: add potion effects to character
-                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
-                    //add effect to character
-                    dc.hero.addEffect(i.getEffect());
-                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
-                }
-
-                //remove the item from hands
-                dc.hero.unequipItem(selectedEquippedItem);
-
-                //only remove the item from the inventory if it is a potion/consumable
-                //armor should remain in the player's inventory
-                if( i.getType().equals("Potion") ){
-                    dc.hero.discardItem(i.getID(), true);
-                }else if( i.getType().equals("Armor") ){
-                    i.identify();
-
-                    //set the hero type to change the armor
-                    if( dc.hero.getType().contains("knight") ){
-                        dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
-                    }else if( dc.hero.getType().contains("tank") ){
-                        dc.hero.setType("tank_"+i.getMaterial().toLowerCase());
-                    }
+                
+                if( canUse(i, dc.hero) ){
+	                String x = "";
+	                if( i.getType().equals("Potion") ){
+	                    x = "Drank";
+	                }else if( i.getType().equals("Armor") ){
+	                    x = "Put on";
+	                }else{
+	                    x = "Used";
+	                }
+	                addMessage(x + " " + i.toString());
+	                //TODO: add potion effects to character
+	                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
+	                    //add effect to character
+	                    dc.hero.addEffect(i.getEffect());
+	                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
+	                }
+	
+	                //remove the item from hands
+	                dc.hero.unequipItem(selectedEquippedItem);
+	
+	                //only remove the item from the inventory if it is a potion/consumable
+	                //armor should remain in the player's inventory
+	                if( i.getType().equals("Potion") ){
+	                    dc.hero.discardItem(i.getID(), true);
+	                }else if( i.getType().equals("Armor") ){
+	                    i.identify();
+	
+	                    //set the hero type to change the armor
+	                    if( dc.hero.getType().contains("knight") ){
+	                        dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
+	                    }else if( dc.hero.getType().contains("tank") ){
+	                        dc.hero.setType("tank_"+i.getMaterial().toLowerCase());
+	                    }
+	                }
                 }
 
             }else if( input.isKeyPressed(Input.KEY_BACKSLASH) ){
@@ -890,7 +893,8 @@ public class Level extends BasicGameState {
 
                 //place the item on the world at the dc.hero's position
                 //get world coords of dc.hero position
-                Vector wc = new Vector((int) dc.hero.animate.getX()/dc.tilesize, (int) dc.hero.animate.getY()/dc.tilesize);
+//                Vector wc = new Vector((int) dc.hero.animate.getX()/dc.tilesize, (int) dc.hero.animate.getY()/dc.tilesize);
+                Vector wc = new Vector((int) dc.hero.getTileWorldCoordinates().getX(), (int) dc.hero.getTileWorldCoordinates().getY());
                 System.out.println("placing item at "+wc.getX() + ", " + wc.getY());
                 //this will remove the item from the dc.hero's inventory and place it on the world
 
@@ -903,8 +907,7 @@ public class Level extends BasicGameState {
                 System.out.println("Locked dropped item.");
 
                 //add the item to the render list
-                // TODO may need to be changed to be added to worldItems
-                itemsToRender.add(itm);
+//                itemsToRender.add(itm);
 
                 addMessage("Dropped "+dc.hero.getEquipped()[selectedEquippedItem]+".");
             }else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
@@ -927,7 +930,7 @@ public class Level extends BasicGameState {
         // cause AI players to move around
         for( Character ch : dc.characters ) {
             if (ch.ai) {        // if the player is an AI player, move them
-                ch.moveAI();
+                ch.moveAI(delta);
             }
         }
 
@@ -936,13 +939,16 @@ public class Level extends BasicGameState {
         for( ThrownItem ti : thrownItems ){
 
             //check if a thrown item went off the screen
-            if( ti.itm.getWorldCoordinates().getX() < 0 || ti.itm.getWorldCoordinates().getX() > dc.ScreenWidth/dc.tilesize){
+            if( ti.itm.getWorldCoordinates().getX() < 0 + dc.hero.getOrigin().getX() || ti.itm.getWorldCoordinates().getX() > dc.hero.getOrigin().getX() + (dc.ScreenWidth/dc.tilesize)){
                 reachedDestination.add(ti);
-            }else if( ti.itm.getWorldCoordinates().getY() < 0 || ti.itm.getWorldCoordinates().getY() > dc.ScreenHeight/dc.tilesize){
+                addMessage("thrown " + ti.itm.getType() + " went off screen");
+            }else if( ti.itm.getWorldCoordinates().getY() < 0 + dc.hero.getOrigin().getY() || ti.itm.getWorldCoordinates().getY() > dc.hero.getOrigin().getY() + (dc.ScreenHeight/dc.tilesize)){
                 reachedDestination.add(ti);
+                addMessage("thrown " + ti.itm.getType() + " went off screen");
             }
             if( throwItem(ti, dc) ){
                 reachedDestination.add(ti);
+                addMessage("thrown " + ti.itm.getType() + " reached destination");
             }
 
             //check if a thrown item hit a character
@@ -1018,38 +1024,43 @@ public class Level extends BasicGameState {
             Item i = Main.im.getItemAt(aniPos);
             if( i != null && !i.isLocked() ){
                 if( i.isIdentified() ){
-                    addMessage("Picked up " + i.getMaterial() + " " +i.getType() + " of " + i.getEffect() + ".");
+                    addMessage("Picked up " + i.toString() + ".");
                 }else{
-                    addMessage("Picked up unidentified "+i.getMaterial().toLowerCase()+" "+i.getType().toLowerCase()+".");
+                    addMessage("Picked up unidentified "+i.toString()+".");
                 }
-                //give removes item from the world's inventory
-                //  and adds it to the player's inventory
-                Main.im.give(i.getID(), ch.getPid());
+
+                
+                if( i.getType().equals("Arrow") ){
+                	Image image = null;
+                	if( i.getEffect().equals("Poison") ){
+                		image = ResourceManager.getImage(Main.ARROW_POISON_UP);
+                	}else if( i.getEffect().equals("Flame") ){
+                		image = ResourceManager.getImage(Main.ARROW_FLAME_UP);
+                	}else if( i.getEffect().equals("Ice") ){
+                		image = ResourceManager.getImage(Main.ARROW_ICE_UP);
+                	}else if( i.getEffect().equals("") ){
+                		image = ResourceManager.getImage(Main.ARROW_NORMAL_UP);
+                	}
+                	if( image == null){
+                		throw new SlickException("Invalid arrow effect.");
+                	}
+                	
+                	//give the character 5 arrows
+                	Item arrow = new Item(i.getWorldCoordinates(), i.isLocked(), i.getID(), ch.getPid(), i.getEffect(), "Arrow", i.getMaterial(), 
+                			i.isCursed(), i.isIdentified(), image, 5);
+                	Main.im.give(arrow, ch);
+                	i.lock();
+                }else{
+                    //give removes item from the world's inventory
+                    //  and adds it to the player's inventory
+                    Main.im.give(i.getID(), ch.getPid());
+                }
 
                 //stop rendering the item
                 itemsToRender.remove(i);
+                Main.im.removeFromWorldItems(i);
             }
         }
-
-//        // check if the hero has hit an item
-//        float x = dc.hero.getTileWorldCoordinates().getX();
-//        float y = dc.hero.getTileWorldCoordinates().getY();
-//        Vector aniPos = new Vector((int)x, (int)y);
-//
-//        Item item= Main.im.getItemAt(aniPos);
-//        if( item!= null && !item.isLocked() ){
-//            if( item.isIdentified() ){
-//                addMessage("Picked up " + item.getMaterial() + " " +item.getType() + " of " + item.getEffect() + ".");
-//            }else{
-//                addMessage("Picked up unidentified "+item.getMaterial().toLowerCase()+" "+item.getType().toLowerCase()+".");
-//            }
-//            //give removes item from the world's inventory
-//            //  and adds it to the player's inventory
-//            Main.im.give(item.getID(), dc.hero.getPid());
-//
-//            //stop rendering the item
-//            itemsToRender.remove(item);
-//        }
 
 
 
@@ -1097,7 +1108,9 @@ public class Level extends BasicGameState {
         }else{
             throw new SlickException("Invalid attack direction " + dir);
         }
-
+        if( itm == null ){
+        	return;
+        }
         if( itm.getType().equals("Sword") || itm.getType().equals("Glove")){
             rand.setSeed(System.nanoTime());
             int r = rand.nextInt(100);
@@ -1115,8 +1128,10 @@ public class Level extends BasicGameState {
                 if( c.ai ){
                     //if the ai character is within one tilesize of the player
                     //in the given direction
-                    Vector aipos = c.animate.getPosition();
-                    Vector plpos = dc.hero.animate.getPosition();
+//                    Vector aipos = c.animate.getPosition();
+//                    Vector plpos = dc.hero.animate.getPosition();
+                    Vector aipos = c.getWorldCoordinates();
+                    Vector plpos = dc.hero.getWorldCoordinates();
 
                     double x = Math.pow(aipos.getX()-plpos.getX(), 2);
                     double y = Math.pow(aipos.getY()-plpos.getY(), 2);
@@ -1160,7 +1175,7 @@ public class Level extends BasicGameState {
                         //reveal the effect to the character
                         // if it is not known
                         if( !itm.isIdentified() ){
-                            addMessage("It is " + itm.getType() + " of " + itm.getEffect() );
+                            addMessage("It is " + itm.toString() );
                             itm.identify();
                         }
                     }
@@ -1173,17 +1188,20 @@ public class Level extends BasicGameState {
             //throw potion image 5 tiles in the direction the character
             //  is facing
 
-            Vector heroWC = new Vector( (int) (dc.hero.animate.getX()/dc.tilesize), (int) (dc.hero.animate.getY()/dc.tilesize));
-
-            itm.setWorldCoordinates(heroWC);
-
+            Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
+            		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
+            
+            itm.setWorldCoordinates(wc);
+        	
+        	
+        	
             dc.hero.unequipItem(selectedEquippedItem);
 
 
             //throw the potion but do not identify it unless it hits an enemy
             Main.im.take(itm, dc.hero, itm.getWorldCoordinates(), false);
 
-            Vector destination = heroWC.add(direction.scale(5));
+            Vector destination = wc.add(direction.scale(5));
 
             thrownItems.add(new ThrownItem(itm, direction, destination, direction.scale(0.1f)));
 
@@ -1242,16 +1260,48 @@ public class Level extends BasicGameState {
             }
 
             //spawn at the world coordinate of the player's animation
-            Vector wc = new Vector((dc.hero.animate.getX()/dc.tilesize)-0.5f, (dc.hero.animate.getY()/dc.tilesize)-1);
-            Item flyingArrow = new Item(wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, image);
+            //also add the hero origin, or the number of tiles that have been scrolled in either direction
+            Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
+            		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
+
+            Item flyingArrow = new Item(wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, image, 1);
 
             //add this to the list of items so it can be rendered
             Main.im.addToWorldItems(flyingArrow);
+            
+            System.out.println("added arrow at " + wc.toString());
 
             //this thrown item should travel until it hits a wall or an enemy
             //  thus the final destination is effectively infinite (past the level boundary)
             thrownItems.add( new ThrownItem(flyingArrow, direction, direction.scale(10000), direction.scale(0.3f) ));
+            
+            if( itm.count == 1 ){
+            	dc.hero.unequipItem(selectedEquippedItem);
+            }
+            dc.hero.discardItem(itm, true);
         }
+    }
+    
+    private boolean canUse(Item i, Character hero){
+    	//return true if the hero can use an item
+    	//  based on required level and class
+    	//return false otherwise
+    	
+    	//check item level
+    	if( i.getRequiredLevel() > hero.getStrength() ){
+    		addMessage("You are not strong enough to use this.");
+    		return false;
+    	}
+    	
+    	//check class
+    	String type = hero.getType().substring(0, hero.getType().indexOf("_"));
+    	for( String st : i.getRequiredClasses() ){
+    		if( st.equals(type) ){
+    			return true;
+    		}
+    	}
+    	addMessage("This item is for a different class.");
+    	return false;
     }
 
     private boolean throwItem(ThrownItem ti, Main dc){
@@ -1340,7 +1390,7 @@ public class Level extends BasicGameState {
     public void updateOtherPlayers(Main dc){
         try {
             String read = dis.readUTF(); // message from server
-            System.out.println("("+serverId+") Read: " + read);
+            //System.out.println("("+serverId+") Read: " + read);
             // Making sure that it what is read is formatted correctly
             if (read.split(" ").length > 3) {
                 //System.out.println("in if statement.");
@@ -1430,6 +1480,34 @@ public class Level extends BasicGameState {
         float sy = wc.getY() - dc.hero.pixelY;
         return new Vector(sx, sy);
     }
+
+
+    // TODO this will be called from the server side
+    /**
+     * Populate the world with AI characters
+     */
+    public void spawnEnemies(Main dc, int numItems) {
+        int maxcol =  dc.map.length - 2;
+        int maxrow = dc.map[0].length - 2;
+        Random rand = new Random();
+        while( numItems > 0 ){
+            int col = rand.nextInt(maxcol);
+            int row = rand.nextInt(maxrow);
+            while(row < 2 || col < 2 || dc.map[col][row] == 1){
+                col = rand.nextInt(maxcol) - 1;
+                row = rand.nextInt(maxrow) - 1;
+//                System.out.printf("getting %s, %s\n", col, row);
+            }
+//            System.out.printf("\nSpawning at %s, %s\n", col, row);
+            float wx = (dc.tilesize * row) - dc.offset;
+            float wy = (dc.tilesize * col) - dc.tilesize - dc.doubleOffset;
+            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
+
+            //create a random item at the given position
+            numItems--;
+        }
+    }
+
 
 
 }

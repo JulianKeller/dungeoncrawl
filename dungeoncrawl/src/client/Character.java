@@ -1,5 +1,6 @@
 package client;
 
+import jig.Collision;
 import jig.Vector;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ public class Character extends MovingEntity {
     AnimateEntity animate;
     private String type;
     private String direction;
+    private String currentAction;
     private boolean canMove = true;
     private boolean nearEdge = false;
     public boolean ai;
@@ -27,6 +29,8 @@ public class Character extends MovingEntity {
     ArrayList<Arrow> arrows;
     float[][] weights;
     int range;          // range to player in tiles to use dijkstra's
+    private int attackTimer = 0;
+
 
     /**
      * Create a new Character (wx, wy)
@@ -41,11 +45,13 @@ public class Character extends MovingEntity {
     public Character(Main dc, final float wx, final float wy, String type, int id, Level level, boolean AI) {
         super(wx, wy, id, level);
 
+        System.out.println("Character added at: " + getWorldCoordinates());
         this.dc = dc;
         this.type = type;
         setStats();
         animate = new AnimateEntity(wx, wy, getAnimationSpeed(), this.type);
         direction = "walk_down";
+        currentAction = direction;
         animate.selectAnimation(direction);
         animate.stop();
         ox = 0;
@@ -57,6 +63,10 @@ public class Character extends MovingEntity {
         shortest = new ArrayList<>();
         arrows = new ArrayList<>();
         range = 10;
+    }
+
+    public Vector getOrigin() {
+        return new Vector(ox, oy);
     }
 
 
@@ -119,6 +129,8 @@ public class Character extends MovingEntity {
                 setHitPoints(150);
                 setArmorPoints(100);
                 setAnimationSpeed(25);
+                setAttackDamage(1);
+                setAttackSpeed(300);
                 break;
             default:
                 System.out.println("ERROR: No matching Character type specified." +
@@ -187,18 +199,22 @@ public class Character extends MovingEntity {
                 break;
         }
         if (movement != null) {
-            canMove = false;
             movesLeft = dc.tilesize;
+            setNextTileWorldCoordinates(movement);
             if (!movement.equals(direction)) {
                 updateAnimation(movement);
                 direction = movement;
             } else {
                 animate.start();
             }
-            // check for collisions with the wall
-            if (collision() && dc.collisions) {
-                canMove = true;
-                return;
+            canMove = false;
+            // if collisions are on
+            if (dc.collisions) {
+                // if no wall collisions and no character collisions, then player can move again
+                if (wallCollision() || characterCollision()) {
+                    canMove = true;
+                    return;
+                }
             }
             changeOrigin();     // check if the screen origin needs to change
         }
@@ -209,15 +225,46 @@ public class Character extends MovingEntity {
      * Move the AI randomly until the character is within range
      * This is the method that should be called from the level class to move the AI
      */
-    public void moveAI() {
+    public void moveAI(int delta) {
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
         String next = null;
         String currentDirection = direction;
+
+        // regulates how fast the AI can attack
+
+
         // moved the character fixed to the grid
         if (!canMove) {
+            // update the animation to walking
+            if (!direction.equals(currentAction)) {
+                currentAction = direction;
+                updateAnimation(direction);
+                animate.start();
+            }
             moveTranslationHelper(getWorldCoordinates());
             return;
         }
+
+
+        // check if player is within 1 tile, if so turn towards player and attack
+        if (canAttackPlayer()) {
+
+            String action = "jab_" + direction.substring("walk_".length());
+            // update the animation to jabbing
+            if (!currentAction.equals(action)) {
+                updateAnimation(action);
+                animate.start();
+            }
+            if (attackTimer <= 0) {
+                dc.hero.takeDamage(getAttackDamage(), "");
+                attackTimer = getAttackSpeed();
+            }
+            else {
+                attackTimer -= delta;
+            }
+            return;
+        }
+
 
         // run dijkstra's so enemies attack the player
         if (playerNearby(range)) {
@@ -252,7 +299,7 @@ public class Character extends MovingEntity {
             }
         }
         String movement = direction;
-        canMove = false;
+        setNextTileWorldCoordinates(movement);
         movesLeft = dc.tilesize;
         if (!movement.equals(currentDirection)) {
             updateAnimation(movement);
@@ -260,10 +307,13 @@ public class Character extends MovingEntity {
         } else {
             animate.start();
         }
-        // check for collisions with the wall
-        if (collision() && dc.collisions) {
-            canMove = true;
-            return;
+        canMove = false;
+        if (dc.collisions) {
+            // if no wall collisions and no character collisions, then player can move again
+            if (wallCollision() || characterCollision()) {
+                canMove = true;
+                return;
+            }
         }
         changeOrigin();     // check if the screen origin needs to change
     }
@@ -271,13 +321,57 @@ public class Character extends MovingEntity {
     /**
      * @return Checks if the player is within range of the ai, true if so
      */
-    public boolean playerNearby(int range) {
+    private boolean playerNearby(int range) {
         Vector heroWC = dc.hero.getTileWorldCoordinates();
         Vector aiWC = getTileWorldCoordinates();
         if (Math.abs(heroWC.getX() - aiWC.getX()) <= range && (Math.abs(heroWC.getY() - aiWC.getY()) <= range)) {
             return true;
         }
         return false;
+    }
+
+    /*
+    If a player within 1 tile, set direction and return true
+     */
+    private boolean canAttackPlayer() {
+        // player position
+        int px = (int) getTileWorldCoordinates().getX();
+        int py = (int) getTileWorldCoordinates().getY();
+        boolean canAttack = false;
+
+        // character position
+        int cx;
+        int cy;
+        for (Character ch : dc.characters) {
+            if (ch.ai || ch.equals(this)) {     // ignore ai players
+                continue;
+            }
+
+            cx = (int) ch.getTileWorldCoordinates().getX();
+            cy = (int) ch.getTileWorldCoordinates().getY();
+
+            // player is above
+            if (cy == py - 1 && cx == px) {
+                direction = "walk_up";
+                canAttack = true;
+            }
+            else if (cy == py + 1 && cx == px) {
+//                canMove = false;
+                direction = "walk_down";
+                canAttack = true;
+            }
+            else if (cy == py && cx == px - 1) {
+//                canMove = false;
+                direction = "walk_left";
+                canAttack = true;
+            }
+            else if (cy == py && cx == px + 1) {
+//                canMove = false;
+                direction = "walk_right";
+                canAttack = true;
+            }
+        }
+        return canAttack;
     }
 
     // get next direction based on Dijkstra shortest path
@@ -442,9 +536,8 @@ public class Character extends MovingEntity {
     check if there is a collision at the next world x, y with the wall
     returns true if there is a collision, false otherwise
      */
-    private boolean collision() {
+    private boolean wallCollision() {
         Vector wc = getWorldCoordinates();
-        boolean collided = false;
         int x = (((int) wc.getX() + dc.offset) / dc.tilesize) - 1;
         int y = (((int) wc.getY() + dc.tilesize + dc.doubleOffset) / dc.tilesize) - 1;
         switch (direction) {
@@ -461,10 +554,54 @@ public class Character extends MovingEntity {
                 x += 1;
                 break;
         }
-//        if (y < 0 || y > dc.tilesWide || x < 0 || x > dc.tilesHigh) {
-//            return true;
-//        }
-        return dc.map[y][x] != 0;
+        return dc.map[y][x] == 1;
+    }
+
+    /*
+    Checks for character vs character collisions
+    returns true if there is a collision
+     */
+    private boolean characterCollision() {
+        int x = (int) getTileWorldCoordinates().getX();
+        int y = (int) getTileWorldCoordinates().getY();
+        int chX;
+        int chY;
+        switch (direction) {
+            case "walk_up":
+                y -= 1;
+                break;
+            case "walk_down":
+                y += 1;
+                break;
+            case "walk_left":
+                x -= 1;
+                break;
+            case "walk_right":
+                x += 1;
+                break;
+        }
+        for (Character ch : dc.characters) {
+            if (ch.equals(this)) {
+                continue;
+            }
+            chX = (int) ch.getTileWorldCoordinates().getX();
+            chY = (int) ch.getTileWorldCoordinates().getY();
+            // if character pos == playeres next position
+            if (chX == x && chY == y) {
+                return true;
+            }
+            if ((getNextTileWorldCoordinates().getX() == ch.getNextTileWorldCoordinates().getX() &&
+                    getNextTileWorldCoordinates().getY() == ch.getNextTileWorldCoordinates().getY())) {
+                return true;
+            }
+            // else if coordinates in x and y are less than 32 pixels apart, expect collision
+            float diffX = Math.abs(getWorldCoordinates().getX() - ch.getWorldCoordinates().getX());
+            float diffY = Math.abs(getWorldCoordinates().getY() - ch.getWorldCoordinates().getY());
+            if (diffX < 32 && diffY < 32) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -476,7 +613,9 @@ public class Character extends MovingEntity {
      * @param action a new animations action to be selected
      */
     public void updateAnimation(String action) {
+//        System.out.println("Setting animation to: " + action);
         if (action != null) {
+            currentAction = action;
             this.action = action;
             Vector sc = animate.getPosition();
             animate = new AnimateEntity(sc.getX(), sc.getY(), getAnimationSpeed(), this.type);
@@ -512,6 +651,8 @@ public class Character extends MovingEntity {
         float wx = (ox * dc.tilesize) + sc.getX();
         float wy = (oy * dc.tilesize) + sc.getY();
         setWorldCoordinates(wx, wy);    // world coordinates
+
+        //set the world coordinates to the origin times the tile size plus the character's screen coords
     }
 
 

@@ -5,8 +5,10 @@
 [26] Add functionality for Might effect
 [27] Add attacks for Mage and Tank classes
 [28] Add visual indicator of character effects
-[29] Implement item stacking in inventory
 [30] Add animations for thrown items breaking
+[31] Scale thrown items to give the appearance of arc
+[34] Add weight to items and characters to slow them down
+[35] Implement cursed items that have half stats and cannot be removed
 
 ##Resolved Issues##
 [1] Create database schema to hold items and player inventories
@@ -31,3 +33,6 @@
 [23] Make character effects functional
 [24] Add item description to inventory display
 [25] Add attack functionality
+[29] Implement item stacking in inventory
+[32] Adjust item spawn rates and chances of specific items
+[33] Check item level and class before picking up

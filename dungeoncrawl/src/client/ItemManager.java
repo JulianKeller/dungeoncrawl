@@ -105,17 +105,15 @@ public class ItemManager {
 		currentItemID++;
 	}
 	
-	public void plant(int numItems, int[][] map) throws SlickException{
-		int maxcol = game.ScreenWidth/game.tilesize;
-		int maxrow = game.ScreenHeight/game.tilesize;
-		
+	public void plant(int numItems, int[][] map, int maxcol, int maxrow) throws SlickException {
+
 		rand.setSeed(System.nanoTime());
-		
+
 		//int[][] potionAt = new int[game.map.length][game.map.length];
-		
-		
+
+
 		while( numItems > 0 ){
-			
+
 			int col = rand.nextInt(maxcol);
 			int row = rand.nextInt(maxrow);
 			//Vector wc = new Vector( rand.nextInt(maxx), rand.nextInt(maxy) );
@@ -127,6 +125,28 @@ public class ItemManager {
 			
 			//create a random item at the given position
 			Item i = new Item(wc, false, currentItemID, 0);
+			
+			if( i.getType().equals("Potion") || i.getType().equals("Arrow") ){
+				i.setRequiredLevel(0);
+			}else{
+				//set the item's required level to the average level of the team
+				int levelSum = 0;
+				int numCharacters = 0;
+				for( Character ch : game.characters ){
+					if( !ch.ai ){
+						numCharacters++;
+						levelSum += ch.getStrength();
+					}
+				}
+				if( numCharacters == 0 ){
+					throw new SlickException("Load the list of characters before planting items.");
+				}
+				int levelAverage = levelSum / numCharacters;
+				
+				int r = rand.nextInt(3);
+				i .setRequiredLevel(levelAverage + r); 
+			}
+			
 			
 			//check if the item is a potion and set its effect
 			//0: blue, 1: orange, 2: pink, 3: red, 4: yellow
@@ -161,7 +181,6 @@ public class ItemManager {
 		}
 
 	}
-
 
 
 	public ArrayList<Item> itemsInRegion(Vector min, Vector max){
