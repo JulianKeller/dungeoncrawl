@@ -16,9 +16,9 @@ import java.util.ArrayList;
 
 public class Main extends StateBasedGame {
     // server.Server items
-    public final Socket socket;
-    public final ObjectInputStream dis;
-    public final ObjectOutputStream dos;
+    public Socket socket = null;
+    public ObjectInputStream dis = null;
+    public ObjectOutputStream dos = null;
     public static boolean localMode = false;
 
     // Game States
@@ -207,7 +207,7 @@ public class Main extends StateBasedGame {
      *
      * @param title The name of the game
      */
-    public Main(String title, int width, int height, Socket socket, ObjectInputStream dis, ObjectOutputStream dos) {
+    public Main(String title, int width, int height) {
         super(title);
         ScreenWidth = width;
         ScreenHeight = height;
@@ -222,9 +222,6 @@ public class Main extends StateBasedGame {
         xOffset = tilesize - doubleOffset;
         yOffset = tilesize + doubleOffset/2;
         collisions = true;
-        this.socket = socket;
-        this.dis = dis;
-        this.dos = dos;
 
         characters = new ArrayList<>();
         enemies = new ArrayList<>();
@@ -235,7 +232,7 @@ public class Main extends StateBasedGame {
 
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
-        addState(new StartUpState());
+        addState(new SplashScreen());
         addState(new Level());
         addState(new GameOver());
 
@@ -378,29 +375,7 @@ public class Main extends StateBasedGame {
     }
 
     public static void main(String[] args) {
-        // Setting up the connection to the server
-        Socket socket = null;
-        ObjectInputStream dis = null;
-        ObjectOutputStream dos = null;
-        if(!localMode) {
-            try {
-                byte[] ipAddr = new byte[]{127,0,0,1};
-
-                // getting localhost ip
-                InetAddress ip = InetAddress.getByAddress(ipAddr);
-
-                // establish the connection with server port 5000
-                socket = new Socket(ip, 5000);
-
-                // obtaining input and out streams
-                dis = new ObjectInputStream(socket.getInputStream());
-                dos = new ObjectOutputStream(socket.getOutputStream());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    	Main game = new Main("Dungeon Crawl", 1280, 736, socket, dis, dos);
+    	Main game = new Main("Dungeon Crawl", 1280, 736);
     	im = new ItemManager(game);
         AppGameContainer app;
         try {
