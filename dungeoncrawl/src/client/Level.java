@@ -108,8 +108,9 @@ public class Level extends BasicGameState {
         serverMessage = "";
         Main dc = (Main) game;
         if(dc.socket == null){
+            dc.enterState(Main.STARTUPSTATE);
             System.out.println("ERROR: Make sure you start the server before starting the client!");
-            System.exit(1);
+//            System.exit(1);
         }
         paused = false;
 
