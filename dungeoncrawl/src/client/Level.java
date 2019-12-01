@@ -194,10 +194,10 @@ public class Level extends BasicGameState {
         */
 
         // TODO spawning enemies and items should be done on the server
-//        wx = (dc.tilesize * 18) - dc.offset;
-//        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
-//        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
-        spawnEnemies(dc, 20);
+        wx = (dc.tilesize * 18) - dc.offset;
+        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
+        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
+//        spawnEnemies(dc, 20);
         try {
             int maxcol =  dc.map.length - 2;
             int maxrow = dc.map[0].length - 2;
