@@ -1391,12 +1391,6 @@ public class Level extends BasicGameState {
         else if (input.isKeyPressed(Input.KEY_5)) {
             ks = "5";
         }
-        try{
-            dos.writeUTF(ks);
-            dos.flush();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
         return ks;
     }
 

@@ -313,6 +313,7 @@ public class SplashScreen extends BasicGameState {
         dc.socket = socket;
         dc.dis = dis;
         dc.dos = dos;
+
         dc.enterState(Main.LEVEL1);
     }
 
