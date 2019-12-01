@@ -15,8 +15,7 @@ server for player.<br>
 **[ 10 ]** Convert Server to take multiple clients instead of making new threads.
 ## PENDING ISSUES ##
 **[ 9 ]** Get item managment working on the server.<br>
-**[ 13 ]** Get a list of characters/skins display them<br>
-**[ 14 ]** When user presses 'space', set hero character and go into Level<br>
-**[ 15 ]** Create placeholders for future artwork<br>
-**[ 16 ]** Modify Level.java to work with the StartUpState<br>
+**[ 19 ]** Only update players that move<br>
+**[ 20 ]** Get enemies to sync up<br>
+**[ 21 ]** Receive same messages to every client<br>
 **[ 18 ]** Make sure all clients are receiving the same server messages<br>
