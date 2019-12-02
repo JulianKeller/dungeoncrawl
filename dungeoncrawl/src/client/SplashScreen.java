@@ -5,6 +5,7 @@ import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ConnectException;
@@ -86,7 +87,7 @@ public class SplashScreen extends BasicGameState {
         }
         if (connect) {
             if (input.isKeyPressed(Input.KEY_ENTER)) {
-                connectToSever(dc);
+                connectToSever(dc, game);
             }
         }
 
@@ -331,7 +332,7 @@ public class SplashScreen extends BasicGameState {
      *
      * @param dc
      */
-    private void connectToSever(Main dc) {
+    private void connectToSever(Main dc, StateBasedGame game) {
         // Setting up the connection to the server
         Socket socket = null;
         ObjectInputStream dis = null;
@@ -355,6 +356,9 @@ public class SplashScreen extends BasicGameState {
         dc.socket = socket;
         dc.dis = dis;
         dc.dos = dos;
+
+        ((Level)game.getState(Main.LEVEL1)).setType(selectedPlayer);
+        System.out.println(selectedPlayer);
         dc.enterState(Main.LEVEL1);
     }
 

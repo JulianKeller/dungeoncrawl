@@ -33,6 +33,7 @@ public class Level extends BasicGameState {
     private Random rand;
     private int serverId;
     private String activeCheats;
+    private String type;
 
     private int[][] rotatedMap;
 
@@ -80,7 +81,25 @@ public class Level extends BasicGameState {
     }
     private ArrayList<ItemLockTimer> itemLockTimers;
 
+    public void setType(String t){
+        type = t;
+    }
 
+    public String setSkin(){
+        switch(type){
+            case "Knight":
+                return "knight_leather";
+            case "Mage":
+                return "mage_leather";
+            case "Archer":
+                return "archer_leather";
+            case "Tank":
+                return "tank_leather";
+            default:
+                break;
+        }
+        return "";
+    }
 
     private class ThrownItem{
         Item itm;
@@ -172,17 +191,18 @@ public class Level extends BasicGameState {
         // Setting starting position for the hero.
         String coord = wx + " " + wy;
         int id = 0;
+        String type = setSkin();
         try {
             id = Integer.parseInt(dis.readUTF());
             //System.out.println("Sending my player info.");
             serverId = id;
-            dos.writeUTF("knight_leather "+coord);
+            dos.writeUTF(type+" "+coord);
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();
         }
 
-        dc.hero = new Character(dc, wx, wy, "mage_purple", id, this, false);
+        dc.hero = new Character(dc, wx, wy, type, id, this, false);
         dc.characters.add(dc.hero);
 
         //give the hero leather armor with no effect
