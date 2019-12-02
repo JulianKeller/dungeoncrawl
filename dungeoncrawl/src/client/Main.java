@@ -151,6 +151,7 @@ public class Main extends StateBasedGame {
 
     // splash screen
     public static final String TITLE = "resources/splashScreen/title.png";
+    public static final String MAP_IMG = "resources/splashScreen/map_image.png";
 
     // Screen Size
     public final int ScreenWidth;
@@ -358,6 +359,7 @@ public class Main extends StateBasedGame {
 
         // TITLE
         ResourceManager.loadImage(TITLE);
+        ResourceManager.loadImage(MAP_IMG);
 
 
     }
@@ -388,7 +390,7 @@ public class Main extends StateBasedGame {
             app = new AppGameContainer(game);
             app.setDisplayMode(1280, 736, false);
             app.setVSync(true);
-//            app.setShowFPS(false);      // disable fps
+            app.setShowFPS(false);      // disable fps
             app.start();
         } catch (SlickException e) {
             e.printStackTrace();

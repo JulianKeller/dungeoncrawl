@@ -55,8 +55,6 @@ public class SplashScreen extends BasicGameState {
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
 
-        RenderMap.setMap(dc, new Character(dc,0, 0, "mage_purple", -1, null, false));
-
         renderName(dc, g);
         renderCharacters(dc, g);
         renderIP(dc, g);
@@ -283,7 +281,13 @@ public class SplashScreen extends BasicGameState {
     Renders the title of the game
      */
     private void renderName(Main dc, Graphics g) {
+        Color tmp = g.getColor();
+        g.drawImage(ResourceManager.getImage(Main.MAP_IMG), 0, 0);
+        g.setColor(new Color(0, 0, 0, .5f));
+        g.fillRect(0, 0, dc.ScreenWidth, dc.ScreenHeight);
+        g.setColor(tmp);
         g.drawImage(ResourceManager.getImage(Main.TITLE), 0, 0);
+
 //        Color tmp = g.getColor();
 //        g.setColor(new Color(0, 0, 0, .3f));
 //        g.setColor(new Color(255, 255, 255, 1f));

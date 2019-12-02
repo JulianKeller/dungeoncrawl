@@ -279,96 +279,96 @@ public class Level extends BasicGameState {
         // render tiles
         displayMap(dc, g);
 
-        //render all visible items
-        renderItems(dc, g);
-
-        // TODO will need to sort the lists and draw in order so players draw on top of others
-        // draw other characters
-        renderCharacters(dc, g);
-        // draw the hero
-        dc.hero.animate.render(g);
-
-        renderHealthBar(dc, g);
-
-        //render messages
-        renderMessages(dc, g);
-
-        //display player inventory
-        renderInventory(dc, g);
-
-        // render the codex
-        renderCodex(dc, g);
-
-        //draw the player's equipped items
-        renderEquippedItems(dc, g);
-
-        //display player inventory
+//        //render all visible items
+//        renderItems(dc, g);
+//
+//        // TODO will need to sort the lists and draw in order so players draw on top of others
+//        // draw other characters
+//        renderCharacters(dc, g);
+//        // draw the hero
+//        dc.hero.animate.render(g);
+//
+//        renderHealthBar(dc, g);
+//
+//        //render messages
+//        renderMessages(dc, g);
+//
+//        //display player inventory
 //        renderInventory(dc, g);
-        if( displayInventory ){
-            renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
-            ArrayList<Item> items = dc.hero.getInventory();
-            if( items.size() != 0 ){
-                int row = 2;
-                int col = 1;
-                for( int i = 0; i < items.size(); i++ ){
-                    g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
-                    col++;
-                    if( i > 4 && i % 4 == 0 ){
-                        row++;
-                        col = 1;
-                    }
-                }
-                //draw a square around the selected item
-                Color tmp = g.getColor();
-                g.setColor(Color.white);
-                g.drawRect(
-                        (itemx + 1)*dc.tilesize,
-                        (itemy + 2)*dc.tilesize,
-                        dc.tilesize,
-                        dc.tilesize
-                );
-                try{
-                    Item sItem = items.get((itemy*4)+itemx);
-                    if( sItem.isIdentified() ){
-                        g.drawString(sItem.toString(), dc.tilesize+10, dc.tilesize*8);
-                    }else{
-                        g.drawString("Unidentified " + sItem.toString(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));
-                    }
-                }catch(IndexOutOfBoundsException ex){
-
-                }
-                g.setColor(tmp);
-            }
-        }
-        //draw the player's equipped items
-        renderEquippedItems(dc, g);
-
-        // draw test items
-//        renderTestItems(dc, g);
-
-//         renderDebug(dc, g);
-
-
-        //minimal HUD
-        g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*3));
-        g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
-        g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
-        g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
-        g.drawString("Coord : " + dc.hero.animate.getPosition(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*7));
-        g.drawString("Pos   : <" + (int) dc.hero.getTileWorldCoordinates().getX() + ", " +  (int) dc.hero.getTileWorldCoordinates().getY() + ">", dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*9));
-        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*8));
-
-
-        if (dc.showPath) {
-            renderShortestPath(dc, g);
-//            renderPathWeights(dc, g);     // this method really only works well when one AI is present
-        }
-
-        // display a paused message
-        if (paused) {
-            renderPauseMessage(dc, g);
-            renderActiveCheats(dc, g);
-        }
+//
+//        // render the codex
+//        renderCodex(dc, g);
+//
+//        //draw the player's equipped items
+//        renderEquippedItems(dc, g);
+//
+//        //display player inventory
+////        renderInventory(dc, g);
+//        if( displayInventory ){
+//            renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
+//            ArrayList<Item> items = dc.hero.getInventory();
+//            if( items.size() != 0 ){
+//                int row = 2;
+//                int col = 1;
+//                for( int i = 0; i < items.size(); i++ ){
+//                    g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
+//                    col++;
+//                    if( i > 4 && i % 4 == 0 ){
+//                        row++;
+//                        col = 1;
+//                    }
+//                }
+//                //draw a square around the selected item
+//                Color tmp = g.getColor();
+//                g.setColor(Color.white);
+//                g.drawRect(
+//                        (itemx + 1)*dc.tilesize,
+//                        (itemy + 2)*dc.tilesize,
+//                        dc.tilesize,
+//                        dc.tilesize
+//                );
+//                try{
+//                    Item sItem = items.get((itemy*4)+itemx);
+//                    if( sItem.isIdentified() ){
+//                        g.drawString(sItem.toString(), dc.tilesize+10, dc.tilesize*8);
+//                    }else{
+//                        g.drawString("Unidentified " + sItem.toString(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));
+//                    }
+//                }catch(IndexOutOfBoundsException ex){
+//
+//                }
+//                g.setColor(tmp);
+//            }
+//        }
+//        //draw the player's equipped items
+//        renderEquippedItems(dc, g);
+//
+//        // draw test items
+////        renderTestItems(dc, g);
+//
+////         renderDebug(dc, g);
+//
+//
+//        //minimal HUD
+//        g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*3));
+//        g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
+//        g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
+//        g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
+//        g.drawString("Coord : " + dc.hero.animate.getPosition(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*7));
+//        g.drawString("Pos   : <" + (int) dc.hero.getTileWorldCoordinates().getX() + ", " +  (int) dc.hero.getTileWorldCoordinates().getY() + ">", dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*9));
+//        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*8));
+//
+//
+//        if (dc.showPath) {
+//            renderShortestPath(dc, g);
+////            renderPathWeights(dc, g);     // this method really only works well when one AI is present
+//        }
+//
+//        // display a paused message
+//        if (paused) {
+//            renderPauseMessage(dc, g);
+//            renderActiveCheats(dc, g);
+//        }
     }
 
     private void renderPauseMessage(Main dc, Graphics g) {
