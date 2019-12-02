@@ -1433,7 +1433,7 @@ public class Level extends BasicGameState {
     public void positionToServer(Main dc){
         float wx = dc.hero.getWorldCoordinates().getX();
         float wy = dc.hero.getWorldCoordinates().getY();
-        String toServer = dc.hero.getType() + " " + wx + " " + wy;
+        String toServer = dc.hero.getType() + " " + wx + " " + wy + " "+ dc.hero.getHitPoints();
         try {
             dos.writeUTF(toServer);
             dos.flush();
@@ -1456,7 +1456,6 @@ public class Level extends BasicGameState {
             String read = dis.readUTF(); // message from server
             //System.out.println("("+serverId+") Read: " + read);
             // Making sure that it what is read is formatted correctly
-            if (read.split(" ").length > 3) {
                 //System.out.println("in if statement.");
                 // parse the clientId
                 int id = Integer.parseInt(read.split(" ")[0]);
@@ -1476,7 +1475,9 @@ public class Level extends BasicGameState {
                         }
                         float x = Float.parseFloat(read.split(" ")[2]);
                         float y = Float.parseFloat(read.split(" ")[3]);
+                        float hp = Float.parseFloat(read.split(" ")[4]);
                         c.setWorldCoordinates(x,y);
+                        c.setHitPoints(hp);
                         return;
 
                     }
@@ -1485,7 +1486,6 @@ public class Level extends BasicGameState {
                 float x = Float.parseFloat(read.split(" ")[2]);
                 float y = Float.parseFloat(read.split(" ")[3]);
                 dc.characters.add(new Character(dc, x, y, read.split(" ")[1], id,this,false));
-            }
         }catch(IOException e){
             e.printStackTrace();
         }

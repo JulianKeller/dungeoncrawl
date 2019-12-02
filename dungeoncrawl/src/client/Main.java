@@ -371,7 +371,7 @@ public class Main extends StateBasedGame {
     public boolean closeRequested(){
         if(!localMode) {
             try {
-                dos.writeUTF("Exit 0.0 0.0");
+                dos.writeUTF("Exit 0.0 0.0 0");
                 dos.flush();
                 socket.close();
                 dos.close();
