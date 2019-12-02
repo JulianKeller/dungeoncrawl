@@ -200,7 +200,6 @@ public class SplashScreen extends BasicGameState {
                 enterAddress = false;
                 connect = false;
                 break;
-
         }
     }
 
