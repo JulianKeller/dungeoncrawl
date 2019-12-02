@@ -417,6 +417,12 @@ public class Level extends BasicGameState {
         else {
             g.drawString("Collisions: Disabled", 50, 75);
         }
+        if (dc.invincible) {
+            g.drawString("Invincible: Enabled", 50, 100);
+        }
+        else {
+            g.drawString("Invincible: Disabled", 50, 100);
+        }
         g.setColor(tmp);
     }
 

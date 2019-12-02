@@ -1,5 +1,7 @@
 ## Current Issues
 [32] - refactor and fix framerate drop
+[22] - implement AI characters
+[34] - add invincibility cheat
 
 ## Open Issues ##
 [12] - update floor tiles
