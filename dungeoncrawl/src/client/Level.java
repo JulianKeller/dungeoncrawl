@@ -195,10 +195,23 @@ public class Level extends BasicGameState {
         */
 
         // TODO spawning enemies and items should be done on the server
-        wx = (dc.tilesize * 18) - dc.offset;
-        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
-        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
+//        wx = (dc.tilesize * 18) - dc.offset;
+//        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
+//        //dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
 //        spawnEnemies(dc, 20);
+        // Grabbing ArrayList of enemies.
+        ArrayList<String> enemyList = new ArrayList<>();
+        try{
+            enemyList = (ArrayList) dis.readObject();
+        } catch(IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+        for (String e : enemyList) {
+            float x = Float.parseFloat(e.split(" ")[2]);
+            float y = Float.parseFloat(e.split(" ")[3]);
+            int eid = Integer.parseInt(e.split(" ")[0]);
+            dc.characters.add(new Character(dc, x, y, e.split(" ")[1], eid, this, true));
+        }
         try {
             int maxcol =  dc.map.length - 2;
             int maxrow = dc.map[0].length - 2;
@@ -725,7 +738,6 @@ public class Level extends BasicGameState {
                     ch.animate.render(g);
                 }
             }
-
         }
     }
 
@@ -1391,12 +1403,6 @@ public class Level extends BasicGameState {
         // cheat slow down
         else if (input.isKeyPressed(Input.KEY_5)) {
             ks = "5";
-        }
-        try{
-            dos.writeUTF(ks);
-            dos.flush();
-        }catch(IOException e){
-            e.printStackTrace();
         }
         return ks;
     }

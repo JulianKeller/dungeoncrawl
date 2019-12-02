@@ -13,6 +13,7 @@ public class Server extends Thread{
     public static BlockingQueue<String> serverQueue = new LinkedBlockingQueue<>();
     public static int [][] map;
     private BlockingQueue<String> threadQs;
+    public static ArrayList<String> enemies;
 
     public Server(BlockingQueue<String> queue){
         threadQs = queue;
@@ -43,8 +44,7 @@ public class Server extends Thread{
             map = LoadMap.getRandomMap();
 
             // TODO generate AI characters
-            //
-//            Arraylist<String> AIcharacterList = Spawn.spawnEnemies(map, 20);
+            enemies = Spawn.spawnEnemies(map, 20);
 
             // TODO generate items here
 
