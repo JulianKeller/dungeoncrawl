@@ -1,6 +1,7 @@
 package client;
 
 import jig.Entity;
+import jig.Vector;
 
 import java.io.File;
 import java.io.IOException;

@@ -38,7 +38,7 @@ def printResultArray( array ):
 	print(']\n')
 
 def saveResult(array, count):
-	with open(f'maps/map{count}.txt', 'w') as fp:
+	with open(f'map{count}.txt', 'w') as fp:
 		for row in array:
 			for i in row:
 				fp.write(f'{str(i)} ')
@@ -217,8 +217,8 @@ def generateRoomsAndHallways(maxx, maxy):
 
 if __name__ == '__main__':
 	start = timeit.default_timer()
-	for i in range(1000):
-		lvl = generateRoomsAndHallways(80, 48)
+	for i in range(1):
+		lvl = generateRoomsAndHallways(40, 23)
 		saveResult(lvl, i)
 	print(f'Run Time: {timeit.default_timer() - start:.2} seconds')
 
