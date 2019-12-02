@@ -21,7 +21,6 @@ public class ClientHandler extends Thread{
         writeSuccess = true;
 
     }
-
     @Override
     public void run(){
         try{
@@ -30,6 +29,7 @@ public class ClientHandler extends Thread{
             os.flush();
             os.writeUTF(Integer.toString(id));
             os.flush();
+            sendEnemyList();
             while(true) {
                 try {
                     // Receive coordinate message from the client
@@ -68,6 +68,14 @@ public class ClientHandler extends Thread{
         }
     }
 
+    private void sendEnemyList(){
+        try {
+            os.writeObject(Server.enemies);
+            os.flush();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
     /**
      * This method takes from what the server gives to the client
      * and writes to the client.
