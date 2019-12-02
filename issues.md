@@ -18,5 +18,5 @@ server for player.<br>
 ## PENDING ISSUES ##
 **[ 9 ]** Get item managment working on the server.<br>
 **[ 19 ]** Only update players that move<br>
-**[ 23 ]** Create invincibility cheat<br>
+**[ 23 ]** Add Hit points to the client/server string.<br>
 **[ 18 ]** Make sure all clients are receiving the same server messages<br>
