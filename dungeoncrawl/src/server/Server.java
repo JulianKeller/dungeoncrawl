@@ -44,7 +44,7 @@ public class Server extends Thread{
             map = LoadMap.getRandomMap();
 
             // TODO generate AI characters
-            ArrayList<String> AIcharacterList = Spawn.spawnEnemies(map, 20);
+            enemies = Spawn.spawnEnemies(map, 20);
 
             // TODO generate items here
 

@@ -1,5 +1,7 @@
 package server;
 
+import org.lwjgl.Sys;
+
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
@@ -61,7 +63,7 @@ public class ClientHandler extends Thread{
      */
     private void toServer(String m){
         try {
-            System.out.println("To Server: "+ id + " "+m);
+            //System.out.println("To Server: "+ id + " "+m);
             Server.serverQueue.put(id +" "+  m);
         } catch (InterruptedException e){
             e.printStackTrace();
@@ -70,8 +72,10 @@ public class ClientHandler extends Thread{
 
     private void sendEnemyList(){
         try {
+          //System.out.println("Sending Enemy info "+ s)
             os.writeObject(Server.enemies);
             os.flush();
+
         }catch(IOException e){
             e.printStackTrace();
         }

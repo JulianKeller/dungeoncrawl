@@ -200,10 +200,9 @@ public class Level extends BasicGameState {
 //        //dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
 //        spawnEnemies(dc, 20);
         // Grabbing ArrayList of enemies.
-        ArrayList<String> enemyList = new ArrayList<String>();
+        ArrayList<String> enemyList = new ArrayList<>();
         try{
-            enemyList = (ArrayList)dis.readObject();
-            System.out.println(enemyList.get(0));
+            enemyList = (ArrayList) dis.readObject();
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
