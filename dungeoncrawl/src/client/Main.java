@@ -149,6 +149,9 @@ public class Main extends StateBasedGame {
     public static final String GLOVES_SWIFTNESS = "resources/gloves/gloves-yellow.png";
     public static final String GLOVES_REFLECTION = "resources/gloves/gloves-white.png";
 
+    // splash screen
+    public static final String TITLE = "resources/splashScreen/title.png";
+
     // Screen Size
     public final int ScreenWidth;
     public final int ScreenHeight;
@@ -352,6 +355,9 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(GLOVES_REFLECTION);
         ResourceManager.loadImage(GLOVES_REGENERATION);
         ResourceManager.loadImage(GLOVES_SWIFTNESS);
+
+        // TITLE
+        ResourceManager.loadImage(TITLE);
 
 
     }
