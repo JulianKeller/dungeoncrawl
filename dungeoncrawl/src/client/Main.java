@@ -171,6 +171,7 @@ public class Main extends StateBasedGame {
     boolean showPath = false;   // shows dijkstra or not
     ArrayList<BaseMap> maptiles;
     boolean collisions;
+    boolean invincibility;
     ArrayList<DisplayItem> testItems;
     Character hero;
     public ArrayList<Character> characters;
@@ -226,6 +227,7 @@ public class Main extends StateBasedGame {
         xOffset = tilesize - doubleOffset;
         yOffset = tilesize + doubleOffset/2;
         collisions = true;
+        invincibility = false;
 
         characters = new ArrayList<>();
         enemies = new ArrayList<>();
