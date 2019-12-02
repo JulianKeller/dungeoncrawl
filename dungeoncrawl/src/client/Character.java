@@ -254,7 +254,7 @@ public class Character extends MovingEntity {
                 updateAnimation(action);
                 animate.start();
             }
-            if (attackTimer <= 0) {
+            if (attackTimer <= 0 && !dc.invincible) {
                 dc.hero.takeDamage(getAttackDamage(), "");
                 attackTimer = getAttackSpeed();
 

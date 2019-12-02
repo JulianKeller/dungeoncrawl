@@ -40,9 +40,9 @@ public class Cheats {
         else if (input.isKeyPressed(Input.KEY_6)) {
             dc.showPath = !dc.showPath;
         }
-//        else if (input.isKeyPressed(Input.KEY_7)) {
-//
-//        }
+        else if (input.isKeyPressed(Input.KEY_7)) {
+            dc.invincible = !dc.invincible;
+        }
 //        else if (input.isKeyPressed(Input.KEY_8)) {
 //            dc.showPath = !dc.showPath;
 //        }
