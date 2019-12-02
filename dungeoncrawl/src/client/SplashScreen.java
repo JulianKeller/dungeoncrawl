@@ -87,7 +87,7 @@ public class SplashScreen extends BasicGameState {
         }
         if (connect) {
             if (input.isKeyPressed(Input.KEY_ENTER)) {
-                connectToSever(dc, game);
+                connectToSever(dc);
             }
         }
 
@@ -146,9 +146,11 @@ public class SplashScreen extends BasicGameState {
                 return;
             }
             characterOption++;
-        } else if (input.isKeyPressed(Input.KEY_ENTER)) {
-            selectedPlayer = characterTypes.get(characterOption).message;
         }
+//        else if (input.isKeyPressed(Input.KEY_ENTER)) {
+//            selectedPlayer = characterTypes.get(characterOption).message;
+//        }
+        selectedPlayer = characterTypes.get(characterOption).message;
 
         Element ch = characterTypes.get(characterOption);
         ch.color = new Color(Color.red);
@@ -332,7 +334,7 @@ public class SplashScreen extends BasicGameState {
      *
      * @param dc
      */
-    private void connectToSever(Main dc, StateBasedGame game) {
+    private void connectToSever(Main dc) {
         // Setting up the connection to the server
         Socket socket = null;
         ObjectInputStream dis = null;
@@ -356,9 +358,6 @@ public class SplashScreen extends BasicGameState {
         dc.socket = socket;
         dc.dis = dis;
         dc.dos = dos;
-
-        ((Level)game.getState(Main.LEVEL1)).setType(selectedPlayer);
-        System.out.println(selectedPlayer);
         dc.enterState(Main.LEVEL1);
     }
 
