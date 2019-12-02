@@ -3,6 +3,7 @@ package client;
 import jig.Collision;
 import jig.Vector;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -31,6 +32,8 @@ public class Character extends MovingEntity {
     int range;          // range to player in tiles to use dijkstra's
     private int attackTimer = 0;
     int stenchMoves = -1;        // number moves that stench path is active
+    PathFinding find;
+    boolean speedDoubled = false;
 
 
     /**
@@ -255,49 +258,30 @@ public class Character extends MovingEntity {
                 dc.hero.takeDamage(getAttackDamage(), "");
                 attackTimer = getAttackSpeed();
 
-                // thorns and reflectin effects
-                if (dc.hero.isThorny() && dc.hero.isReflecting()) {     // take 100% damage delt
-                    takeDamage((float) getAttackDamage(), "");
-                }
-                if (dc.hero.isThorny() || dc.hero.isReflecting()) {     // take 50% damage delt
+                // thorns effect, AI takes 50% damage delt
+                if (dc.hero.isThorny() || dc.hero.isReflecting()) {
                     takeDamage((float) getAttackDamage()/2, "");
                 }
             }
             else {
                 attackTimer -= delta;
             }
-//            return;
+            return;
         }
-
 
         // run dijkstra's so enemies attack the player if the player is in range and not invisible
-        if (stenchMoves > 0) {
-            stenchMoves--;
-            next = getNextDirection(dc);
-        }
-        else if (stenchMoves == 0) {
-            halfMoveSpeed();
-            halfMoveSpeed();
-            stenchMoves--;
-            dc.hero.removeEffect("Stench");
-        }
-        // if the player has the stench effect there is a 30% chance the AI will pathfind to the wrong coordinates
-
-        // Run Dijkstra's
-        else if (playerNearby(range) && !dc.hero.isInvisible()) {
+        if (playerNearby(range) && !dc.hero.isInvisible()) {
             Vector heroWC = dc.hero.getTileWorldCoordinates();
+
+            // if the player has the stench effect there is a 30% chance the AI will pathfind to the wrong coordinates
             if (dc.hero.isStinky() || dc.hero.isFrightening()) {
                 Random rand = new Random();
                 int value = rand.nextInt(100);
-                int chance = 50;    // isFrightening chance 50%
+                int chance = 50;    // isFrigtening chance 50%
                 if (dc.hero.isStinky()) {
                     chance = 30;    // stinky chance 30%
                 }
                 if (value <= chance) {
-                    stenchMoves = 20;
-                    System.out.println("Speed quadrupled");
-                    doubleMoveSpeed();
-                    doubleMoveSpeed();
                     switch (dc.hero.direction) {
                         case "walk_up":
                             heroWC = new Vector(dc.hero.getTileWorldCoordinates().getX(), dc.hero.getTileWorldCoordinates().getY() + 10);
@@ -314,25 +298,28 @@ public class Character extends MovingEntity {
                     }
                 }
             }
-            PathFinding find = new PathFinding(dc, getTileWorldCoordinates(), heroWC);
+
+            find = new PathFinding(dc, getTileWorldCoordinates(), heroWC);
             int startX = (int) getTileWorldCoordinates().getX();
             int startY = (int) getTileWorldCoordinates().getY();
             shortest = find.dijkstra(dc, startX, startY);
-
-            // load arrows for dijkstra's debugging
-            if (dc.showPath) {
-                Arrow.removeArrows(this);
-                Arrow.loadPathArrows(dc, this);
-                weights = find.getWeights();
-            }
             next = getNextDirection(dc);
         }
 
+        // load arrows for dijkstra's debugging
+        if (dc.showPath) {
+            Arrow.removeArrows(this);
+            Arrow.loadPathArrows(dc, this);
+            if (find != null) {
+                weights = find.getWeights();
+            }
+        }
         else {
             Arrow.removeArrows(this);
             weights = null;
         }
         // move based on the shortest path
+
         if (next != null) {
             direction = next;
         } else {
@@ -363,6 +350,7 @@ public class Character extends MovingEntity {
         }
         changeOrigin();     // check if the screen origin needs to change
     }
+
 
     /**
      * @return Checks if the player is within range of the ai, true if so
@@ -600,7 +588,12 @@ public class Character extends MovingEntity {
                 x += 1;
                 break;
         }
-        return dc.map[y][x] == 1;
+        try {
+            return dc.map[y][x] == 1;
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 
     /*
