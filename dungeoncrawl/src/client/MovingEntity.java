@@ -476,9 +476,11 @@ Reflection:
     }
     
     public Item discardItem(Item i, boolean use){
+    	boolean removed = false;
     	if( i.count == 1 ){
     		i.count--;
     		inventory.remove(i);
+    		removed = true;
     	}else{
     		i.count--;
     	}
@@ -496,8 +498,10 @@ Reflection:
     	inventoryWeight -= i.getWeight();
     	//get the weight of the new stack
     	i.updateWeight();
-    	//add the new weight
-    	inventoryWeight += i.getWeight();
+    	if( !removed ){
+    		//add the new weight
+    		inventoryWeight += i.getWeight();
+    	}
     	
     	return i;
     }

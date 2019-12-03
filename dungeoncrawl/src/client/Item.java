@@ -325,6 +325,10 @@ public class Item extends StationaryObject{
 			weight = 15*count;
 		}
 	}
+	public void setImage(Image img){
+		removeImage(this.image);
+		addImage(img);
+	}
 	
 	//render function
 	public void render(Graphics g){
