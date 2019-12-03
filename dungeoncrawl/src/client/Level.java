@@ -994,7 +994,9 @@ public class Level extends BasicGameState {
                 			cannotRemove = true;
                 		}
                 	}
-            		if( !cannotRemove && canUse(itm, dc.hero) ){	           
+                	
+                	String attackableItems = "Sword Glove Potion Arrow Staff";
+            		if( attackableItems.contains(itm.getType()) && !cannotRemove && canUse(itm, dc.hero) ){	           
             	
 	                    attack(itm, dc, lastKnownDirection);
 	                    if( itm.isCursed() ){
@@ -1014,8 +1016,10 @@ public class Level extends BasicGameState {
                 			cannotRemove = true;
                 		}
                 	}
+                	
+                	String usableItems = "Potion Armor";
                 
-	                if( canUse(i, dc.hero) && !cannotRemove){
+	                if( usableItems.contains(i.getType()) && canUse(i, dc.hero) && !cannotRemove ){
 		                String x = "";
 		                if( i.getType().equals("Potion") ){
 		                    x = "Drank";
