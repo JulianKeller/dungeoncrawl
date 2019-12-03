@@ -1130,9 +1130,7 @@ public class Level extends BasicGameState {
 	                    addMessage("Picked up unidentified "+i.toString()+".");
 	                }
 	                
-                    if( ch.getInventoryWeight() >= ch.getMaxInventoryWeight()*0.7 ){
-                    	addMessage("You are encumbered.");
-                    }
+            
 	                
 	                
 	
@@ -1162,6 +1160,11 @@ public class Level extends BasicGameState {
 	                    //  and adds it to the player's inventory
 	                    Main.im.give(i, ch);
 	                }
+	                
+	                //check if player is weighed down
+	                if( ch.getInventoryWeight() >= ch.getMaxInventoryWeight()*0.7 ){
+                    	addMessage("You are encumbered.");
+                    }
 	
 	                //stop rendering the item
 	                itemsToRender.remove(i);
