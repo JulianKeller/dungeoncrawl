@@ -1005,7 +1005,7 @@ public class Level extends BasicGameState {
                 // TODO may need to be changed to be added to worldItems
                 itemsToRender.add(itm);
 
-                addMessage("Dropped "+dc.hero.getEquipped()[selectedEquippedItem]+".");
+                addMessage("Dropped "+itm.toString()+".");
             }else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
                 //return item to inventory
                 dc.hero.unequipItem(selectedEquippedItem);
