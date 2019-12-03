@@ -1,6 +1,5 @@
 ## Current Issues
-[32] - refactor and fix framerate drop
-
+[35] - add controls to splash screen
 
 ## Open Issues ##
 [12] - update floor tiles
@@ -32,4 +31,5 @@
 [27] - refactor main to use a splash screen 
 [28] - write method to be called in enter() on the client to generate all the AI characters
 [31] - implement player AI effects
+[32] - refactor and fix framerate drop
 [34] - add invincibility cheat

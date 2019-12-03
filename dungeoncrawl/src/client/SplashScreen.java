@@ -47,19 +47,20 @@ public class SplashScreen extends BasicGameState {
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) {
-        Main dc = (Main) game;
-        System.out.println("Welcome to the Splashscreen");
-
+//        Main dc = (Main) game;
     }
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
 
-        renderName(dc, g);
+        renderNameAndBackground(dc, g);
         renderCharacters(dc, g);
         renderIP(dc, g);
         renderLaunch(dc, g);
+        renderControls(dc, g);
+        Color tmp = g.getColor();
+        g.setColor(new Color(255, 255, 255, 1f));
         if (selectCharacter) {
             g.drawRect(427, 160, 426, 75);
         } else if (enterAddress) {
@@ -67,6 +68,7 @@ public class SplashScreen extends BasicGameState {
         } else if (connect) {
             g.drawRect(427, 310, 426, 75);
         }
+        g.setColor(tmp);
         if (error) {
             renderError(dc, g);
         }
@@ -144,9 +146,6 @@ public class SplashScreen extends BasicGameState {
             }
             characterOption++;
         }
-//        else if (input.isKeyPressed(Input.KEY_ENTER)) {
-//            selectedPlayer = characterTypes.get(characterOption).message;
-//        }
         selectedPlayer = characterTypes.get(characterOption).message;
 
         Element ch = characterTypes.get(characterOption);
@@ -157,14 +156,12 @@ public class SplashScreen extends BasicGameState {
             }
             e.color = new Color(Color.white);
         }
-
     }
 
     /*
     Selects the sub menu, outlines it in a white box
      */
     private void selectNextSubMenu(Input input) {
-
         if (input.isKeyPressed(Input.KEY_DOWN)) {
             if (menuOption >= 2) {
                 menuOption = 2;
@@ -203,6 +200,29 @@ public class SplashScreen extends BasicGameState {
         }
     }
 
+
+    /*
+    render game controls
+     */
+    private void renderControls(Main dc, Graphics g) {
+        Color tmp = g.getColor();
+        int shift = 465;
+        int left = 150;
+        int indent = 200;
+        g.setColor(new Color(0, 0, 0, .5f));
+        g.fillRect( left - 20, shift - 20, 385, 260);
+        g.setColor(new Color(255, 255, 255, 1f));
+        g.drawString("Move: w, a, s, d", left, shift);
+        g.drawString("Pause: p", left, shift + 25);
+        g.drawString("Open/Close Inventory: i", left, shift + 50);
+        g.drawString("Traverse Inventory: Arrow Keys", indent, shift + 75);
+        g.drawString("Move Item to Inventory: enter", indent, shift + 100);
+        g.drawString("Display Codex: o", left, shift + 125);
+        g.drawString("drop item: backslash", left, shift + 150);
+        g.drawString("unequip item: shift", left, shift + 175);
+        g.drawString("attack: space/enter", left, shift + 200);
+        g.setColor(tmp);
+    }
 
     /*
     let the player know there is an error
@@ -279,10 +299,12 @@ public class SplashScreen extends BasicGameState {
     /*
     Renders the title of the game
      */
-    private void renderName(Main dc, Graphics g) {
+    private void renderNameAndBackground(Main dc, Graphics g) {
         Color tmp = g.getColor();
+//        g.scale(.5f, .5f);
         g.drawImage(ResourceManager.getImage(Main.MAP_IMG), 0, 0);
         g.setColor(new Color(0, 0, 0, .5f));
+//        g.scale(2, 2);
         g.fillRect(0, 0, dc.ScreenWidth, dc.ScreenHeight);
         g.setColor(tmp);
         g.drawImage(ResourceManager.getImage(Main.TITLE), 0, 0);
