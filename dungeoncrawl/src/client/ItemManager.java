@@ -93,7 +93,7 @@ public class ItemManager {
 			worldItems.add(i);
 		}
 		
-		c.discardItem(i.getID(), use);
+		c.discardItem(i, use);
 	}
 	
 	private int currentItemID = 0;

@@ -1,7 +1,5 @@
 package server;
 
-import org.lwjgl.Sys;
-
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
@@ -23,6 +21,7 @@ public class ClientHandler extends Thread{
         writeSuccess = true;
 
     }
+
     @Override
     public void run(){
         try{
@@ -87,7 +86,7 @@ public class ClientHandler extends Thread{
     private boolean writeToClient() {
         try {
             String toClient = threadQueue.take();
-//            System.out.println("Writing to client "+id+": "+toClient);
+            //System.out.println("Writing to client "+id+": "+toClient);
             os.writeUTF(toClient);
             os.flush();
         } catch (IOException | InterruptedException e) {

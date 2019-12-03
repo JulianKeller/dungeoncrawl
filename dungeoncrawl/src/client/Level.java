@@ -135,6 +135,7 @@ public class Level extends BasicGameState {
 
 
         // Grab the map from the server.Server
+
         try {
            dc.map = (int[][])dis.readObject();
            System.out.println("I got the map!");
@@ -154,8 +155,11 @@ public class Level extends BasicGameState {
             }
         }
 
+
+
         // initialize itemsToRender
         itemsToRender = new ArrayList<>();
+//        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
 
         //find a tile with no walls in its horizontal adjacencies
         rand = new Random();
@@ -171,6 +175,7 @@ public class Level extends BasicGameState {
 		}
 
         // map variables
+        //Main dc = (Main) game;
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
@@ -262,6 +267,8 @@ public class Level extends BasicGameState {
             return true;
         }
         return false;
+
+
     }
 
 
@@ -274,12 +281,83 @@ public class Level extends BasicGameState {
 
 
     public void addMessage(String message){
-        //add a message to the first index of the message box
+        //check for a duplicate message
+    	for( Message m : messagebox ){
+    		if( m == null ){
+    			break;
+    		}
+    		if( m.text.equals(message)){
+    			return;
+    		}
+    	}
+    	
+    	//add a message to the first index of the message box
         //  and shift everything else down
         for( int i = messagebox.length-1; i > 0; i-- ){
             messagebox[i] = messagebox[i-1];
         }
         messagebox[0] = new Message(message);
+    }
+    
+    public Image getArrowImage(String effect, String dir) throws SlickException{
+    	 //get image based on effect and direction
+        Image image = null;
+        if( dir == null ){
+        	//spawn arrow item
+            if( effect.equals("Poison") ){
+                image = ResourceManager.getImage(Main.ARROW_POISON);
+            }else if( effect.equals("Flame") ){
+                image = ResourceManager.getImage(Main.ARROW_FLAME);
+            }else if( effect.equals("Ice") ){
+                image = ResourceManager.getImage(Main.ARROW_ICE);
+            }else if( effect.equals("") ){
+                image = ResourceManager.getImage(Main.ARROW_NORMAL);
+            }
+        }else if( dir.equals("up") ){
+            if( effect.equals("Poison") ){
+                image = ResourceManager.getImage(Main.ARROW_POISON_UP);
+            }else if( effect.equals("Flame") ){
+                image = ResourceManager.getImage(Main.ARROW_FLAME_UP);
+            }else if( effect.equals("Ice") ){
+                image = ResourceManager.getImage(Main.ARROW_ICE_UP);
+            }else if( effect.equals("") ){
+                image = ResourceManager.getImage(Main.ARROW_NORMAL_UP);
+            }
+        }else if( dir.equals("down") ){
+            if( effect.equals("Poison") ){
+                image = ResourceManager.getImage(Main.ARROW_POISON_DOWN);
+            }else if( effect.equals("Flame") ){
+                image = ResourceManager.getImage(Main.ARROW_FLAME_DOWN);
+            }else if( effect.equals("Ice") ){
+                image = ResourceManager.getImage(Main.ARROW_ICE_DOWN);
+            }else if( effect.equals("") ){
+                image = ResourceManager.getImage(Main.ARROW_NORMAL_DOWN);
+            }
+        }else if( dir.equals("left") ){
+            if( effect.equals("Poison") ){
+                image = ResourceManager.getImage(Main.ARROW_POISON_LEFT);
+            }else if( effect.equals("Flame") ){
+                image = ResourceManager.getImage(Main.ARROW_FLAME_LEFT);
+            }else if( effect.equals("Ice") ){
+                image = ResourceManager.getImage(Main.ARROW_ICE_LEFT);
+            }else if( effect.equals("") ){
+                image = ResourceManager.getImage(Main.ARROW_NORMAL_LEFT);
+            }
+        }else if( dir.equals("right") ){
+            if( effect.equals("Poison") ){
+                image = ResourceManager.getImage(Main.ARROW_POISON_RIGHT);
+            }else if( effect.equals("Flame") ){
+                image = ResourceManager.getImage(Main.ARROW_FLAME_RIGHT);
+            }else if( effect.equals("Ice") ){
+                image = ResourceManager.getImage(Main.ARROW_ICE_RIGHT);
+            }else if( effect.equals("") ){
+                image = ResourceManager.getImage(Main.ARROW_NORMAL_RIGHT);
+            }
+        }
+        if( image == null ){
+            throw new SlickException("Invalid arrow effect " + effect);
+        }
+        return image;
     }
 
 
@@ -295,6 +373,7 @@ public class Level extends BasicGameState {
         // TODO will need to sort the lists and draw in order so players draw on top of others
         // draw other characters
         renderCharacters(dc, g);
+
         // draw the hero
         dc.hero.animate.render(g);
 
@@ -366,7 +445,7 @@ public class Level extends BasicGameState {
         g.drawString("Coord : " + dc.hero.animate.getPosition(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*7));
         g.drawString("Pos   : <" + (int) dc.hero.getTileWorldCoordinates().getX() + ", " +  (int) dc.hero.getTileWorldCoordinates().getY() + ">", dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*9));
         g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*8));
-
+        g.drawString("Weight: " + dc.hero.getInventoryWeight(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*9));
 
         if (dc.showPath) {
             renderShortestPath(dc, g);
@@ -430,6 +509,7 @@ public class Level extends BasicGameState {
                 a.render(g);
             }
         }
+
     }
 
     /**
@@ -483,7 +563,6 @@ public class Level extends BasicGameState {
             }
         }
     }
-
 
     /**
      * Render debug information on the screen
@@ -581,7 +660,6 @@ public class Level extends BasicGameState {
         }
     }
 
-
     /**
      * Render the players inventory
      * @param dc
@@ -608,6 +686,7 @@ public class Level extends BasicGameState {
                     }
                 }
                 //draw a square around the selected item
+
                 g.drawRect(
                         (itemx + 1)*dc.tilesize,
                         (itemy + 2)*dc.tilesize,
@@ -705,7 +784,6 @@ public class Level extends BasicGameState {
         }
     }
 
-
     /**
      * Renders new items which are being tested
      * @param dc
@@ -742,7 +820,6 @@ public class Level extends BasicGameState {
         }
     }
 
-
     /*
     Renders the other characters and AI on the screen if they are in the players screen
      */
@@ -755,9 +832,11 @@ public class Level extends BasicGameState {
                     ch.animate.render(g);
                 }
             }
-        }
-    }
 
+        }
+        //*/
+
+    }
 
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
         Color tmp = g.getColor();
@@ -769,10 +848,13 @@ public class Level extends BasicGameState {
         g.setColor(Color.white);
         g.drawString(title, dc.tilesize + 10, dc.tilesize + 10);
         g.setColor(tmp);
+
     }
 
     private Scanner scan = new Scanner(System.in);
+
     private String prevks = "";
+
     private Vector vectorFromKeystroke(String ks){
         if( ks.equals("w") ){
             return new Vector(0, -1);
@@ -787,7 +869,6 @@ public class Level extends BasicGameState {
         }
     }
 
-
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         Input input = container.getInput();
@@ -800,7 +881,7 @@ public class Level extends BasicGameState {
 
         //implement effects on the character
         dc.hero.implementEffects();
-        // reduce the effect timers by a constant value each frame
+        //reduce the effect timers by a constant value each frame
         //  if delta is used instead of a constant, tabbing away from
         //  the game window can cause all effects to disappear instantly
         dc.hero.updateEffectTimers(16);
@@ -907,40 +988,42 @@ public class Level extends BasicGameState {
             }else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
                 //use item on own character
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
+                if( i != null ){
                 
-                if( canUse(i, dc.hero) ){
-	                String x = "";
-	                if( i.getType().equals("Potion") ){
-	                    x = "Drank";
-	                }else if( i.getType().equals("Armor") ){
-	                    x = "Put on";
-	                }else{
-	                    x = "Used";
-	                }
-	                addMessage(x + " " + i.toString());
-	                //TODO: add potion effects to character
-	                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
-	                    //add effect to character
-	                    dc.hero.addEffect(i.getEffect());
-	                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
-	                }
-	
-	                //remove the item from hands
-	                dc.hero.unequipItem(selectedEquippedItem);
-	
-	                //only remove the item from the inventory if it is a potion/consumable
-	                //armor should remain in the player's inventory
-	                if( i.getType().equals("Potion") ){
-	                    dc.hero.discardItem(i.getID(), true);
-	                }else if( i.getType().equals("Armor") ){
-	                    i.identify();
-	
-	                    //set the hero type to change the armor
-	                    if( dc.hero.getType().contains("knight") ){
-	                        dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
-	                    }else if( dc.hero.getType().contains("tank") ){
-	                        dc.hero.setType("tank_"+i.getMaterial().toLowerCase());
-	                    }
+	                if( canUse(i, dc.hero) ){
+		                String x = "";
+		                if( i.getType().equals("Potion") ){
+		                    x = "Drank";
+		                }else if( i.getType().equals("Armor") ){
+		                    x = "Put on";
+		                }else{
+		                    x = "Used";
+		                }
+		                addMessage(x + " " + i.toString());
+		                //TODO: add potion effects to character
+		                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
+		                    //add effect to character
+		                    dc.hero.addEffect(i.getEffect());
+		                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
+		                }
+		
+		                //remove the item from hands
+		                dc.hero.unequipItem(selectedEquippedItem);
+		
+		                //only remove the item from the inventory if it is a potion/consumable
+		                //armor should remain in the player's inventory
+		                if( i.getType().equals("Potion") ){
+		                    dc.hero.discardItem(i.getID(), true);
+		                }else if( i.getType().equals("Armor") ){
+		                    i.identify();
+		
+		                    //set the hero type to change the armor
+		                    if( dc.hero.getType().contains("knight") ){
+		                        dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
+		                    }else if( dc.hero.getType().contains("tank") ){
+		                        dc.hero.setType("tank_"+i.getMaterial().toLowerCase());
+		                    }
+		                }
 	                }
                 }
 
@@ -948,28 +1031,39 @@ public class Level extends BasicGameState {
 
 
                 Item itm = dc.hero.getEquipped()[selectedEquippedItem];
-                dc.hero.unequipItem(selectedEquippedItem);
-
-
-
-                //place the item on the world at the dc.hero's position
-                //get world coords of dc.hero position
-                Vector wc = new Vector((int) dc.hero.getTileWorldCoordinates().getX(), (int) dc.hero.getTileWorldCoordinates().getY());
-                System.out.println("placing item at "+wc.getX() + ", " + wc.getY());
-                //this will remove the item from the dc.hero's inventory and place it on the world
-
-                Main.im.take(itm.getID(), dc.hero.getPid(), wc, false);
-
-                //lock the item with a timer
-                itm.lock();
-                //add item lock timer
-                itemLockTimers.add( new ItemLockTimer(itm.getID()) );
-                System.out.println("Locked dropped item.");
-
-                //add the item to the render list
-//                itemsToRender.add(itm);
-
-                addMessage("Dropped "+dc.hero.getEquipped()[selectedEquippedItem]+".");
+                if( itm != null ){
+	                if( itm.getType().equals("Arrow") ){
+	                	//reset the item count
+	                	itm.count = 1;
+	                	
+	                	itm.setImage(getArrowImage(itm.getEffect(), null));
+	                }
+	                dc.hero.unequipItem(selectedEquippedItem);
+	
+	
+	
+	                //place the item at the hero's feet
+	                Vector wc = new Vector(
+	                		(int)(dc.hero.getWorldCoordinates().getX()/dc.tilesize),
+	                		(int)(dc.hero.getWorldCoordinates().getY()/dc.tilesize)+1
+	                		);
+	                Main.im.take(itm, dc.hero, wc, false);
+	
+	                
+	                //reduce the hero's inventory weight
+	                
+	                //lock the item with a timer
+	                itm.lock();
+	                //add item lock timer
+	                itemLockTimers.add( new ItemLockTimer(itm.getID()) );
+	                System.out.println("Locked dropped item.");
+	
+	                //add the item to the render list
+	                // TODO may need to be changed to be added to worldItems
+	                itemsToRender.add(itm);
+	
+	                addMessage("Dropped "+itm.toString()+".");
+                }
             }else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
                 //return item to inventory
                 dc.hero.unequipItem(selectedEquippedItem);
@@ -1082,42 +1176,57 @@ public class Level extends BasicGameState {
 
             Item i = Main.im.getItemAt(aniPos);
             if( i != null && !i.isLocked() ){
-                if( i.isIdentified() ){
-                    addMessage("Picked up " + i.toString() + ".");
-                }else{
-                    addMessage("Picked up unidentified "+i.toString()+".");
-                }
-
-                
-                if( i.getType().equals("Arrow") ){
-                	Image image = null;
-                	if( i.getEffect().equals("Poison") ){
-                		image = ResourceManager.getImage(Main.ARROW_POISON_UP);
-                	}else if( i.getEffect().equals("Flame") ){
-                		image = ResourceManager.getImage(Main.ARROW_FLAME_UP);
-                	}else if( i.getEffect().equals("Ice") ){
-                		image = ResourceManager.getImage(Main.ARROW_ICE_UP);
-                	}else if( i.getEffect().equals("") ){
-                		image = ResourceManager.getImage(Main.ARROW_NORMAL_UP);
-                	}
-                	if( image == null){
-                		throw new SlickException("Invalid arrow effect.");
-                	}
-                	
-                	//give the character 5 arrows
-                	Item arrow = new Item(i.getWorldCoordinates(), i.isLocked(), i.getID(), ch.getPid(), i.getEffect(), "Arrow", i.getMaterial(), 
-                			i.isCursed(), i.isIdentified(), image, 5);
-                	Main.im.give(arrow, ch);
-                	i.lock();
-                }else{
-                    //give removes item from the world's inventory
-                    //  and adds it to the player's inventory
-                    Main.im.give(i.getID(), ch.getPid());
-                }
-
-                //stop rendering the item
-                itemsToRender.remove(i);
-                Main.im.removeFromWorldItems(i);
+            	if( ch.getInventoryWeight() >= ch.getMaxInventoryWeight() ){
+            		addMessage("You cannot carry any more.");
+            	}else{
+	            		
+	            	
+	                if( i.isIdentified() ){
+	                    addMessage("Picked up " + i.toString() + ".");
+	                }else{
+	                    addMessage("Picked up unidentified "+i.toString()+".");
+	                }
+	                
+            
+	                
+	                
+	
+	                
+	                if( i.getType().equals("Arrow") ){
+	                	Image image = null;
+	                	if( i.getEffect().equals("Poison") ){
+	                		image = ResourceManager.getImage(Main.ARROW_POISON_UP);
+	                	}else if( i.getEffect().equals("Flame") ){
+	                		image = ResourceManager.getImage(Main.ARROW_FLAME_UP);
+	                	}else if( i.getEffect().equals("Ice") ){
+	                		image = ResourceManager.getImage(Main.ARROW_ICE_UP);
+	                	}else if( i.getEffect().equals("") ){
+	                		image = ResourceManager.getImage(Main.ARROW_NORMAL_UP);
+	                	}
+	                	if( image == null){
+	                		throw new SlickException("Invalid arrow effect.");
+	                	}
+	                	
+	                	//give the character 5 arrows
+	                	Item arrow = new Item(i.getWorldCoordinates(), i.isLocked(), i.getID(), ch.getPid(), i.getEffect(), "Arrow", i.getMaterial(), 
+	                			i.isCursed(), i.isIdentified(), image, 5);
+	                	Main.im.give(arrow, ch);
+	                	i.lock();
+	                }else{
+	                    //give removes item from the world's inventory
+	                    //  and adds it to the player's inventory
+	                    Main.im.give(i, ch);
+	                }
+	                
+	                //check if player is weighed down
+	                if( ch.getInventoryWeight() >= ch.getMaxInventoryWeight()*0.7 ){
+                    	addMessage("You are encumbered.");
+                    }
+	
+	                //stop rendering the item
+	                itemsToRender.remove(i);
+	                Main.im.removeFromWorldItems(i);
+	            }
             }
         }
 
@@ -1269,55 +1378,9 @@ public class Level extends BasicGameState {
         }else if( itm.getType().equals("Arrow") ){
             //Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
 
+        	Image image = getArrowImage(itm.getEffect(), dir);
 
-
-            //get image based on effect and direction
-            Image image = null;
-            if( dir.equals("up") ){
-                if( itm.getEffect().equals("Poison") ){
-                    image = ResourceManager.getImage(Main.ARROW_POISON_UP);
-                }else if( itm.getEffect().equals("Flame") ){
-                    image = ResourceManager.getImage(Main.ARROW_FLAME_UP);
-                }else if( itm.getEffect().equals("Ice") ){
-                    image = ResourceManager.getImage(Main.ARROW_ICE_UP);
-                }else if( itm.getEffect().equals("") ){
-                    image = ResourceManager.getImage(Main.ARROW_NORMAL_UP);
-                }
-            }else if( dir.equals("down") ){
-                if( itm.getEffect().equals("Poison") ){
-                    image = ResourceManager.getImage(Main.ARROW_POISON_DOWN);
-                }else if( itm.getEffect().equals("Flame") ){
-                    image = ResourceManager.getImage(Main.ARROW_FLAME_DOWN);
-                }else if( itm.getEffect().equals("Ice") ){
-                    image = ResourceManager.getImage(Main.ARROW_ICE_DOWN);
-                }else if( itm.getEffect().equals("") ){
-                    image = ResourceManager.getImage(Main.ARROW_NORMAL_DOWN);
-                }
-            }else if( dir.equals("left") ){
-                if( itm.getEffect().equals("Poison") ){
-                    image = ResourceManager.getImage(Main.ARROW_POISON_LEFT);
-                }else if( itm.getEffect().equals("Flame") ){
-                    image = ResourceManager.getImage(Main.ARROW_FLAME_LEFT);
-                }else if( itm.getEffect().equals("Ice") ){
-                    image = ResourceManager.getImage(Main.ARROW_ICE_LEFT);
-                }else if( itm.getEffect().equals("") ){
-                    image = ResourceManager.getImage(Main.ARROW_NORMAL_LEFT);
-                }
-            }else if( dir.equals("right") ){
-                if( itm.getEffect().equals("Poison") ){
-                    image = ResourceManager.getImage(Main.ARROW_POISON_RIGHT);
-                }else if( itm.getEffect().equals("Flame") ){
-                    image = ResourceManager.getImage(Main.ARROW_FLAME_RIGHT);
-                }else if( itm.getEffect().equals("Ice") ){
-                    image = ResourceManager.getImage(Main.ARROW_ICE_RIGHT);
-                }else if( itm.getEffect().equals("") ){
-                    image = ResourceManager.getImage(Main.ARROW_NORMAL_RIGHT);
-                }
-            }
-            if( image == null ){
-                throw new SlickException("Invalid arrow effect " + itm.getEffect());
-            }
-
+           
             //spawn at the world coordinate of the player's animation
             //also add the hero origin, or the number of tiles that have been scrolled in either direction
             Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
