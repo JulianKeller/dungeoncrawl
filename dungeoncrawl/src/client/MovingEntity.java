@@ -285,6 +285,7 @@ Reflection:
 
     
     public void implementEffects() throws SlickException{
+    	float curseModifier = 0.5f;
     	for( Effect e : activeEffects ){
     		//System.out.println(e.name);
     		if( e.name.equals("Healing") ){
@@ -293,7 +294,11 @@ Reflection:
     			//  current value
     			if( startingHitPoints > hitPoints ){
 	    			float diff = startingHitPoints - hitPoints;
-	    			hitPoints += (diff*0.25);
+	    			if( !e.cursed ){
+	    				hitPoints += (diff*0.25);
+	    			}else{
+	    				hitPoints += (diff*0.25)*curseModifier;
+	    			}
     			}
     			
     		}else if( e.name.equals("Strength") ){
@@ -306,11 +311,19 @@ Reflection:
     			//	want to lose 10 hp per second
     			//	assume 60 frames per second
     			//	10/60 = amount of hp lost per frame
-    			hitPoints -= ( (float) 10/60);
+    			if( !e.cursed ){
+    				hitPoints -= ( (float) 10/60 );
+    			}else{
+    				hitPoints -= ( (float) (10*curseModifier)/60 );
+    			}
     			
     		}else if( e.name.equals("Mana") ){
     			//add 15% to the current maximum mana
-    			mana += (mana*0.15);
+    			if( !e.cursed ){
+    				mana += (mana*0.15);
+    			}else{
+    				mana += (mana*0.15*curseModifier);
+    			}
     			
     		}else if( e.name.equals("Invisibility") ){
     			//little too complicated for this function,
@@ -318,11 +331,19 @@ Reflection:
     			invisible = true;
     		}else if( e.name.equals("Poisoned") ){
     			//decrease health by 5 every second
-    			hitPoints -= ( (float) 5/60);
+    			if( !e.cursed ){
+    				hitPoints -= ( (float) 5/60);
+    			}else{
+    				hitPoints -= ( (float) (5*curseModifier)/60);
+    			}
     			
     		}else if( e.name.equals("Ice") ){
     			//set movement speed to zero
-    			movementSpeed = 0;
+    			if( !e.cursed ){
+    				movementSpeed = 0;
+    			}else{
+    				movementSpeed /= 2;
+    			}
     			//animationSpeed = 0;
     			
     		}else if( e.name.equals("Lightning") ){
@@ -330,7 +351,11 @@ Reflection:
     			rand.setSeed(System.nanoTime());
     			int r = rand.nextInt(100);
     			if( r < 60 ){
-    				hitPoints -= 20;
+    				if( !e.cursed ){
+    					hitPoints -= 20;
+    				}else{
+    					hitPoints -= 20*curseModifier;
+    				}
     				currentLevel.addMessage("Struck by lightning!");
     				System.out.println("Struck by lightning!");
     			}
@@ -342,7 +367,11 @@ Reflection:
     		}else if( e.name.equals("Iron Skin") ){
     			//double the armor points variable
     			if( armorPoints == initialArmorPoints ){
-    				armorPoints *= 2;
+    				if( !e.cursed ){
+    					armorPoints *= 2;
+    				}else{
+    					armorPoints *= 2*curseModifier;
+    				}
     			}
     			
     			
@@ -371,7 +400,11 @@ Reflection:
     			rand.setSeed(System.nanoTime());
     			int r = rand.nextInt(100);
     			if( r < 50 ){
-    				hitPoints += 3;
+    				if( !e.cursed ){
+    					hitPoints += 3;
+    				}else{
+    					hitPoints += 3*curseModifier;
+    				}
     			}
     			
     		}else if( e.name.equals("Reflection") ){
