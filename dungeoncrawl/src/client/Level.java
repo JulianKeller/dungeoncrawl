@@ -739,7 +739,6 @@ public class Level extends BasicGameState {
     private void addTestItems(Main dc) {
         String[] itemList = new String[] {
                 "staff_emerald", "staff_ameythst", "staff_ruby",
-                "spell_emerald", "spell_ameythst", "spell_ruby",
                 "gloves_red", "gloves_white", "gloves_yellow",
                 "robes_blue", "robes_purple",
                 "archer_clothes_green", "archer_clothes_iron"
@@ -809,7 +808,7 @@ public class Level extends BasicGameState {
 
         //implement effects on the character
         dc.hero.implementEffects();
-        //reduce the effect timers by a constant value each frame
+        // reduce the effect timers by a constant value each frame
         //  if delta is used instead of a constant, tabbing away from
         //  the game window can cause all effects to disappear instantly
         dc.hero.updateEffectTimers(16);
@@ -829,12 +828,6 @@ public class Level extends BasicGameState {
         dc.hero.move(ks);
         positionToServer(dc);  // Get the player's updated position onto the server.
         updateOtherPlayers(dc);
-        /*
-        if (currentOrigin.getX() != dc.hero.origin.getX() && currentOrigin.getY() != dc.hero.origin.getY()) {
-            RenderMap.setMap(dc, dc.hero.origin);
-            currentOrigin = dc.hero.origin;
-        }
-        */
 
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){

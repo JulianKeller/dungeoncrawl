@@ -182,8 +182,6 @@ public class Main extends StateBasedGame {
     Entity[][] potions;
     ArrayList<AnimateEntity> animations;
 
-
-    
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
     
@@ -202,9 +200,6 @@ public class Main extends StateBasedGame {
     public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection"};
     
     //displayed item name should be of the form "material type of effect" using whatever fields are filled in
-    
-    
-
 
 
     /**
@@ -392,7 +387,7 @@ public class Main extends StateBasedGame {
             app = new AppGameContainer(game);
             app.setDisplayMode(1280, 736, false);
             app.setVSync(true);
-            app.setShowFPS(false);      // disable fps
+            app.setShowFPS(true);      // disable fps
             app.start();
         } catch (SlickException e) {
             e.printStackTrace();
