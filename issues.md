@@ -12,11 +12,11 @@ server for player.<br>
 **[ 17 ]** Fix syncing issue between other clients.<br>
 **[ 20 ]** Get enemies to sync up starting positions<br>
 **[ 22 ]** Get player selection working<br>
+**[ 23 ]** Add Hit points to the client/server string.<br>
 
 ## Pending Further Testing ##
 **[ 21 ]** Receive same messages to every client<br>
 ## PENDING ISSUES ##
 **[ 9 ]** Get item managment working on the server.<br>
 **[ 19 ]** Only update players that move<br>
-**[ 23 ]** Add Hit points to the client/server string.<br>
 **[ 18 ]** Make sure all clients are receiving the same server messages<br>
