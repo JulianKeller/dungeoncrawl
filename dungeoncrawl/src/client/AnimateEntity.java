@@ -30,8 +30,6 @@ public class AnimateEntity extends Entity {
      */
     public AnimateEntity(float x, float y, int speed, String sprite) {
         super(x, y);
-//        System.out.printf("Animate Entity %s, %s\n", x, y);
-        //this.action = action;
         this.speed = speed;
         this.sprite = sprite;
         this.spritesheet = getSpritesheet();
@@ -59,12 +57,24 @@ public class AnimateEntity extends Entity {
                 spritesheet = Main.MAGE_LEATHER;
                 break;
             }
-            case "mage_improved": {
-                spritesheet = Main.MAGE_IMPROVED;
+            case "mage_blue": {
+                spritesheet = Main.MAGE_BLUE;
+                break;
+            }
+            case "mage_purple": {
+                spritesheet = Main.MAGE_PURPLE;
                 break;
             }
             case "archer_leather": {
                 spritesheet = Main.ARCHER_LEATHER;
+                break;
+            }
+            case "archer_iron": {
+                spritesheet = Main.ARCHER_IRON;
+                break;
+            }
+            case "archer_green": {
+                spritesheet = Main.ARCHER_GREEN;
                 break;
             }
             case "tank_leather": {
@@ -235,13 +245,16 @@ public class AnimateEntity extends Entity {
                 break;
             }
         }
+        if (animation != null) {
+            removeAnimation(animation);
+            animation = null;
+        }
         animation = new Animation(ResourceManager.getSpriteSheet(spritesheet, spritesize, spritesize), startx, row, endx, row, true, speed, true);
-        animation.setLooping(true);
         addAnimation(animation);
         return animation;
     }
 
-//     stop the animation
+    // stop the animation
     public void stop() {
         animation.stop();
     }
@@ -266,50 +279,4 @@ public class AnimateEntity extends Entity {
         return super.getY() + 24;
     }
 
-    /*
-    draw all the animations for all the characters on seperate rows for testing
-    @param dc The games main class
-    */
-//    public static void testAllCharacterAnimations(client.Main dc) {
-//        String[] sprites = new String[] {
-//                "knight_leather", "knight_iron", "knight_gold",
-//                "mage_leather", "mage_improved",
-//                "archer_leather",
-//                "tank_leather", "tank_iron", "tank_gold",
-//                "skeleton_basic", "skeleton_leather", "skeleton_chain",
-//                "ice_elf"};
-//
-//        String[] limited_sprites = new String[] {
-//                "knight_iron", "knight_gold",
-//                "mage_leather",
-//                "archer_leather",
-//                "tank_leather",
-//                "skeleton_basic",
-//                "ice_elf"};
-//
-//        int row = 2;
-//        for (int i = 0; i < limited_sprites.length; i++) {
-//            displayAllAnimations(dc, limited_sprites[i], row );
-//            row += 2;
-//        }
-
-
-    /*
-    draw all of a single characters animations in a single row for testing
-    @param dc The games main class
-    @param sprite The sprite to display animations for
-    @param row The screen row to draw the coordinates at
-    */
-//    public static void displayAllAnimations(client.Main dc, String sprite, int row) {
-//        String[] variations = new String[]{
-//                "spell_up", "spell_left", "spell_down", "spell_right",
-//                "jab_up", "jab_left", "jab_down", "jab_right",
-//                "walk_up", "walk_left", "walk_down", "walk_right",
-//                "slash_up", "slash_left", "slash_down", "slash_right",
-//                "shoot_up", "shoot_left", "shoot_down", "shoot_right",
-//                "die"};
-//        for (int i = 0; i < variations.length; i++) {
-//            dc.animations.add(new client.AnimateEntity((i + 3) * dc.tilesize + dc.tilesize / 2, row * dc.tilesize, variations[i], 100, sprite));
-//        }
-//    }
 }

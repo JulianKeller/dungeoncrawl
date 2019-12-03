@@ -30,10 +30,9 @@ import jig.ResourceManager;
 
 public class Level extends BasicGameState {
     private Boolean paused;
-    int currentOX;
-    int currentOY;
     private Random rand;
     private int serverId;
+    private String type;
 
     private int[][] rotatedMap;
 
@@ -81,7 +80,25 @@ public class Level extends BasicGameState {
     }
     private ArrayList<ItemLockTimer> itemLockTimers;
 
+    public void setType(String t){
+        type = t;
+    }
 
+    public String setSkin(){
+        switch(type){
+            case "Knight":
+                return "knight_leather";
+            case "Mage":
+                return "mage_leather";
+            case "Archer":
+                return "archer_leather";
+            case "Tank":
+                return "tank_leather";
+            default:
+                break;
+        }
+        return "";
+    }
 
     private class ThrownItem{
         Item itm;
@@ -108,34 +125,15 @@ public class Level extends BasicGameState {
     public void enter(GameContainer container, StateBasedGame game) {
         serverMessage = "";
         Main dc = (Main) game;
-        if(dc.socket == null){
-            System.out.println("ERROR: Make sure you start the server before starting the client!");
-            System.exit(1);
-        }
         paused = false;
-        dc.tilesWide = dc.ScreenWidth/dc.tilesize;
-        dc.tilesHigh = dc.ScreenHeight/dc.tilesize;
 
         messagebox = new Message[messages]; //display four messages at a time
-
-        // TODO This section is the original map generator.
-//            dc.map = client.RenderMap.getDebugMap(dc);
-//            try {
-//                dc.map = client.RenderMap.getRandomMap();        // grab a randomly generated map
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            // server.Server sockets for reading/writing to server.
 
         this.socket = dc.socket;
         this.dis = dc.dis;
         this.dos = dc.dos;
 
 
-        //dc.map = RenderMap.getDebugMap(dc);
-        ///*
-
-
-        // TODO this section requires that you run the server prior to client.Main.
         // Grab the map from the server.Server
 
         try {
@@ -145,17 +143,6 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
 
-
-        // use the debug map instead
-//        dc.map = RenderMap.getDebugMap();
-//        try {
-//            dc.map = RenderMap.getDebugMap2();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-        //*/
-        //dc.mapTiles = new Entity[dc.map.length][dc.map[0].length];      // initialize the mapTiles
         System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
 
         //rotated map verified correct
@@ -187,19 +174,12 @@ public class Level extends BasicGameState {
 			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 		}
 
-
-		/*
-        float wx = (dc.tilesize * col) - dc.offset;// - dc.xOffset;
-        float wy = (dc.tilesize * row) - dc.tilesize - dc.doubleOffset;// - dc.doubleOffset;// - dc.yOffset;
-
-        dc.hero = new Character(dc, wx, wy, "dc.hero_iron", 1);
-        dc.characters.add(dc.hero);
-        */
         // map variables
         //Main dc = (Main) game;
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
+        // TODO setting the hero coordinates/type should be done on the server
         // setup the dc.hero character
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
@@ -209,17 +189,18 @@ public class Level extends BasicGameState {
         // Setting starting position for the hero.
         String coord = wx + " " + wy;
         int id = 0;
+        String type = setSkin();
         try {
             id = Integer.parseInt(dis.readUTF());
             //System.out.println("Sending my player info.");
             serverId = id;
-            dos.writeUTF("knight_leather "+coord);
+            dos.writeUTF(type+" "+coord);
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();
         }
 
-        dc.hero = new Character(dc, wx, wy, "knight_leather", id, this, false);
+        dc.hero = new Character(dc, wx, wy, type, id, this, false);
         dc.characters.add(dc.hero);
 
         //give the hero leather armor with no effect
@@ -231,50 +212,41 @@ public class Level extends BasicGameState {
         Main.im.give(a, dc.hero);
         */
 
-
-        // setup a skeleton enemy
-        wx = (dc.tilesize * 20) - dc.offset;
-        wy = (dc.tilesize * 16) - dc.tilesize - dc.doubleOffset;
-        dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", 2, this, true));
-        
+        // TODO spawning enemies and items should be done on the server
+//        wx = (dc.tilesize * 18) - dc.offset;
+//        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
+//        //dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
+//        spawnEnemies(dc, 20);
+        // Grabbing ArrayList of enemies.
+        ArrayList<String> enemyList = new ArrayList<>();
+        try{
+            enemyList = (ArrayList) dis.readObject();
+        } catch(IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+        for (String e : enemyList) {
+            float x = Float.parseFloat(e.split(" ")[2]);
+            float y = Float.parseFloat(e.split(" ")[3]);
+            int eid = Integer.parseInt(e.split(" ")[0]);
+            dc.characters.add(new Character(dc, x, y, e.split(" ")[1], eid, this, true));
+        }
         try {
-            Main.im.plant(20, rotatedMap, 48, 80);
+            int maxcol =  dc.map.length - 2;
+            int maxrow = dc.map[0].length - 2;
+            Main.im.plant(20, rotatedMap, maxcol, maxrow);
         } catch (SlickException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return;
         }
 
-
         // render map
         RenderMap.setMap(dc, dc.hero);
-
-        // render map
-        RenderMap.setMap(dc, dc.hero);
-
-
-
-        // render map
-        RenderMap.setMap(dc, dc.hero);
-
-        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
-
 
         thrownItems = new ArrayList<ThrownItem>();
 
-        // test items can be deleted
-        /*
-        dc.testItems.add(new DisplayItem((dc.tilesize * 4)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_gold"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 5)- dc.offset, (dc.tilesize * 4)- dc.offset, "armor_iron"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 6)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_iron"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 7)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_wood"));
-        dc.testItems.add(new DisplayItem((dc.tilesize * 8)- dc.offset, (dc.tilesize * 4)- dc.offset, "sword_gold"));
-        */
-
-        /*
-        currentOrigin = dc.hero.origin;
-        RenderMap.setMap(dc, dc.hero.origin);                   // renders the map Tiles
-        */
+        // Test Items
+//        addTestItems(dc);
     }
 
     private boolean wallAdjacent(int row, int col, int[][] map){
@@ -305,9 +277,6 @@ public class Level extends BasicGameState {
         messagebox = new Message[messages];
 
         itemLockTimers = new ArrayList<ItemLockTimer>();
-
-        //TODO: make the restoration boundary cover only the screen area + a buffer
-        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
 
 
@@ -396,22 +365,10 @@ public class Level extends BasicGameState {
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         Main dc = (Main) game;
         // render tiles
-        /*
-        for (int i = 0; i < dc.map.length; i++) {
-            for (int j = 0; j < dc.map[i].length; j++) {
-                if (dc.mapTiles[i][j] == null)
-                    continue;
-                dc.mapTiles[i][j].render(g);
-            }
-        }
-        */
         displayMap(dc, g);
 
         //render all visible items
         renderItems(dc, g);
-
-        // draw test items
-        renderTestItems(dc, g);
 
         // TODO will need to sort the lists and draw in order so players draw on top of others
         // draw other characters
@@ -420,11 +377,12 @@ public class Level extends BasicGameState {
         // draw the hero
         dc.hero.animate.render(g);
 
+        renderHealthBar(dc, g);
+
         //render messages
         renderMessages(dc, g);
 
         //display player inventory
-        //use the dc.hero for now
         renderInventory(dc, g);
 
         // render the codex
@@ -434,7 +392,7 @@ public class Level extends BasicGameState {
         renderEquippedItems(dc, g);
 
         //display player inventory
-        //use the dc.hero for now
+//        renderInventory(dc, g);
         if( displayInventory ){
             renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
             ArrayList<Item> items = dc.hero.getInventory();
@@ -474,23 +432,66 @@ public class Level extends BasicGameState {
         //draw the player's equipped items
         renderEquippedItems(dc, g);
 
+        // draw test items
+//        renderTestItems(dc, g);
 //         renderDebug(dc, g);
 
 
         //minimal HUD
-        g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*3));
-        g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*4));
-        g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*5));
-        g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*6));
-        g.drawString("Pos: " + dc.hero.animate.getPosition(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*7));
-        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*8));
+        g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*3));
+        g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
+        g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
+        g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
+        g.drawString("Coord : " + dc.hero.animate.getPosition(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*7));
+        g.drawString("Pos   : <" + (int) dc.hero.getTileWorldCoordinates().getX() + ", " +  (int) dc.hero.getTileWorldCoordinates().getY() + ">", dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*9));
+        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*8));
         g.drawString("Weight: " + dc.hero.getInventoryWeight(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*9));
 
         if (dc.showPath) {
             renderShortestPath(dc, g);
-            renderPathWeights(dc, g);
+//            renderPathWeights(dc, g);     // this method really only works well when one AI is present
         }
 
+        // display a paused message
+        if (paused) {
+            renderPauseMessage(dc, g);
+            renderActiveCheats(dc, g);
+        }
+    }
+
+    private void renderPauseMessage(Main dc, Graphics g) {
+        // TODO render paused message
+        Color tmp = g.getColor();
+        g.setColor(new Color(0, 0, 0, .3f));
+        g.fillRect(0, 0, dc.ScreenWidth, dc.ScreenHeight);
+        g.setColor(new Color(255, 255, 255, 1f));
+        g.drawString("PAUSED", (float) dc.ScreenWidth/2 - 12, (float) dc.ScreenHeight/2 - 10);
+        g.setColor(tmp);
+    }
+
+    private void renderActiveCheats(Main dc, Graphics g) {
+        Color tmp = g.getColor();
+        g.setColor(new Color(255, 255, 255, 1f));
+        // render cheats
+        if (!dc.showPath){
+            g.drawString("Display Paths: Disabled", 50, 50);
+        }
+        else {
+            g.drawString("Display Paths: Enabled", 50, 50);
+        }
+        if (dc.collisions) {
+            g.drawString("Collisions: Enabled", 50, 75);
+        }
+        else {
+            g.drawString("Collisions: Disabled", 50, 75);
+        }
+        if (dc.invincible) {
+            g.drawString("Invincible: Enabled", 50, 100);
+        }
+        else {
+            g.drawString("Invincible: Disabled", 50, 100);
+        }
+        g.setColor(tmp);
     }
 
     /** Renders the AI's shortest path
@@ -724,6 +725,42 @@ public class Level extends BasicGameState {
         }
     }
 
+
+    /**
+     * Renders the players healthbar if the players health is below 100%
+     * @param dc
+     * @param g
+     */
+    private void renderHealthBar(Main dc, Graphics g) {
+        Vector sc;
+        float x;
+        float y;
+        float remaining;
+        Color tmp = g.getColor();
+        int width = 30;
+        for (Character ch : dc.characters) {
+            if (ch.getHitPoints() == ch.getStartingHitPoints()) {
+                continue;
+            }
+            if (characterInRegion(dc, ch)) {
+                sc = world2screenCoordinates(dc, ch);
+                x = sc.getX() - offset + 1;
+                y = sc.getY() - tilesize + 2;// + offset;
+                remaining = (ch.getHitPoints()/ch.getStartingHitPoints())* width;
+
+                // total health
+                g.setColor(new Color(255, 0, 0, 0.5f));
+                g.fillRoundRect(x, y, width, 3, 0);
+
+                // remaining health
+                g.setColor(new Color(0, 255, 0, 0.5f));
+                g.fillRoundRect(x, y, remaining, 3, 0);
+
+            }
+        }
+        g.setColor(tmp);
+    }
+
     /**
      * Renders the visible items on the map
      * @param dc
@@ -753,8 +790,33 @@ public class Level extends BasicGameState {
      * @param g
      */
     private void renderTestItems(Main dc, Graphics g) {
+        Vector wc;
         for (DisplayItem i : dc.testItems) {
-            i.render(g);
+            wc = i.getWorldCoordinates();
+            // draw the objects on the screen
+            if (objectInRegion(dc, wc)) {
+                Vector sc = world2screenCoordinates(dc, wc);
+                i.setPosition(sc);
+                i.render(g);
+            }
+        }
+    }
+
+
+    /**
+     * helper Used for testing new items
+     */
+    private void addTestItems(Main dc) {
+        String[] itemList = new String[] {
+                "staff_emerald", "staff_ameythst", "staff_ruby",
+                "gloves_red", "gloves_white", "gloves_yellow",
+                "robes_blue", "robes_purple",
+                "archer_clothes_green", "archer_clothes_iron"
+        };
+        int position = 16;
+        for (int i = 0; i < itemList.length; i++) {
+            position += 1;
+            dc.testItems.add(new DisplayItem((dc.tilesize * position)- dc.offset, (dc.tilesize * 4)- dc.offset, itemList[i]));
         }
     }
 
@@ -785,8 +847,6 @@ public class Level extends BasicGameState {
 
         g.setColor(Color.white);
         g.drawString(title, dc.tilesize + 10, dc.tilesize + 10);
-
-
         g.setColor(tmp);
 
     }
@@ -841,12 +901,6 @@ public class Level extends BasicGameState {
         dc.hero.move(ks);
         positionToServer(dc);  // Get the player's updated position onto the server.
         updateOtherPlayers(dc);
-        /*
-        if (currentOrigin.getX() != dc.hero.origin.getX() && currentOrigin.getY() != dc.hero.origin.getY()) {
-            RenderMap.setMap(dc, dc.hero.origin);
-            currentOrigin = dc.hero.origin;
-        }
-        */
 
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){
@@ -1030,7 +1084,7 @@ public class Level extends BasicGameState {
         // cause AI players to move around
         for( Character ch : dc.characters ) {
             if (ch.ai) {        // if the player is an AI player, move them
-                ch.moveAI();
+                ch.moveAI(delta);
             }
         }
 
@@ -1111,7 +1165,6 @@ public class Level extends BasicGameState {
         }
 
 
-        // TODO refactor into a method
         //check if a character has hit an item
         for( Character ch : dc.characters ){
             if( ch.ai ){
@@ -1243,8 +1296,10 @@ public class Level extends BasicGameState {
                 if( c.ai ){
                     //if the ai character is within one tilesize of the player
                     //in the given direction
-                    Vector aipos = c.animate.getPosition();
-                    Vector plpos = dc.hero.animate.getPosition();
+//                    Vector aipos = c.animate.getPosition();
+//                    Vector plpos = dc.hero.animate.getPosition();
+                    Vector aipos = c.getWorldCoordinates();
+                    Vector plpos = dc.hero.getWorldCoordinates();
 
                     double x = Math.pow(aipos.getX()-plpos.getX(), 2);
                     double y = Math.pow(aipos.getY()-plpos.getY(), 2);
@@ -1390,7 +1445,7 @@ public class Level extends BasicGameState {
 
     // pause the game
     public void pause(Input input) {
-        if (input.isKeyPressed(Input.KEY_SPACE)) {
+        if (input.isKeyPressed(Input.KEY_P)) {
             paused = !paused;
         }
     }
@@ -1420,12 +1475,6 @@ public class Level extends BasicGameState {
         // cheat slow down
         else if (input.isKeyPressed(Input.KEY_5)) {
             ks = "5";
-        }
-        try{
-            dos.writeUTF(ks);
-            dos.flush();
-        }catch(IOException e){
-            e.printStackTrace();
         }
         return ks;
     }
@@ -1547,6 +1596,34 @@ public class Level extends BasicGameState {
         float sy = wc.getY() - dc.hero.pixelY;
         return new Vector(sx, sy);
     }
+
+
+    // TODO this will be called from the server side
+    /**
+     * Populate the world with AI characters
+     */
+    public void spawnEnemies(Main dc, int numItems) {
+        int maxcol =  dc.map.length - 2;
+        int maxrow = dc.map[0].length - 2;
+        Random rand = new Random();
+        while( numItems > 0 ){
+            int col = rand.nextInt(maxcol);
+            int row = rand.nextInt(maxrow);
+            while(row < 2 || col < 2 || dc.map[col][row] == 1){
+                col = rand.nextInt(maxcol) - 1;
+                row = rand.nextInt(maxrow) - 1;
+//                System.out.printf("getting %s, %s\n", col, row);
+            }
+//            System.out.printf("\nSpawning at %s, %s\n", col, row);
+            float wx = (dc.tilesize * row) - dc.offset;
+            float wy = (dc.tilesize * col) - dc.tilesize - dc.doubleOffset;
+            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
+
+            //create a random item at the given position
+            numItems--;
+        }
+    }
+
 
 
 }

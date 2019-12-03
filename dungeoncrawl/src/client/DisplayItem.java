@@ -2,15 +2,18 @@ package client;
 
 import jig.Entity;
 import jig.ResourceManager;
+import jig.Vector;
 
 /*
 This class exists solely for the purpose of displaying an item in the game to see how it looks.
  */
 public class DisplayItem extends Entity {
     String type;
+    Vector worldCoordinates;
 
     public DisplayItem(final float x, final float y, String type) {
         super(x, y);
+        setWorldCoordinates(x, y);
         this.type = type;
         switch (type) {
             case "health": {
@@ -71,6 +74,72 @@ public class DisplayItem extends Entity {
                 addImageWithBoundingBox(ResourceManager.getImage(Main.ARROW_FLAME));
                 break;
             }
+            // staffs
+            case "staff_emerald": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.STAFF_EMERALD));
+                break;
+            }
+            case "staff_ameythst": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.STAFF_AMETHYST));
+                break;
+            }
+            case "staff_ruby": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.STAFF_RUBY));
+                break;
+            }
+            case "spell_emerald": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.SPELL_GREEN));
+                break;
+            }
+            case "spell_ameythst": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.SPELL_PURPLE));
+                break;
+            }
+            case "spell_ruby": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.SPELL_RED));
+                break;
+            }
+            //gloves
+            case "gloves_red": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_REGENERATION));
+                break;
+            }
+            case "gloves_white": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_REFLECTION));
+                break;
+            }
+            case "gloves_yellow": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_SWIFTNESS));
+                break;
+            }
+            // robes
+            case "robes_blue": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ROBES_BLUE));
+                break;
+            }
+            case "robes_purple": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ROBES_PURPLE));
+                break;
+            }
+            // archer clothes
+            case "archer_clothes_green": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ARCHER_CLOTHES_GREEN));
+                break;
+            }
+            case "archer_clothes_iron": {
+                addImageWithBoundingBox(ResourceManager.getImage(Main.ARCHER_CLOTHES_IRON));
+                break;
+            }
         }
+    }
+
+    public Vector getWorldCoordinates(){
+        return worldCoordinates;
+    }
+    public void setWorldCoordinates(Vector wc){
+        worldCoordinates = wc;
+    }
+    public void setWorldCoordinates(float x, float y){
+        setWorldCoordinates(new Vector(x, y));
     }
 }

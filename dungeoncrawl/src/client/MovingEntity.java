@@ -19,7 +19,8 @@ public class MovingEntity extends Entity {
     private float mana;
     private int strength; //determines what level of items the player can pick up
     private int inventoryWeight = 0; //weight of items factored into movement speed
-    
+    private int attackDamage;   // determines the amount of damage AI can deal
+    private int attackSpeed;    // determines how fast the ai deal the attackDamage
     //boolean effects for AI
     private boolean invisible = false;
     private boolean stinky = false;
@@ -38,6 +39,7 @@ public class MovingEntity extends Entity {
     private Item [] equipped;
     private Vector position;
     private Vector tileWorldCoordinates;
+    private Vector nextTileWorldCoordinates;
     private Main dc;
 
     
@@ -77,6 +79,7 @@ public class MovingEntity extends Entity {
         initialMovementSpeed = movementSpeed = 1;
 
         tileWorldCoordinates = getTileWorldCoordinates();
+        nextTileWorldCoordinates = tileWorldCoordinates;
 
         mana = 0;
         strength = 1;
@@ -402,10 +405,8 @@ Reflection:
     }
 
     public void addItem(Item i){
-    	System.out.println(i.toString());
     	boolean add = true;
     	for( Item itm : inventory ){
-    		System.out.println(itm.toString());
     		if( itm.equals(i) ){
     			itm.count += i.count;
     			inventoryWeight += i.getWeight();
@@ -609,9 +610,31 @@ Reflection:
         	startingHitPoints = hitPoints;
         }
     }
+
+    public float getStartingHitPoints() {
+        return startingHitPoints;
+    }
+
     public float getHitPoints(){
         return hitPoints;
     }
+
+    public void setAttackDamage(int dmg) {
+        attackDamage = dmg;
+    }
+
+    public int getAttackDamage() {
+        return attackDamage;
+    }
+
+    public void setAttackSpeed(int speed) {
+        attackSpeed = speed;
+    }
+
+    public int getAttackSpeed() {
+        return attackSpeed;
+    }
+
 
     public void setArmorPoints(int ap){
         armorPoints = ap;
@@ -661,22 +684,18 @@ Reflection:
     
     public void doubleMoveSpeed(){
         if (movementSpeed >= 32) {
-            System.out.println("Speed at Maximum: " + movementSpeed);
             return;
         }
         setAnimationSpeed(getAnimationSpeed() / 2);
         movementSpeed *= 2;
-        System.out.println("Speed increased to: " + movementSpeed);
     }
     
     public void halfMoveSpeed(){
         if (movementSpeed <= 1) {
-            System.out.println("Speed at Minimum: " + movementSpeed);
             return;
         }
         setAnimationSpeed(getAnimationSpeed() * 2);
         movementSpeed /= 2;
-        System.out.println("Speed Decreased to: " + movementSpeed);
     }
     
     /**
@@ -749,6 +768,33 @@ Reflection:
         float x = Math.round((worldCoordinates.getX() + currentLevel.offset)/currentLevel.tilesize) - 1;
         float y = Math.round((worldCoordinates.getY() + currentLevel.tilesize + currentLevel.doubleOffset)/currentLevel.tilesize) - 1;
         return new Vector(x, y);
+    }
+
+    public void setNextTileWorldCoordinates(String direction) {
+        int x = (int) getTileWorldCoordinates().getX();
+        int y = (int) getTileWorldCoordinates().getY();
+        switch (direction) {
+            case "walk_up":
+                y -= 1;
+                break;
+            case "walk_down":
+                y += 1;
+                break;
+            case "walk_left":
+                x -= 1;
+                break;
+            case "walk_right":
+                x += 1;
+                break;
+        }
+        nextTileWorldCoordinates = new Vector(x, y);
+    }
+
+    /*
+    The players next coordinates
+     */
+    public Vector getNextTileWorldCoordinates() {
+        return nextTileWorldCoordinates;
     }
 
 

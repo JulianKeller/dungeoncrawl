@@ -1,25 +1,19 @@
 package server;
 
+import client.Main;
+import org.newdawn.slick.SlickException;
+
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.concurrent.*;
-import client.RenderMap;
 
 public class Server extends Thread{
     // Static Objects for each thread.
     public static BlockingQueue<String> serverQueue = new LinkedBlockingQueue<>();
     public static int [][] map;
     private BlockingQueue<String> threadQs;
-    /**
-     * Static method getMap, that gets a random map from file.
-     */
-    private static void getMap() {
-        try {
-            map = RenderMap.getRandomMap();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    public static ArrayList<String> enemies;
 
     public Server(BlockingQueue<String> queue){
         threadQs = queue;
@@ -47,14 +41,20 @@ public class Server extends Thread{
             // Create a new Socket for the server
             ServerSocket ss = new ServerSocket(5000);
             // Generate the map
-            getMap();
+            map = LoadMap.getRandomMap();
+
+            // TODO generate AI characters
+            enemies = Spawn.spawnEnemies(map, 20);
+
+            // TODO generate items here
+
             // Create a blocking queue for the threads
             BlockingQueue<String> threadQ = new LinkedBlockingQueue<>();
             // Start a Server thread that will handle distributing to the client and servers.
             Server server = new Server(threadQ);
             server.start();
             // This listens for new connections.
-            while (true) { ;
+            while (true) {
                 Socket s = ss.accept();
                 System.out.println("A new client has connected " + s);
                 ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());

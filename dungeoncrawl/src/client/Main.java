@@ -16,9 +16,9 @@ import java.util.ArrayList;
 
 public class Main extends StateBasedGame {
     // server.Server items
-    public final Socket socket;
-    public final ObjectInputStream dis;
-    public final ObjectOutputStream dos;
+    public Socket socket = null;
+    public ObjectInputStream dis = null;
+    public ObjectOutputStream dos = null;
     public static boolean localMode = false;
 
     // Game States
@@ -32,7 +32,6 @@ public class Main extends StateBasedGame {
     // levels
     public static final String STARTUP_BANNER = "resources/startup/startup_screen.png";
 
-
     // walls
     public static final String WALL = "resources/wall/wall_2d.png";
     public static final String WALL_TOP = "resources/wall/wall_2dtop.png";
@@ -43,7 +42,6 @@ public class Main extends StateBasedGame {
     public static final String SHADOW_FLOOR_R = "resources/floor/floor_2d_shadow_right.png";
     public static final String SHADOW_FLOOR_CORNER = "resources/floor/floor_2d_shadow_corner.png";
     public static final String SHADOW_FLOOR_DOUBLE_CORNER = "resources/floor/floor_2d_dual_shadows.png";
-
 
     // path finding arrows
     public static final String ARROW_U = "resources/arrows/up.png";
@@ -58,10 +56,13 @@ public class Main extends StateBasedGame {
 
     // Mage
     public static final String MAGE_LEATHER = "resources/mage/mage_leather.png";
-    public static final String MAGE_IMPROVED = "resources/mage/mage_improved.png";
+    public static final String MAGE_BLUE = "resources/mage/mage_blue.png";
+    public static final String MAGE_PURPLE = "resources/mage/mage_purple.png";
 
     // Archer
     public static final String ARCHER_LEATHER = "resources/archer/archer_leather.png";
+    public static final String ARCHER_IRON = "resources/archer/archer_iron.png";
+    public static final String ARCHER_GREEN = "resources/archer/archer_green.png";
 
     // Tank
     public static final String TANK_LEATHER = "resources/tank/tank_leather.png";
@@ -89,6 +90,14 @@ public class Main extends StateBasedGame {
     // Armor
     public static final String ARMOR_GOLD = "resources/armor/gold_armor.png";
     public static final String ARMOR_IRON = "resources/armor/iron_armor.png";
+
+    // robes
+    public static final String ROBES_BLUE = "resources/robes/robes-blue.png";
+    public static final String ROBES_PURPLE = "resources/robes/robes-purple.png";
+
+    // archer clothes
+    public static final String ARCHER_CLOTHES_GREEN = "resources/archer_clothes/archer-green.png";
+    public static final String ARCHER_CLOTHES_IRON = "resources/archer_clothes/archer-iron.png";
 
     // Swords
     public static final String SWORD_WOOD = "resources/swords/wood_sword.png";
@@ -125,6 +134,25 @@ public class Main extends StateBasedGame {
     public static final String ARROW_POISON_LEFT = "resources/arrows/left/left_arrow_poison.png";
     public static final String ARROW_POISON_RIGHT = "resources/arrows/right/right_arrow_poison.png";
 
+    // staffs
+    public static final String STAFF_RUBY = "resources/staffs/staff-red.png";
+    public static final String STAFF_EMERALD = "resources/staffs/staff-green.png";
+    public static final String STAFF_AMETHYST = "resources/staffs/staff-purple.png";
+
+    // spells
+    public static final String SPELL_RED = "resources/spells/spell-red.png";
+    public static final String SPELL_GREEN = "resources/spells/spell-green.png";
+    public static final String SPELL_PURPLE = "resources/spells/spell-purple.png";
+
+    // gloves
+    public static final String GLOVES_REGENERATION = "resources/gloves/gloves-red.png";
+    public static final String GLOVES_SWIFTNESS = "resources/gloves/gloves-yellow.png";
+    public static final String GLOVES_REFLECTION = "resources/gloves/gloves-white.png";
+
+    // splash screen
+    public static final String TITLE = "resources/splashScreen/title.png";
+    public static final String MAP_IMG = "resources/splashScreen/map_image.png";
+
     // Screen Size
     public final int ScreenWidth;
     public final int ScreenHeight;
@@ -143,6 +171,7 @@ public class Main extends StateBasedGame {
     boolean showPath = false;   // shows dijkstra or not
     ArrayList<BaseMap> maptiles;
     boolean collisions;
+    boolean invincible;
     ArrayList<DisplayItem> testItems;
     Character hero;
     public ArrayList<Character> characters;
@@ -153,8 +182,6 @@ public class Main extends StateBasedGame {
     Entity[][] potions;
     ArrayList<AnimateEntity> animations;
 
-
-    
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
     
@@ -173,9 +200,6 @@ public class Main extends StateBasedGame {
     public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection"};
     
     //displayed item name should be of the form "material type of effect" using whatever fields are filled in
-    
-    
-
 
 
     /**
@@ -183,22 +207,22 @@ public class Main extends StateBasedGame {
      *
      * @param title The name of the game
      */
-    public Main(String title, int width, int height, Socket socket, ObjectInputStream dis, ObjectOutputStream dos) {
+    public Main(String title, int width, int height) {
         super(title);
         ScreenWidth = width;
         ScreenHeight = height;
         mapWidth = 0;
         mapHeight = 0;
-
         tilesize = 32;
+        tilesHigh = ScreenHeight/tilesize;
+        tilesWide = ScreenWidth/tilesize;
+
         offset = tilesize/2;
         doubleOffset = offset/2;
         xOffset = tilesize - doubleOffset;
         yOffset = tilesize + doubleOffset/2;
         collisions = true;
-        this.socket = socket;
-        this.dis = dis;
-        this.dos = dos;
+        invincible = false;
 
         characters = new ArrayList<>();
         enemies = new ArrayList<>();
@@ -209,7 +233,7 @@ public class Main extends StateBasedGame {
 
     @Override
     public void initStatesList(GameContainer container) throws SlickException {
-        addState(new StartUpState());
+        addState(new SplashScreen());
         addState(new Level());
         addState(new GameOver());
 
@@ -239,10 +263,13 @@ public class Main extends StateBasedGame {
 
         // MAGE
         ResourceManager.loadImage(MAGE_LEATHER);
-        ResourceManager.loadImage(MAGE_IMPROVED);
+        ResourceManager.loadImage(MAGE_BLUE);
+        ResourceManager.loadImage(MAGE_PURPLE);
 
         // ARCHER
         ResourceManager.loadImage(ARCHER_LEATHER);
+        ResourceManager.loadImage(ARCHER_IRON);
+        ResourceManager.loadImage(ARCHER_GREEN);
 
         // TANK
         ResourceManager.loadImage(TANK_LEATHER);
@@ -268,6 +295,14 @@ public class Main extends StateBasedGame {
         // ARMOR
         ResourceManager.loadImage(ARMOR_GOLD);
         ResourceManager.loadImage(ARMOR_IRON);
+
+        // ARCHER CLOTHES
+        ResourceManager.loadImage(ARCHER_CLOTHES_GREEN);
+        ResourceManager.loadImage(ARCHER_CLOTHES_IRON);
+
+        // ROBES
+        ResourceManager.loadImage(ROBES_BLUE);
+        ResourceManager.loadImage(ROBES_PURPLE);
 
         // SWORDS
         ResourceManager.loadImage(SWORD_IRON);
@@ -304,6 +339,25 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(ARROW_POISON_LEFT);
         ResourceManager.loadImage(ARROW_POISON_RIGHT);
 
+        //STAFFS
+        ResourceManager.loadImage(STAFF_RUBY);
+        ResourceManager.loadImage(STAFF_AMETHYST);
+        ResourceManager.loadImage(STAFF_EMERALD);
+
+        // SPELLS
+        ResourceManager.loadImage(SPELL_GREEN);
+        ResourceManager.loadImage(SPELL_RED);
+        ResourceManager.loadImage(SPELL_PURPLE);
+
+        // GLOVES
+        ResourceManager.loadImage(GLOVES_REFLECTION);
+        ResourceManager.loadImage(GLOVES_REGENERATION);
+        ResourceManager.loadImage(GLOVES_SWIFTNESS);
+
+        // TITLE
+        ResourceManager.loadImage(TITLE);
+        ResourceManager.loadImage(MAP_IMG);
+
 
     }
 
@@ -326,36 +380,14 @@ public class Main extends StateBasedGame {
     }
 
     public static void main(String[] args) {
-        // Setting up the connection to the server
-        Socket socket = null;
-        ObjectInputStream dis = null;
-        ObjectOutputStream dos = null;
-        if(!localMode) {
-            try {
-                byte[] ipAddr = new byte[]{127,0,0,1};
-
-                // getting localhost ip
-                InetAddress ip = InetAddress.getByAddress(ipAddr);
-
-                // establish the connection with server port 5000
-                socket = new Socket(ip, 5000);
-
-                // obtaining input and out streams
-                dis = new ObjectInputStream(socket.getInputStream());
-                dos = new ObjectOutputStream(socket.getOutputStream());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    	Main game = new Main("Dungeon Crawl", 1280, 736, socket, dis, dos);
+    	Main game = new Main("Dungeon Crawl", 1280, 736);
     	im = new ItemManager(game);
         AppGameContainer app;
         try {
             app = new AppGameContainer(game);
             app.setDisplayMode(1280, 736, false);
             app.setVSync(true);
-//            app.setShowFPS(false);      // disable fps
+            app.setShowFPS(true);      // disable fps
             app.start();
         } catch (SlickException e) {
             e.printStackTrace();
