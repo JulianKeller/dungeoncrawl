@@ -1061,6 +1061,10 @@ public class Level extends BasicGameState {
 		                    }else if( dc.hero.getType().contains("tank") ){
 		                        dc.hero.setType("tank_"+i.getMaterial().toLowerCase());
 		                    }
+		                    
+	                        if( i.isCursed() ){
+	                        	dc.hero.setArmorPoints(dc.hero.getArmorPoints()/2);
+	                        }
 		                }
 	                }
                 }
