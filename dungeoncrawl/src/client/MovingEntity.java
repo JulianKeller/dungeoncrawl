@@ -55,9 +55,11 @@ public class MovingEntity extends Entity {
     private class Effect{
     	String name;
     	int timer = defaultEffectTimer;
+    	boolean cursed;
     	
-    	public Effect(String name){
+    	public Effect(String name, boolean cursed){
     		this.name = name;
+    		this.cursed = cursed;
     	}
     }
     /**
