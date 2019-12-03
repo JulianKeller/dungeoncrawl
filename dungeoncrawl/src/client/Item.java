@@ -129,7 +129,7 @@ public class Item extends StationaryObject{
 		}
 		
 		//items have a 50% chance to be cursed (for now?)
-		if( rand.nextInt(100) <= 50 ){
+		if( rand.nextInt(100) <= 500 ){ //TODO
 			cursed = true;
 		}else{
 			cursed = false;

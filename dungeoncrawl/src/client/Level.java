@@ -983,18 +983,39 @@ public class Level extends BasicGameState {
                 //attack with item
                 //System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
             	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
-            	if( itm != null && canUse(itm, dc.hero) ){	           
-                    attack(itm, dc, lastKnownDirection);
-                    if( itm.isCursed() ){
-                    	addMessage(itm.getType() + " binds itself to your hand. It is cursed!");
-                    }
+               	
+
+            	
+            	if( itm != null){
+                	boolean cannotRemove = false;
+                	for( String type : dc.hero.getCursedItemTypes() ){
+                		if( type.equals(itm.getType()) ){
+                			addMessage("You cannot remove your cursed " + type);
+                			cannotRemove = true;
+                		}
+                	}
+            		if( !cannotRemove && canUse(itm, dc.hero) ){	           
+            	
+	                    attack(itm, dc, lastKnownDirection);
+	                    if( itm.isCursed() ){
+	                    	addMessage(itm.getType() + " binds itself to your hand. It is cursed!");
+	                    	dc.hero.addCursedItemType(itm.getType());
+	                    }
+            		}
             	}
             }else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
                 //use item on own character
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
                 if( i != null ){
+                	boolean cannotRemove = false;
+                	for( String type : dc.hero.getCursedItemTypes() ){
+                		if( type.equals(i.getType()) ){
+                			addMessage("You cannot remove your cursed " + type);
+                			cannotRemove = true;
+                		}
+                	}
                 
-	                if( canUse(i, dc.hero) ){
+	                if( canUse(i, dc.hero) && !cannotRemove){
 		                String x = "";
 		                if( i.getType().equals("Potion") ){
 		                    x = "Drank";
@@ -1007,6 +1028,7 @@ public class Level extends BasicGameState {
 		                if( i.isCursed() ){
 		                	if( i.getType().equals("Armor") ){
 		                		addMessage("Armor tightens itself around you. It is cursed!");
+		                		dc.hero.addCursedItemType("Armor");
 		                	}
 		                }
 		                addMessage(x + " " + i.toString());
@@ -1019,6 +1041,8 @@ public class Level extends BasicGameState {
 		
 		                //remove the item from hands
 		                dc.hero.unequipItem(selectedEquippedItem);
+		                
+		                
 		
 		                //only remove the item from the inventory if it is a potion/consumable
 		                //armor should remain in the player's inventory
