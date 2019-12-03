@@ -31,10 +31,10 @@ public class Cheats {
         }
         // 4 and 5 are used to increase speed
 //        else if (input.isKeyPressed(Input.KEY_4)) {
-//
+//              RESERVED
 //        }
 //        else if (input.isKeyPressed(Input.KEY_5)) {
-//
+//              RESERVED
 //        }
         // pathfinding
         else if (input.isKeyPressed(Input.KEY_6)) {
