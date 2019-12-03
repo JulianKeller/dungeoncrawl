@@ -3,6 +3,7 @@
 .project
 .settings/
 .metadata
+.metadata/
 
 # Intellij
 .idea/
