@@ -194,14 +194,19 @@ public class Level extends BasicGameState {
             id = Integer.parseInt(dis.readUTF());
             //System.out.println("Sending my player info.");
             serverId = id;
-            dos.writeUTF(type+" "+coord);
-            dos.flush();
         }catch(IOException e){
             e.printStackTrace();
         }
 
         dc.hero = new Character(dc, wx, wy, type, id, this, false);
         dc.characters.add(dc.hero);
+
+        try{
+            dos.writeUTF(type+" "+coord + " "+ dc.hero.getHitPoints());
+            dos.flush();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
 
         //give the hero leather armor with no effect
         //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
@@ -1079,6 +1084,12 @@ public class Level extends BasicGameState {
 
         //remove dead characters
         dc.characters.removeIf(b -> b.getHitPoints() <= 0);
+        // if the hero has no health, then replace it with a new hero character in the same spot
+        if(dc.hero.getHitPoints() <= 0){
+            dc.hero = new Character(dc,dc.hero.animate.getX(),dc.hero.animate.getY(),dc.hero.getType(),
+                    serverId,this,false);
+            dc.characters.add(0,dc.hero);
+        }
 
 
         // cause AI players to move around
@@ -1506,38 +1517,27 @@ public class Level extends BasicGameState {
     public void updateOtherPlayers(Main dc){
         try {
             String read = dis.readUTF(); // message from server
-            //System.out.println("("+serverId+") Read: " + read);
-            // Making sure that it what is read is formatted correctly
-                //System.out.println("in if statement.");
-                // parse the clientId
-                int id = Integer.parseInt(read.split(" ")[0]);
-                // If "Exit" is read as Type, remove the character.
-                if (read.split(" ")[1].equals("Exit")) {
-                    dc.characters.removeIf(character -> character.getPid() == id);
-                   // System.out.println("Deleted character with id "+id);
+            System.out.println("("+serverId+") Read: " + read);
+            String [] str = read.split(" ");
+            int id = Integer.parseInt(str[0]);
+            float x = Float.parseFloat(str[2]);
+            float y = Float.parseFloat(str[3]);
+            float hp = Float.parseFloat(str[4]);
+            if(str[1].equals("Exit"))
+                dc.characters.removeIf(c -> c.getPid() == id);
+            for(Iterator<Character> i = dc.characters.iterator();i.hasNext();){
+                Character c = i.next();
+                if(c.getPid() == id) {
+                    if (c.getPid() == serverId) {
+                        return;
+                    }
+                    c.setWorldCoordinates(new Vector(x,y));
+                    c.setHitPoints(hp);
                     return;
                 }
-                // Go through each character until the id's match
-                for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
-                    Character c = i.next();
-                    // If theres a match update their coordinates.
-                    if (c.getPid() == id) {
-                        if(c.getPid() == serverId){
-                            return;
-                        }
-                        float x = Float.parseFloat(read.split(" ")[2]);
-                        float y = Float.parseFloat(read.split(" ")[3]);
-                        float hp = Float.parseFloat(read.split(" ")[4]);
-                        c.setWorldCoordinates(x,y);
-                        c.setHitPoints(hp);
-                        return;
 
-                    }
-                }
-                // If none matches, create a new character.
-                float x = Float.parseFloat(read.split(" ")[2]);
-                float y = Float.parseFloat(read.split(" ")[3]);
-                dc.characters.add(new Character(dc, x, y, read.split(" ")[1], id,this,false));
+            }
+            dc.characters.add(new Character(dc,x,y,str[1],id,this,false));
         }catch(IOException e){
             e.printStackTrace();
         }
