@@ -880,7 +880,10 @@ public class Level extends BasicGameState {
         }
 
         //implement effects on the character
-        dc.hero.implementEffects();
+        ArrayList<String> effectMessages = dc.hero.implementEffects();
+        for( String st : effectMessages ){
+        	addMessage(st);
+        }
         //reduce the effect timers by a constant value each frame
         //  if delta is used instead of a constant, tabbing away from
         //  the game window can cause all effects to disappear instantly

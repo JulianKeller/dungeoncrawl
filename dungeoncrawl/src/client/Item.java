@@ -285,6 +285,9 @@ public class Item extends StationaryObject{
 	}
 	
 	//setter functions
+	public void removeCurse(){
+		cursed = false;
+	}
 	public void setOID( int oid ){
 		this.oid = oid;
 	}

@@ -287,7 +287,8 @@ Reflection:
     
 
     
-    public void implementEffects() throws SlickException{
+    public ArrayList<String> implementEffects() throws SlickException{
+    	ArrayList<String> returnMessages = new ArrayList<String>();
     	float curseModifier = 0.5f;
     	for( Effect e : activeEffects ){
     		//System.out.println(e.name);
@@ -308,6 +309,18 @@ Reflection:
     			//increment the player's strength variable
     			strength++;
     			//this should only happen once
+    			
+    			//remove all curses from the player's equipped items
+    			boolean curseRemoved = false;
+    			for( Item i : inventory ){
+    				if( i.isEquipped && i.isCursed() ){
+    					i.removeCurse();
+    					curseRemoved = true;
+    				}
+    			}
+    			if( curseRemoved ){
+    				returnMessages.add("Your strength has overcome curses in your equipped items.");
+    			}
     			
     		}else if( e.name.equals("Flame") ){
     			//decrease health by 10 every second
@@ -415,7 +428,7 @@ Reflection:
     			reflecting = true;
     			
     		}else{
-    			throw new SlickException("Unknown character effect.");
+    			throw new SlickException("Unknown character effect '"+e.name+"'.");
     		}
     		
 
@@ -430,6 +443,8 @@ Reflection:
 									b.name.equals("Healing") ||
 									b.name.equals("Lightning") ||
 									b.name.equals("Mana"));
+		
+		return returnMessages;
 					
     }
     
