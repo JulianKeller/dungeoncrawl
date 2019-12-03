@@ -934,40 +934,42 @@ public class Level extends BasicGameState {
             }else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
                 //use item on own character
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
+                if( i != null ){
                 
-                if( canUse(i, dc.hero) ){
-	                String x = "";
-	                if( i.getType().equals("Potion") ){
-	                    x = "Drank";
-	                }else if( i.getType().equals("Armor") ){
-	                    x = "Put on";
-	                }else{
-	                    x = "Used";
-	                }
-	                addMessage(x + " " + i.toString());
-	                //TODO: add potion effects to character
-	                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
-	                    //add effect to character
-	                    dc.hero.addEffect(i.getEffect());
-	                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
-	                }
-	
-	                //remove the item from hands
-	                dc.hero.unequipItem(selectedEquippedItem);
-	
-	                //only remove the item from the inventory if it is a potion/consumable
-	                //armor should remain in the player's inventory
-	                if( i.getType().equals("Potion") ){
-	                    dc.hero.discardItem(i.getID(), true);
-	                }else if( i.getType().equals("Armor") ){
-	                    i.identify();
-	
-	                    //set the hero type to change the armor
-	                    if( dc.hero.getType().contains("knight") ){
-	                        dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
-	                    }else if( dc.hero.getType().contains("tank") ){
-	                        dc.hero.setType("tank_"+i.getMaterial().toLowerCase());
-	                    }
+	                if( canUse(i, dc.hero) ){
+		                String x = "";
+		                if( i.getType().equals("Potion") ){
+		                    x = "Drank";
+		                }else if( i.getType().equals("Armor") ){
+		                    x = "Put on";
+		                }else{
+		                    x = "Used";
+		                }
+		                addMessage(x + " " + i.toString());
+		                //TODO: add potion effects to character
+		                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
+		                    //add effect to character
+		                    dc.hero.addEffect(i.getEffect());
+		                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
+		                }
+		
+		                //remove the item from hands
+		                dc.hero.unequipItem(selectedEquippedItem);
+		
+		                //only remove the item from the inventory if it is a potion/consumable
+		                //armor should remain in the player's inventory
+		                if( i.getType().equals("Potion") ){
+		                    dc.hero.discardItem(i.getID(), true);
+		                }else if( i.getType().equals("Armor") ){
+		                    i.identify();
+		
+		                    //set the hero type to change the armor
+		                    if( dc.hero.getType().contains("knight") ){
+		                        dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
+		                    }else if( dc.hero.getType().contains("tank") ){
+		                        dc.hero.setType("tank_"+i.getMaterial().toLowerCase());
+		                    }
+		                }
 	                }
                 }
 
@@ -975,37 +977,39 @@ public class Level extends BasicGameState {
 
 
                 Item itm = dc.hero.getEquipped()[selectedEquippedItem];
-                if( itm.getType().equals("Arrow") ){
-                	//reset the item count
-                	itm.count = 1;
-                	
-                	itm.setImage(getArrowImage(itm.getEffect(), null));
+                if( itm != null ){
+	                if( itm.getType().equals("Arrow") ){
+	                	//reset the item count
+	                	itm.count = 1;
+	                	
+	                	itm.setImage(getArrowImage(itm.getEffect(), null));
+	                }
+	                dc.hero.unequipItem(selectedEquippedItem);
+	
+	
+	
+	                //place the item at the hero's feet
+	                Vector wc = new Vector(
+	                		(int)(dc.hero.getWorldCoordinates().getX()/dc.tilesize),
+	                		(int)(dc.hero.getWorldCoordinates().getY()/dc.tilesize)+1
+	                		);
+	                Main.im.take(itm, dc.hero, wc, false);
+	
+	                
+	                //reduce the hero's inventory weight
+	                
+	                //lock the item with a timer
+	                itm.lock();
+	                //add item lock timer
+	                itemLockTimers.add( new ItemLockTimer(itm.getID()) );
+	                System.out.println("Locked dropped item.");
+	
+	                //add the item to the render list
+	                // TODO may need to be changed to be added to worldItems
+	                itemsToRender.add(itm);
+	
+	                addMessage("Dropped "+itm.toString()+".");
                 }
-                dc.hero.unequipItem(selectedEquippedItem);
-
-
-
-                //place the item at the hero's feet
-                Vector wc = new Vector(
-                		(int)(dc.hero.getWorldCoordinates().getX()/dc.tilesize),
-                		(int)(dc.hero.getWorldCoordinates().getY()/dc.tilesize)+1
-                		);
-                Main.im.take(itm, dc.hero, wc, false);
-
-                
-                //reduce the hero's inventory weight
-                
-                //lock the item with a timer
-                itm.lock();
-                //add item lock timer
-                itemLockTimers.add( new ItemLockTimer(itm.getID()) );
-                System.out.println("Locked dropped item.");
-
-                //add the item to the render list
-                // TODO may need to be changed to be added to worldItems
-                itemsToRender.add(itm);
-
-                addMessage("Dropped "+itm.toString()+".");
             }else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
                 //return item to inventory
                 dc.hero.unequipItem(selectedEquippedItem);
