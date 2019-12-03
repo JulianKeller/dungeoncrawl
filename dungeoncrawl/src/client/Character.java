@@ -1,9 +1,7 @@
 package client;
 
-import jig.Collision;
 import jig.Vector;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -17,7 +15,6 @@ public class Character extends MovingEntity {
     private boolean nearEdge = false;
     public boolean ai;
     private int movesLeft;
-    private int moveSpeed;
     int ox;             // origin x
     int oy;             // origin y
     float pixelX;       // players exact origin in pixels
@@ -31,9 +28,7 @@ public class Character extends MovingEntity {
     float[][] weights;
     int range;          // range to player in tiles to use dijkstra's
     private int attackTimer = 0;
-    int stenchMoves = -1;        // number moves that stench path is active
     PathFinding find;
-    boolean speedDoubled = false;
 
 
     /**
@@ -62,7 +57,7 @@ public class Character extends MovingEntity {
         oy = 0;
         pixelX = 0f;
         pixelY = 0f;
-        setAnimationSpeed(50);       // speed of the animation
+//        setAnimationSpeed(50);       // speed of the animation
         ai = AI;            //
         shortest = new ArrayList<>();
         arrows = new ArrayList<>();
@@ -254,7 +249,7 @@ public class Character extends MovingEntity {
                 updateAnimation(action);
                 animate.start();
             }
-            if (attackTimer <= 0) {
+            if (attackTimer <= 0 && !dc.invincible) {
                 dc.hero.takeDamage(getAttackDamage(), "");
                 attackTimer = getAttackSpeed();
 
@@ -690,8 +685,6 @@ public class Character extends MovingEntity {
         float wx = (ox * dc.tilesize) + sc.getX();
         float wy = (oy * dc.tilesize) + sc.getY();
         setWorldCoordinates(wx, wy);    // world coordinates
-
-        //set the world coordinates to the origin times the tile size plus the character's screen coords
     }
 
 

@@ -1,16 +1,13 @@
 ## Current Issues
-[22] - implement AI characters
+[35] - add controls to splash screen
 
 ## Open Issues ##
 [12] - update floor tiles
 [13] - update wall tiles
-[25] - create art for splash screen
 [26] - add in sound
-[27] - refactor main to use a splash screen 
-[28] - write method to be called in enter() on the client to generate all the AI characters
 [29] - order characters on screen so they draw correctly
 [30] - adjust AI so they take each other into account when pathfinding
-[31] - implement player AI effects
+[33] - update AI characters to be done on the server
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
@@ -27,5 +24,12 @@
 [19] - set animation speed based on characters move speed, math problem
 [20] - fix map slowing down FPS when nearing edge of screen
 [21] - update world coordinates every increment when scrolling
+[22] - implement AI characters
 [23] - make items stay in place when player scrolls on screen
 [24] - Refactor renderMap into client/server components
+[25] - create art for splash screen
+[27] - refactor main to use a splash screen 
+[28] - write method to be called in enter() on the client to generate all the AI characters
+[31] - implement player AI effects
+[32] - refactor and fix framerate drop
+[34] - add invincibility cheat

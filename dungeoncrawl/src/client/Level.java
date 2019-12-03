@@ -32,7 +32,6 @@ public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
     private int serverId;
-    private String activeCheats;
     private String type;
 
     private int[][] rotatedMap;
@@ -126,11 +125,6 @@ public class Level extends BasicGameState {
     public void enter(GameContainer container, StateBasedGame game) {
         serverMessage = "";
         Main dc = (Main) game;
-        if(dc.socket == null){
-            dc.enterState(Main.STARTUPSTATE);
-            System.out.println("ERROR: Make sure you start the server before starting the client!");
-//            System.exit(1);
-        }
         paused = false;
 
         messagebox = new Message[messages]; //display four messages at a time
@@ -139,9 +133,8 @@ public class Level extends BasicGameState {
         this.dis = dc.dis;
         this.dos = dc.dos;
 
-        // TODO this section requires that you run the server prior to client.Main.
-        // Grab the map from the server.Server
 
+        // Grab the map from the server.Server
         try {
            dc.map = (int[][])dis.readObject();
            System.out.println("I got the map!");
@@ -277,9 +270,6 @@ public class Level extends BasicGameState {
         messagebox = new Message[messages];
 
         itemLockTimers = new ArrayList<ItemLockTimer>();
-
-        //TODO: make the restoration boundary cover only the screen area + a buffer
-//        itemsToRender = Main.im.itemsInRegion(new Vector(0, 0), new Vector(100, 100));
     }
 
 
@@ -365,7 +355,6 @@ public class Level extends BasicGameState {
 
         // draw test items
 //        renderTestItems(dc, g);
-
 //         renderDebug(dc, g);
 
 
@@ -416,6 +405,12 @@ public class Level extends BasicGameState {
         }
         else {
             g.drawString("Collisions: Disabled", 50, 75);
+        }
+        if (dc.invincible) {
+            g.drawString("Invincible: Enabled", 50, 100);
+        }
+        else {
+            g.drawString("Invincible: Disabled", 50, 100);
         }
         g.setColor(tmp);
     }
@@ -488,6 +483,7 @@ public class Level extends BasicGameState {
             }
         }
     }
+
 
     /**
      * Render debug information on the screen
@@ -585,6 +581,7 @@ public class Level extends BasicGameState {
         }
     }
 
+
     /**
      * Render the players inventory
      * @param dc
@@ -611,7 +608,6 @@ public class Level extends BasicGameState {
                     }
                 }
                 //draw a square around the selected item
-
                 g.drawRect(
                         (itemx + 1)*dc.tilesize,
                         (itemy + 2)*dc.tilesize,
@@ -709,6 +705,7 @@ public class Level extends BasicGameState {
         }
     }
 
+
     /**
      * Renders new items which are being tested
      * @param dc
@@ -727,13 +724,13 @@ public class Level extends BasicGameState {
         }
     }
 
+
     /**
      * helper Used for testing new items
      */
     private void addTestItems(Main dc) {
         String[] itemList = new String[] {
                 "staff_emerald", "staff_ameythst", "staff_ruby",
-                "spell_emerald", "spell_ameythst", "spell_ruby",
                 "gloves_red", "gloves_white", "gloves_yellow",
                 "robes_blue", "robes_purple",
                 "archer_clothes_green", "archer_clothes_iron"
@@ -761,6 +758,7 @@ public class Level extends BasicGameState {
         }
     }
 
+
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
         Color tmp = g.getColor();
         g.setColor(new Color(0, 0, 0, 0.5f));
@@ -774,9 +772,7 @@ public class Level extends BasicGameState {
     }
 
     private Scanner scan = new Scanner(System.in);
-
     private String prevks = "";
-
     private Vector vectorFromKeystroke(String ks){
         if( ks.equals("w") ){
             return new Vector(0, -1);
@@ -791,6 +787,7 @@ public class Level extends BasicGameState {
         }
     }
 
+
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         Input input = container.getInput();
@@ -803,7 +800,7 @@ public class Level extends BasicGameState {
 
         //implement effects on the character
         dc.hero.implementEffects();
-        //reduce the effect timers by a constant value each frame
+        // reduce the effect timers by a constant value each frame
         //  if delta is used instead of a constant, tabbing away from
         //  the game window can cause all effects to disappear instantly
         dc.hero.updateEffectTimers(16);
@@ -823,12 +820,6 @@ public class Level extends BasicGameState {
         dc.hero.move(ks);
         positionToServer(dc);  // Get the player's updated position onto the server.
         updateOtherPlayers(dc);
-        /*
-        if (currentOrigin.getX() != dc.hero.origin.getX() && currentOrigin.getY() != dc.hero.origin.getY()) {
-            RenderMap.setMap(dc, dc.hero.origin);
-            currentOrigin = dc.hero.origin;
-        }
-        */
 
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){
@@ -963,7 +954,6 @@ public class Level extends BasicGameState {
 
                 //place the item on the world at the dc.hero's position
                 //get world coords of dc.hero position
-//                Vector wc = new Vector((int) dc.hero.animate.getX()/dc.tilesize, (int) dc.hero.animate.getY()/dc.tilesize);
                 Vector wc = new Vector((int) dc.hero.getTileWorldCoordinates().getX(), (int) dc.hero.getTileWorldCoordinates().getY());
                 System.out.println("placing item at "+wc.getX() + ", " + wc.getY());
                 //this will remove the item from the dc.hero's inventory and place it on the world
@@ -1081,7 +1071,6 @@ public class Level extends BasicGameState {
         }
 
 
-        // TODO refactor into a method
         //check if a character has hit an item
         for( Character ch : dc.characters ){
             if( ch.ai ){
