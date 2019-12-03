@@ -982,12 +982,12 @@ public class Level extends BasicGameState {
             }else if( input.isKeyPressed(Input.KEY_ENTER) ){
                 //attack with item
                 //System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
-            	if( dc.hero.getEquipped()[selectedEquippedItem] != null && canUse(dc.hero.getEquipped()[selectedEquippedItem], dc.hero) ){
-	                try{
-	                    attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
-	                }catch(IndexOutOfBoundsException ex){
-	                    System.out.println("Out of bounds.");
-	                }
+            	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
+            	if( itm != null && canUse(itm, dc.hero) ){	           
+                    attack(itm, dc, lastKnownDirection);
+                    if( itm.isCursed() ){
+                    	addMessage(itm.getType() + " binds itself to your hand. It is cursed!");
+                    }
             	}
             }else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
                 //use item on own character
@@ -1002,6 +1002,12 @@ public class Level extends BasicGameState {
 		                    x = "Put on";
 		                }else{
 		                    x = "Used";
+		                }
+		                
+		                if( i.isCursed() ){
+		                	if( i.getType().equals("Armor") ){
+		                		addMessage("Armor tightens itself around you. It is cursed!");
+		                	}
 		                }
 		                addMessage(x + " " + i.toString());
 		                //TODO: add potion effects to character
@@ -1283,6 +1289,11 @@ public class Level extends BasicGameState {
         if( itm == null ){
         	return;
         }
+        
+        float curseModifier = 1;
+        if( itm.isCursed() ){
+        	curseModifier = 0.5f;
+        }
         if( itm.getType().equals("Sword") || itm.getType().equals("Glove")){
             rand.setSeed(System.nanoTime());
             int r = rand.nextInt(100);
@@ -1317,13 +1328,13 @@ public class Level extends BasicGameState {
                         float damage = 0;
                         if( itm.getMaterial().equals("Wooden") ){
                             //max damage: 30
-                            damage = 30 * percentOfMaxDamage;
+                            damage = 30 * percentOfMaxDamage * curseModifier;
                         }else if( itm.getMaterial().equals("Iron") ){
                             //max damage: 60
-                            damage = 60 * percentOfMaxDamage;
+                            damage = 60 * percentOfMaxDamage * curseModifier;
                         }else if( itm.getMaterial().equals("Gold") ){
                             //max damage: 100
-                            damage = 100 * percentOfMaxDamage;
+                            damage = 100 * percentOfMaxDamage * curseModifier;
                         }
 
                         //pass damage and effect to enemy
