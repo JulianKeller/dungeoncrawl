@@ -908,6 +908,8 @@ public class Level extends BasicGameState {
             System.out.println("Enter valid effect name (e.g. Healing): ");
 
             String effect = scan.next().trim();
+            
+            
 
             if( effect.contains("Iron") ){
                 effect = "Iron Skin";
@@ -915,8 +917,13 @@ public class Level extends BasicGameState {
             System.out.println("Got effect '"+effect+"'");
 
             boolean cursed = false;
-            if( effect.contains("Cursed") ){
+            if( effect.contains("ursed") ){
             	cursed = true;
+            	if( effect.split("_")[0].contains("ursed") ){
+            		effect = effect.split("_")[1];
+            	}else{
+            		effect = effect.split("_")[0];
+            	}
             }
             dc.hero.addEffect(effect, cursed);
         }
