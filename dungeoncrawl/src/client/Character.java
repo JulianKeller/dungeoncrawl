@@ -250,12 +250,12 @@ public class Character extends MovingEntity {
                 animate.start();
             }
             if (attackTimer <= 0 && !dc.invincible) {
-                dc.hero.takeDamage(getAttackDamage(), "");
+                dc.hero.takeDamage(getAttackDamage(), "", false);
                 attackTimer = getAttackSpeed();
 
                 // thorns effect, AI takes 50% damage delt
                 if (dc.hero.isThorny() || dc.hero.isReflecting()) {
-                    takeDamage((float) getAttackDamage()/2, "");
+                    takeDamage((float) getAttackDamage()/2, "", false);
                 }
             }
             else {

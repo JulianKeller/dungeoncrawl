@@ -909,12 +909,16 @@ public class Level extends BasicGameState {
 
             String effect = scan.next().trim();
 
-            if( effect.equals("Iron") ){
+            if( effect.contains("Iron") ){
                 effect = "Iron Skin";
             }
             System.out.println("Got effect '"+effect+"'");
 
-            dc.hero.addEffect(effect);
+            boolean cursed = false;
+            if( effect.contains("Cursed") ){
+            	cursed = true;
+            }
+            dc.hero.addEffect(effect, cursed);
         }
 
 
@@ -1003,7 +1007,7 @@ public class Level extends BasicGameState {
 		                //TODO: add potion effects to character
 		                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
 		                    //add effect to character
-		                    dc.hero.addEffect(i.getEffect());
+		                    dc.hero.addEffect(i.getEffect(), false);
 		                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
 		                }
 		
@@ -1121,7 +1125,7 @@ public class Level extends BasicGameState {
 
                     //potions do no damage but cause status effects on the target
                     if( ti.itm.getType().equals("Potion") ){
-                        ch.takeDamage(0, ti.itm.getEffect());
+                        ch.takeDamage(0, ti.itm.getEffect(), false);
                         dc.hero.addToCodex(ti.itm);
                         reachedDestination.add(ti);
                     }else if( ti.itm.getType().equals("Arrow") ){
@@ -1135,7 +1139,7 @@ public class Level extends BasicGameState {
                         if( damagePercent == 0 ){
                             m = "Missed.";
                         }else{
-                            if( ch.takeDamage(10*damagePercent, ti.itm.getEffect()) ){
+                            if( ch.takeDamage(10*damagePercent, ti.itm.getEffect(), false) ){
                                 //set character action to die
                                 ch.updateAnimation("die");
                             }
@@ -1324,7 +1328,7 @@ public class Level extends BasicGameState {
 
                         //pass damage and effect to enemy
 
-                        if( c.takeDamage(damage, itm.getEffect()) ){
+                        if( c.takeDamage(damage, itm.getEffect(), itm.isCursed()) ){
                             //returns true if the enemy died
                             c.updateAnimation("die");
 
