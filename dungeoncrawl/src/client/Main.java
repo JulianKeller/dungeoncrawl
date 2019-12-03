@@ -171,7 +171,7 @@ public class Main extends StateBasedGame {
     boolean showPath = false;   // shows dijkstra or not
     ArrayList<BaseMap> maptiles;
     boolean collisions;
-    boolean invincibility;
+    boolean invincible;
     ArrayList<DisplayItem> testItems;
     Character hero;
     public ArrayList<Character> characters;
@@ -182,8 +182,6 @@ public class Main extends StateBasedGame {
     Entity[][] potions;
     ArrayList<AnimateEntity> animations;
 
-
-    
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
     
@@ -202,9 +200,6 @@ public class Main extends StateBasedGame {
     public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection"};
     
     //displayed item name should be of the form "material type of effect" using whatever fields are filled in
-    
-    
-
 
 
     /**
@@ -227,7 +222,7 @@ public class Main extends StateBasedGame {
         xOffset = tilesize - doubleOffset;
         yOffset = tilesize + doubleOffset/2;
         collisions = true;
-        invincibility = false;
+        invincible = false;
 
         characters = new ArrayList<>();
         enemies = new ArrayList<>();
@@ -371,7 +366,7 @@ public class Main extends StateBasedGame {
     public boolean closeRequested(){
         if(!localMode) {
             try {
-                dos.writeUTF("Exit 0.0 0.0 0");
+                dos.writeUTF("Exit");
                 dos.flush();
                 socket.close();
                 dos.close();
@@ -392,7 +387,7 @@ public class Main extends StateBasedGame {
             app = new AppGameContainer(game);
             app.setDisplayMode(1280, 736, false);
             app.setVSync(true);
-            app.setShowFPS(false);      // disable fps
+            app.setShowFPS(true);      // disable fps
             app.start();
         } catch (SlickException e) {
             e.printStackTrace();

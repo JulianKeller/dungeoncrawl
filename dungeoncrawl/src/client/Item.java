@@ -21,6 +21,7 @@ public class Item extends StationaryObject{
 	private boolean cursed;		//whether the item is cursed
 	private boolean identified; //whether the player knows the item's properties
 	private Image image;
+	private boolean added = false;
 	
 	private Random rand;
 	
@@ -293,8 +294,9 @@ public class Item extends StationaryObject{
 	
 	//render function
 	public void render(Graphics g){
-		if( image != null ){
+		if( image != null && !added ){
 			addImage(image);
+			added = true;
 		}
 		super.render(g);
 	}
