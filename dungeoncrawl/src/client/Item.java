@@ -29,6 +29,7 @@ public class Item extends StationaryObject{
 	private int requiredLevel;
 	private int weight;
 	
+	public boolean isEquipped = false; //true if the item has been equipped
 	//private String requiredClasses = "";
 	private String[] requiredClasses = {"", "", "", ""};
 	
@@ -128,8 +129,8 @@ public class Item extends StationaryObject{
 			effect = "";
 		}
 		
-		//items have a 50% chance to be cursed (for now?)
-		if( rand.nextInt(100) <= 50 ){
+		//items have a chance to be cursed (for now?)
+		if( rand.nextInt(100) <= 30 ){
 			cursed = true;
 		}else{
 			cursed = false;
@@ -284,6 +285,9 @@ public class Item extends StationaryObject{
 	}
 	
 	//setter functions
+	public void removeCurse(){
+		cursed = false;
+	}
 	public void setOID( int oid ){
 		this.oid = oid;
 	}

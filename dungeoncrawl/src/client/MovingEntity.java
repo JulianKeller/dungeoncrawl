@@ -37,6 +37,7 @@ public class MovingEntity extends Entity {
     private ArrayList<Item> inventory;
     private ArrayList<Item> codex; //list of identified items
     private Item [] equipped;
+    private ArrayList<String> cursedItemTypes; //list of cursed item types the player is using/wearing
     private Vector position;
     private Vector tileWorldCoordinates;
     private Vector nextTileWorldCoordinates;
@@ -55,9 +56,11 @@ public class MovingEntity extends Entity {
     private class Effect{
     	String name;
     	int timer = defaultEffectTimer;
+    	boolean cursed;
     	
-    	public Effect(String name){
+    	public Effect(String name, boolean cursed){
     		this.name = name;
+    		this.cursed = cursed;
     	}
     }
     /**
@@ -85,6 +88,7 @@ public class MovingEntity extends Entity {
         strength = 1;
         this.pid = pid;
         inventory = new ArrayList<Item>(10);
+        cursedItemTypes = new ArrayList<String>();
         equipped = new Item[4];
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
@@ -120,6 +124,7 @@ public class MovingEntity extends Entity {
         strength = 1;
         this.pid = pid;
         inventory = new ArrayList<Item>(10);
+        cursedItemTypes = new ArrayList<String>();
         equipped = new Item[5];
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
@@ -153,16 +158,17 @@ public class MovingEntity extends Entity {
      *  removed with the removeEffect method
      */
     
-    public void addEffect(String name){
+    public void addEffect(String name, boolean cursed){
     	//if the character already has the effect,
     	// reset the timer
     	for( Effect e : activeEffects ){
     		if( e.name.equals(name) ){
     			e.timer = defaultEffectTimer;
+    			e.cursed = cursed;
     		}
     	}
     	//if not, add the effect
-    	activeEffects.add(new Effect(name));
+    	activeEffects.add(new Effect(name, cursed));
     }
     
     public ArrayList<Effect> getActiveEffects(){
@@ -199,6 +205,7 @@ public class MovingEntity extends Entity {
     	//reduce each active effect timer by delta
     	//System.out.println("Updating effect timers")
     	ArrayList<String> effectsToAdd = new ArrayList<String>();
+    	ArrayList<String> cursedEffectsToAdd = new ArrayList<String>();
     	for( Effect e : activeEffects ){
     		//System.out.println("reducing timer of " + e.name + " by " + delta);
     		e.timer -= delta;
@@ -234,7 +241,10 @@ public class MovingEntity extends Entity {
     	
     	//add any new effects
     	for( String s : effectsToAdd ){
-    		addEffect(s);
+    		addEffect(s, false);
+    	}
+    	for( String s : cursedEffectsToAdd ){
+    		addEffect(s, true);
     	}
     }
     
@@ -277,7 +287,9 @@ Reflection:
     
 
     
-    public void implementEffects() throws SlickException{
+    public ArrayList<String> implementEffects() throws SlickException{
+    	ArrayList<String> returnMessages = new ArrayList<String>();
+    	float curseModifier = 0.5f;
     	for( Effect e : activeEffects ){
     		//System.out.println(e.name);
     		if( e.name.equals("Healing") ){
@@ -286,7 +298,11 @@ Reflection:
     			//  current value
     			if( startingHitPoints > hitPoints ){
 	    			float diff = startingHitPoints - hitPoints;
-	    			hitPoints += (diff*0.25);
+	    			if( !e.cursed ){
+	    				hitPoints += (diff*0.25);
+	    			}else{
+	    				hitPoints += (diff*0.25)*curseModifier;
+	    			}
     			}
     			
     		}else if( e.name.equals("Strength") ){
@@ -294,16 +310,36 @@ Reflection:
     			strength++;
     			//this should only happen once
     			
+    			//remove all curses from the player's equipped items
+    			boolean curseRemoved = false;
+    			for( Item i : inventory ){
+    				if( i.isEquipped && i.isCursed() ){
+    					i.removeCurse();
+    					curseRemoved = true;
+    				}
+    			}
+    			if( curseRemoved ){
+    				returnMessages.add("Your strength has overcome curses in your equipped items.");
+    			}
+    			
     		}else if( e.name.equals("Flame") ){
     			//decrease health by 10 every second
     			//	want to lose 10 hp per second
     			//	assume 60 frames per second
     			//	10/60 = amount of hp lost per frame
-    			hitPoints -= ( (float) 10/60);
+    			if( !e.cursed ){
+    				hitPoints -= ( (float) 10/60 );
+    			}else{
+    				hitPoints -= ( (float) (10*curseModifier)/60 );
+    			}
     			
     		}else if( e.name.equals("Mana") ){
     			//add 15% to the current maximum mana
-    			mana += (mana*0.15);
+    			if( !e.cursed ){
+    				mana += (mana*0.15);
+    			}else{
+    				mana += (mana*0.15*curseModifier);
+    			}
     			
     		}else if( e.name.equals("Invisibility") ){
     			//little too complicated for this function,
@@ -311,11 +347,19 @@ Reflection:
     			invisible = true;
     		}else if( e.name.equals("Poisoned") ){
     			//decrease health by 5 every second
-    			hitPoints -= ( (float) 5/60);
+    			if( !e.cursed ){
+    				hitPoints -= ( (float) 5/60);
+    			}else{
+    				hitPoints -= ( (float) (5*curseModifier)/60);
+    			}
     			
     		}else if( e.name.equals("Ice") ){
     			//set movement speed to zero
-    			movementSpeed = 0;
+    			if( !e.cursed ){
+    				movementSpeed = 0;
+    			}else{
+    				movementSpeed /= 2;
+    			}
     			//animationSpeed = 0;
     			
     		}else if( e.name.equals("Lightning") ){
@@ -323,7 +367,11 @@ Reflection:
     			rand.setSeed(System.nanoTime());
     			int r = rand.nextInt(100);
     			if( r < 60 ){
-    				hitPoints -= 20;
+    				if( !e.cursed ){
+    					hitPoints -= 20;
+    				}else{
+    					hitPoints -= 20*curseModifier;
+    				}
     				currentLevel.addMessage("Struck by lightning!");
     				System.out.println("Struck by lightning!");
     			}
@@ -335,7 +383,11 @@ Reflection:
     		}else if( e.name.equals("Iron Skin") ){
     			//double the armor points variable
     			if( armorPoints == initialArmorPoints ){
-    				armorPoints *= 2;
+    				if( !e.cursed ){
+    					armorPoints *= 2;
+    				}else{
+    					armorPoints *= 2*curseModifier;
+    				}
     			}
     			
     			
@@ -364,7 +416,11 @@ Reflection:
     			rand.setSeed(System.nanoTime());
     			int r = rand.nextInt(100);
     			if( r < 50 ){
-    				hitPoints += 3;
+    				if( !e.cursed ){
+    					hitPoints += 3;
+    				}else{
+    					hitPoints += 3*curseModifier;
+    				}
     			}
     			
     		}else if( e.name.equals("Reflection") ){
@@ -372,7 +428,7 @@ Reflection:
     			reflecting = true;
     			
     		}else{
-    			throw new SlickException("Unknown character effect.");
+    			throw new SlickException("Unknown character effect '"+e.name+"'.");
     		}
     		
 
@@ -387,13 +443,15 @@ Reflection:
 									b.name.equals("Healing") ||
 									b.name.equals("Lightning") ||
 									b.name.equals("Mana"));
+		
+		return returnMessages;
 					
     }
     
-    public boolean takeDamage(float amount, String effect ){
+    public boolean takeDamage(float amount, String effect, boolean cursed ){
     	hitPoints -= amount;
     	if( !effect.equals("") ){
-    		addEffect(effect);
+    		addEffect(effect, cursed);
     	}
     	
     	//check if this entity is dead
@@ -722,6 +780,9 @@ Reflection:
     public Item[] getEquipped(){
     	return equipped;
     }
+    public ArrayList<String> getCursedItemTypes(){
+    	return cursedItemTypes;
+    }
 
     public void setPosition(Vector p){
         position = p;
@@ -729,6 +790,10 @@ Reflection:
 
     public Vector getPosition(){
         return position;
+    }
+    
+    public void addCursedItemType(String type){
+    	cursedItemTypes.add(type);
     }
 
     /**
