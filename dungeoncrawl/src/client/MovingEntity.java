@@ -155,16 +155,17 @@ public class MovingEntity extends Entity {
      *  removed with the removeEffect method
      */
     
-    public void addEffect(String name){
+    public void addEffect(String name, boolean cursed){
     	//if the character already has the effect,
     	// reset the timer
     	for( Effect e : activeEffects ){
     		if( e.name.equals(name) ){
     			e.timer = defaultEffectTimer;
+    			e.cursed = cursed;
     		}
     	}
     	//if not, add the effect
-    	activeEffects.add(new Effect(name));
+    	activeEffects.add(new Effect(name, cursed));
     }
     
     public ArrayList<Effect> getActiveEffects(){
@@ -201,6 +202,7 @@ public class MovingEntity extends Entity {
     	//reduce each active effect timer by delta
     	//System.out.println("Updating effect timers")
     	ArrayList<String> effectsToAdd = new ArrayList<String>();
+    	ArrayList<String> cursedEffectsToAdd = new ArrayList<String>();
     	for( Effect e : activeEffects ){
     		//System.out.println("reducing timer of " + e.name + " by " + delta);
     		e.timer -= delta;
@@ -236,7 +238,10 @@ public class MovingEntity extends Entity {
     	
     	//add any new effects
     	for( String s : effectsToAdd ){
-    		addEffect(s);
+    		addEffect(s, false);
+    	}
+    	for( String s : cursedEffectsToAdd ){
+    		addEffect(s, true);
     	}
     }
     
@@ -392,10 +397,10 @@ Reflection:
 					
     }
     
-    public boolean takeDamage(float amount, String effect ){
+    public boolean takeDamage(float amount, String effect, boolean cursed ){
     	hitPoints -= amount;
     	if( !effect.equals("") ){
-    		addEffect(effect);
+    		addEffect(effect, cursed);
     	}
     	
     	//check if this entity is dead
