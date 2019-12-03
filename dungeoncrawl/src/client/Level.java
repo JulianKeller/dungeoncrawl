@@ -997,7 +997,9 @@ public class Level extends BasicGameState {
                 	
                 	String attackableItems = "Sword Glove Potion Arrow Staff";
             		if( attackableItems.contains(itm.getType()) && !cannotRemove && canUse(itm, dc.hero) ){	           
-            	
+            			
+            			itm.isEquipped = true;
+            			
 	                    attack(itm, dc, lastKnownDirection);
 	                    if( itm.isCursed() ){
 	                    	addMessage(itm.getType() + " binds itself to your hand. It is cursed!");
@@ -1046,6 +1048,8 @@ public class Level extends BasicGameState {
 		                //remove the item from hands
 		                dc.hero.unequipItem(selectedEquippedItem);
 		                
+		                i.isEquipped = true;
+		                
 		                
 		
 		                //only remove the item from the inventory if it is a potion/consumable
@@ -1074,37 +1078,41 @@ public class Level extends BasicGameState {
 
                 Item itm = dc.hero.getEquipped()[selectedEquippedItem];
                 if( itm != null ){
-	                if( itm.getType().equals("Arrow") ){
-	                	//reset the item count
-	                	itm.count = 1;
-	                	
-	                	itm.setImage(getArrowImage(itm.getEffect(), null));
+                	if( itm.isCursed() && itm.isEquipped ){
+                		addMessage("Cannot drop your cursed " + itm.getType());
+                	}else{
+		                if( itm.getType().equals("Arrow") ){
+		                	//reset the item count
+		                	itm.count = 1;
+		                	
+		                	itm.setImage(getArrowImage(itm.getEffect(), null));
+		                }
+		                dc.hero.unequipItem(selectedEquippedItem);
+		
+		
+		
+		                //place the item at the hero's feet
+		                Vector wc = new Vector(
+		                		(int)(dc.hero.getWorldCoordinates().getX()/dc.tilesize),
+		                		(int)(dc.hero.getWorldCoordinates().getY()/dc.tilesize)+1
+		                		);
+		                Main.im.take(itm, dc.hero, wc, false);
+		
+		                
+		                //reduce the hero's inventory weight
+		                
+		                //lock the item with a timer
+		                itm.lock();
+		                //add item lock timer
+		                itemLockTimers.add( new ItemLockTimer(itm.getID()) );
+		                System.out.println("Locked dropped item.");
+		
+		                //add the item to the render list
+		                // TODO may need to be changed to be added to worldItems
+		                itemsToRender.add(itm);
+		
+		                addMessage("Dropped "+itm.toString()+".");
 	                }
-	                dc.hero.unequipItem(selectedEquippedItem);
-	
-	
-	
-	                //place the item at the hero's feet
-	                Vector wc = new Vector(
-	                		(int)(dc.hero.getWorldCoordinates().getX()/dc.tilesize),
-	                		(int)(dc.hero.getWorldCoordinates().getY()/dc.tilesize)+1
-	                		);
-	                Main.im.take(itm, dc.hero, wc, false);
-	
-	                
-	                //reduce the hero's inventory weight
-	                
-	                //lock the item with a timer
-	                itm.lock();
-	                //add item lock timer
-	                itemLockTimers.add( new ItemLockTimer(itm.getID()) );
-	                System.out.println("Locked dropped item.");
-	
-	                //add the item to the render list
-	                // TODO may need to be changed to be added to worldItems
-	                itemsToRender.add(itm);
-	
-	                addMessage("Dropped "+itm.toString()+".");
                 }
             }else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
                 //return item to inventory

@@ -29,6 +29,7 @@ public class Item extends StationaryObject{
 	private int requiredLevel;
 	private int weight;
 	
+	public boolean isEquipped = false; //true if the item has been equipped
 	//private String requiredClasses = "";
 	private String[] requiredClasses = {"", "", "", ""};
 	
