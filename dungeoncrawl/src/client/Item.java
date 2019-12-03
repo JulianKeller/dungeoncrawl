@@ -27,6 +27,8 @@ public class Item extends StationaryObject{
 	
 	public int count; //the number of this item in the inventory
 	private int requiredLevel;
+	private int weight;
+	
 	//private String requiredClasses = "";
 	private String[] requiredClasses = {"", "", "", ""};
 	
@@ -66,6 +68,8 @@ public class Item extends StationaryObject{
 			type = "Arrow";
 			requiredClasses[0] = "archer";
 		}
+		
+		
 		
 		
 		//choose materials from the appropriate list
@@ -193,6 +197,8 @@ public class Item extends StationaryObject{
 				throw new SlickException("Invalid arrow effect.");
 			}
 		}
+		
+		updateWeight();
 	}
 	
 	public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image, int count){
@@ -207,6 +213,8 @@ public class Item extends StationaryObject{
 		this.identified = identified;
 		this.image = image;
 		this.count = count;
+		
+		updateWeight();
 	}
 	
 	
@@ -271,6 +279,9 @@ public class Item extends StationaryObject{
 	public int getRequiredLevel(){
 		return requiredLevel;
 	}
+	public int getWeight(){
+		return weight;
+	}
 	
 	//setter functions
 	public void setOID( int oid ){
@@ -290,6 +301,34 @@ public class Item extends StationaryObject{
 	}
 	public void setRequiredLevel(int level){
 		requiredLevel = level;
+	}
+	public void updateWeight(){
+		//set weight based on type and material
+		if( type.equals("Armor") ){
+			if( material.equals("Leather") ){
+				weight = 40;
+			}else if( material.equals("Iron") ){
+				weight = 50;
+			}else if( material.equals("Gold") ){
+				weight = 60;
+			}
+		}else if( type.equals("Sword") ){
+			if( material.equals("Wooden") ){
+				weight = 10; 
+			}else if( material.equals("Iron") ){
+				weight = 30;
+			}else if( material.equals("Gold") ){
+				weight = 40;
+			}
+		}else if( type.equals("Arrow") ){
+			weight = 2*count;
+		}else if( type.equals("Potion") ){
+			weight = 15*count;
+		}
+	}
+	public void setImage(Image img){
+		removeImage(this.image);
+		addImage(img);
 	}
 	
 	//render function

@@ -443,22 +443,28 @@ public class Character extends MovingEntity {
         float sy = position.getY();
         float x = 0;
         float y = 0;
+        
+        float modifier = 1;
+        if( getInventoryWeight() >= getMaxInventoryWeight()*0.7){
+        	modifier = 0.5f;
+        }
+        
         if (movesLeft > 0) {
             switch (direction) {
                 case "walk_up":
                     x = sx;
-                    y = sy - super.getMovementSpeed();
+                    y = sy - super.getMovementSpeed() * modifier;
                     break;
                 case "walk_down":
                     x = sx;
-                    y = sy + super.getMovementSpeed();
+                    y = sy + super.getMovementSpeed() * modifier;
                     break;
                 case "walk_left":
-                    x = sx - super.getMovementSpeed();
+                    x = sx - super.getMovementSpeed() * modifier;
                     y = sy;
                     break;
                 case "walk_right":
-                    x = sx + super.getMovementSpeed();
+                    x = sx + super.getMovementSpeed() * modifier;
                     y = sy;
                     break;
             }
