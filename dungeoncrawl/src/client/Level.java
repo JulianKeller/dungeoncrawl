@@ -1162,7 +1162,7 @@ public class Level extends BasicGameState {
                         ch.takeDamage(0, ti.itm.getEffect(),false);
                         dc.hero.addToCodex(ti.itm);
                         reachedDestination.add(ti);
-                    }else if( ti.itm.getType().equals("Arrow") ){
+                    }else if( ti.itm.getType().equals("Arrow") || ti.itm.getType().equals("Staff") ){
                         //roll random damage, similarly to a sword
                         rand.setSeed(System.nanoTime());
                         int r = rand.nextInt(100);
