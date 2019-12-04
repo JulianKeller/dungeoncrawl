@@ -145,9 +145,9 @@ public class Main extends StateBasedGame {
     public static final String SPELL_PURPLE = "resources/spells/spell-purple.png";
 
     // gloves
-    public static final String GLOVES_REGENERATION = "resources/gloves/gloves-red.png";
-    public static final String GLOVES_SWIFTNESS = "resources/gloves/gloves-yellow.png";
-    public static final String GLOVES_REFLECTION = "resources/gloves/gloves-white.png";
+    public static final String GLOVES_RED = "resources/gloves/gloves-red.png";
+    public static final String GLOVES_YELLOW = "resources/gloves/gloves-yellow.png";
+    public static final String GLOVES_WHITE = "resources/gloves/gloves-white.png";
 
     // splash screen
     public static final String TITLE = "resources/splashScreen/title.png";
@@ -184,12 +184,6 @@ public class Main extends StateBasedGame {
 
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
-    
-    //item materials
-    public static final String[] ArmorMaterials = {"Iron", "Gold"};
-    public static final String[] SwordMaterials = {"Wooden", "Iron", "Gold"};
-    public static final String[] StaffMaterials = {"Ruby", "Emerald", "Amethyst"};
-    public static final String[] GloveMaterials = {"Leather", "Iron", "Gold"};
     
     //item effects
     public static final String[] PotionEffects = {"Healing", "Strength", "Flame", "Mana", "Invisibility"};
@@ -350,9 +344,9 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(SPELL_PURPLE);
 
         // GLOVES
-        ResourceManager.loadImage(GLOVES_REFLECTION);
-        ResourceManager.loadImage(GLOVES_REGENERATION);
-        ResourceManager.loadImage(GLOVES_SWIFTNESS);
+        ResourceManager.loadImage(GLOVES_RED);
+        ResourceManager.loadImage(GLOVES_WHITE);
+        ResourceManager.loadImage(GLOVES_YELLOW);
 
         // TITLE
         ResourceManager.loadImage(TITLE);

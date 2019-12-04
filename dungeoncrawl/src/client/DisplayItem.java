@@ -101,15 +101,15 @@ public class DisplayItem extends Entity {
             }
             //gloves
             case "gloves_red": {
-                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_REGENERATION));
+                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_RED));
                 break;
             }
             case "gloves_white": {
-                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_REFLECTION));
+                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_WHITE));
                 break;
             }
             case "gloves_yellow": {
-                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_SWIFTNESS));
+                addImageWithBoundingBox(ResourceManager.getImage(Main.GLOVES_YELLOW));
                 break;
             }
             // robes

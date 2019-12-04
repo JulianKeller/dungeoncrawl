@@ -1,12 +1,12 @@
 ##Open Issues##
 [5] Update/test player interactions with items
-[17] Add images for remaining items
 [19] Update character images based on weapon material
 [26] Add functionality for Might effect
 [27] Add attacks for Mage and Tank classes
 [28] Add visual indicator of character effects
 [30] Add animations for thrown items breaking
 [31] Scale thrown items to give the appearance of arc
+[36] Add sound effects and background music
 
 ##Resolved Issues##
 [1] Create database schema to hold items and player inventories
@@ -24,6 +24,7 @@
 [14] Create player codex, a list of identified items
 [15] Make potions with the same color have the same effect
 [16] Add visual display for player inventory and codex
+[17] Add images for remaining items
 [18] Update character images based on their armor
 [20] Add method for selecting and using/equipping items from inventory
 [21] Add method to use equipped consumable items
