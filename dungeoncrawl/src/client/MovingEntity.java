@@ -27,6 +27,7 @@ public class MovingEntity extends Entity {
     private boolean thorny = false;
     private boolean frightening = false;
     private boolean reflecting = false;
+    private boolean mighty = false;
     
     private Vector worldCoordinates;
     private int animationSpeed;
@@ -145,6 +146,9 @@ public class MovingEntity extends Entity {
     }
     public boolean isReflecting(){
     	return reflecting;
+    }
+    public boolean isMighty(){
+    	return mighty;
     }
     
     /*
@@ -344,7 +348,9 @@ Reflection:
     		}else if( e.name.equals("Invisibility") ){
     			//little too complicated for this function,
     			//  just set a boolean value
-    			invisible = true;
+    			if( !e.cursed ){
+    				invisible = true;
+    			}
     		}else if( e.name.equals("Poisoned") ){
     			//decrease health by 5 every second
     			if( !e.cursed ){
@@ -378,8 +384,9 @@ Reflection:
     			
     		}else if( e.name.equals("Stench") ){
     			//another AI problem, set a boolean
-    			stinky = true;
-    			
+    			if( !e.cursed ){
+    				stinky = true;
+    			}
     		}else if( e.name.equals("Iron Skin") ){
     			//double the armor points variable
     			if( armorPoints == initialArmorPoints ){
@@ -393,7 +400,9 @@ Reflection:
     			
     		}else if( e.name.equals("Thorns") ){
     			//AI problem
-    			thorny = true;
+    			if( !e.cursed ){
+    				thorny = true;
+    			}
     			
     		}else if( e.name.equals("Swiftness") ){
     			//double movement speed
@@ -405,11 +414,14 @@ Reflection:
     			
     		}else if( e.name.equals("Fright") ){
     			//AI problem, see stench
-    			frightening = true;
-    			
+    			if( !e.cursed ){
+    				frightening = true;
+    			}
     		}else if( e.name.equals("Might") ){
     			//double player's attack damage
-    			//TODO: add attack system
+    			if( !e.cursed ){
+    				mighty = true;
+    			}
     			
     		}else if( e.name.equals("Regeneration") ){
     			//roll 50% chance to restore 3 hp
@@ -425,8 +437,9 @@ Reflection:
     			
     		}else if( e.name.equals("Reflection") ){
     			//AI problem, see thorns
-    			reflecting = true;
-    			
+    			if( !e.cursed ){
+    				reflecting = true;
+    			}
     		}else{
     			throw new SlickException("Unknown character effect '"+e.name+"'.");
     		}
