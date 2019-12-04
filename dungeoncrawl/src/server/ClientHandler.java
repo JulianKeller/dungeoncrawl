@@ -10,7 +10,7 @@ public class ClientHandler extends Thread{
     private ObjectInputStream is;  // the input stream
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
-    private BlockingQueue<String> threadQueue;
+    public BlockingQueue<String> threadQueue;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
                          BlockingQueue<String> queue){
         socket = s;
