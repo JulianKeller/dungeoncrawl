@@ -185,12 +185,6 @@ public class Main extends StateBasedGame {
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
     
-    //item materials
-    public static final String[] ArmorMaterials = {"Iron", "Gold"};
-    public static final String[] SwordMaterials = {"Wooden", "Iron", "Gold"};
-    public static final String[] StaffMaterials = {"Ruby", "Emerald", "Amethyst"};
-    public static final String[] GloveMaterials = {"Red", "White", "Yellow"};
-    
     //item effects
     public static final String[] PotionEffects = {"Healing", "Strength", "Flame", "Mana", "Invisibility"};
     public static final String[] ArrowEffects = {"Flame", "Poison", "Ice", ""};
