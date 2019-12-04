@@ -10,9 +10,9 @@ public class ClientHandler extends Thread{
     private ObjectInputStream is;  // the input stream
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
-    private BlockingQueue<String> threadQueue;
+    private BlockingQueue<Message> threadQueue;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
-                         BlockingQueue<String> queue){
+                         BlockingQueue<Message> queue){
         socket = s;
         this.is = is;
         this.os = os;
@@ -29,20 +29,19 @@ public class ClientHandler extends Thread{
             // Write the map onto the client for rendering
             os.writeObject(Server.map);
             os.flush();
-            os.writeUTF(Integer.toString(id));
+            os.write(id);
             os.flush();
             sendEnemyList();
             while(true) {
                 try {
                     // Receive coordinate message from the client
-                    String message = is.readUTF();
-                    if(message.split(" ").length > 2) {
-                        toServer(message);
-                        writeSuccess = writeToClient();
-                        if (!writeSuccess || message.split(" ")[0].equals("Exit"))
-                            break;
-                    }
-                }catch(SocketException e){
+                    Message message = (Message)is.readObject();
+                    toServer(message);
+                    writeSuccess = writeToClient();
+                    if (!writeSuccess || message.type.equals("Exit"))
+                        break;
+
+                }catch(SocketException | ClassNotFoundException e){
                     System.out.println("Client "+id+" closed unexpectedly.\nClosing connections " +
                             "and terminating thread.");
                     break;
@@ -62,7 +61,7 @@ public class ClientHandler extends Thread{
      * This function places the string into the Server Queue.
      * @param m message to send
      */
-    private void toServer(String m){
+    private void toServer(Message m){
         try {
             //System.out.println("To Server: "+ id + " "+m);
             Server.serverQueue.put(id +" "+  m);
@@ -87,9 +86,9 @@ public class ClientHandler extends Thread{
      */
     private boolean writeToClient() {
         try {
-            String toClient = threadQueue.take();
+            Message toClient = threadQueue.take();
             //System.out.println("Writing to client "+id+": "+toClient);
-            os.writeUTF(toClient);
+            os.writeObject(toClient);
             os.flush();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
