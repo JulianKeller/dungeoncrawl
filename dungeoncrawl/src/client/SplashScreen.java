@@ -87,9 +87,10 @@ public class SplashScreen extends BasicGameState {
         if (enterAddress) {
             enterIP(input);
         }
-
-        if (input.isKeyPressed(Input.KEY_ENTER)) {
-            connectToSever(dc, game);
+        if (connect) {
+            if (input.isKeyPressed(Input.KEY_ENTER)) {
+                connectToSever(dc, game);
+            }
         }
 
         if (errorTimer >= 0) {
@@ -233,7 +234,7 @@ public class SplashScreen extends BasicGameState {
         String msg = "Error: Check that your IP Address is correct and that the server is running.";
         Color tmp = g.getColor();
         g.setColor(new Color(255, 0, 0, 1f));
-        g.drawString(msg, 320, 400);
+        g.drawString(msg, 320 + xOffset, 400);
         g.setColor(tmp);
     }
 
@@ -357,8 +358,8 @@ public class SplashScreen extends BasicGameState {
     private void connectToSever(Main dc,StateBasedGame game) {
         // Setting up the connection to the server
         Socket socket = null;
-        ObjectInputStream dis = null;
         ObjectOutputStream dos = null;
+        ObjectInputStream dis = null;
         try {
             // getting localhost ip
             InetAddress ip = InetAddress.getByName(IP);
@@ -367,8 +368,9 @@ public class SplashScreen extends BasicGameState {
             socket = new Socket(ip, 5000);
 
             // obtaining input and out streams
-            dis = new ObjectInputStream(socket.getInputStream());
             dos = new ObjectOutputStream(socket.getOutputStream());
+            dis = new ObjectInputStream(socket.getInputStream());
+
 
         } catch (Exception e) {
             error = true;

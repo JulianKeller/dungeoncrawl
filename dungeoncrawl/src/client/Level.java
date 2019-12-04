@@ -3,11 +3,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
+import server.Msg;
 
 
 
@@ -138,12 +138,13 @@ public class Level extends BasicGameState {
 
         try {
            dc.map = (int[][])dis.readObject();
-           System.out.println("I got the map!");
+            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
+//           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
+//        System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
 
         //rotated map verified correct
         rotatedMap = new int[dc.map[0].length][dc.map.length];
@@ -184,14 +185,15 @@ public class Level extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
 
-        System.out.printf("setting character at %s, %s\n", wx, wy);
+//        System.out.printf("setting character at %s, %s\n", wx, wy);
 
         // Setting starting position for the hero.
         String coord = wx + " " + wy;
         int id = 0;
         String type = setSkin();
         try {
-            id = Integer.parseInt(dis.readUTF());
+            id = dis.read();
+            System.out.println("reading id: " + id);
             //System.out.println("Sending my player info.");
             serverId = id;
         }catch(IOException e){
@@ -202,7 +204,9 @@ public class Level extends BasicGameState {
         dc.characters.add(dc.hero);
 
         try{
-            dos.writeUTF(type+" "+coord + " "+ dc.hero.getHitPoints());
+            Msg msg = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+            dos.writeObject(msg);
+            System.out.println("write msg type: " + msg.getClass().getSimpleName());
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();
@@ -226,6 +230,7 @@ public class Level extends BasicGameState {
         ArrayList<String> enemyList = new ArrayList<>();
         try{
             enemyList = (ArrayList) dis.readObject();
+            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -471,25 +476,6 @@ public class Level extends BasicGameState {
         g.fillRect(0, 0, dc.ScreenWidth, dc.ScreenHeight);
         g.setColor(new Color(255, 255, 255, 1f));
         g.drawString("PAUSED", (float) dc.ScreenWidth/2 - 12, (float) dc.ScreenHeight/2 - 10);
-        g.setColor(tmp);
-
-        // show controls
-        tmp = g.getColor();
-        int shift = 465;
-        int left = 150;
-        int indent = 200;
-        g.setColor(new Color(0, 0, 0, .5f));
-        g.fillRect( left - 20, shift - 20, 385, 260);
-        g.setColor(new Color(255, 255, 255, 1f));
-        g.drawString("Move: w, a, s, d", left, shift);
-        g.drawString("Pause: p", left, shift + 25);
-        g.drawString("Open/Close Inventory: i", left, shift + 50);
-        g.drawString("Traverse Inventory: Arrow Keys", indent, shift + 75);
-        g.drawString("Move Item to Inventory: enter", indent, shift + 100);
-        g.drawString("Display Codex: o", left, shift + 125);
-        g.drawString("drop item: backslash", left, shift + 150);
-        g.drawString("unequip item: shift", left, shift + 175);
-        g.drawString("attack: space/enter", left, shift + 200);
         g.setColor(tmp);
     }
 
@@ -1515,10 +1501,11 @@ public class Level extends BasicGameState {
     public void positionToServer(Main dc){
         float wx = dc.hero.getWorldCoordinates().getX();
         float wy = dc.hero.getWorldCoordinates().getY();
-        String toServer = dc.hero.getType() + " " + wx + " " + wy + " "+ dc.hero.getHitPoints();
+        Msg toServer = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
         try {
-            dos.writeUTF(toServer);
+            dos.writeObject(toServer);
             dos.flush();
+            System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -1535,31 +1522,28 @@ public class Level extends BasicGameState {
 
     public void updateOtherPlayers(Main dc){
         try {
-            String read = dis.readUTF(); // message from server
+            Msg read = (Msg)dis.readObject(); // message from server
+            System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
             //System.out.println("("+serverId+") Read: " + read);
-            String [] str = read.split(" ");
-            int id = Integer.parseInt(str[0]);
-            float x = Float.parseFloat(str[2]);
-            float y = Float.parseFloat(str[3]);
-            float hp = Float.parseFloat(str[4]);
-            if(str[1].equals("Exit")) {
-                dc.characters.removeIf(c -> c.getPid() == id);
+
+            if(read.type.equals("Exit")) {
+                dc.characters.removeIf(c -> c.getPid() == read.id);
                 return;
             }
             for(Iterator<Character> i = dc.characters.iterator();i.hasNext();){
                 Character c = i.next();
-                if(c.getPid() == id) {
+                if(c.getPid() == read.id) {
                     if (c.getPid() == serverId) {
                         return;
                     }
-                    c.setWorldCoordinates(new Vector(x,y));
-                    c.setHitPoints(hp);
+                    c.setWorldCoordinates(new Vector(read.wx,read.wy));
+                    c.setHitPoints(read.hp);
                     return;
                 }
 
             }
-            dc.characters.add(new Character(dc,x,y,str[1],id,this,false));
-        }catch(IOException e){
+            dc.characters.add(new Character(dc,read.wx,read.wy,read.type,read.id,this,false));
+        }catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
     }

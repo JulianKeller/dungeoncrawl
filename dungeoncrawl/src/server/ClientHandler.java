@@ -10,9 +10,9 @@ public class ClientHandler extends Thread{
     private ObjectInputStream is;  // the input stream
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
-    private BlockingQueue<String> threadQueue;
+    private BlockingQueue<Msg> threadQueue;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
-                         BlockingQueue<String> queue){
+                         BlockingQueue<Msg> queue){
         socket = s;
         this.is = is;
         this.os = os;
@@ -28,21 +28,23 @@ public class ClientHandler extends Thread{
         try{
             // Write the map onto the client for rendering
             os.writeObject(Server.map);
+            System.out.println("Wrote map` "+ Server.map.getClass().getSimpleName());
             os.flush();
-            os.writeUTF(Integer.toString(id));
+            os.write(id);
+            System.out.println("Wrote id "+ id);
             os.flush();
             sendEnemyList();
             while(true) {
                 try {
                     // Receive coordinate message from the client
-                    String message = is.readUTF();
-                    if(message.split(" ").length > 2) {
-                        toServer(message);
-                        writeSuccess = writeToClient();
-                        if (!writeSuccess || message.split(" ")[0].equals("Exit"))
-                            break;
-                    }
-                }catch(SocketException e){
+                    Msg message = (Msg) is.readObject();
+                   System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
+                    toServer(message);
+                    writeSuccess = writeToClient();
+                    if (!writeSuccess || message.type.equals("Exit"))
+                        break;
+
+                }catch(SocketException | ClassNotFoundException e){
                     System.out.println("Client "+id+" closed unexpectedly.\nClosing connections " +
                             "and terminating thread.");
                     break;
@@ -62,10 +64,10 @@ public class ClientHandler extends Thread{
      * This function places the string into the Server Queue.
      * @param m message to send
      */
-    private void toServer(String m){
+    private void toServer(Msg m){
         try {
             //System.out.println("To Server: "+ id + " "+m);
-            Server.serverQueue.put(id +" "+  m);
+            Server.serverQueue.put(m);
         } catch (InterruptedException e){
             e.printStackTrace();
         }
@@ -76,7 +78,7 @@ public class ClientHandler extends Thread{
           //System.out.println("Sending Enemy info "+ s)
             os.writeObject(Server.enemies);
             os.flush();
-
+            System.out.println("Wrote Server.enemies, type:  "+ Server.enemies.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -87,10 +89,11 @@ public class ClientHandler extends Thread{
      */
     private boolean writeToClient() {
         try {
-            String toClient = threadQueue.take();
+            Msg toClient = threadQueue.take();
             //System.out.println("Writing to client "+id+": "+toClient);
-            os.writeUTF(toClient);
+            os.writeObject(toClient);
             os.flush();
+            //System.out.println("Wrote MSG `toClient` "+ toClient.getClass().getSimpleName());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return false;
