@@ -51,21 +51,34 @@ public class Item extends StationaryObject{
 		
 		//rarity: armor, sword/other weapons, potion, arrow
 		//armor: 20%, sword: 30%, potion: 40%, arrow: 50%
+		
+		
+		
+		//arrow: 40%; potion: 30%; weapon: 20%;  armor: 10%
 		int r = rand.nextInt(100);
-		if( r < 20 ){
+		if( r < 10 ){		//10%
 			type = "Armor";
 			requiredClasses[0] = "knight";
 			requiredClasses[1] = "tank";
-		}else if( r < 30 ){
-			type = "Sword";
-			requiredClasses[0] = "knight";
-		}else if( r < 40 ){
+		}else if( r < 30 ){ //20%
+			r = rand.nextInt(100);
+			if( r < 20 ){
+				type = "Staff";
+				requiredClasses[0] = "mage";
+			}else if( r < 50 ){
+				type = "Sword";
+				requiredClasses[0] = "knight";
+			}else{
+				type = "Gloves";
+				requiredClasses[0] = "tank";
+			}
+		}else if( r < 50 ){	//30%
 			type = "Potion";
 			requiredClasses[0] = "knight";
 			requiredClasses[1] = "tank";
 			requiredClasses[2] = "mage";
 			requiredClasses[3] = "archer";
-		}else{
+		}else{				//40%
 			type = "Arrow";
 			requiredClasses[0] = "archer";
 		}
@@ -78,28 +91,34 @@ public class Item extends StationaryObject{
 		r = rand.nextInt(100);
 		
 		if( type.equals("Sword") ){
-			if( r < 20 ){
+			if( r < 20 ){ 			//20%
 				material = "Gold";
-			}else if( r < 40 ){
+			}else if( r < 50 ){ 	//30%
 				material = "Iron";
-			}else{
+			}else{ 					//50%
 				material = "Wooden";
 			}
 		}else if( type.equals("Armor") ){
-			if( r < 30 ){
+			if( r < 30 ){ 			//30%
 				material = "Gold";
-			}else{
+			}else{ 					//70%
 				material = "Iron";
 			}
 		}else if( type.equals("Staff") ){
-			this.material = Main.StaffMaterials[ rand.nextInt(Main.StaffMaterials.length) ];
-		}else if( type.equals("Glove") ){
-			if( r < 20 ){
-				material = "Gold";
-			}else if( r < 50 ){
-				material = "Iron";
-			}else{
-				material = "Leather";
+			if( r < 20 ){ 			//20%
+				material = "Amethyst";
+			}else if( r < 50 ){ 	//30%
+				material = "Emerald";
+			}else{ 					//50%
+				material = "Ruby";
+			}
+		}else if( type.equals("Gloves") ){
+			if( r < 20 ){			//20%
+				material = "Yellow";
+			}else if( r < 50 ){ 	//30%
+				material = "White";
+			}else{					//50%
+				material = "Red";
 			}
 		}else{
 			this.material = "";
@@ -113,7 +132,7 @@ public class Item extends StationaryObject{
 				this.effect = Main.SwordEffects[ rand.nextInt(Main.SwordEffects.length) ];
 			}else if( type.equals("Armor") ){
 				this.effect = Main.ArmorEffects[ rand.nextInt(Main.ArmorEffects.length) ];
-			}else if( type.equals("Glove") ){
+			}else if( type.equals("Gloves") ){
 				this.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
 			}else if( type.equals("Arrow") ){
 				this.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
@@ -125,6 +144,8 @@ public class Item extends StationaryObject{
 				this.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
 		}else if( type.equals("Staff") ){
 			this.effect = Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ];
+		}else if( type.equals("Gloves") ){
+			effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
 		}else{
 			effect = "";
 		}
@@ -174,7 +195,7 @@ public class Item extends StationaryObject{
 			}else if( material.equals("Gold") ){
 				image = ResourceManager.getImage(Main.SWORD_GOLD);
 			}else{
-				throw new SlickException("Error: invalid sword material'"+material+"'");
+				throw new SlickException("Invalid sword material '" + material + "'.");
 			}
 		}else if( type.equals("Armor") ){
 			//iron, gold
@@ -183,7 +204,7 @@ public class Item extends StationaryObject{
 			}else if( material.equals("Gold") ){
 				image = ResourceManager.getImage(Main.ARMOR_GOLD);
 			}else{
-				throw new SlickException("Error: invalid armor material '"+material+"'");
+				throw new SlickException("Invalid armor material '" + material + "'.");
 			}
 		}else if( type.equals("Arrow") ){
 			if( effect.equals("Flame") ){
@@ -195,7 +216,27 @@ public class Item extends StationaryObject{
 			}else if( effect.equals("") ){
 				image = ResourceManager.getImage(Main.ARROW_NORMAL);
 			}else{
-				throw new SlickException("Invalid arrow effect.");
+				throw new SlickException("Invalid arrow effect '" + effect + "'.");
+			}
+		}else if( type.equals("Gloves") ){
+			if( material.equals("Red") ){
+				image = ResourceManager.getImage(Main.GLOVES_RED);
+			}else if( material.equals("White") ){
+				image = ResourceManager.getImage(Main.GLOVES_WHITE);
+			}else if( material.equals("Yellow") ){
+				image = ResourceManager.getImage(Main.GLOVES_YELLOW);
+			}else{
+				throw new SlickException("Invalid glove material '" + material + "'.");
+			}
+		}else if( type.equals("Staff") ){
+			if( material.equals("Ruby") ){
+				image = ResourceManager.getImage(Main.STAFF_RUBY);
+			}else if( material.equals("Emerald") ){
+				image = ResourceManager.getImage(Main.STAFF_EMERALD);
+			}else if( material.equals("Amethyst") ){
+				image = ResourceManager.getImage(Main.STAFF_AMETHYST);
+			}else{
+				throw new SlickException("Invalid staff material '" + material + "'.");
 			}
 		}
 		
@@ -235,7 +276,11 @@ public class Item extends StationaryObject{
 			}
 			tmp = tmp + getType();
 			if( getEffect() != "" ){
-				tmp = tmp + " of " + getEffect();
+				if( getMaterial().equals("Red") && getEffect().equals("Swiftness") ){
+					tmp = "Gloves of Running Urgently";
+				}else{
+					tmp = tmp + " of " + getEffect();
+				}
 			}
 		}else{
 			if( getMaterial() != "" ){
@@ -328,6 +373,8 @@ public class Item extends StationaryObject{
 			weight = 2*count;
 		}else if( type.equals("Potion") ){
 			weight = 15*count;
+		}else if( type.equals("Gloves") ){
+			weight = 20;
 		}
 	}
 	public void setImage(Image img){
