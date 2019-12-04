@@ -17,6 +17,7 @@ public class MovingEntity extends Entity {
     private int armorPoints;
     private int initialArmorPoints = -1;
     private float mana;
+    private float maxMana;
     private int strength; //determines what level of items the player can pick up
     private int inventoryWeight = 0; //weight of items factored into movement speed
     private int attackDamage;   // determines the amount of damage AI can deal
@@ -86,6 +87,7 @@ public class MovingEntity extends Entity {
         nextTileWorldCoordinates = tileWorldCoordinates;
 
         mana = 0;
+        maxMana = 0;
         strength = 1;
         this.pid = pid;
         inventory = new ArrayList<Item>(10);
@@ -122,6 +124,7 @@ public class MovingEntity extends Entity {
         animationSpeed = 1;
         initialMovementSpeed = movementSpeed = 1;
         mana = 0;
+        maxMana = 0;
         strength = 1;
         this.pid = pid;
         inventory = new ArrayList<Item>(10);
@@ -340,9 +343,9 @@ Reflection:
     		}else if( e.name.equals("Mana") ){
     			//add 15% to the current maximum mana
     			if( !e.cursed ){
-    				mana += (mana*0.15);
+    				maxMana += (maxMana*0.15);
     			}else{
-    				mana += (mana*0.15*curseModifier);
+    				maxMana += (maxMana*0.15*curseModifier);
     			}
     			
     		}else if( e.name.equals("Invisibility") ){
@@ -723,8 +726,14 @@ Reflection:
     public void setMana(float m){
         mana = m;
     }
+    public void setMaxMana(float m){
+    	maxMana = m;
+    }
     public float getMana(){
         return mana;
+    }
+    public float getMaxMana(){
+    	return maxMana;
     }
     public int getStrength(){
     	return strength;

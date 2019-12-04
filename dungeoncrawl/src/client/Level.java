@@ -883,6 +883,14 @@ public class Level extends BasicGameState {
         if (paused) {
             return;
         }
+        
+        //regenerate some mana if this client is a mage
+        if( dc.hero.getType().toLowerCase().contains("mage") && dc.hero.getMana() < dc.hero.getMaxMana() ){
+        	dc.hero.setMana(dc.hero.getMana() + 0.5f);
+        	if( dc.hero.getMana() > dc.hero.getMaxMana() ){
+        		dc.hero.setMana(dc.hero.getMaxMana());
+        	}
+        }
 
         //implement effects on the character
         dc.hero.implementEffects();
