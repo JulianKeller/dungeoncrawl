@@ -67,7 +67,7 @@ public class ClientHandler extends Thread{
     private void toServer(Msg m){
         try {
             //System.out.println("To Server: "+ id + " "+m);
-            Server.serverQueue.put(id +" "+  m);
+            Server.serverQueue.put(m);
         } catch (InterruptedException e){
             e.printStackTrace();
         }
