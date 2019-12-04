@@ -93,7 +93,7 @@ public class ClientHandler extends Thread{
             //System.out.println("Writing to client "+id+": "+toClient);
             os.writeObject(toClient);
             os.flush();
-            System.out.println("Wrote MSG `toClient` "+ toClient.getClass().getSimpleName());
+            //System.out.println("Wrote MSG `toClient` "+ toClient.getClass().getSimpleName());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return false;
