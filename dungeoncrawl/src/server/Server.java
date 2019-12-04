@@ -27,7 +27,7 @@ public class Server extends Thread{
 
     public void sendToClients(){
             try {
-                String playerInfo = serverQueue.take();
+                Msg playerInfo = serverQueue.take();
                 for(BlockingQueue c : clientQueues)
                     c.put(playerInfo);
 
