@@ -138,12 +138,13 @@ public class Level extends BasicGameState {
 
         try {
            dc.map = (int[][])dis.readObject();
-           System.out.println("I got the map!");
+            System.out.println("Reading Map:  " + dc.map.getClass().getSimpleName());
+//           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
+//        System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
 
         //rotated map verified correct
         rotatedMap = new int[dc.map[0].length][dc.map.length];
@@ -184,7 +185,7 @@ public class Level extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
 
-        System.out.printf("setting character at %s, %s\n", wx, wy);
+//        System.out.printf("setting character at %s, %s\n", wx, wy);
 
         // Setting starting position for the hero.
         String coord = wx + " " + wy;
@@ -192,6 +193,7 @@ public class Level extends BasicGameState {
         String type = setSkin();
         try {
             id = dis.read();
+            System.out.println("reading id: " + id);
             //System.out.println("Sending my player info.");
             serverId = id;
         }catch(IOException e){
@@ -203,6 +205,7 @@ public class Level extends BasicGameState {
 
         try{
             dos.writeUTF(type+" "+coord + " "+ dc.hero.getHitPoints());
+            System.out.println("Wrote dos.writeUTF() "+ type+" "+coord + " "+ dc.hero.getHitPoints());
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();
@@ -226,6 +229,7 @@ public class Level extends BasicGameState {
         ArrayList<String> enemyList = new ArrayList<>();
         try{
             enemyList = (ArrayList) dis.readObject();
+            System.out.println("reading enemy list: " + enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -1518,6 +1522,7 @@ public class Level extends BasicGameState {
     public void updateOtherPlayers(Main dc){
         try {
             Msg read = (Msg)dis.readObject(); // message from server
+            System.out.println("reading updateOtherPlayers() expecting Msg: " + read.getClass().getSimpleName());
             //System.out.println("("+serverId+") Read: " + read);
 
             if(read.type.equals("Exit")) {

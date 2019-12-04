@@ -28,8 +28,10 @@ public class ClientHandler extends Thread{
         try{
             // Write the map onto the client for rendering
             os.writeObject(Server.map);
+            System.out.println("Wrote map` "+ Server.map.getClass().getSimpleName());
             os.flush();
             os.write(id);
+            System.out.println("Wrote id` "+ id);
             os.flush();
             sendEnemyList();
             while(true) {
@@ -76,6 +78,7 @@ public class ClientHandler extends Thread{
           //System.out.println("Sending Enemy info "+ s)
             os.writeObject(Server.enemies);
             os.flush();
+            System.out.println("Wrote enemy list "+ Server.enemies.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -90,6 +93,7 @@ public class ClientHandler extends Thread{
             //System.out.println("Writing to client "+id+": "+toClient);
             os.writeObject(toClient);
             os.flush();
+            System.out.println("Wrote MSG `toClient` "+ toClient.getClass().getSimpleName());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return false;
