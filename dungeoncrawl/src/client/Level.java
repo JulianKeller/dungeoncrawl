@@ -1271,6 +1271,17 @@ public class Level extends BasicGameState {
         //remove expired timers
         itemLockTimers.removeIf(b -> b.timer <= 0);
     }
+    private Image getSpellImage(String material) throws SlickException{
+    	if( material.equals("Ruby") ){
+    		return ResourceManager.getImage(Main.SPELL_RED);
+    	}else if( material.equals("Emerald") ){
+    		return ResourceManager.getImage(Main.SPELL_GREEN);
+    	}else if( material.equals("Amethyst") ){
+    		return ResourceManager.getImage(Main.SPELL_PURPLE);
+    	}else{
+    		throw new SlickException("Invalid staff material '" + material + "'.");
+    	}
+    }
 
     private void attack(Item itm, Main dc, Vector direction) throws SlickException{
         //attack with the given item
@@ -1367,30 +1378,15 @@ public class Level extends BasicGameState {
             dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
         }else if( itm.getType().equals("Potion") ){
-            //ranged attack, need to throw potion
-            //throw potion image 5 tiles in the direction the character
-            //  is facing
-
-            Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
-            		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
-            
-            itm.setWorldCoordinates(wc);
+        	addThrownItem(dc, itm, itm.getImage(), direction, direction.scale(5), direction.scale(0.1f));
         	
-        	
-        	
-            dc.hero.unequipItem(selectedEquippedItem);
-
-
-            //throw the potion but do not identify it unless it hits an enemy
-            Main.im.take(itm, dc.hero, itm.getWorldCoordinates(), false);
-
-            Vector destination = wc.add(direction.scale(5));
-
-            thrownItems.add(new ThrownItem(itm, direction, destination, direction.scale(0.1f)));
+            if( itm.count == 1 ){
+            	dc.hero.unequipItem(selectedEquippedItem);
+            }
+            dc.hero.discardItem(itm, true);
 
         }else if( itm.getType().equals("Staff") ){
         	int manaCost = 0;
-        	Image img = null;
         	if( itm.getMaterial().equals("Ruby") ){
         		//high mana cost
         		manaCost = 20;
@@ -1409,28 +1405,35 @@ public class Level extends BasicGameState {
         		addMessage("You don't have enough mana to use this.");
         		return;
         	}
-
+        	
+        	Image spellImage = getSpellImage(itm.getMaterial());
+        	
+        	/*
+        	
+        	//create a new Item for the spell
+            Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
+            		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
+            
+            Item spell = new Item( wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, spellImage, 1);
+            
+            //add it to the worldItems
+            Main.im.addToWorldItems(spell);
+            
+            //make a new ThrownItem
+            thrownItems.add(new ThrownItem(spell, direction, direction.scale(10000), direction.scale(0.3f) ) );
+            */
+        	
+        	addThrownItem(dc, itm, spellImage, direction, direction.scale(10000), direction.scale(0.2f));
+        	
+        	//decrease mana
+        	dc.hero.setMana(dc.hero.getMana() - manaCost);
+        	
         }else if( itm.getType().equals("Arrow") ){
             //Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
 
         	Image image = getArrowImage(itm.getEffect(), dir);
 
-           
-            //spawn at the world coordinate of the player's animation
-            //also add the hero origin, or the number of tiles that have been scrolled in either direction
-            Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
-            		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
-
-            Item flyingArrow = new Item(wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, image, 1);
-
-            //add this to the list of items so it can be rendered
-            Main.im.addToWorldItems(flyingArrow);
-            
-            System.out.println("added arrow at " + wc.toString());
-
-            //this thrown item should travel until it hits a wall or an enemy
-            //  thus the final destination is effectively infinite (past the level boundary)
-            thrownItems.add( new ThrownItem(flyingArrow, direction, direction.scale(10000), direction.scale(0.3f) ));
+        	addThrownItem(dc, itm, image, direction, direction.scale(10000), direction.scale(0.3f));
             
             if( itm.count == 1 ){
             	dc.hero.unequipItem(selectedEquippedItem);
@@ -1438,6 +1441,22 @@ public class Level extends BasicGameState {
             dc.hero.discardItem(itm, true);
         }
     }
+    
+    private void addThrownItem(Main dc, Item emitter, Image image, Vector direction, Vector destination, Vector step) throws SlickException{
+    	//Spawn item at the player's position
+        Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
+        		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
+        
+        //the actual item that will be thrown
+        Item emissive = new Item(wc, true, -1, -1, emitter.getEffect(), emitter.getType(), "", false, true, image, 1);
+        
+        //add the emissive to the world items so it can be rendered
+        Main.im.addToWorldItems(emissive);
+        
+        //create the thrown item
+        thrownItems.add(new ThrownItem(emissive, direction, destination, step));
+    }
+    
     
     private boolean canUse(Item i, Character hero){
     	//return true if the hero can use an item
@@ -1451,12 +1470,16 @@ public class Level extends BasicGameState {
     	}
     	
     	//check class
-    	String type = hero.getType().substring(0, hero.getType().indexOf("_"));
+    	String type = hero.getType().substring(0, hero.getType().indexOf("_")).toLowerCase();
+    	System.out.println("Your class: '" + type + "'");
+    	System.out.print("Required classes: ");
     	for( String st : i.getRequiredClasses() ){
+    		System.out.print(st + " ");
     		if( st.equals(type) ){
     			return true;
     		}
     	}
+    	System.out.println();
     	addMessage("This item is for a different class.");
     	return false;
     }

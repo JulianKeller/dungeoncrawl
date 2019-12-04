@@ -720,7 +720,7 @@ Reflection:
     public int getArmorPoints(){
         return armorPoints;
     }
-    public void setMana(int m){
+    public void setMana(float m){
         mana = m;
     }
     public float getMana(){
