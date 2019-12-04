@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
+import server.Msg;
 
 
 
@@ -1495,10 +1496,11 @@ public class Level extends BasicGameState {
     public void positionToServer(Main dc){
         float wx = dc.hero.getWorldCoordinates().getX();
         float wy = dc.hero.getWorldCoordinates().getY();
-        Message toServer = new Message(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+        Msg toServer = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
         try {
             dos.writeObject(toServer);
             dos.flush();
+            System.out.println("Wrote dos.writeObject(toServer) "+ toServer.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -1515,31 +1517,27 @@ public class Level extends BasicGameState {
 
     public void updateOtherPlayers(Main dc){
         try {
-            String read = dis.readUTF(); // message from server
+            Msg read = (Msg)dis.readObject(); // message from server
             //System.out.println("("+serverId+") Read: " + read);
-            String [] str = read.split(" ");
-            int id = Integer.parseInt(str[0]);
-            float x = Float.parseFloat(str[2]);
-            float y = Float.parseFloat(str[3]);
-            float hp = Float.parseFloat(str[4]);
-            if(str[1].equals("Exit")) {
-                dc.characters.removeIf(c -> c.getPid() == id);
+
+            if(read.type.equals("Exit")) {
+                dc.characters.removeIf(c -> c.getPid() == read.id);
                 return;
             }
             for(Iterator<Character> i = dc.characters.iterator();i.hasNext();){
                 Character c = i.next();
-                if(c.getPid() == id) {
+                if(c.getPid() == read.id) {
                     if (c.getPid() == serverId) {
                         return;
                     }
-                    c.setWorldCoordinates(new Vector(x,y));
-                    c.setHitPoints(hp);
+                    c.setWorldCoordinates(new Vector(read.wx,read.wy));
+                    c.setHitPoints(read.hp);
                     return;
                 }
 
             }
-            dc.characters.add(new Character(dc,x,y,str[1],id,this,false));
-        }catch(IOException e){
+            dc.characters.add(new Character(dc,read.wx,read.wy,read.type,read.id,this,false));
+        }catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
     }

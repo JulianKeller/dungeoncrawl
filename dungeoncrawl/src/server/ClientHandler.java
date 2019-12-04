@@ -10,9 +10,9 @@ public class ClientHandler extends Thread{
     private ObjectInputStream is;  // the input stream
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
-    private BlockingQueue<Message> threadQueue;
+    private BlockingQueue<Msg> threadQueue;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
-                         BlockingQueue<Message> queue){
+                         BlockingQueue<Msg> queue){
         socket = s;
         this.is = is;
         this.os = os;
@@ -35,7 +35,8 @@ public class ClientHandler extends Thread{
             while(true) {
                 try {
                     // Receive coordinate message from the client
-                    Message message = (Message)is.readObject();
+                    Msg message = (Msg) is.readObject();
+                    System.out.println("Read: (Msg)is.readObject() "+message.getClass().getSimpleName());
                     toServer(message);
                     writeSuccess = writeToClient();
                     if (!writeSuccess || message.type.equals("Exit"))
@@ -61,7 +62,7 @@ public class ClientHandler extends Thread{
      * This function places the string into the Server Queue.
      * @param m message to send
      */
-    private void toServer(Message m){
+    private void toServer(Msg m){
         try {
             //System.out.println("To Server: "+ id + " "+m);
             Server.serverQueue.put(id +" "+  m);
@@ -75,7 +76,6 @@ public class ClientHandler extends Thread{
           //System.out.println("Sending Enemy info "+ s)
             os.writeObject(Server.enemies);
             os.flush();
-
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -86,7 +86,7 @@ public class ClientHandler extends Thread{
      */
     private boolean writeToClient() {
         try {
-            Message toClient = threadQueue.take();
+            Msg toClient = threadQueue.take();
             //System.out.println("Writing to client "+id+": "+toClient);
             os.writeObject(toClient);
             os.flush();
