@@ -5,14 +5,13 @@ import org.newdawn.slick.SlickException;
 
 import java.io.*;
 import java.net.*;
-import java.util.Vector;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
 public class Server extends Thread{
     // Static Objects for each thread.
     public static BlockingQueue<String> serverQueue = new LinkedBlockingQueue<>();
-    public static Vector<BlockingQueue> clientQueues = new Vector<>();
+    public static ArrayList<BlockingQueue> clientQueues = new ArrayList<>();
     public static int [][] map;
     public static ArrayList<String> enemies;
 
@@ -23,7 +22,6 @@ public class Server extends Thread{
     public void run() {
         while(true){
             sendToClients();
-
         }
     }
 
