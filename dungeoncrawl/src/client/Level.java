@@ -138,7 +138,7 @@ public class Level extends BasicGameState {
 
         try {
            dc.map = (int[][])dis.readObject();
-            System.out.println("Reading Map:  " + dc.map.getClass().getSimpleName());
+            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
 //           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -204,8 +204,9 @@ public class Level extends BasicGameState {
         dc.characters.add(dc.hero);
 
         try{
-            dos.writeUTF(type+" "+coord + " "+ dc.hero.getHitPoints());
-            System.out.println("Wrote dos.writeUTF() "+ type+" "+coord + " "+ dc.hero.getHitPoints());
+            Msg msg = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+            dos.writeObject(msg);
+            System.out.println("write msg type: " + msg.getClass().getSimpleName());
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();
@@ -229,7 +230,7 @@ public class Level extends BasicGameState {
         ArrayList<String> enemyList = new ArrayList<>();
         try{
             enemyList = (ArrayList) dis.readObject();
-            System.out.println("reading enemy list: " + enemyList.getClass().getSimpleName());
+            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -1504,7 +1505,7 @@ public class Level extends BasicGameState {
         try {
             dos.writeObject(toServer);
             dos.flush();
-            System.out.println("Wrote dos.writeObject(toServer) "+ toServer.getClass().getSimpleName());
+            System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -1522,7 +1523,7 @@ public class Level extends BasicGameState {
     public void updateOtherPlayers(Main dc){
         try {
             Msg read = (Msg)dis.readObject(); // message from server
-            System.out.println("reading updateOtherPlayers() expecting Msg: " + read.getClass().getSimpleName());
+            System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
             //System.out.println("("+serverId+") Read: " + read);
 
             if(read.type.equals("Exit")) {
