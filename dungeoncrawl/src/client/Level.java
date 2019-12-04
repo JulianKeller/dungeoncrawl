@@ -252,6 +252,27 @@ public class Level extends BasicGameState {
 
         // Test Items
 //        addTestItems(dc);
+        
+        //give the mage a ruby staff with random effect
+        //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image, int count) throws SlickException{
+        if( dc.hero.getType().toLowerCase().contains("mage")){
+	        try {
+				Item staff = new Item(null, false, -1, -1, "Healing", "Staff", "Ruby", false, true, ResourceManager.getImage(Main.STAFF_RUBY), 1);
+				
+				Random rand = new Random();
+				rand.setSeed(System.nanoTime());
+				
+				staff.setEffect(Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ]);
+				
+				Main.im.give(staff, dc.hero);
+				
+				dc.hero.equipItem(0);
+				
+				
+			} catch (SlickException e1) {
+				return;
+			}
+        }
     }
 
     private boolean wallAdjacent(int row, int col, int[][] map){
@@ -272,8 +293,6 @@ public class Level extends BasicGameState {
             return true;
         }
         return false;
-
-
     }
 
 
@@ -886,7 +905,7 @@ public class Level extends BasicGameState {
         
         //regenerate some mana if this client is a mage
         if( dc.hero.getType().toLowerCase().contains("mage") && dc.hero.getMana() < dc.hero.getMaxMana() ){
-        	dc.hero.setMana(dc.hero.getMana() + 0.5f);
+        	dc.hero.setMana(dc.hero.getMana() + 0.05f);
         	if( dc.hero.getMana() > dc.hero.getMaxMana() ){
         		dc.hero.setMana(dc.hero.getMaxMana());
         	}
@@ -1479,15 +1498,11 @@ public class Level extends BasicGameState {
     	
     	//check class
     	String type = hero.getType().substring(0, hero.getType().indexOf("_")).toLowerCase();
-    	System.out.println("Your class: '" + type + "'");
-    	System.out.print("Required classes: ");
     	for( String st : i.getRequiredClasses() ){
-    		System.out.print(st + " ");
     		if( st.equals(type) ){
     			return true;
     		}
     	}
-    	System.out.println();
     	addMessage("This item is for a different class.");
     	return false;
     }

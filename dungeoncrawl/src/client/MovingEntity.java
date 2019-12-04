@@ -581,6 +581,7 @@ Reflection:
     	return i;
     }
     
+    
     public String equipItem(int index){
     	//equip the item with id in the next available slot
     	//return a status message
