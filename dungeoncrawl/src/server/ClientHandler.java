@@ -19,6 +19,7 @@ public class ClientHandler extends Thread{
         id = s.getPort();
         threadQueue = queue;
         writeSuccess = true;
+        Server.clientQueues.add(threadQueue);
 
     }
 
@@ -47,6 +48,7 @@ public class ClientHandler extends Thread{
                     break;
                 }
             }
+            Server.clientQueues.remove(threadQueue);
             os.close();
             is.close();
             socket.close();

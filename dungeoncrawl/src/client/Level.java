@@ -194,14 +194,19 @@ public class Level extends BasicGameState {
             id = Integer.parseInt(dis.readUTF());
             //System.out.println("Sending my player info.");
             serverId = id;
-            dos.writeUTF(type+" "+coord);
-            dos.flush();
         }catch(IOException e){
             e.printStackTrace();
         }
 
         dc.hero = new Character(dc, wx, wy, type, id, this, false);
         dc.characters.add(dc.hero);
+
+        try{
+            dos.writeUTF(type+" "+coord + " "+ dc.hero.getHitPoints());
+            dos.flush();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
 
         //give the hero leather armor with no effect
         //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
@@ -880,10 +885,7 @@ public class Level extends BasicGameState {
         }
 
         //implement effects on the character
-        ArrayList<String> effectMessages = dc.hero.implementEffects();
-        for( String st : effectMessages ){
-        	addMessage(st);
-        }
+        dc.hero.implementEffects();
         //reduce the effect timers by a constant value each frame
         //  if delta is used instead of a constant, tabbing away from
         //  the game window can cause all effects to disappear instantly
@@ -911,24 +913,13 @@ public class Level extends BasicGameState {
             System.out.println("Enter valid effect name (e.g. Healing): ");
 
             String effect = scan.next().trim();
-            
-            
 
-            if( effect.contains("Iron") ){
+            if( effect.equals("Iron") ){
                 effect = "Iron Skin";
             }
             System.out.println("Got effect '"+effect+"'");
 
-            boolean cursed = false;
-            if( effect.contains("ursed") ){
-            	cursed = true;
-            	if( effect.split("_")[0].contains("ursed") ){
-            		effect = effect.split("_")[1];
-            	}else{
-            		effect = effect.split("_")[0];
-            	}
-            }
-            dc.hero.addEffect(effect, cursed);
+            dc.hero.addEffect(effect,false);
         }
 
 
@@ -992,46 +983,19 @@ public class Level extends BasicGameState {
             }else if( input.isKeyPressed(Input.KEY_ENTER) ){
                 //attack with item
                 //System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
-            	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
-               	
-
-            	
-            	if( itm != null){
-                	boolean cannotRemove = false;
-                	for( String type : dc.hero.getCursedItemTypes() ){
-                		if( type.equals(itm.getType()) ){
-                			addMessage("You cannot remove your cursed " + type);
-                			cannotRemove = true;
-                		}
-                	}
-                	
-                	String attackableItems = "Sword Glove Potion Arrow Staff";
-            		if( attackableItems.contains(itm.getType()) && !cannotRemove && canUse(itm, dc.hero) ){	           
-            			
-            			itm.isEquipped = true;
-            			
-	                    attack(itm, dc, lastKnownDirection);
-	                    if( itm.isCursed() ){
-	                    	addMessage(itm.getType() + " binds itself to your hand. It is cursed!");
-	                    	dc.hero.addCursedItemType(itm.getType());
-	                    }
-            		}
+            	if( dc.hero.getEquipped()[selectedEquippedItem] != null && canUse(dc.hero.getEquipped()[selectedEquippedItem], dc.hero) ){
+	                try{
+	                    attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
+	                }catch(IndexOutOfBoundsException ex){
+	                    System.out.println("Out of bounds.");
+	                }
             	}
             }else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
                 //use item on own character
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
                 if( i != null ){
-                	boolean cannotRemove = false;
-                	for( String type : dc.hero.getCursedItemTypes() ){
-                		if( type.equals(i.getType()) ){
-                			addMessage("You cannot remove your cursed " + type);
-                			cannotRemove = true;
-                		}
-                	}
-                	
-                	String usableItems = "Potion Armor";
                 
-	                if( usableItems.contains(i.getType()) && canUse(i, dc.hero) && !cannotRemove ){
+	                if( canUse(i, dc.hero) ){
 		                String x = "";
 		                if( i.getType().equals("Potion") ){
 		                    x = "Drank";
@@ -1040,27 +1004,16 @@ public class Level extends BasicGameState {
 		                }else{
 		                    x = "Used";
 		                }
-		                
-		                if( i.isCursed() ){
-		                	if( i.getType().equals("Armor") ){
-		                		addMessage("Armor tightens itself around you. It is cursed!");
-		                		dc.hero.addCursedItemType("Armor");
-		                	}
-		                }
 		                addMessage(x + " " + i.toString());
 		                //TODO: add potion effects to character
 		                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
 		                    //add effect to character
-		                    dc.hero.addEffect(i.getEffect(), false);
+		                    dc.hero.addEffect(i.getEffect(),false);
 		                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
 		                }
 		
 		                //remove the item from hands
 		                dc.hero.unequipItem(selectedEquippedItem);
-		                
-		                i.isEquipped = true;
-		                
-		                
 		
 		                //only remove the item from the inventory if it is a potion/consumable
 		                //armor should remain in the player's inventory
@@ -1075,10 +1028,6 @@ public class Level extends BasicGameState {
 		                    }else if( dc.hero.getType().contains("tank") ){
 		                        dc.hero.setType("tank_"+i.getMaterial().toLowerCase());
 		                    }
-		                    
-	                        if( i.isCursed() ){
-	                        	dc.hero.setArmorPoints(dc.hero.getArmorPoints()/2);
-	                        }
 		                }
 	                }
                 }
@@ -1088,41 +1037,37 @@ public class Level extends BasicGameState {
 
                 Item itm = dc.hero.getEquipped()[selectedEquippedItem];
                 if( itm != null ){
-                	if( itm.isCursed() && itm.isEquipped ){
-                		addMessage("Cannot drop your cursed " + itm.getType());
-                	}else{
-		                if( itm.getType().equals("Arrow") ){
-		                	//reset the item count
-		                	itm.count = 1;
-		                	
-		                	itm.setImage(getArrowImage(itm.getEffect(), null));
-		                }
-		                dc.hero.unequipItem(selectedEquippedItem);
-		
-		
-		
-		                //place the item at the hero's feet
-		                Vector wc = new Vector(
-		                		(int)(dc.hero.getWorldCoordinates().getX()/dc.tilesize),
-		                		(int)(dc.hero.getWorldCoordinates().getY()/dc.tilesize)+1
-		                		);
-		                Main.im.take(itm, dc.hero, wc, false);
-		
-		                
-		                //reduce the hero's inventory weight
-		                
-		                //lock the item with a timer
-		                itm.lock();
-		                //add item lock timer
-		                itemLockTimers.add( new ItemLockTimer(itm.getID()) );
-		                System.out.println("Locked dropped item.");
-		
-		                //add the item to the render list
-		                // TODO may need to be changed to be added to worldItems
-		                itemsToRender.add(itm);
-		
-		                addMessage("Dropped "+itm.toString()+".");
+	                if( itm.getType().equals("Arrow") ){
+	                	//reset the item count
+	                	itm.count = 1;
+	                	
+	                	itm.setImage(getArrowImage(itm.getEffect(), null));
 	                }
+	                dc.hero.unequipItem(selectedEquippedItem);
+	
+	
+	
+	                //place the item at the hero's feet
+	                Vector wc = new Vector(
+	                		(int)(dc.hero.getWorldCoordinates().getX()/dc.tilesize),
+	                		(int)(dc.hero.getWorldCoordinates().getY()/dc.tilesize)+1
+	                		);
+	                Main.im.take(itm, dc.hero, wc, false);
+	
+	                
+	                //reduce the hero's inventory weight
+	                
+	                //lock the item with a timer
+	                itm.lock();
+	                //add item lock timer
+	                itemLockTimers.add( new ItemLockTimer(itm.getID()) );
+	                System.out.println("Locked dropped item.");
+	
+	                //add the item to the render list
+	                // TODO may need to be changed to be added to worldItems
+	                itemsToRender.add(itm);
+	
+	                addMessage("Dropped "+itm.toString()+".");
                 }
             }else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
                 //return item to inventory
@@ -1139,6 +1084,12 @@ public class Level extends BasicGameState {
 
         //remove dead characters
         dc.characters.removeIf(b -> b.getHitPoints() <= 0);
+        // if the hero has no health, then replace it with a new hero character in the same spot
+        if(dc.hero.getHitPoints() <= 0){
+            dc.hero = new Character(dc,dc.hero.animate.getX(),dc.hero.animate.getY(),dc.hero.getType(),
+                    serverId,this,false);
+            dc.characters.add(0,dc.hero);
+        }
 
 
         // cause AI players to move around
@@ -1181,7 +1132,7 @@ public class Level extends BasicGameState {
 
                     //potions do no damage but cause status effects on the target
                     if( ti.itm.getType().equals("Potion") ){
-                        ch.takeDamage(0, ti.itm.getEffect(), false);
+                        ch.takeDamage(0, ti.itm.getEffect(),false);
                         dc.hero.addToCodex(ti.itm);
                         reachedDestination.add(ti);
                     }else if( ti.itm.getType().equals("Arrow") ){
@@ -1195,7 +1146,7 @@ public class Level extends BasicGameState {
                         if( damagePercent == 0 ){
                             m = "Missed.";
                         }else{
-                            if( ch.takeDamage(10*damagePercent, ti.itm.getEffect(), false) ){
+                            if( ch.takeDamage(10*damagePercent, ti.itm.getEffect(),false) ){
                                 //set character action to die
                                 ch.updateAnimation("die");
                             }
@@ -1339,11 +1290,6 @@ public class Level extends BasicGameState {
         if( itm == null ){
         	return;
         }
-        
-        float curseModifier = 1;
-        if( itm.isCursed() ){
-        	curseModifier = 0.5f;
-        }
         if( itm.getType().equals("Sword") || itm.getType().equals("Glove")){
             rand.setSeed(System.nanoTime());
             int r = rand.nextInt(100);
@@ -1378,18 +1324,18 @@ public class Level extends BasicGameState {
                         float damage = 0;
                         if( itm.getMaterial().equals("Wooden") ){
                             //max damage: 30
-                            damage = 30 * percentOfMaxDamage * curseModifier;
+                            damage = 30 * percentOfMaxDamage;
                         }else if( itm.getMaterial().equals("Iron") ){
                             //max damage: 60
-                            damage = 60 * percentOfMaxDamage * curseModifier;
+                            damage = 60 * percentOfMaxDamage;
                         }else if( itm.getMaterial().equals("Gold") ){
                             //max damage: 100
-                            damage = 100 * percentOfMaxDamage * curseModifier;
+                            damage = 100 * percentOfMaxDamage;
                         }
 
                         //pass damage and effect to enemy
 
-                        if( c.takeDamage(damage, itm.getEffect(), itm.isCursed()) ){
+                        if( c.takeDamage(damage, itm.getEffect(),false) ){
                             //returns true if the enemy died
                             c.updateAnimation("die");
 
@@ -1550,7 +1496,7 @@ public class Level extends BasicGameState {
     public void positionToServer(Main dc){
         float wx = dc.hero.getWorldCoordinates().getX();
         float wy = dc.hero.getWorldCoordinates().getY();
-        String toServer = dc.hero.getType() + " " + wx + " " + wy;
+        String toServer = dc.hero.getType() + " " + wx + " " + wy + " "+ dc.hero.getHitPoints();
         try {
             dos.writeUTF(toServer);
             dos.flush();
@@ -1572,37 +1518,28 @@ public class Level extends BasicGameState {
         try {
             String read = dis.readUTF(); // message from server
             //System.out.println("("+serverId+") Read: " + read);
-            // Making sure that it what is read is formatted correctly
-            if (read.split(" ").length > 3) {
-                //System.out.println("in if statement.");
-                // parse the clientId
-                int id = Integer.parseInt(read.split(" ")[0]);
-                // If "Exit" is read as Type, remove the character.
-                if (read.split(" ")[1].equals("Exit")) {
-                    dc.characters.removeIf(character -> character.getPid() == id);
-                   // System.out.println("Deleted character with id "+id);
+            String [] str = read.split(" ");
+            int id = Integer.parseInt(str[0]);
+            float x = Float.parseFloat(str[2]);
+            float y = Float.parseFloat(str[3]);
+            float hp = Float.parseFloat(str[4]);
+            if(str[1].equals("Exit")) {
+                dc.characters.removeIf(c -> c.getPid() == id);
+                return;
+            }
+            for(Iterator<Character> i = dc.characters.iterator();i.hasNext();){
+                Character c = i.next();
+                if(c.getPid() == id) {
+                    if (c.getPid() == serverId) {
+                        return;
+                    }
+                    c.setWorldCoordinates(new Vector(x,y));
+                    c.setHitPoints(hp);
                     return;
                 }
-                // Go through each character until the id's match
-                for (Iterator<Character> i = dc.characters.iterator(); i.hasNext(); ) {
-                    Character c = i.next();
-                    // If theres a match update their coordinates.
-                    if (c.getPid() == id) {
-                        if(c.getPid() == serverId){
-                            return;
-                        }
-                        float x = Float.parseFloat(read.split(" ")[2]);
-                        float y = Float.parseFloat(read.split(" ")[3]);
-                        c.setWorldCoordinates(x,y);
-                        return;
 
-                    }
-                }
-                // If none matches, create a new character.
-                float x = Float.parseFloat(read.split(" ")[2]);
-                float y = Float.parseFloat(read.split(" ")[3]);
-                dc.characters.add(new Character(dc, x, y, read.split(" ")[1], id,this,false));
             }
+            dc.characters.add(new Character(dc,x,y,str[1],id,this,false));
         }catch(IOException e){
             e.printStackTrace();
         }
