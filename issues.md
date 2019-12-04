@@ -20,3 +20,4 @@ server for player.<br>
 ## PENDING ISSUES ##
 **[ 9 ]** Get item managment working on the server.<br>
 **[ 19 ]** Only update players that move<br>
+**[ 24 ]** Create a message class in the server to send to the client/server.
