@@ -202,7 +202,7 @@ public class Level extends BasicGameState {
         dc.characters.add(dc.hero);
 
         try{
-            dos.writeUTF(type+" "+coord + " "+ dc.hero.getHitPoints());
+            dos.writeObject(new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints()));
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();

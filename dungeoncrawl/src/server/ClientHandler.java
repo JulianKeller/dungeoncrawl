@@ -36,7 +36,7 @@ public class ClientHandler extends Thread{
                 try {
                     // Receive coordinate message from the client
                     Msg message = (Msg) is.readObject();
-                    System.out.println("Read: (Msg)is.readObject() "+message.getClass().getSimpleName());
+                    //System.out.println("Read: (Msg)is.readObject() "+message.getClass().getSimpleName());
                     toServer(message);
                     writeSuccess = writeToClient();
                     if (!writeSuccess || message.type.equals("Exit"))
