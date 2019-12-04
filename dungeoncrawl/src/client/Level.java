@@ -1334,6 +1334,10 @@ public class Level extends BasicGameState {
                         }
 
                         //pass damage and effect to enemy
+                        
+                        if( itm.getEffect().equals("Might") ){
+                        	damage *= 2;
+                        }
 
                         if( c.takeDamage(damage, itm.getEffect(),false) ){
                             //returns true if the enemy died
