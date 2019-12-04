@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -191,7 +190,7 @@ public class Level extends BasicGameState {
         int id = 0;
         String type = setSkin();
         try {
-            id = Integer.parseInt(dis.readUTF());
+            id = dis.read();
             //System.out.println("Sending my player info.");
             serverId = id;
         }catch(IOException e){
@@ -1496,9 +1495,9 @@ public class Level extends BasicGameState {
     public void positionToServer(Main dc){
         float wx = dc.hero.getWorldCoordinates().getX();
         float wy = dc.hero.getWorldCoordinates().getY();
-        String toServer = dc.hero.getType() + " " + wx + " " + wy + " "+ dc.hero.getHitPoints();
+        Message toServer = new Message(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
         try {
-            dos.writeUTF(toServer);
+            dos.writeObject(toServer);
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();
