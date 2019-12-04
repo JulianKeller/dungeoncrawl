@@ -1389,6 +1389,26 @@ public class Level extends BasicGameState {
             thrownItems.add(new ThrownItem(itm, direction, destination, direction.scale(0.1f)));
 
         }else if( itm.getType().equals("Staff") ){
+        	int manaCost = 0;
+        	Image img = null;
+        	if( itm.getMaterial().equals("Ruby") ){
+        		//high mana cost
+        		manaCost = 20;
+        	}else if( itm.getMaterial().equals("Emerald") ){
+        		//medium mana cost
+        		manaCost = 15;
+        	}else if( itm.getMaterial().equals("Amethyst") ){
+        		//low mana cost
+        		manaCost = 5;
+        	}else{
+        		throw new SlickException("Invalid staff material '" + itm.getMaterial() + "'.");
+        	}
+        	
+        	
+        	if( dc.hero.getMana() < manaCost ){
+        		addMessage("You don't have enough mana to use this.");
+        		return;
+        	}
 
         }else if( itm.getType().equals("Arrow") ){
             //Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
