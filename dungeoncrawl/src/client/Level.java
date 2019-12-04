@@ -472,6 +472,25 @@ public class Level extends BasicGameState {
         g.setColor(new Color(255, 255, 255, 1f));
         g.drawString("PAUSED", (float) dc.ScreenWidth/2 - 12, (float) dc.ScreenHeight/2 - 10);
         g.setColor(tmp);
+
+        // show controls
+        tmp = g.getColor();
+        int shift = 465;
+        int left = 150;
+        int indent = 200;
+        g.setColor(new Color(0, 0, 0, .5f));
+        g.fillRect( left - 20, shift - 20, 385, 260);
+        g.setColor(new Color(255, 255, 255, 1f));
+        g.drawString("Move: w, a, s, d", left, shift);
+        g.drawString("Pause: p", left, shift + 25);
+        g.drawString("Open/Close Inventory: i", left, shift + 50);
+        g.drawString("Traverse Inventory: Arrow Keys", indent, shift + 75);
+        g.drawString("Move Item to Inventory: enter", indent, shift + 100);
+        g.drawString("Display Codex: o", left, shift + 125);
+        g.drawString("drop item: backslash", left, shift + 150);
+        g.drawString("unequip item: shift", left, shift + 175);
+        g.drawString("attack: space/enter", left, shift + 200);
+        g.setColor(tmp);
     }
 
     private void renderActiveCheats(Main dc, Graphics g) {
