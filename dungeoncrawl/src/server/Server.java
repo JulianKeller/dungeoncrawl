@@ -12,7 +12,7 @@ import java.util.concurrent.*;
 public class Server extends Thread{
     // Static Objects for each thread.
     public static BlockingQueue<String> serverQueue = new LinkedBlockingQueue<>();
-    public static Vector<ClientHandler> clients;
+    public static Vector<BlockingQueue> clientQueues = new Vector<>();
     public static int [][] map;
     public static ArrayList<String> enemies;
 
@@ -30,8 +30,8 @@ public class Server extends Thread{
     public void sendToClients(){
             try {
                 String playerInfo = serverQueue.take();
-                for(ClientHandler c : clients)
-                    c.threadQueue.put(playerInfo);
+                for(BlockingQueue c : clientQueues)
+                    c.put(playerInfo);
 
                 } catch(InterruptedException e){
                     e.printStackTrace();

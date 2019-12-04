@@ -10,7 +10,7 @@ public class ClientHandler extends Thread{
     private ObjectInputStream is;  // the input stream
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
-    public BlockingQueue<String> threadQueue;
+    private BlockingQueue<String> threadQueue;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
                          BlockingQueue<String> queue){
         socket = s;
@@ -19,6 +19,7 @@ public class ClientHandler extends Thread{
         id = s.getPort();
         threadQueue = queue;
         writeSuccess = true;
+        Server.clientQueues.add(threadQueue);
 
     }
 
@@ -47,6 +48,7 @@ public class ClientHandler extends Thread{
                     break;
                 }
             }
+            Server.clientQueues.remove(threadQueue);
             os.close();
             is.close();
             socket.close();
