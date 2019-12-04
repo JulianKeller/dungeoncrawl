@@ -919,7 +919,7 @@ public class Level extends BasicGameState {
             }
             System.out.println("Got effect '"+effect+"'");
 
-            dc.hero.addEffect(effect);
+            dc.hero.addEffect(effect,false);
         }
 
 
@@ -1008,7 +1008,7 @@ public class Level extends BasicGameState {
 		                //TODO: add potion effects to character
 		                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
 		                    //add effect to character
-		                    dc.hero.addEffect(i.getEffect());
+		                    dc.hero.addEffect(i.getEffect(),false);
 		                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
 		                }
 		
@@ -1132,7 +1132,7 @@ public class Level extends BasicGameState {
 
                     //potions do no damage but cause status effects on the target
                     if( ti.itm.getType().equals("Potion") ){
-                        ch.takeDamage(0, ti.itm.getEffect());
+                        ch.takeDamage(0, ti.itm.getEffect(),false);
                         dc.hero.addToCodex(ti.itm);
                         reachedDestination.add(ti);
                     }else if( ti.itm.getType().equals("Arrow") ){
@@ -1146,7 +1146,7 @@ public class Level extends BasicGameState {
                         if( damagePercent == 0 ){
                             m = "Missed.";
                         }else{
-                            if( ch.takeDamage(10*damagePercent, ti.itm.getEffect()) ){
+                            if( ch.takeDamage(10*damagePercent, ti.itm.getEffect(),false) ){
                                 //set character action to die
                                 ch.updateAnimation("die");
                             }
@@ -1335,7 +1335,7 @@ public class Level extends BasicGameState {
 
                         //pass damage and effect to enemy
 
-                        if( c.takeDamage(damage, itm.getEffect()) ){
+                        if( c.takeDamage(damage, itm.getEffect(),false) ){
                             //returns true if the enemy died
                             c.updateAnimation("die");
 
@@ -1517,14 +1517,16 @@ public class Level extends BasicGameState {
     public void updateOtherPlayers(Main dc){
         try {
             String read = dis.readUTF(); // message from server
-            System.out.println("("+serverId+") Read: " + read);
+            //System.out.println("("+serverId+") Read: " + read);
             String [] str = read.split(" ");
             int id = Integer.parseInt(str[0]);
             float x = Float.parseFloat(str[2]);
             float y = Float.parseFloat(str[3]);
             float hp = Float.parseFloat(str[4]);
-            if(str[1].equals("Exit"))
+            if(str[1].equals("Exit")) {
                 dc.characters.removeIf(c -> c.getPid() == id);
+                return;
+            }
             for(Iterator<Character> i = dc.characters.iterator();i.hasNext();){
                 Character c = i.next();
                 if(c.getPid() == id) {
