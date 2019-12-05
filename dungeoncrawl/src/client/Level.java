@@ -420,6 +420,8 @@ public class Level extends BasicGameState {
         // draw other characters
         renderCharacters(dc, g);
 
+        renderEnemies(dc, g);
+
         // draw the hero
         dc.hero.animate.render(g);
 
@@ -886,7 +888,7 @@ public class Level extends BasicGameState {
     }
 
     /*
-    Renders the other characters and AI on the screen if they are in the players screen
+    Renders the other characters on the screen if they are in the players screen
      */
     private void renderCharacters(Main dc, Graphics g) {
         for (Character ch : dc.characters) {
@@ -897,10 +899,24 @@ public class Level extends BasicGameState {
                     ch.animate.render(g);
                 }
             }
-
         }
-        //*/
+    }
 
+
+    /*
+    Renders the  AI on the screen if they are in the players screen
+     */
+    private void renderEnemies(Main dc, Graphics g) {
+        for (Character ai : dc.enemies) {
+            if (ai.getHitPoints() <= 0) {
+                continue;
+            }
+            Vector sc = world2screenCoordinates(dc, ai.getWorldCoordinates());
+            ai.animate.setPosition(sc);
+            if (characterInRegion(dc, ai)) {
+                ai.animate.render(g);
+            }
+        }
     }
 
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){

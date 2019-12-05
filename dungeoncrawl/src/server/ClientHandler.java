@@ -47,7 +47,8 @@ public class ClientHandler extends Thread{
                     if (!writeSuccess || message.type.equals("Exit"))
                         break;
 
-
+                    // TODO update AI positions
+                    AI.updatePosition();
                     sendAIStatusToClient();
                     readAIStatusFromClient();
 

@@ -1,5 +1,6 @@
 package server;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -7,7 +8,19 @@ import java.util.Random;
 This class spawns AI players and items locations, these can be sent to the client and then rendered
  */
 public class AI {
-    
+
+    /**
+     * update the position of the AI player
+     */
+    public static void updatePosition() {
+        // TODO run dijkstra
+        for (Msg ai : Server.aiList) {
+            ai.wx += 2;
+            ai.wy += 2;
+            // move random
+            // if ai close enough pathfind with dijkstra
+        }
+    }
 
 
     /**
