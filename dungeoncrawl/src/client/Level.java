@@ -32,7 +32,7 @@ import jig.ResourceManager;
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-    private int serverId;
+
     private String type;
 
     private int[][] rotatedMap;
@@ -139,7 +139,7 @@ public class Level extends BasicGameState {
 
         try {
            dc.map = (int[][])dis.readObject();
-            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
+            //System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
 //           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -196,7 +196,7 @@ public class Level extends BasicGameState {
             id = dis.read();
             System.out.println("reading id: " + id);
             //System.out.println("Sending my player info.");
-            serverId = id;
+            dc.serverId = id;
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -205,9 +205,9 @@ public class Level extends BasicGameState {
         dc.characters.add(dc.hero);
 
         try{
-            Msg msg = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+            Msg msg = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
             dos.writeObject(msg);
-            System.out.println("write msg type: " + msg.getClass().getSimpleName());
+            System.out.println("("+dc.serverId+"): "+msg);
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();
@@ -228,19 +228,19 @@ public class Level extends BasicGameState {
 //        //dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
 //        spawnEnemies(dc, 20);
         // Grabbing ArrayList of enemies.
-        ArrayList<String> enemyList = new ArrayList<>();
-        try{
-            enemyList = (ArrayList) dis.readObject();
-            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
-        } catch(IOException | ClassNotFoundException e){
-            e.printStackTrace();
-        }
-        for (String e : enemyList) {
-            float x = Float.parseFloat(e.split(" ")[2]);
-            float y = Float.parseFloat(e.split(" ")[3]);
-            int eid = Integer.parseInt(e.split(" ")[0]);
-            dc.characters.add(new Character(dc, x, y, e.split(" ")[1], eid, this, true));
-        }
+//        ArrayList<String> enemyList = new ArrayList<>();
+//        try{
+//            enemyList = (ArrayList) dis.readObject();
+//            //System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
+//        } catch(IOException | ClassNotFoundException e){
+//            e.printStackTrace();
+//        }
+//        for (String e : enemyList) {
+//            float x = Float.parseFloat(e.split(" ")[2]);
+//            float y = Float.parseFloat(e.split(" ")[3]);
+//            int eid = Integer.parseInt(e.split(" ")[0]);
+//            dc.characters.add(new Character(dc, x, y, e.split(" ")[1], eid, this, true));
+//        }
         try {
             int maxcol =  dc.map.length - 2;
             int maxrow = dc.map[0].length - 2;
@@ -1112,7 +1112,7 @@ public class Level extends BasicGameState {
         // if the hero has no health, then replace it with a new hero character in the same spot
         if(dc.hero.getHitPoints() <= 0){
             dc.hero = new Character(dc,dc.hero.animate.getX(),dc.hero.animate.getY(),dc.hero.getType(),
-                    serverId,this,false);
+                    dc.serverId,this,false);
             dc.characters.add(0,dc.hero);
         }
 
@@ -1521,11 +1521,11 @@ public class Level extends BasicGameState {
     public void positionToServer(Main dc){
         float wx = dc.hero.getWorldCoordinates().getX();
         float wy = dc.hero.getWorldCoordinates().getY();
-        Msg toServer = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
         try {
             dos.writeObject(toServer);
             dos.flush();
-            System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
+            System.out.println("("+dc.serverId+"): "+toServer);
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -1544,7 +1544,7 @@ public class Level extends BasicGameState {
         try {
             Msg read = (Msg)dis.readObject(); // message from server
             //System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
-            //System.out.println("("+serverId+") Read: " + read);
+            System.out.println("("+dc.serverId+"): " + read);
 
             if(read.type.equals("Exit")) {
                 dc.characters.removeIf(c -> c.getPid() == read.id);
@@ -1553,7 +1553,7 @@ public class Level extends BasicGameState {
             for(Iterator<Character> i = dc.characters.iterator();i.hasNext();){
                 Character c = i.next();
                 if(c.getPid() == read.id) {
-                    if (c.getPid() == serverId) {
+                    if (c.getPid() == dc.serverId) {
                         return;
                     }
                     c.setWorldCoordinates(new Vector(read.wx,read.wy));

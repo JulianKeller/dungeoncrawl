@@ -12,6 +12,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.util.ArrayList;
+import server.Msg;
 
 
 public class Main extends StateBasedGame {
@@ -20,6 +21,7 @@ public class Main extends StateBasedGame {
     public ObjectInputStream dis = null;
     public ObjectOutputStream dos = null;
     public static boolean localMode = false;
+    public int serverId;
 
     // Game States
     public static final int STARTUPSTATE = 0;
@@ -360,7 +362,7 @@ public class Main extends StateBasedGame {
     public boolean closeRequested(){
         if(!localMode) {
             try {
-                dos.writeUTF("Exit 0 0 0");
+                dos.writeObject(new Msg(serverId,"Exit",0,0,0));
                 dos.flush();
                 socket.close();
                 dos.close();

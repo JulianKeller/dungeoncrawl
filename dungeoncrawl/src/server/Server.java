@@ -10,7 +10,7 @@ import java.util.concurrent.*;
 
 public class Server extends Thread{
     // Static Objects for each thread.
-    public static BlockingQueue<Msg> serverQueue = new LinkedBlockingQueue<>();
+    public static BlockingQueue<Msg> serverQueue = new ArrayBlockingQueue<>(100);
     public static ArrayList<BlockingQueue> clientQueues = new ArrayList<>();
     public static int [][] map;;
     public static ArrayList<String> enemies;
