@@ -1,5 +1,5 @@
 ## Current Issues
-[35] - add controls to splash screen
+[37] - fix splash screen enter button
 
 ## Open Issues ##
 [12] - update floor tiles
@@ -33,3 +33,4 @@
 [31] - implement player AI effects
 [32] - refactor and fix framerate drop
 [34] - add invincibility cheat
+[35] - add controls to splash screen

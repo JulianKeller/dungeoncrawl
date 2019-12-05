@@ -358,8 +358,8 @@ public class SplashScreen extends BasicGameState {
     private void connectToSever(Main dc,StateBasedGame game) {
         // Setting up the connection to the server
         Socket socket = null;
-        ObjectInputStream dis = null;
         ObjectOutputStream dos = null;
+        ObjectInputStream dis = null;
         try {
             // getting localhost ip
             InetAddress ip = InetAddress.getByName(IP);
@@ -368,8 +368,9 @@ public class SplashScreen extends BasicGameState {
             socket = new Socket(ip, 5000);
 
             // obtaining input and out streams
-            dis = new ObjectInputStream(socket.getInputStream());
             dos = new ObjectOutputStream(socket.getOutputStream());
+            dis = new ObjectInputStream(socket.getInputStream());
+
 
         } catch (Exception e) {
             error = true;

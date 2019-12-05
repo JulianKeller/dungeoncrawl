@@ -10,9 +10,9 @@ import java.util.concurrent.*;
 
 public class Server extends Thread{
     // Static Objects for each thread.
-    public static BlockingQueue<String> serverQueue = new LinkedBlockingQueue<>();
+    public static BlockingQueue<Msg> serverQueue = new LinkedBlockingQueue<>();
     public static ArrayList<BlockingQueue> clientQueues = new ArrayList<>();
-    public static int [][] map;
+    public static int [][] map;;
     public static ArrayList<String> enemies;
 
     public Server(){
@@ -22,12 +22,13 @@ public class Server extends Thread{
     public void run() {
         while(true){
             sendToClients();
+
         }
     }
 
     public void sendToClients(){
             try {
-                String playerInfo = serverQueue.take();
+                Msg playerInfo = serverQueue.take();
                 for(BlockingQueue c : clientQueues)
                     c.put(playerInfo);
 
