@@ -28,17 +28,17 @@ public class ClientHandler extends Thread{
         try{
             // Write the map onto the client for rendering
             os.writeObject(Server.map);
-            //System.out.println("Wrote map` "+ Server.map.getClass().getSimpleName());
+            System.out.println("Wrote map` "+ Server.map.getClass().getSimpleName());
             os.flush();
             os.write(id);
-            //System.out.println("Wrote id "+ id);
+            System.out.println("Wrote id "+ id);
             os.flush();
             sendEnemyList();
             while(true) {
                 try {
                     // Receive coordinate message from the client
                     Msg message = (Msg) is.readObject();
-                   //System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
+                   System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
                     toServer(message);
                     writeSuccess = writeToClient();
                     if (!writeSuccess || message.type.equals("Exit"))
@@ -78,7 +78,7 @@ public class ClientHandler extends Thread{
           //System.out.println("Sending Enemy info "+ s)
             os.writeObject(Server.enemies);
             os.flush();
-            //System.out.println("Wrote Server.enemies, type:  "+ Server.enemies.getClass().getSimpleName());
+            System.out.println("Wrote Server.enemies, type:  "+ Server.enemies.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }
