@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -38,8 +37,8 @@ public class Level extends BasicGameState {
     private int[][] rotatedMap;
 
     Socket socket;
-    ObjectInputStream dis;
-    ObjectOutputStream dos;
+    ObjectInputStream inStream;
+    ObjectOutputStream outStream;
     String serverMessage;
 
     int tilesize = 32;
@@ -131,14 +130,14 @@ public class Level extends BasicGameState {
         messagebox = new Message[messages]; //display four messages at a time
 
         this.socket = dc.socket;
-        this.dis = dc.dis;
-        this.dos = dc.dos;
+        this.inStream = dc.dis;
+        this.outStream = dc.dos;
 
 
         // Grab the map from the server.Server
 
         try {
-           dc.map = (int[][])dis.readObject();
+           dc.map = (int[][]) inStream.readObject();
 //            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
 //           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
@@ -193,7 +192,7 @@ public class Level extends BasicGameState {
         int id = 0;
         String type = setSkin();
         try {
-            id = dis.read();
+            id = inStream.read();
 //            System.out.println("reading id: " + id);
             //System.out.println("Sending my player info.");
             serverId = id;
@@ -206,9 +205,9 @@ public class Level extends BasicGameState {
 
         try{
             Msg msg = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-            dos.writeObject(msg);
+            outStream.writeObject(msg);
 //            System.out.println("write msg type: " + msg.getClass().getSimpleName());
-            dos.flush();
+            outStream.flush();
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -230,7 +229,7 @@ public class Level extends BasicGameState {
         // Grabbing ArrayList of enemies.
         ArrayList<String> enemyList = new ArrayList<>();
         try{
-            enemyList = (ArrayList) dis.readObject();
+            enemyList = (ArrayList) inStream.readObject();
 //            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
@@ -933,6 +932,7 @@ public class Level extends BasicGameState {
         updateOtherPlayers(dc);
 
         sendEnemyStatusToServer(dc);
+        readEnemyStatusFromServer(dc);
 
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){
@@ -1528,7 +1528,7 @@ public class Level extends BasicGameState {
         float wy;
         try {
             System.out.printf("Sent count %s to server\n", dc.enemies.size());
-            dos.writeInt(dc.enemies.size());
+            outStream.writeInt(dc.enemies.size());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1538,10 +1538,33 @@ public class Level extends BasicGameState {
             wy = ai.getWorldCoordinates().getY();
             msg = new Msg(serverId, ai.getType(), wx, wy, ai.getHitPoints());
             try {
-                dos.writeObject(msg);
-                dos.flush();
+                outStream.writeObject(msg);
+                outStream.flush();
             System.out.println("sent AI update type: " + msg.getClass().getSimpleName());
             }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        System.out.println();
+    }
+
+    /*
+read the information about the AI from the server
+ */
+    private void readEnemyStatusFromServer(Main dc) {
+        int count = 0;
+        try {
+            count = inStream.readInt();
+            System.out.printf("Read count %s from client\n", count);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < count; i++) {
+            try {
+                Msg msg = (Msg) inStream.readObject();
+                System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
+            } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
         }
@@ -1556,8 +1579,8 @@ public class Level extends BasicGameState {
         float wy = dc.hero.getWorldCoordinates().getY();
         Msg toServer = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
         try {
-            dos.writeObject(toServer);
-            dos.flush();
+            outStream.writeObject(toServer);
+            outStream.flush();
 //            System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
@@ -1575,7 +1598,7 @@ public class Level extends BasicGameState {
 
     public void updateOtherPlayers(Main dc){
         try {
-            Msg read = (Msg)dis.readObject(); // message from server
+            Msg read = (Msg) inStream.readObject(); // message from server
             //System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
             //System.out.println("("+serverId+") Read: " + read);
 

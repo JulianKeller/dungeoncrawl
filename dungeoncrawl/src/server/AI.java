@@ -15,6 +15,7 @@ public class AI {
      * The result is saved to an arraylist of strings which is then returned
      */
     public static ArrayList<String> spawnEnemies(int[][] map, int count) {
+        Msg ai;
         int tilesize = 32;
         int offset = tilesize/2;
         int doubleOffset = offset/2;
@@ -36,6 +37,7 @@ public class AI {
             String message = (int)System.nanoTime()+" skeleton_basic "+wx + " " + wy;   // "x y id"
 //            System.out.println("Created "+message.split(" ")[0]);
             enemies.add(message);
+//            ai = new Msg(Server.get);
 //            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
 
             //create a random item at the given position

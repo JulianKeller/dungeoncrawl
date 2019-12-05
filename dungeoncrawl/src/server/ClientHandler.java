@@ -9,16 +9,16 @@ import java.util.concurrent.*;
 
 public class ClientHandler extends Thread{
     private Socket socket;   // Socket of client and server
-    private ObjectOutputStream os;  // the output stream
-    private ObjectInputStream is;  // the input stream
+    private ObjectOutputStream outStream;  // the output stream
+    private ObjectInputStream inStream;  // the input stream
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
     private BlockingQueue<Msg> threadQueue;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
                          BlockingQueue<Msg> queue){
         socket = s;
-        this.is = is;
-        this.os = os;
+        this.inStream = is;
+        this.outStream = os;
         id = s.getPort();
         threadQueue = queue;
         writeSuccess = true;
@@ -30,24 +30,26 @@ public class ClientHandler extends Thread{
     public void run(){
         try{
             // Write the map onto the client for rendering
-            os.writeObject(Server.map);
+            outStream.writeObject(Server.map);
             System.out.println("Wrote map` "+ Server.map.getClass().getSimpleName());
-            os.flush();
-            os.write(id);
+            outStream.flush();
+            outStream.write(id);
             System.out.println("Wrote id "+ id);
-            os.flush();
+            outStream.flush();
             sendEnemyList();
             while(true) {
                 try {
                     // Receive coordinate message from the client
-                    Msg message = (Msg) is.readObject();
+                    Msg message = (Msg) inStream.readObject();
 //                    System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
                     toServer(message);
                     writeSuccess = writeToClient();
                     if (!writeSuccess || message.type.equals("Exit"))
                         break;
 
-                    readAIStatus();
+
+                    readAIStatusFromClient();
+                    sendAIStatusToClient();
 
                 }catch(SocketException | ClassNotFoundException e){
                     System.out.println("Client "+id+" closed unexpectedly.\nClosing connections " +
@@ -56,8 +58,8 @@ public class ClientHandler extends Thread{
                 }
             }
             Server.clientQueues.remove(threadQueue);
-            os.close();
-            is.close();
+            outStream.close();
+            inStream.close();
             socket.close();
         } catch(IOException e){
             e.printStackTrace();
@@ -65,14 +67,44 @@ public class ClientHandler extends Thread{
 
     }
 
+    public void sendAIStatusToClient() {
+        Msg msg;
+        float wx;
+        float wy;
+        int count = 0;
+        try {
+            System.out.printf("Sent count %s to server\n", Server.enemies.size());
+            if (Server.aiList.size() <= 0) {
+                outStream.writeInt(0);
+            }
+            else {
+                outStream.writeInt(Server.aiList.size());
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (Msg ai : Server.aiList) {
+            try {
+                outStream.writeObject(ai);
+                outStream.flush();
+                System.out.println("sent AI update type: " + ai.getClass().getSimpleName());
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        System.out.println();
+    }
+
 
     /*
     read the information about the AI from the server
      */
-    private void readAIStatus() {
+    private void readAIStatusFromClient() {
         int count = 0;
         try {
-            count = is.readInt();
+            count = inStream.readInt();
             System.out.printf("Read count %s from client\n", count);
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,17 +112,12 @@ public class ClientHandler extends Thread{
 
         for (int i = 0; i < count; i++) {
             try {
-                Msg msg = (Msg) is.readObject();
+                Msg msg = (Msg) inStream.readObject();
                 System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
-//            wx = dc.hero.getWorldCoordinates().getX();
-//            wy = dc.hero.getWorldCoordinates().getY();
-//            msg = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-
         }
-
         System.out.println();
     }
 
@@ -110,8 +137,8 @@ public class ClientHandler extends Thread{
     private void sendEnemyList(){
         try {
           //System.out.println("Sending Enemy info "+ s)
-            os.writeObject(Server.enemies);
-            os.flush();
+            outStream.writeObject(Server.enemies);
+            outStream.flush();
 //            System.out.println("Wrote Server.enemies, type:  "+ Server.enemies.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
@@ -125,8 +152,8 @@ public class ClientHandler extends Thread{
         try {
             Msg toClient = threadQueue.take();
             //System.out.println("Writing to client "+id+": "+toClient);
-            os.writeObject(toClient);
-            os.flush();
+            outStream.writeObject(toClient);
+            outStream.flush();
             //System.out.println("Wrote MSG `toClient` "+ toClient.getClass().getSimpleName());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
