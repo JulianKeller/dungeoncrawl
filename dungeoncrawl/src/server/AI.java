@@ -15,6 +15,7 @@ public class AI {
      * The result is saved to an arraylist of strings which is then returned
      */
     public static ArrayList<String> spawnEnemies(int[][] map, int count) {
+        Server.aiList = new ArrayList<>(count);
         Msg ai;
         int tilesize = 32;
         int offset = tilesize/2;
@@ -32,13 +33,18 @@ public class AI {
             }
             float wx = (tilesize * row) - offset;
             float wy = (tilesize * col) - tilesize - doubleOffset;
+            int id = (int)System.nanoTime();
+
+            if (id < 0) {
+                id  = -id;
+            }
 
             // TODO will need to fix the structure of this string for parsing
-            String message = (int)System.nanoTime()+" skeleton_basic "+wx + " " + wy;   // "x y id"
+            String message = id+" skeleton_basic "+wx + " " + wy;   // "x y id"
 //            System.out.println("Created "+message.split(" ")[0]);
             enemies.add(message);
-//            ai = new Msg(Server.get);
-//            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
+            ai = new Msg(id, "skeleton_basic", wx, wy, 150);
+            Server.aiList.add(ai);
 
             //create a random item at the given position
             count--;

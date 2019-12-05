@@ -33,7 +33,7 @@ public class ClientHandler extends Thread{
             outStream.writeObject(Server.map);
             System.out.println("Wrote map` "+ Server.map.getClass().getSimpleName());
             outStream.flush();
-            outStream.write(id);
+            outStream.writeInt(id);
             System.out.println("Wrote id "+ id);
             outStream.flush();
             sendEnemyList();
@@ -41,15 +41,16 @@ public class ClientHandler extends Thread{
                 try {
                     // Receive coordinate message from the client
                     Msg message = (Msg) inStream.readObject();
-//                    System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
+                    System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
                     toServer(message);
                     writeSuccess = writeToClient();
                     if (!writeSuccess || message.type.equals("Exit"))
                         break;
 
 
-                    readAIStatusFromClient();
                     sendAIStatusToClient();
+                    readAIStatusFromClient();
+
 
                 }catch(SocketException | ClassNotFoundException e){
                     System.out.println("Client "+id+" closed unexpectedly.\nClosing connections " +
@@ -64,23 +65,26 @@ public class ClientHandler extends Thread{
         } catch(IOException e){
             e.printStackTrace();
         }
-
     }
 
+
+    /**
+     * update the client with the position of the ai
+     */
     public void sendAIStatusToClient() {
         Msg msg;
         float wx;
         float wy;
-        int count = 0;
         try {
-            System.out.printf("Sent count %s to server\n", Server.enemies.size());
+//            System.out.printf("Sent count %s to server\n", Server.enemies.size());
             if (Server.aiList.size() <= 0) {
                 outStream.writeInt(0);
             }
             else {
                 outStream.writeInt(Server.aiList.size());
             }
-
+            outStream.flush();
+            System.out.println("Wrote count: " + Server.aiList.size());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -89,7 +93,8 @@ public class ClientHandler extends Thread{
             try {
                 outStream.writeObject(ai);
                 outStream.flush();
-                System.out.println("sent AI update type: " + ai.getClass().getSimpleName());
+                System.out.println("Sending ai " + ai.id);
+//                System.out.println("sent AI update type: " + ai.getClass().getSimpleName());
             }catch(IOException e){
                 e.printStackTrace();
             }
@@ -108,12 +113,15 @@ public class ClientHandler extends Thread{
             System.out.printf("Read count %s from client\n", count);
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.printf("FAILED Read count %s from client\n", count);
         }
+
 
         for (int i = 0; i < count; i++) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-                System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
+                System.out.println("Reading ai " + msg.id);
+//                System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
@@ -139,7 +147,7 @@ public class ClientHandler extends Thread{
           //System.out.println("Sending Enemy info "+ s)
             outStream.writeObject(Server.enemies);
             outStream.flush();
-//            System.out.println("Wrote Server.enemies, type:  "+ Server.enemies.getClass().getSimpleName());
+            System.out.println("Wrote Server.enemies, type:  "+ Server.enemies.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -154,7 +162,7 @@ public class ClientHandler extends Thread{
             //System.out.println("Writing to client "+id+": "+toClient);
             outStream.writeObject(toClient);
             outStream.flush();
-            //System.out.println("Wrote MSG `toClient` "+ toClient.getClass().getSimpleName());
+            System.out.println("Wrote MSG `toClient` "+ toClient.getClass().getSimpleName());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return false;

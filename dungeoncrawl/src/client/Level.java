@@ -140,7 +140,7 @@ public class Level extends BasicGameState {
 
         try {
            dc.map = (int[][]) inStream.readObject();
-//            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
+            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
 //           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -194,8 +194,8 @@ public class Level extends BasicGameState {
         int id = 0;
         String type = setSkin();
         try {
-            id = inStream.read();
-//            System.out.println("reading id: " + id);
+            id = inStream.readInt();
+            System.out.println("reading id: " + id);
             //System.out.println("Sending my player info.");
             serverId = id;
         }catch(IOException e){
@@ -208,7 +208,7 @@ public class Level extends BasicGameState {
         try{
             Msg msg = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
             outStream.writeObject(msg);
-//            System.out.println("write msg type: " + msg.getClass().getSimpleName());
+            System.out.println("write msg type: " + msg.getClass().getSimpleName());
             outStream.flush();
         }catch(IOException e){
             e.printStackTrace();
@@ -232,7 +232,7 @@ public class Level extends BasicGameState {
         ArrayList<String> enemyList = new ArrayList<>();
         try{
             enemyList = (ArrayList) inStream.readObject();
-//            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
+            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -979,8 +979,9 @@ public class Level extends BasicGameState {
         positionToServer(dc);  // Get the player's updated position onto the server.
         updateOtherPlayers(dc);
 
-        sendEnemyStatusToServer(dc);
         readEnemyStatusFromServer(dc);
+        sendEnemyStatusToServer(dc);
+
 
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){
@@ -1652,9 +1653,15 @@ public class Level extends BasicGameState {
         float wx;
         float wy;
         try {
+            if (dc.enemies.size() <= 0) {
+                outStream.writeInt(0);
+            } else {
+                outStream.writeInt(dc.enemies.size());
+            }
+            outStream.flush();
             System.out.printf("Sent count %s to server\n", dc.enemies.size());
-            outStream.writeInt(dc.enemies.size());
         } catch (IOException e) {
+            System.out.printf("FAIL: Sent count %s to server\n", dc.enemies.size());
             e.printStackTrace();
         }
 
@@ -1665,7 +1672,8 @@ public class Level extends BasicGameState {
             try {
                 outStream.writeObject(msg);
                 outStream.flush();
-            System.out.println("sent AI update type: " + msg.getClass().getSimpleName());
+                System.out.println("Sending ai " + msg.id);
+//            System.out.println("sent AI update type: " + msg.getClass().getSimpleName());
             }catch(IOException e){
                 e.printStackTrace();
             }
@@ -1688,7 +1696,8 @@ read the information about the AI from the server
         for (int i = 0; i < count; i++) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-                System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
+                System.out.println("Reading ai " + msg.id);
+//                System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
@@ -1706,7 +1715,7 @@ read the information about the AI from the server
         try {
             outStream.writeObject(toServer);
             outStream.flush();
-//            System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
+            System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -1724,7 +1733,7 @@ read the information about the AI from the server
     public void updateOtherPlayers(Main dc){
         try {
             Msg read = (Msg) inStream.readObject(); // message from server
-            //System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
+            System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
             //System.out.println("("+serverId+") Read: " + read);
 
             if(read.type.equals("Exit")) {

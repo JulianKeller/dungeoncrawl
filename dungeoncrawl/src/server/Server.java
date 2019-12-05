@@ -14,13 +14,12 @@ public class Server extends Thread{
     public static ArrayList<Msg> aiList;
 
     public Server(){
-        aiList = new ArrayList<>();
     }
+
     @Override
     public void run() {
         while(true){
             sendToClients();
-
         }
     }
 
@@ -44,6 +43,7 @@ public class Server extends Thread{
 
             // TODO generate AI characters
             enemies = AI.spawnEnemies(map, 20);
+
 
             // TODO generate items here
 
