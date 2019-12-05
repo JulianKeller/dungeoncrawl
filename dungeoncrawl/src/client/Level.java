@@ -1016,6 +1016,10 @@ public class Level extends BasicGameState {
 	                }catch(IndexOutOfBoundsException ex){
 	                    System.out.println("Out of bounds.");
 	                }
+	                //knight and tank can punch with no equipment, mage and archer cannot
+            	}else if( dc.hero.getEquipped()[selectedEquippedItem] == null && (dc.hero.getType().toLowerCase().contains("knight") || 
+            			dc.hero.getType().toLowerCase().contains("tank") )){
+            		attack(null, dc, lastKnownDirection);
             	}
             }else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
                 //use item on own character
@@ -1325,10 +1329,8 @@ public class Level extends BasicGameState {
         }else{
             throw new SlickException("Invalid attack direction " + dir);
         }
-        if( itm == null ){
-        	return;
-        }
-        if( itm.getType().equals("Sword") || itm.getType().equals("Glove")){
+
+        if( itm == null || itm.getType().equals("Sword") || itm.getType().equals("Glove")){
             rand.setSeed(System.nanoTime());
             int r = rand.nextInt(100);
             if( r < 50 ){
@@ -1360,7 +1362,28 @@ public class Level extends BasicGameState {
                         float percentOfMaxDamage = rand.nextInt(100)/(float) 100;
 
                         float damage = 0;
-                        if( itm.getMaterial().equals("Wooden") ){
+                        if( itm == null ){
+                        	//max damage: 10
+                        	damage = 10 * percentOfMaxDamage;
+                            
+                        	//copy this block here instead of doing a bunch of null checks
+                        	if( c.takeDamage(damage, "",false) ){
+                                //returns true if the enemy died
+                                c.updateAnimation("die");
+
+                            }
+
+                            if( percentOfMaxDamage == 0 ){
+                                addMessage("Missed.");
+                            }else{
+                                String m = "Hit enemy for " + (int) damage + " damage.";
+                                if( percentOfMaxDamage >= 0.8 ){
+                                    m = m + " Critical hit!";
+                                }
+                                addMessage(m);
+                            }
+                            return;
+                        }else if( itm.getMaterial().equals("Wooden") ){
                             //max damage: 30
                             damage = 30 * percentOfMaxDamage;
                         }else if( itm.getMaterial().equals("Iron") ){
