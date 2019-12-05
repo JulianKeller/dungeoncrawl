@@ -1020,7 +1020,6 @@ public class Level extends BasicGameState {
             	
             	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
             	if( attackCooldown <= 0 ){
-            		System.out.println("Attacking");
             		if( dc.hero.getType().toLowerCase().contains("knight") || 
 	            			dc.hero.getType().toLowerCase().contains("tank") ){
 	            		attack(null, dc, lastKnownDirection);
@@ -1163,7 +1162,11 @@ public class Level extends BasicGameState {
             }
 
             //check if a thrown item hit a character
-            for( Character ch : dc.characters){
+            //merge the character and enemy lists
+            ArrayList<Character> targets = new ArrayList<Character>();
+            targets.addAll(dc.characters);
+            targets.addAll(dc.enemies);
+            for( Character ch : targets ){
 
                 if( ch.getPid() == dc.hero.getPid() ){
                     continue;
