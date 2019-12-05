@@ -395,6 +395,14 @@ public class Item extends StationaryObject{
 			weight = 15*count;
 		}else if( type.equals("Gloves") ){
 			weight = 20;
+		}else if( type.equals("Staff") ){
+			if( material.equals("Ruby") ){
+				weight = 15;
+			}else if( material.equals("Emerald") ){
+				weight = 10;
+			}else if( material.equals("Amethyst") ){
+				weight = 5;
+			}
 		}
 	}
 	public void setImage(Image img){
