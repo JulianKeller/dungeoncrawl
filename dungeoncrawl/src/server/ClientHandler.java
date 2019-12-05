@@ -33,6 +33,7 @@ public class ClientHandler extends Thread{
             os.write(id);
             //System.out.println("Wrote id "+ id);
             os.flush();
+            sendItemList();
             sendEnemyList();
             while(true) {
                 try {
@@ -99,6 +100,15 @@ public class ClientHandler extends Thread{
             return false;
         }
         return true;
+    }
+
+    public void sendItemList(){
+        try{
+            os.writeObject(Server.worldItems);
+            os.flush();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
     public int getClientId(){
         return id;

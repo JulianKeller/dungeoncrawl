@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
 import server.Msg;
+import server.ItemMsg;
 
 
 
@@ -228,11 +229,11 @@ public class Level extends BasicGameState {
         wx = (dc.tilesize * 18) - dc.offset;
         wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
         //dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
-        spawnEnemies(dc, 20);
+       // spawnEnemies(dc, 20);
          //Grabbing ArrayList of enemies.
         ArrayList<Msg> enemyList = new ArrayList<>();
         try{
-            enemyList = (ArrayList<Msg>) dis.readObject();
+            enemyList = (ArrayList) dis.readObject();
             //System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
@@ -246,7 +247,7 @@ public class Level extends BasicGameState {
         try {
             int maxcol =  dc.map.length - 2;
             int maxrow = dc.map[0].length - 2;
-            Main.im.plant(20, rotatedMap, maxcol, maxrow);
+            //Main.im.plant(20, rotatedMap, maxcol, maxrow);
         } catch (SlickException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1558,7 +1559,7 @@ public class Level extends BasicGameState {
         Item emissive = new Item(wc, true, -1, -1, emitter.getEffect(), emitter.getType(), "", false, true, image, 1);
         
         //add the emissive to the world items so it can be rendered
-        Main.im.addToWorldItems(emissive);
+        //Main.im.addToWorldItems(emissive);
         
         //create the thrown item
         thrownItems.add(new ThrownItem(emissive, direction, destination, step));
