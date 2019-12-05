@@ -257,23 +257,37 @@ public class Level extends BasicGameState {
         
         //give the mage a ruby staff with random effect
         //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image, int count) throws SlickException{
-        if( dc.hero.getType().toLowerCase().contains("mage")){
-	        try {
-				Item staff = new Item(null, false, -1, -1, "Healing", "Staff", "Ruby", false, true, ResourceManager.getImage(Main.STAFF_RUBY), 1);
-				
-				Random rand = new Random();
-				rand.setSeed(System.nanoTime());
-				
-				staff.setEffect(Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ]);
-				
-				Main.im.give(staff, dc.hero);
-				
-				dc.hero.equipItem(0);
-				
-				
-			} catch (SlickException e1) {
-				return;
-			}
+        if( dc.hero.getInventory().size() == 0 ){
+	        if( dc.hero.getType().toLowerCase().contains("mage")){
+		        try {
+					Item staff = new Item(null, false, -1, -1, "Healing", "Staff", "Ruby", false, true, ResourceManager.getImage(Main.STAFF_RUBY), 1);
+					 
+					Random rand = new Random();
+					rand.setSeed(System.nanoTime());
+					
+					staff.setEffect(Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ]);
+					
+					Main.im.give(staff, dc.hero);
+					
+					dc.hero.equipItem(0);
+					
+					
+				} catch (SlickException e1) {
+					return;
+				}
+	        }else if( dc.hero.getType().toLowerCase().contains("archer")){
+		        try {
+					Item arrow = new Item(null, false, -1, -1, "", "Arrow", "", false, true, ResourceManager.getImage(Main.ARROW_NORMAL), 10);
+					
+					Main.im.give(arrow, dc.hero);
+					
+					dc.hero.equipItem(0);
+					
+					
+				} catch (SlickException e1) {
+					return;
+				}
+	        }
         }
     }
 
