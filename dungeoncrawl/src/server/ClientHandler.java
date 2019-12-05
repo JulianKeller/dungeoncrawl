@@ -33,7 +33,7 @@ public class ClientHandler extends Thread{
             os.write(id);
             //System.out.println("Wrote id "+ id);
             os.flush();
-            //sendEnemyList();
+            sendEnemyList();
             while(true) {
                 try {
                     // Receive coordinate message from the client

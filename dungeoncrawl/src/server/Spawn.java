@@ -14,11 +14,11 @@ public class Spawn {
      * Randomly creates coordinates, type, and ID for the AI characters to spawn
      * The result is saved to an arraylist of strings which is then returned
      */
-    public static ArrayList<String> spawnEnemies(int[][] map, int count) {
+    public static ArrayList<Msg> spawnEnemies(int[][] map, int count) {
         int tilesize = 32;
         int offset = tilesize/2;
         int doubleOffset = offset/2;
-        ArrayList<String> enemies = new ArrayList<>(count);
+        ArrayList<Msg> enemies = new ArrayList<>(count);
         int maxcol =  map.length - 2;
         int maxrow = map[0].length - 2;
         Random rand = new Random();
@@ -33,8 +33,8 @@ public class Spawn {
             float wy = (tilesize * col) - tilesize - doubleOffset;
 
             // TODO will need to fix the structure of this string for parsing
-            String message = (int)System.nanoTime()+" skeleton_basic "+wx + " " + wy;   // "x y id"
-            System.out.println("Created "+message.split(" ")[0]);
+            Msg message = new Msg((int)System.nanoTime(), "skeleton_basic",wx,wy,0);   // "x y id"
+            System.out.println("Created "+message.id);
             enemies.add(message);
 //            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
 
