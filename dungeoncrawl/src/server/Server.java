@@ -1,8 +1,5 @@
 package server;
 
-import client.Main;
-import org.newdawn.slick.SlickException;
-
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -45,7 +42,7 @@ public class Server extends Thread{
             map = LoadMap.getRandomMap();
 
             // TODO generate AI characters
-            enemies = Spawn.spawnEnemies(map, 20);
+            enemies = AI.spawnEnemies(map, 20);
 
             // TODO generate items here
 

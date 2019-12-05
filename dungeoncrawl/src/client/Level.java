@@ -139,7 +139,7 @@ public class Level extends BasicGameState {
 
         try {
            dc.map = (int[][])dis.readObject();
-            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
+//            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
 //           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -194,7 +194,7 @@ public class Level extends BasicGameState {
         String type = setSkin();
         try {
             id = dis.read();
-            System.out.println("reading id: " + id);
+//            System.out.println("reading id: " + id);
             //System.out.println("Sending my player info.");
             serverId = id;
         }catch(IOException e){
@@ -207,7 +207,7 @@ public class Level extends BasicGameState {
         try{
             Msg msg = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
             dos.writeObject(msg);
-            System.out.println("write msg type: " + msg.getClass().getSimpleName());
+//            System.out.println("write msg type: " + msg.getClass().getSimpleName());
             dos.flush();
         }catch(IOException e){
             e.printStackTrace();
@@ -231,7 +231,7 @@ public class Level extends BasicGameState {
         ArrayList<String> enemyList = new ArrayList<>();
         try{
             enemyList = (ArrayList) dis.readObject();
-            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
+//            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -239,7 +239,7 @@ public class Level extends BasicGameState {
             float x = Float.parseFloat(e.split(" ")[2]);
             float y = Float.parseFloat(e.split(" ")[3]);
             int eid = Integer.parseInt(e.split(" ")[0]);
-            dc.characters.add(new Character(dc, x, y, e.split(" ")[1], eid, this, true));
+            dc.enemies.add(new Character(dc, x, y, e.split(" ")[1], eid, this, true));
         }
         try {
             int maxcol =  dc.map.length - 2;
@@ -932,6 +932,8 @@ public class Level extends BasicGameState {
         positionToServer(dc);  // Get the player's updated position onto the server.
         updateOtherPlayers(dc);
 
+        sendEnemyStatusToServer(dc);
+
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){
             System.out.println("Game window frozen, expecting user input.");
@@ -1515,6 +1517,37 @@ public class Level extends BasicGameState {
         return ks;
     }
 
+
+    /**
+     * sends information about the enemies to the server
+     * @param dc
+     */
+    public void sendEnemyStatusToServer(Main dc) {
+        Msg msg;
+        float wx;
+        float wy;
+        try {
+            System.out.printf("Sent count %s to server\n", dc.enemies.size());
+            dos.writeInt(dc.enemies.size());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (Character ai : dc.enemies) {
+            wx = ai.getWorldCoordinates().getX();
+            wy = ai.getWorldCoordinates().getY();
+            msg = new Msg(serverId, ai.getType(), wx, wy, ai.getHitPoints());
+            try {
+                dos.writeObject(msg);
+                dos.flush();
+            System.out.println("sent AI update type: " + msg.getClass().getSimpleName());
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        System.out.println();
+    }
+
     /**
       * Update the players position on the server.
       */
@@ -1525,7 +1558,7 @@ public class Level extends BasicGameState {
         try {
             dos.writeObject(toServer);
             dos.flush();
-            System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
+//            System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }

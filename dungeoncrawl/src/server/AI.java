@@ -6,7 +6,7 @@ import java.util.Random;
 /*
 This class spawns AI players and items locations, these can be sent to the client and then rendered
  */
-public class Spawn {
+public class AI {
     
 
 
@@ -34,7 +34,7 @@ public class Spawn {
 
             // TODO will need to fix the structure of this string for parsing
             String message = (int)System.nanoTime()+" skeleton_basic "+wx + " " + wy;   // "x y id"
-            System.out.println("Created "+message.split(" ")[0]);
+//            System.out.println("Created "+message.split(" ")[0]);
             enemies.add(message);
 //            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
 

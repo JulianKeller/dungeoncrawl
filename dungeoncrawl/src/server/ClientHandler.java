@@ -1,5 +1,8 @@
 package server;
 
+import client.Character;
+import client.Main;
+
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
@@ -38,11 +41,13 @@ public class ClientHandler extends Thread{
                 try {
                     // Receive coordinate message from the client
                     Msg message = (Msg) is.readObject();
-                   System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
+//                    System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
                     toServer(message);
                     writeSuccess = writeToClient();
                     if (!writeSuccess || message.type.equals("Exit"))
                         break;
+
+                    readAIStatus();
 
                 }catch(SocketException | ClassNotFoundException e){
                     System.out.println("Client "+id+" closed unexpectedly.\nClosing connections " +
@@ -58,6 +63,35 @@ public class ClientHandler extends Thread{
             e.printStackTrace();
         }
 
+    }
+
+
+    /*
+    read the information about the AI from the server
+     */
+    private void readAIStatus() {
+        int count = 0;
+        try {
+            count = is.readInt();
+            System.out.printf("Read count %s from client\n", count);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < count; i++) {
+            try {
+                Msg msg = (Msg) is.readObject();
+                System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
+            } catch (ClassNotFoundException | IOException e) {
+                e.printStackTrace();
+            }
+//            wx = dc.hero.getWorldCoordinates().getX();
+//            wy = dc.hero.getWorldCoordinates().getY();
+//            msg = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+
+        }
+
+        System.out.println();
     }
 
     /**
@@ -78,7 +112,7 @@ public class ClientHandler extends Thread{
           //System.out.println("Sending Enemy info "+ s)
             os.writeObject(Server.enemies);
             os.flush();
-            System.out.println("Wrote Server.enemies, type:  "+ Server.enemies.getClass().getSimpleName());
+//            System.out.println("Wrote Server.enemies, type:  "+ Server.enemies.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }

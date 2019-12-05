@@ -87,10 +87,8 @@ public class SplashScreen extends BasicGameState {
         if (enterAddress) {
             enterIP(input);
         }
-        if (connect) {
-            if (input.isKeyPressed(Input.KEY_ENTER)) {
-                connectToSever(dc, game);
-            }
+        if (input.isKeyPressed(Input.KEY_ENTER)) {
+            connectToSever(dc, game);
         }
 
         if (errorTimer >= 0) {

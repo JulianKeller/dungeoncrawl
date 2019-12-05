@@ -7,6 +7,8 @@ public class Msg implements Serializable {
     public String type;
     public float wx;
     public float wy;
+    public int tilex;
+    public int tiley;
     public float hp;
 
     public Msg(){
