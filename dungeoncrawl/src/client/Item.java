@@ -243,7 +243,7 @@ public class Item extends StationaryObject{
 		updateWeight();
 	}
 	
-	public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image, int count){
+	public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image, int count) throws SlickException{
 		super(wc, locked);
 		//create item with given properties
 		this.id = id;
@@ -255,6 +255,26 @@ public class Item extends StationaryObject{
 		this.identified = identified;
 		this.image = image;
 		this.count = count;
+		
+		if( type.equals("Armor")){
+			requiredClasses[0] = "knight";
+			requiredClasses[1] = "tank";
+		}else if( type.equals("Staff") ){
+			requiredClasses[0] = "mage";
+		}else if( type.equals("Sword") ){
+			requiredClasses[0] = "knight";
+		}else if( type.equals("Gloves") ){
+			requiredClasses[0] = "tank";
+		}else if( type.equals("Potion") ){
+			requiredClasses[0] = "knight";
+			requiredClasses[1] = "tank";
+			requiredClasses[2] = "mage";
+			requiredClasses[3] = "archer";
+		}else if( type.equals("Arrow")){
+			requiredClasses[0] = "archer";
+		}else{
+			throw new SlickException("Invalid item type '" + type + "'.");
+		}
 		
 		updateWeight();
 	}
@@ -375,6 +395,14 @@ public class Item extends StationaryObject{
 			weight = 15*count;
 		}else if( type.equals("Gloves") ){
 			weight = 20;
+		}else if( type.equals("Staff") ){
+			if( material.equals("Ruby") ){
+				weight = 15;
+			}else if( material.equals("Emerald") ){
+				weight = 10;
+			}else if( material.equals("Amethyst") ){
+				weight = 5;
+			}
 		}
 	}
 	public void setImage(Image img){

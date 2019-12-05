@@ -46,6 +46,8 @@ public class Level extends BasicGameState {
     int doubleOffset = offset/2;
 
     private final int messageTimer = 2000;
+    
+    private int attackCooldown = 0;
 
 
     private ArrayList<Item> itemsToRender;
@@ -257,6 +259,41 @@ public class Level extends BasicGameState {
 
         // Test Items
 //        addTestItems(dc);
+        
+        //give the mage a ruby staff with random effect
+        //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image, int count) throws SlickException{
+        if( dc.hero.getInventory().size() == 0 ){
+	        if( dc.hero.getType().toLowerCase().contains("mage")){
+		        try {
+					Item staff = new Item(null, false, -1, -1, "Healing", "Staff", "Ruby", false, true, ResourceManager.getImage(Main.STAFF_RUBY), 1);
+					 
+					Random rand = new Random();
+					rand.setSeed(System.nanoTime());
+					
+					staff.setEffect(Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ]);
+					
+					Main.im.give(staff, dc.hero);
+					
+					dc.hero.equipItem(0);
+					
+					
+				} catch (SlickException e1) {
+					return;
+				}
+	        }else if( dc.hero.getType().toLowerCase().contains("archer")){
+		        try {
+					Item arrow = new Item(null, false, -1, -1, "", "Arrow", "", false, true, ResourceManager.getImage(Main.ARROW_NORMAL), 10);
+					
+					Main.im.give(arrow, dc.hero);
+					
+					dc.hero.equipItem(0);
+					
+					
+				} catch (SlickException e1) {
+					return;
+				}
+	        }
+        }
     }
 
     private boolean wallAdjacent(int row, int col, int[][] map){
@@ -277,8 +314,6 @@ public class Level extends BasicGameState {
             return true;
         }
         return false;
-
-
     }
 
 
@@ -907,6 +942,19 @@ public class Level extends BasicGameState {
         if (paused) {
             return;
         }
+        
+        //decrease attack timer
+        if( attackCooldown > 0 ){
+        	attackCooldown -= delta;
+        }
+        
+        //regenerate some mana if this client is a mage
+        if( dc.hero.getType().toLowerCase().contains("mage") && dc.hero.getMana() < dc.hero.getMaxMana() ){
+        	dc.hero.setMana(dc.hero.getMana() + 0.05f);
+        	if( dc.hero.getMana() > dc.hero.getMaxMana() ){
+        		dc.hero.setMana(dc.hero.getMaxMana());
+        	}
+        }
 
         //implement effects on the character
         dc.hero.implementEffects();
@@ -937,7 +985,7 @@ public class Level extends BasicGameState {
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){
             System.out.println("Game window frozen, expecting user input.");
-            System.out.println("Enter valid effect name (e.g. Healing): ");
+            System.out.println("Enter valid effect name (e.g. Healing) ");
 
             String effect = scan.next().trim();
 
@@ -1010,12 +1058,23 @@ public class Level extends BasicGameState {
             }else if( input.isKeyPressed(Input.KEY_ENTER) ){
                 //attack with item
                 //System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
-            	if( dc.hero.getEquipped()[selectedEquippedItem] != null && canUse(dc.hero.getEquipped()[selectedEquippedItem], dc.hero) ){
-	                try{
-	                    attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
-	                }catch(IndexOutOfBoundsException ex){
-	                    System.out.println("Out of bounds.");
-	                }
+            	
+            	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
+            	if( attackCooldown <= 0 ){
+            		if( dc.hero.getType().toLowerCase().contains("knight") || 
+	            			dc.hero.getType().toLowerCase().contains("tank") ){
+	            		attack(null, dc, lastKnownDirection);
+	            	}else if( canUse(itm, dc.hero) ){
+	            		attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
+	            	}
+            		
+	            	//update attack cooldown based on item weight
+            		if( itm == null ){
+            			attackCooldown = 1000; 
+            		}else{
+            			//max attack item weight is 60, max cooldown time should be one second
+            			attackCooldown = itm.getWeight()*17;
+            		}
             	}
             }else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
                 //use item on own character
@@ -1144,7 +1203,11 @@ public class Level extends BasicGameState {
             }
 
             //check if a thrown item hit a character
-            for( Character ch : dc.characters){
+            //merge the character and enemy lists
+            ArrayList<Character> targets = new ArrayList<Character>();
+            targets.addAll(dc.characters);
+            targets.addAll(dc.enemies);
+            for( Character ch : targets ){
 
                 if( ch.getPid() == dc.hero.getPid() ){
                     continue;
@@ -1162,7 +1225,7 @@ public class Level extends BasicGameState {
                         ch.takeDamage(0, ti.itm.getEffect(),false);
                         dc.hero.addToCodex(ti.itm);
                         reachedDestination.add(ti);
-                    }else if( ti.itm.getType().equals("Arrow") ){
+                    }else if( ti.itm.getType().equals("Arrow") || ti.itm.getType().equals("Staff") ){
                         //roll random damage, similarly to a sword
                         rand.setSeed(System.nanoTime());
                         int r = rand.nextInt(100);
@@ -1298,6 +1361,17 @@ public class Level extends BasicGameState {
         //remove expired timers
         itemLockTimers.removeIf(b -> b.timer <= 0);
     }
+    private Image getSpellImage(String material) throws SlickException{
+    	if( material.equals("Ruby") ){
+    		return ResourceManager.getImage(Main.SPELL_RED);
+    	}else if( material.equals("Emerald") ){
+    		return ResourceManager.getImage(Main.SPELL_GREEN);
+    	}else if( material.equals("Amethyst") ){
+    		return ResourceManager.getImage(Main.SPELL_PURPLE);
+    	}else{
+    		throw new SlickException("Invalid staff material '" + material + "'.");
+    	}
+    }
 
     private void attack(Item itm, Main dc, Vector direction) throws SlickException{
         //attack with the given item
@@ -1314,10 +1388,8 @@ public class Level extends BasicGameState {
         }else{
             throw new SlickException("Invalid attack direction " + dir);
         }
-        if( itm == null ){
-        	return;
-        }
-        if( itm.getType().equals("Sword") || itm.getType().equals("Glove")){
+
+        if( itm == null || itm.getType().equals("Sword") || itm.getType().equals("Glove")){
             rand.setSeed(System.nanoTime());
             int r = rand.nextInt(100);
             if( r < 50 ){
@@ -1349,7 +1421,28 @@ public class Level extends BasicGameState {
                         float percentOfMaxDamage = rand.nextInt(100)/(float) 100;
 
                         float damage = 0;
-                        if( itm.getMaterial().equals("Wooden") ){
+                        if( itm == null ){
+                        	//max damage: 10
+                        	damage = 10 * percentOfMaxDamage;
+                            
+                        	//copy this block here instead of doing a bunch of null checks
+                        	if( c.takeDamage(damage, "",false) ){
+                                //returns true if the enemy died
+                                c.updateAnimation("die");
+
+                            }
+
+                            if( percentOfMaxDamage == 0 ){
+                                addMessage("Missed.");
+                            }else{
+                                String m = "Hit enemy for " + (int) damage + " damage.";
+                                if( percentOfMaxDamage >= 0.8 ){
+                                    m = m + " Critical hit!";
+                                }
+                                addMessage(m);
+                            }
+                            return;
+                        }else if( itm.getMaterial().equals("Wooden") ){
                             //max damage: 30
                             damage = 30 * percentOfMaxDamage;
                         }else if( itm.getMaterial().equals("Iron") ){
@@ -1361,6 +1454,10 @@ public class Level extends BasicGameState {
                         }
 
                         //pass damage and effect to enemy
+                        
+                        if( itm.getEffect().equals("Might") ){
+                        	damage *= 2;
+                        }
 
                         if( c.takeDamage(damage, itm.getEffect(),false) ){
                             //returns true if the enemy died
@@ -1390,50 +1487,62 @@ public class Level extends BasicGameState {
             dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
         }else if( itm.getType().equals("Potion") ){
-            //ranged attack, need to throw potion
-            //throw potion image 5 tiles in the direction the character
-            //  is facing
+        	addThrownItem(dc, itm, itm.getImage(), direction, direction.scale(5), direction.scale(0.1f));
+        	
+            if( itm.count == 1 ){
+            	dc.hero.unequipItem(selectedEquippedItem);
+            }
+            dc.hero.discardItem(itm, true);
 
+        }else if( itm.getType().equals("Staff") ){
+        	int manaCost = 0;
+        	if( itm.getMaterial().equals("Ruby") ){
+        		//high mana cost
+        		manaCost = 20;
+        	}else if( itm.getMaterial().equals("Emerald") ){
+        		//medium mana cost
+        		manaCost = 15;
+        	}else if( itm.getMaterial().equals("Amethyst") ){
+        		//low mana cost
+        		manaCost = 5;
+        	}else{
+        		throw new SlickException("Invalid staff material '" + itm.getMaterial() + "'.");
+        	}
+        	
+        	
+        	if( dc.hero.getMana() < manaCost ){
+        		addMessage("You don't have enough mana to use this.");
+        		return;
+        	}
+        	
+        	Image spellImage = getSpellImage(itm.getMaterial());
+        	
+        	/*
+        	
+        	//create a new Item for the spell
             Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
             		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
             
-            itm.setWorldCoordinates(wc);
+            Item spell = new Item( wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, spellImage, 1);
+            
+            //add it to the worldItems
+            Main.im.addToWorldItems(spell);
+            
+            //make a new ThrownItem
+            thrownItems.add(new ThrownItem(spell, direction, direction.scale(10000), direction.scale(0.3f) ) );
+            */
         	
+        	addThrownItem(dc, itm, spellImage, direction, direction.scale(10000), direction.scale(0.2f));
         	
+        	//decrease mana
+        	dc.hero.setMana(dc.hero.getMana() - manaCost);
         	
-            dc.hero.unequipItem(selectedEquippedItem);
-
-
-            //throw the potion but do not identify it unless it hits an enemy
-            Main.im.take(itm, dc.hero, itm.getWorldCoordinates(), false);
-
-            Vector destination = wc.add(direction.scale(5));
-
-            thrownItems.add(new ThrownItem(itm, direction, destination, direction.scale(0.1f)));
-
-        }else if( itm.getType().equals("Staff") ){
-
         }else if( itm.getType().equals("Arrow") ){
             //Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
 
         	Image image = getArrowImage(itm.getEffect(), dir);
 
-           
-            //spawn at the world coordinate of the player's animation
-            //also add the hero origin, or the number of tiles that have been scrolled in either direction
-            Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
-            		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
-
-            Item flyingArrow = new Item(wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, image, 1);
-
-            //add this to the list of items so it can be rendered
-            Main.im.addToWorldItems(flyingArrow);
-            
-            System.out.println("added arrow at " + wc.toString());
-
-            //this thrown item should travel until it hits a wall or an enemy
-            //  thus the final destination is effectively infinite (past the level boundary)
-            thrownItems.add( new ThrownItem(flyingArrow, direction, direction.scale(10000), direction.scale(0.3f) ));
+        	addThrownItem(dc, itm, image, direction, direction.scale(10000), direction.scale(0.3f));
             
             if( itm.count == 1 ){
             	dc.hero.unequipItem(selectedEquippedItem);
@@ -1441,6 +1550,22 @@ public class Level extends BasicGameState {
             dc.hero.discardItem(itm, true);
         }
     }
+    
+    private void addThrownItem(Main dc, Item emitter, Image image, Vector direction, Vector destination, Vector step) throws SlickException{
+    	//Spawn item at the player's position
+        Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
+        		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
+        
+        //the actual item that will be thrown
+        Item emissive = new Item(wc, true, -1, -1, emitter.getEffect(), emitter.getType(), "", false, true, image, 1);
+        
+        //add the emissive to the world items so it can be rendered
+        Main.im.addToWorldItems(emissive);
+        
+        //create the thrown item
+        thrownItems.add(new ThrownItem(emissive, direction, destination, step));
+    }
+    
     
     private boolean canUse(Item i, Character hero){
     	//return true if the hero can use an item
@@ -1454,7 +1579,7 @@ public class Level extends BasicGameState {
     	}
     	
     	//check class
-    	String type = hero.getType().substring(0, hero.getType().indexOf("_"));
+    	String type = hero.getType().substring(0, hero.getType().indexOf("_")).toLowerCase();
     	for( String st : i.getRequiredClasses() ){
     		if( st.equals(type) ){
     			return true;
