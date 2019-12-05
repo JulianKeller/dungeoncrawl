@@ -109,6 +109,7 @@ public class Character extends MovingEntity {
                 setArmorPoints(50);
                 setAnimationSpeed(75);
                 setMana(100);
+                setMaxMana(100);
                 break;
             case "archer_leather": // Archer
                 setHitPoints(100);
