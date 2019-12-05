@@ -241,6 +241,7 @@ public class Level extends BasicGameState {
             float y = Float.parseFloat(e.split(" ")[3]);
             int eid = Integer.parseInt(e.split(" ")[0]);
             dc.enemies.add(new Character(dc, x, y, e.split(" ")[1], eid, this, true));
+            System.out.println("Initializing AI : " + eid);
         }
         try {
             int maxcol =  dc.map.length - 2;
@@ -1668,7 +1669,7 @@ public class Level extends BasicGameState {
         for (Character ai : dc.enemies) {
             wx = ai.getWorldCoordinates().getX();
             wy = ai.getWorldCoordinates().getY();
-            msg = new Msg(serverId, ai.getType(), wx, wy, ai.getHitPoints());
+            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints());
             try {
                 outStream.writeObject(msg);
                 outStream.flush();

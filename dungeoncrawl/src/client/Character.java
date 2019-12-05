@@ -15,6 +15,7 @@ public class Character extends MovingEntity {
     private boolean nearEdge = false;
     public boolean ai;
     private int movesLeft;
+    int id;
     int ox;             // origin x
     int oy;             // origin y
     float pixelX;       // players exact origin in pixels
@@ -62,12 +63,16 @@ public class Character extends MovingEntity {
         shortest = new ArrayList<>();
         arrows = new ArrayList<>();
         range = 10;
+        this.id = id;
     }
 
     public Vector getOrigin() {
         return new Vector(ox, oy);
     }
 
+    public int getCharacterID() {
+        return id;
+    }
 
     /**
      * Create a new Character (Vector)
