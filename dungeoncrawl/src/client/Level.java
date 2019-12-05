@@ -25,7 +25,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 
 import jig.ResourceManager;
-
+import server.Server;
 
 
 public class Level extends BasicGameState {
@@ -229,20 +229,41 @@ public class Level extends BasicGameState {
 //        //dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
 //        spawnEnemies(dc, 20);
         // Grabbing ArrayList of enemies.
-        ArrayList<String> enemyList = new ArrayList<>();
-        try{
-            enemyList = (ArrayList) inStream.readObject();
-            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
-        } catch(IOException | ClassNotFoundException e){
+
+                int count = 0;
+        try {
+            count = inStream.readInt();
+            System.out.printf("Read count %s from client\n", count);
+        } catch (IOException e) {
             e.printStackTrace();
+            System.out.printf("FAILED Read count %s from client\n", count);
         }
-        for (String e : enemyList) {
-            float x = Float.parseFloat(e.split(" ")[2]);
-            float y = Float.parseFloat(e.split(" ")[3]);
-            int eid = Integer.parseInt(e.split(" ")[0]);
-            dc.enemies.add(new Character(dc, x, y, e.split(" ")[1], eid, this, true));
-            System.out.println("Initializing AI : " + eid);
+
+        for (int i = 0; i < count; i++) {
+            try {
+                Msg msg = (Msg) inStream.readObject();
+                System.out.println("Reading ai: " + msg.toString());
+                dc.enemies.add(new Character(dc, msg.wx, msg.wy, msg.type, msg.id, this, true));
+            } catch (ClassNotFoundException | IOException e) {
+                e.printStackTrace();
+            }
         }
+        System.out.println();
+
+//        ArrayList<String> enemyList = new ArrayList<>();
+//        try{
+//            enemyList = (ArrayList) inStream.readObject();
+//            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
+//        } catch(IOException | ClassNotFoundException e){
+//            e.printStackTrace();
+//        }
+//        for (String e : enemyList) {
+//            float x = Float.parseFloat(e.split(" ")[2]);
+//            float y = Float.parseFloat(e.split(" ")[3]);
+//            int eid = Integer.parseInt(e.split(" ")[0]);
+//            dc.enemies.add(new Character(dc, x, y, e.split(" ")[1], eid, this, true));
+//            System.out.println("Initializing AI : " + eid);
+//        }
         try {
             int maxcol =  dc.map.length - 2;
             int maxrow = dc.map[0].length - 2;
@@ -1669,18 +1690,18 @@ public class Level extends BasicGameState {
         Msg msg;
         float wx;
         float wy;
-        try {
-            if (dc.enemies.size() <= 0) {
-                outStream.writeInt(0);
-            } else {
-                outStream.writeInt(dc.enemies.size());
-            }
-            outStream.flush();
-            System.out.printf("Sent count %s to server\n", dc.enemies.size());
-        } catch (IOException e) {
-            System.out.printf("FAIL: Sent count %s to server\n", dc.enemies.size());
-            e.printStackTrace();
-        }
+//        try {
+//            if (dc.enemies.size() <= 0) {
+//                outStream.writeInt(0);
+//            } else {
+//                outStream.writeInt(dc.enemies.size());
+//            }
+//            outStream.flush();
+//            System.out.printf("Sent count %s to server\n", dc.enemies.size());
+//        } catch (IOException e) {
+//            System.out.printf("FAIL: Sent count %s to server\n", dc.enemies.size());
+//            e.printStackTrace();
+//        }
 
         for (Character ai : dc.enemies) {
             wx = ai.getWorldCoordinates().getX();
@@ -1689,7 +1710,7 @@ public class Level extends BasicGameState {
             try {
                 outStream.writeObject(msg);
                 outStream.flush();
-                System.out.println("Sending ai " + msg.id);
+                System.out.println("Sending ai: " + msg.toString());
 //            System.out.println("sent AI update type: " + msg.getClass().getSimpleName());
             }catch(IOException e){
                 e.printStackTrace();
@@ -1702,18 +1723,23 @@ public class Level extends BasicGameState {
 read the information about the AI from the server
  */
     private void readEnemyStatusFromServer(Main dc) {
-        int count = 0;
-        try {
-            count = inStream.readInt();
-            System.out.printf("Read count %s from client\n", count);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        int count = 0;
+//        try {
+//            count = inStream.readInt();
+//            System.out.printf("Read count %s from client\n", count);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
-        for (int i = 0; i < count; i++) {
+        for (Character ai : dc.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-                System.out.println("Reading ai " + msg.id);
+//                System.out.println("WC before: " + ai.getWorldCoordinates());
+                System.out.println("Reading ai: " + msg.toString());
+                ai.setWorldCoordinates(msg.wx, msg.wy);
+                ai.setHitPoints(msg.hp);
+//                System.out.println("WC after: " + ai.getWorldCoordinates());
+//                System.out.println();
 //                System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();

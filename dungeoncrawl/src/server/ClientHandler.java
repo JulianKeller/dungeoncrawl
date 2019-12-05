@@ -7,6 +7,9 @@ import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
 
+
+// TODO investigate why reading and writing different position values is not working
+//  it seems the client is not getting the updated value, but the server is sending it
 public class ClientHandler extends Thread{
     private Socket socket;   // Socket of client and server
     private ObjectOutputStream outStream;  // the output stream
@@ -76,25 +79,25 @@ public class ClientHandler extends Thread{
         Msg msg;
         float wx;
         float wy;
-        try {
-//            System.out.printf("Sent count %s to server\n", Server.enemies.size());
-            if (Server.aiList.size() <= 0) {
-                outStream.writeInt(0);
-            }
-            else {
-                outStream.writeInt(Server.aiList.size());
-            }
-            outStream.flush();
-            System.out.println("Wrote count: " + Server.aiList.size());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+////            System.out.printf("Sent count %s to server\n", Server.enemies.size());
+//            if (Server.aiList.size() <= 0) {
+//                outStream.writeInt(0);
+//            }
+//            else {
+//                outStream.writeInt(Server.aiList.size());
+//            }
+//            outStream.flush();
+//            System.out.println("Wrote count: " + Server.aiList.size());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         for (Msg ai : Server.aiList) {
             try {
                 outStream.writeObject(ai);
                 outStream.flush();
-                System.out.println("Sending ai " + ai.id);
+                System.out.println("Sending ai: " + ai.toString());
 //                System.out.println("sent AI update type: " + ai.getClass().getSimpleName());
             }catch(IOException e){
                 e.printStackTrace();
@@ -108,20 +111,21 @@ public class ClientHandler extends Thread{
     read the information about the AI from the server
      */
     private void readAIStatusFromClient() {
-        int count = 0;
-        try {
-            count = inStream.readInt();
-            System.out.printf("Read count %s from client\n", count);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.printf("FAILED Read count %s from client\n", count);
-        }
+//        int count = 0;
+//        try {
+//            count = inStream.readInt();
+//            System.out.printf("Read count %s from client\n", count);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.out.printf("FAILED Read count %s from client\n", count);
+//        }
 
 
-        for (int i = 0; i < count; i++) {
+        for (Msg ai : Server.aiList) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-                System.out.println("Reading ai " + msg.id);
+                System.out.println("Reading ai: " + msg.toString());
+                ai.hp = msg.hp;
 //                System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
@@ -145,10 +149,25 @@ public class ClientHandler extends Thread{
 
     private void sendEnemyList(){
         try {
-          //System.out.println("Sending Enemy info "+ s)
-            outStream.writeObject(Server.enemies);
+//            System.out.printf("Sent count %s to server\n", Server.enemies.size());
+            if (Server.aiList.size() <= 0) {
+                outStream.writeInt(0);
+            }
+            else {
+                outStream.writeInt(Server.aiList.size());
+            }
             outStream.flush();
-            System.out.println("Wrote Server.enemies, type:  "+ Server.enemies.getClass().getSimpleName());
+            System.out.println("Wrote count: " + Server.aiList.size());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            for (Msg ai : Server.aiList) {
+                //System.out.println("Sending Enemy info "+ s)
+                outStream.writeObject(ai);
+                outStream.flush();
+                System.out.println("Wrote ai: " + ai.toString());
+            }
         }catch(IOException e){
             e.printStackTrace();
         }

@@ -45,7 +45,7 @@ public class Character extends MovingEntity {
     public Character(Main dc, final float wx, final float wy, String type, int id, Level level, boolean AI) {
         super(wx, wy, id, level);
 
-//        System.out.println("Character added at: " + getWorldCoordinates());
+        System.out.println("Character added at: " + getWorldCoordinates());
         this.dc = dc;
         this.type = type;
         setStats();
