@@ -46,6 +46,8 @@ public class Level extends BasicGameState {
     int doubleOffset = offset/2;
 
     private final int messageTimer = 2000;
+    
+    private int attackCooldown = 0;
 
 
     private ArrayList<Item> itemsToRender;
@@ -903,6 +905,11 @@ public class Level extends BasicGameState {
             return;
         }
         
+        //decrease attack timer
+        if( attackCooldown > 0 ){
+        	attackCooldown -= delta;
+        }
+        
         //regenerate some mana if this client is a mage
         if( dc.hero.getType().toLowerCase().contains("mage") && dc.hero.getMana() < dc.hero.getMaxMana() ){
         	dc.hero.setMana(dc.hero.getMana() + 0.05f);
@@ -937,7 +944,7 @@ public class Level extends BasicGameState {
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){
             System.out.println("Game window frozen, expecting user input.");
-            System.out.println("Enter valid effect name (e.g. Healing): ");
+            System.out.println("Enter valid effect name (e.g. Healing) ");
 
             String effect = scan.next().trim();
 
@@ -1010,16 +1017,24 @@ public class Level extends BasicGameState {
             }else if( input.isKeyPressed(Input.KEY_ENTER) ){
                 //attack with item
                 //System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
-            	if( dc.hero.getEquipped()[selectedEquippedItem] != null && canUse(dc.hero.getEquipped()[selectedEquippedItem], dc.hero) ){
-	                try{
-	                    attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
-	                }catch(IndexOutOfBoundsException ex){
-	                    System.out.println("Out of bounds.");
-	                }
-	                //knight and tank can punch with no equipment, mage and archer cannot
-            	}else if( dc.hero.getEquipped()[selectedEquippedItem] == null && (dc.hero.getType().toLowerCase().contains("knight") || 
-            			dc.hero.getType().toLowerCase().contains("tank") )){
-            		attack(null, dc, lastKnownDirection);
+            	
+            	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
+            	if( attackCooldown <= 0 ){
+            		System.out.println("Attacking");
+            		if( dc.hero.getType().toLowerCase().contains("knight") || 
+	            			dc.hero.getType().toLowerCase().contains("tank") ){
+	            		attack(null, dc, lastKnownDirection);
+	            	}else if( canUse(itm, dc.hero) ){
+	            		attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
+	            	}
+            		
+	            	//update attack cooldown based on item weight
+            		if( itm == null ){
+            			attackCooldown = 1000; 
+            		}else{
+            			//max attack item weight is 60, max cooldown time should be one second
+            			attackCooldown = itm.getWeight()*17;
+            		}
             	}
             }else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
                 //use item on own character
