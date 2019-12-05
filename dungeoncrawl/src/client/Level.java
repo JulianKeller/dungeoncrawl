@@ -1523,7 +1523,7 @@ public class Level extends BasicGameState {
     public void updateOtherPlayers(Main dc){
         try {
             Msg read = (Msg)dis.readObject(); // message from server
-            System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
+            //System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
             //System.out.println("("+serverId+") Read: " + read);
 
             if(read.type.equals("Exit")) {
