@@ -1,6 +1,7 @@
 package client;
 
 import jig.Entity;
+import jig.ResourceManager;
 import jig.Vector;
 
 import java.util.ArrayList;
@@ -8,8 +9,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
+import org.newdawn.slick.Animation;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
 
 public class MovingEntity extends Entity {
     private float hitPoints;
@@ -464,6 +467,29 @@ Reflection:
 					
     }
     
+    public Animation getFloatingPlusSigns(String color, int frameCount, int duration) throws SlickException{
+    	int spriteWidth = 32;
+    	int spriteHeight = 64;
+    	SpriteSheet ss = null;
+    	if( color.toLowerCase().equals("red") ){
+    		ss = ResourceManager.getSpriteSheet(Main.RED_FLOATING_PLUS, spriteWidth, spriteHeight);
+    	}else{
+    		throw new SlickException("Invalid floating plus sign color '" + color + "'.");
+    	}
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount, 0, true, duration, true);
+    	return ani;
+    }
+    
+    public void addVisualEffect() throws SlickException{
+    	//go through list of active effect and add visual effects
+    	for( Effect e : activeEffects ){
+    		if( e.name.equals("Healing") ){
+    			addAnimation( getFloatingPlusSigns("red", 3, 50) );
+    		}
+    	}
+    }
+    
     public boolean takeDamage(float amount, String effect, boolean cursed ){
     	hitPoints -= amount;
     	if( !effect.equals("") ){
@@ -537,11 +563,11 @@ Reflection:
     			}
     	    	//update weight
     	    	//take off the whole stack
-    	    	inventoryWeight -= inventory.get(i).getWeight();
+    	    	inventoryWeight -= ret.getWeight();
     	    	//get the weight of the new stack
-    	    	inventory.get(i).updateWeight();
+    	    	ret.updateWeight();
     	    	//add the new weight
-    	    	inventoryWeight += inventory.get(i).getWeight();
+    	    	inventoryWeight += ret.getWeight();
     	    	
     	    	return ret;
     		}
