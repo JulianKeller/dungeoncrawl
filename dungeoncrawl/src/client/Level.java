@@ -425,7 +425,9 @@ public class Level extends BasicGameState {
         dc.hero.animate.render(g);
         
         //draw the hero's visual effects
-        dc.hero.vfx.render(g);
+        if( dc.hero.vfx != null ){
+        	dc.hero.vfx.render(g);
+        }
         
 
         renderHealthBar(dc, g);
@@ -970,7 +972,7 @@ public class Level extends BasicGameState {
         	//this will create a VFXEntity on the character
         	//  if one does not already exist
         	dc.hero.addVisualEffects();
-        }else{
+        }else if( dc.hero.vfx != null ){
         	//the character is not experiencing any status effects,
         	//  so remove all the dead animations
         	dc.hero.vfx.removeDeadAnimations();
