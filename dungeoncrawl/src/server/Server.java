@@ -89,11 +89,13 @@ public class Server extends Thread{
                 col = rand.nextInt(maxcol);
                 row = rand.nextInt(maxrow);
             }
-            Vector wc = new Vector( row, col );
-            System.out.println("wc: " + wc);
+//            Vector wc = new Vector( row, col );
+//            System.out.println("wc: " + wc);
 
             //create a random item at the given position
             ItemMsg i = generateItem();
+            i.wx = row;
+            i.wy = col;
             System.out.println("i Material: "+i.material);
 
             if( i.type.equals("Potion") || i.type.equals("Arrow") ){

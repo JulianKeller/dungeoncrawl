@@ -941,7 +941,7 @@ public class Level extends BasicGameState {
             if (objectInRegion(dc, wc)) {
                 Vector sc = world2screenCoordinates(dc, wc);
                 i.setPosition(sc);
-                System.out.println("sc: " + sc);
+                //System.out.println("sc: " + sc);
                 i.render(g);
             }
         }
