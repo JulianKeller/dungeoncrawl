@@ -11,6 +11,7 @@ public class VFXEntity extends Entity{
 	private class NamedAnimation{
 		String effect;
 		Animation a;
+		int timer = 1500;
 		
 		public NamedAnimation(String effect, Animation a){
 			this.effect = effect;
@@ -35,15 +36,22 @@ public class VFXEntity extends Entity{
 		addAnimation(a);
 	}
 	
-	public void removeDeadAnimations(){
+	public void removeDeadAnimations(int delta){
 		//remove any animations that have stopped
 		for( NamedAnimation a : animations ){
+			/*
 			if( a.a.isStopped() ){
 				removeAnimation(a.a);
 			}
+			*/
+			a.timer -= delta;
+			if( a.timer <= 0 ){
+				removeAnimation(a.a);
+				
+			}
 		}
 		
-		animations.removeIf(b -> b.a.isStopped());
+		animations.removeIf(b -> b.timer <= 0);
 	}
 	
 	public boolean hasAnimations(){
