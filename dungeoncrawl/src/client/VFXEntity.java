@@ -7,28 +7,43 @@ import org.newdawn.slick.Animation;
 import jig.Entity;
 
 public class VFXEntity extends Entity{
-	private ArrayList<Animation> animations;
+	
+	private class NamedAnimation{
+		String effect;
+		Animation a;
+		
+		public NamedAnimation(String effect, Animation a){
+			this.effect = effect;
+			this.a = a;
+		}
+	}
+	private ArrayList<NamedAnimation> animations;
 	
 	public VFXEntity(float x, float y){
 		super(x, y);
-		animations = new ArrayList<Animation>();
+		animations = new ArrayList<NamedAnimation>();
 	}
 	
-	public void addVisualEffect(Animation a){
+	public void addVisualEffect(Animation a, String effect){
 		//add an animation to this entity
-		animations.add(a);
+		for( NamedAnimation na : animations ){
+			if( na.effect.toLowerCase().equals(effect.toLowerCase()) ){
+				return;
+			}
+		}
+		animations.add(new NamedAnimation(effect, a));
 		addAnimation(a);
 	}
 	
 	public void removeDeadAnimations(){
 		//remove any animations that have stopped
-		for( Animation a : animations ){
-			if( a.isStopped() ){
-				removeAnimation(a);
+		for( NamedAnimation a : animations ){
+			if( a.a.isStopped() ){
+				removeAnimation(a.a);
 			}
 		}
 		
-		animations.removeIf(b -> b.isStopped());
+		animations.removeIf(b -> b.a.isStopped());
 	}
 	
 	public boolean hasAnimations(){

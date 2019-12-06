@@ -455,6 +455,13 @@ Reflection:
 
     	}
     	
+
+		
+		return returnMessages;
+					
+    }
+    
+    public void removeSingleEffects(){
 		/*
 		 * Some effects should only be applied once.
 		 * For example, swiftness will double the speed every loop
@@ -464,9 +471,6 @@ Reflection:
 									b.name.equals("Healing") ||
 									b.name.equals("Lightning") ||
 									b.name.equals("Mana"));
-		
-		return returnMessages;
-					
     }
     
     public Animation getFloatingPlusSigns(String color, int frameCount, int duration) throws SlickException{

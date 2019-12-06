@@ -106,12 +106,16 @@ public class Character extends MovingEntity {
     		
     		//TODO
     		
-    		Animation ani = getFloatingPlusSigns("red", 3, 50);
-    		ani.setLooping(true);
+    		Animation ani = getFloatingPlusSigns("red", 3, 150);
     		
     		//add the animation to this character's vfxentity
-    		vfx.addVisualEffect(ani);
+    		vfx.addVisualEffect(ani, "healing");
+    		
+
     	}
+    	
+		//remove any single effects
+		removeSingleEffects();
     }
 
     public void setType(String type) {
