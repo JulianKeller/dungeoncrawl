@@ -14,7 +14,11 @@ public class LoadMap {
         File f;
         if( System.getProperty("os.name").toLowerCase().contains("windows")){
             f = new File("src/maps");
-        }else{
+        }
+        else if( System.getProperty("os.name").toLowerCase().contains("nix")) {
+            f = new File("src/maps");
+        }
+        else{
             f = new File("dungeoncrawl/src/maps");
         }
         Random r = new Random();

@@ -1,11 +1,6 @@
 package server;
 
-import client.Character;
-import client.Item;
 import client.Main;
-import jig.Entity;
-import jig.ResourceManager;
-import jig.Vector;
 import org.newdawn.slick.SlickException;
 import java.util.Random;
 
@@ -24,13 +19,12 @@ public class Server extends Thread{
     public static ArrayList<ItemMsg> worldItems = new ArrayList<>();
 
     public Server(){
-
     }
+
     @Override
     public void run() {
         while(true){
             sendToClients();
-
         }
     }
 
@@ -338,6 +332,7 @@ public class Server extends Thread{
         }
     }
     public static void main(String [] args){
+
         try {
             // Create a new Socket for the server
             ServerSocket ss = new ServerSocket(5000);
@@ -345,7 +340,9 @@ public class Server extends Thread{
             map = LoadMap.getRandomMap();
             rotatedMap = rotateMap(map);
             // TODO generate AI characters
-            enemies = Spawn.spawnEnemies(map, 20);
+//            enemies = AI.spawnEnemies(map, 20);
+            enemies = AI.spawnDebugEnemies(map);
+
 
             // TODO generate items here
             try {

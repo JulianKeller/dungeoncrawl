@@ -6,8 +6,21 @@ import java.util.Random;
 /*
 This class spawns AI players and items locations, these can be sent to the client and then rendered
  */
-public class Spawn {
-    
+public class AI {
+
+    /**
+     * update the position of the AI player
+     */
+    public static void updatePosition() {
+        // TODO run dijkstra
+        for (Msg ai : Server.enemies) {
+//            ai.wx += 2;
+//            ai.wy -= 16;
+            continue;
+            // move random
+            // if ai close enough pathfind with dijkstra
+        }
+    }
 
 
     /**
@@ -31,16 +44,28 @@ public class Spawn {
             }
             float wx = (tilesize * row) - offset;
             float wy = (tilesize * col) - tilesize - doubleOffset;
+            int id = (int)System.nanoTime();
 
-            // TODO will need to fix the structure of this string for parsing
-            Msg message = new Msg((int)System.nanoTime(), "skeleton_basic",wx,wy,0);   // "x y id"
-            System.out.println("Created "+message.id);
+            if (id < 0) {
+                id  = -id;
+            }
+            Msg message = new Msg(id, "skeleton_basic",wx,wy,150);   // "x y id"
+//            System.out.println("Created "+message.id);
             enemies.add(message);
 //            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
 
             //create a random item at the given position
             count--;
         }
+        return enemies;
+    }
+
+    public static ArrayList<Msg> spawnDebugEnemies(int[][] map) {
+        ArrayList<Msg> enemies = new ArrayList<>(1);
+        float wx = (32 * 18) - 16;
+        float wy = (32 * 18) - 16 - 8;
+        Msg message = new Msg(333, "skeleton_basic",wx,wy,150);   // "x y id"
+        enemies.add(message);
         return enemies;
     }
 }

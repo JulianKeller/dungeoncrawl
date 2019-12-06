@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -27,7 +26,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 
 import jig.ResourceManager;
-
+import server.Server;
 
 
 public class Level extends BasicGameState {
@@ -39,8 +38,8 @@ public class Level extends BasicGameState {
     private int[][] rotatedMap;
 
     Socket socket;
-    ObjectInputStream dis;
-    ObjectOutputStream dos;
+    ObjectInputStream inStream;
+    ObjectOutputStream outStream;
     String serverMessage;
 
     int tilesize = 32;
@@ -134,15 +133,15 @@ public class Level extends BasicGameState {
         messagebox = new Message[messages]; //display four messages at a time
 
         this.socket = dc.socket;
-        this.dis = dc.dis;
-        this.dos = dc.dos;
+        this.inStream = dc.dis;
+        this.outStream = dc.dos;
 
 
         // Grab the map from the server.Server
 
         try {
-           dc.map = (int[][])dis.readObject();
-            //System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
+           dc.map = (int[][]) inStream.readObject();
+//            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
 //           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -196,45 +195,21 @@ public class Level extends BasicGameState {
         int id = 0;
         String type = setSkin();
         try {
-            id = dis.read();
-            System.out.println("reading id: " + id);
+            id = inStream.readInt();
+//            System.out.println("reading id: " + id);
             //System.out.println("Sending my player info.");
             dc.serverId = id;
         }catch(IOException e){
             e.printStackTrace();
         }
-
         dc.hero = new Character(dc, wx, wy, type, id, this, false);
         dc.characters.add(dc.hero);
 
-        try{
-            Msg msg = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-            dos.writeObject(msg);
-            System.out.println("("+dc.serverId+"): "+msg);
-            dos.flush();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
-        //give the hero leather armor with no effect
-        //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
-        /*
-        Item a = new Item(null, false, Main.im.getCurrentItemID(), dc.hero.getPid(), "", "Armor", "Leather", false, true,
-        		ResourceManager.getImage(Main.ARMOR_IRON));
-
-        Main.im.give(a, dc.hero);
-        */
-
-        // TODO spawning enemies and items should be done on the server
-        wx = (dc.tilesize * 18) - dc.offset;
-        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
-        //dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
-       // spawnEnemies(dc, 20);
-         //Grabbing ArrayList of enemies.
+        //Grabbing ArrayList of enemies.
         ArrayList<Msg> enemyList = new ArrayList<>();
         try{
-            enemyList = (ArrayList) dis.readObject();
-            //System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
+            enemyList = (ArrayList<Msg>) inStream.readObject();
+//            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -242,13 +217,15 @@ public class Level extends BasicGameState {
             float x = e.wx;
             float y = e.wy;
             int eid = e.id;
-            dc.characters.add(new Character(dc, x, y, e.type, eid, this, true));
+            dc.enemies.add(new Character(dc, x, y, e.type, eid, this, true));
+//            System.out.println("Created AI " + e.toString());
         }
+
         try {
             int maxcol =  dc.map.length - 2;
             int maxrow = dc.map[0].length - 2;
             //Main.im.plant(20, rotatedMap, maxcol, maxrow)
-            ArrayList<ItemMsg> fromServer = (ArrayList)dis.readObject();
+            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
             //System.out.println("Read type: "+fromServer.getClass().getSimpleName());
             for(ItemMsg i : fromServer) {
                 try {
@@ -311,7 +288,7 @@ public class Level extends BasicGameState {
 	        }
         }
     }
-    
+
     private void setItemImage(Item i) throws SlickException{
         //get an image based on item type
         Image image = null;
@@ -516,6 +493,8 @@ public class Level extends BasicGameState {
         // TODO will need to sort the lists and draw in order so players draw on top of others
         // draw other characters
         renderCharacters(dc, g);
+
+        renderEnemies(dc, g);
 
         // draw the hero
         dc.hero.animate.render(g);
@@ -941,7 +920,6 @@ public class Level extends BasicGameState {
             if (objectInRegion(dc, wc)) {
                 Vector sc = world2screenCoordinates(dc, wc);
                 i.setPosition(sc);
-                //System.out.println("sc: " + sc);
                 i.render(g);
             }
         }
@@ -984,7 +962,7 @@ public class Level extends BasicGameState {
     }
 
     /*
-    Renders the other characters and AI on the screen if they are in the players screen
+    Renders the other characters on the screen if they are in the players screen
      */
     private void renderCharacters(Main dc, Graphics g) {
         for (Character ch : dc.characters) {
@@ -995,10 +973,24 @@ public class Level extends BasicGameState {
                     ch.animate.render(g);
                 }
             }
-
         }
-        //*/
+    }
 
+
+    /*
+    Renders the  AI on the screen if they are in the players screen
+     */
+    private void renderEnemies(Main dc, Graphics g) {
+        for (Character ai : dc.enemies) {
+            if (ai.getHitPoints() <= 0) {
+                continue;
+            }
+            Vector sc = world2screenCoordinates(dc, ai.getWorldCoordinates());
+            ai.animate.setPosition(sc);
+            if (characterInRegion(dc, ai)) {
+                ai.animate.render(g);
+            }
+        }
     }
 
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
@@ -1077,6 +1069,11 @@ public class Level extends BasicGameState {
         dc.hero.move(ks);
         positionToServer(dc);  // Get the player's updated position onto the server.
         updateOtherPlayers(dc);
+
+        sendEnemyStatusToServer(dc);
+        readEnemyStatusFromServer(dc);
+
+
 
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){
@@ -1275,7 +1272,7 @@ public class Level extends BasicGameState {
 
 
         // cause AI players to move around
-        for( Character ch : dc.characters ) {
+        for( Character ch : dc.enemies ) {
             if (ch.ai) {        // if the player is an AI player, move them
                 ch.moveAI(delta);
             }
@@ -1656,7 +1653,7 @@ public class Level extends BasicGameState {
         Item emissive = new Item(wc, true, -1, -1, emitter.getEffect(), emitter.getType(), "", false, true, image, 1);
         
         //add the emissive to the world items so it can be rendered
-        //Main.im.addToWorldItems(emissive);
+        Main.im.addToWorldItems(emissive);
         
         //create the thrown item
         thrownItems.add(new ThrownItem(emissive, direction, destination, step));
@@ -1738,6 +1735,50 @@ public class Level extends BasicGameState {
         return ks;
     }
 
+
+    /**
+     * sends information about the enemies to the server
+     * @param dc
+     */
+    public void sendEnemyStatusToServer(Main dc) {
+//        System.out.println("sendEnemyStatusToServer()");
+        Msg msg;
+        float wx;
+        float wy;
+        for (Character ai : dc.enemies) {
+            wx = ai.getWorldCoordinates().getX();
+            wy = ai.getWorldCoordinates().getY();
+            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints());
+            try {
+                outStream.writeObject(msg);
+                outStream.flush();
+                outStream.reset();
+//                System.out.println("writing " + msg.toString());
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+//        // System.out.println();
+    }
+
+    /*
+read the information about the AI from the server
+ */
+    private void readEnemyStatusFromServer(Main dc) {
+//        System.out.println("readEnemyStatusFromServer()");
+        for (Character ai : dc.enemies) {
+            try {
+                Msg msg = (Msg) inStream.readObject();
+//                System.out.println("reading " + msg.toString());
+                ai.setWorldCoordinates(msg.wx, msg.wy);
+                ai.setHitPoints(msg.hp - 10);
+            } catch (ClassNotFoundException | IOException e) {
+                e.printStackTrace();
+            }
+        }
+        // System.out.println();
+    }
+
     /**
       * Update the players position on the server.
       */
@@ -1746,9 +1787,10 @@ public class Level extends BasicGameState {
         float wy = dc.hero.getWorldCoordinates().getY();
         Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
         try {
-            dos.writeObject(toServer);
-            dos.flush();
-            System.out.println("("+dc.serverId+"): "+toServer);
+            outStream.writeObject(toServer);
+            outStream.flush();
+            outStream.reset();
+//            System.out.println("writing "+ toServer.toString());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -1765,9 +1807,9 @@ public class Level extends BasicGameState {
 
     public void updateOtherPlayers(Main dc){
         try {
-            Msg read = (Msg)dis.readObject(); // message from server
-            //System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
-            //System.out.println("("+dc.serverId+"): " + read);
+            Msg read = (Msg) inStream.readObject(); // message from server
+//            System.out.println("reading " + read.toString());
+//            System.out.println("("+dc.serverId+"): " + read);
 
             if(read.type.equals("Exit")) {
                 dc.characters.removeIf(c -> c.getPid() == read.id);
@@ -1844,34 +1886,6 @@ public class Level extends BasicGameState {
         float sy = wc.getY() - dc.hero.pixelY;
         return new Vector(sx, sy);
     }
-
-
-    // TODO this will be called from the server side
-    /**
-     * Populate the world with AI characters
-     */
-    public void spawnEnemies(Main dc, int numItems) {
-        int maxcol =  dc.map.length - 2;
-        int maxrow = dc.map[0].length - 2;
-        Random rand = new Random();
-        while( numItems > 0 ){
-            int col = rand.nextInt(maxcol);
-            int row = rand.nextInt(maxrow);
-            while(row < 2 || col < 2 || dc.map[col][row] == 1){
-                col = rand.nextInt(maxcol) - 1;
-                row = rand.nextInt(maxrow) - 1;
-//                System.out.printf("getting %s, %s\n", col, row);
-            }
-//            System.out.printf("\nSpawning at %s, %s\n", col, row);
-            float wx = (dc.tilesize * row) - dc.offset;
-            float wy = (dc.tilesize * col) - dc.tilesize - dc.doubleOffset;
-            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
-
-            //create a random item at the given position
-            numItems--;
-        }
-    }
-
 
 
 }
