@@ -26,3 +26,4 @@ server for player.<br>
 **[26]** Have items placed by server<br>
 **[27]** Make items disappear when player picks up item<br>
 **[28]** Make items reappear when player drops<br>
+**[29]** Reduce the number of messages to clients.
