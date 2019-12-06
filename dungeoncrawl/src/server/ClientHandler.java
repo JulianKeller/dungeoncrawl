@@ -43,7 +43,7 @@ public class ClientHandler extends Thread{
                 try {
                     // Receive coordinate message from the client
                     Msg message = (Msg) inStream.readObject();
-                    System.out.println("reading " + message.toString());
+//                    System.out.println("reading " + message.toString());
 //                    System.out.println("Client Handler "+id+": "+message);
                     toServer(message);
                     writeSuccess = writeToClient();
@@ -82,7 +82,7 @@ public class ClientHandler extends Thread{
             toServer(ai);
             writeToClient();
         }
-        System.out.println();
+        // System.out.println();
     }
 
 
@@ -94,13 +94,13 @@ public class ClientHandler extends Thread{
         for (Msg ai : Server.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-                System.out.println("reading " + msg.toString());
+//                System.out.println("reading " + msg.toString());
                 ai.hp = msg.hp;
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
         }
-//        System.out.println();
+//        // System.out.println();
     }
 
     /**
@@ -120,7 +120,7 @@ public class ClientHandler extends Thread{
         try {
             outStream.writeObject(Server.enemies);
             outStream.flush();
-            System.out.println("Wrote ArrayList Server.enemies");
+//            System.out.println("Wrote ArrayList Server.enemies");
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -135,20 +135,11 @@ public class ClientHandler extends Thread{
     private boolean writeToClient() {
         try {
             Msg toClient = threadQueue.take();
-            //System.out.println("Writing to client "+id+": "+toClient);
-//            toClient = Server.serverQueue.take();
-
             outStream.writeObject(toClient);
-            System.out.println("writing " + toClient.toString());
+//            System.out.println("writing " + toClient.toString());
             outStream.flush();
             outStream.reset();
-
-//            hp++;
-//            Msg message = new Msg(id, "skeleton_basic",1,2,hp);   // "x y id"
-//            outStream.writeObject(message);
-//            System.out.println("writing " + message.toString());
             outStream.flush();
-
 //            System.out.println("Sent to client "+id+": "+toClient);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

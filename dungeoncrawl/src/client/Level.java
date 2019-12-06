@@ -140,7 +140,7 @@ public class Level extends BasicGameState {
 
         try {
            dc.map = (int[][]) inStream.readObject();
-            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
+//            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
 //           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -195,7 +195,7 @@ public class Level extends BasicGameState {
         String type = setSkin();
         try {
             id = inStream.readInt();
-            System.out.println("reading id: " + id);
+//            System.out.println("reading id: " + id);
             //System.out.println("Sending my player info.");
             dc.serverId = id;
         }catch(IOException e){
@@ -208,7 +208,7 @@ public class Level extends BasicGameState {
         ArrayList<Msg> enemyList = new ArrayList<>();
         try{
             enemyList = (ArrayList<Msg>) inStream.readObject();
-            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
+//            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -1656,12 +1656,12 @@ public class Level extends BasicGameState {
                 outStream.writeObject(msg);
                 outStream.flush();
                 outStream.reset();
-                System.out.println("writing " + msg.toString());
+//                System.out.println("writing " + msg.toString());
             }catch(IOException e){
                 e.printStackTrace();
             }
         }
-//        System.out.println();
+//        // System.out.println();
     }
 
     /*
@@ -1672,14 +1672,14 @@ read the information about the AI from the server
         for (Character ai : dc.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-                System.out.println("reading " + msg.toString());
+//                System.out.println("reading " + msg.toString());
                 ai.setWorldCoordinates(msg.wx, msg.wy);
                 ai.setHitPoints(msg.hp - 10);
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println();
+        // System.out.println();
     }
 
     /**
@@ -1693,7 +1693,7 @@ read the information about the AI from the server
             outStream.writeObject(toServer);
             outStream.flush();
             outStream.reset();
-            System.out.println("writing "+ toServer.toString());
+//            System.out.println("writing "+ toServer.toString());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -1711,7 +1711,7 @@ read the information about the AI from the server
     public void updateOtherPlayers(Main dc){
         try {
             Msg read = (Msg) inStream.readObject(); // message from server
-            System.out.println("reading " + read.toString());
+//            System.out.println("reading " + read.toString());
 //            System.out.println("("+dc.serverId+"): " + read);
 
             if(read.type.equals("Exit")) {
