@@ -22,7 +22,7 @@ public class AI {
         int tilesize = 32;
         int offset = tilesize/2;
         int doubleOffset = offset/2;
-        int range = 8;
+        int range = 4;
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
         int rand;
 
@@ -37,11 +37,13 @@ public class AI {
                 Vector aiTile = getTileWorldCoordinates(ai.wx, ai.wy);
                 ArrayList<int[]> shortest = find.findShortestPath((int) heroTile.getX(), (int) heroTile.getY(), (int) aiTile.getX(), (int) aiTile.getY());
                 ai.nextDirection = getNextDirection(shortest, wx, wy);
+//                System.out.println("Dijkstra next: " + ai.nextDirection);
             }
             else {
                 // else choose random direction
                 rand = new Random().nextInt(moves.length);
                 ai.nextDirection = moves[rand];
+//                System.out.println("Random next: " + ai.nextDirection);
             }
         }
     }
@@ -70,13 +72,13 @@ public class AI {
         if (x == px && y == py) {
             dir = "wait";
         } else if (x > px) {
-            dir = "walk_right";
-        } else if (x < px) {
             dir = "walk_left";
+        } else if (x < px) {
+            dir = "walk_right";
         } else if (y > py) {
-            dir = "walk_down";
-        } else if (y < py) {
             dir = "walk_up";
+        } else if (y < py) {
+            dir = "walk_down";
         }
         return dir;
     }
