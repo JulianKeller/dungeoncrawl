@@ -47,6 +47,8 @@ public class MovingEntity extends Entity {
     private Vector tileWorldCoordinates;
     private Vector nextTileWorldCoordinates;
     private Main dc;
+    
+
 
     
     //random number generator
@@ -58,7 +60,7 @@ public class MovingEntity extends Entity {
     
     private ArrayList<Effect> activeEffects; //list of things currently affecting the character
     private final int defaultEffectTimer = 5000;
-    private class Effect{
+    class Effect{
     	String name;
     	int timer = defaultEffectTimer;
     	boolean cursed;
@@ -477,18 +479,11 @@ Reflection:
     		throw new SlickException("Invalid floating plus sign color '" + color + "'.");
     	}
     	
-    	Animation ani = new Animation(ss, 0, 0, frameCount, 0, true, duration, true);
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
     	return ani;
     }
     
-    public void addVisualEffect() throws SlickException{
-    	//go through list of active effect and add visual effects
-    	for( Effect e : activeEffects ){
-    		if( e.name.equals("Healing") ){
-    			addAnimation( getFloatingPlusSigns("red", 3, 50) );
-    		}
-    	}
-    }
+
     
     public boolean takeDamage(float amount, String effect, boolean cursed ){
     	hitPoints -= amount;

@@ -1,9 +1,12 @@
 package client;
 
-import jig.Vector;
-
 import java.util.ArrayList;
 import java.util.Random;
+
+import org.newdawn.slick.Animation;
+import org.newdawn.slick.SlickException;
+
+import jig.Vector;
 
 public class Character extends MovingEntity {
     private Main dc;
@@ -81,6 +84,34 @@ public class Character extends MovingEntity {
         this.type = type;
         setStats();
 
+    }
+    
+    //entity for rendering animations
+    public VFXEntity vfx = null;
+    
+    public void addVisualEffects() throws SlickException{
+    	//go through list of active effect and add visual effects
+    	if( vfx == null ){
+    		//make a new VFXEnt at the animation position
+    		System.out.println("Creating new VFXEntity at " + animate.getPosition().toString());
+    		vfx = new VFXEntity(animate.getX(), animate.getY());
+    	}
+    	for( Effect e : super.getActiveEffects() ){
+    		/*
+    		if( e.name.equals("Healing") ){
+    			addAnimation( getFloatingPlusSigns("red", 3, 50) );
+    		}
+    		*/
+    		
+    		
+    		//TODO
+    		
+    		Animation ani = getFloatingPlusSigns("red", 3, 50);
+    		ani.setLooping(true);
+    		
+    		//add the animation to this character's vfxentity
+    		vfx.addVisualEffect(ani);
+    	}
     }
 
     public void setType(String type) {

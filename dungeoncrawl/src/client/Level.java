@@ -24,6 +24,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import com.sun.java.swing.plaf.motif.MotifBorders.InternalFrameBorder;
 
 import jig.ResourceManager;
 
@@ -422,6 +423,10 @@ public class Level extends BasicGameState {
 
         // draw the hero
         dc.hero.animate.render(g);
+        
+        //draw the hero's visual effects
+        dc.hero.vfx.render(g);
+        
 
         renderHealthBar(dc, g);
 
@@ -959,6 +964,14 @@ public class Level extends BasicGameState {
 
         //implement effects on the character
         dc.hero.implementEffects();
+        
+        //add visual effects to the character
+        if( dc.hero.getActiveEffects().size() > 0 ){
+        	dc.hero.addVisualEffects();
+        }else if( dc.hero.vfx.hasAnimations() ){
+        	dc.hero.vfx.removeDeadAnimations();
+        }
+        
         //reduce the effect timers by a constant value each frame
         //  if delta is used instead of a constant, tabbing away from
         //  the game window can cause all effects to disappear instantly
@@ -1650,7 +1663,7 @@ public class Level extends BasicGameState {
         try {
             dos.writeObject(toServer);
             dos.flush();
-            System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
+            //System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }
