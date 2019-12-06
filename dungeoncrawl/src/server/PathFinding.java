@@ -1,6 +1,8 @@
-package client;
+package server;
 
 import java.util.*;
+
+import client.Main;
 import jig.Vector;
 
 // an implementation of Dijkstra's algorithm
@@ -11,25 +13,17 @@ public class PathFinding {
     private ArrayList<Vertex> q;
     private int y;
     private int x;
-    private int targetX;
-    private int targetY;
-    private int startX;
-    private int startY;
 //    private final int MAX = 20000;
 private final int MAX = Integer.MAX_VALUE;
 
-    public PathFinding(Main dc, Vector start, Vector target) {
-        this.y = dc.map.length;
-        this.x = dc.map[0].length;
-        this.targetX = (int) target.getX();
-        this.targetY = (int) target.getY();
-        this.startX = (int) start.getX();
-        this.startY = (int) start.getY();
+    public PathFinding(int[][] map) {
+        this.y = map.length;
+        this.x = map[0].length;
     }
 
-    // runs dijkstra's and then returns the shortest found path
-    public ArrayList<int[]> dijkstra(Main dc, int startX, int startY) {
-        int[][] map = dc.map;
+    // runs dijkstra's
+    public void dijkstra(int startX, int startY) {
+        int[][] map = Server.map;
         Vertex min;
         initializeSingleSource(startX, startY);
         int[] current;
@@ -51,11 +45,11 @@ private final int MAX = Integer.MAX_VALUE;
             relax(map, current, left);
             relax(map, current, right);
         }
-        return findShortestPath();
     }
 
     // find the shortest path from Dijkstra
-    private ArrayList<int[]> findShortestPath() {
+    // TODO refactor to take targetX, targetY, startx, starty as arguments
+    public ArrayList<int[]> findShortestPath(int startX, int startY, int targetX, int targetY) {
         Stack<int[]> stack = new Stack<>();
         ArrayList<int[]> shortest = new ArrayList<>();
         int prevx, prevy;

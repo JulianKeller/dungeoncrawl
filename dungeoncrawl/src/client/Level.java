@@ -1770,8 +1770,11 @@ read the information about the AI from the server
             try {
                 Msg msg = (Msg) inStream.readObject();
 //                System.out.println("reading " + msg.toString());
-                ai.setWorldCoordinates(msg.wx, msg.wy);
-                ai.setHitPoints(msg.hp - 10);
+                if (ai.canMove) {
+                    ai.setWorldCoordinates(msg.wx, msg.wy);
+                }
+                ai.setHitPoints(msg.hp);
+                ai.next = msg.nextDirection;
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }

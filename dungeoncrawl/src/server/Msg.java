@@ -10,6 +10,7 @@ public class Msg implements Serializable {
     public int tilex;
     public int tiley;
     public float hp;
+    public String nextDirection = "walk_down";      // AI attribute
 
     public Msg(){
         this.id = 0;

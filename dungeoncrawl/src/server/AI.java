@@ -1,5 +1,8 @@
 package server;
 
+import client.Main;
+import jig.Vector;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -8,20 +11,110 @@ This class spawns AI players and items locations, these can be sent to the clien
  */
 public class AI {
 
+// TODO copy over the getTileCoordinates method
+
+
     /**
      * update the position of the AI player
+     * // TODO run dijkstra's
      */
-    public static void updatePosition() {
-        // TODO run dijkstra
+    public static void updatePosition(float wx, float wy) {
+        int tilesize = 32;
+        int offset = tilesize/2;
+        int doubleOffset = offset/2;
+        int range = 8;
+        String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
+        int rand;
+
+        // run dijkstra
+        PathFinding find = new PathFinding(Server.map);
+        Vector heroTile = getTileWorldCoordinates(wx, wy);
+        find.dijkstra((int) heroTile.getX(), (int) heroTile.getY());
+
         for (Msg ai : Server.enemies) {
-//            ai.wx += 2;
-//            ai.wy -= 16;
-            continue;
-            // move random
             // if ai close enough pathfind with dijkstra
+            if (playerNearby(range, wx, wy, ai.wx, ai.wy)) {
+                Vector aiTile = getTileWorldCoordinates(ai.wx, ai.wy);
+                ArrayList<int[]> shortest = find.findShortestPath((int) heroTile.getX(), (int) heroTile.getY(), (int) aiTile.getX(), (int) aiTile.getY());
+                ai.nextDirection = getNextDirection(shortest, wx, wy);
+            }
+            else {
+                // else choose random direction
+                rand = new Random().nextInt(moves.length);
+                ai.nextDirection = moves[rand];
+            }
         }
     }
 
+    // get next direction based on Dijkstra shortest path
+
+    /**
+     *
+     * @param shortest
+     * @param wx hero wx
+     * @param wy hero wy
+     * @return
+     */
+    public static String getNextDirection(ArrayList<int[]> shortest, float wx, float wy) {
+        if (shortest.isEmpty() || shortest.size() <= 2) {
+            return null;
+        }
+        Vector tileCoord = getTileWorldCoordinates(wx, wy);
+        int px = (int) tileCoord.getX();
+        int py = (int) tileCoord.getY();
+        String dir = null;
+
+        int[] v = shortest.get(1);
+        int x = v[0];
+        int y = v[1];
+        if (x == px && y == py) {
+            dir = "wait";
+        } else if (x > px) {
+            dir = "walk_right";
+        } else if (x < px) {
+            dir = "walk_left";
+        } else if (y > py) {
+            dir = "walk_down";
+        } else if (y < py) {
+            dir = "walk_up";
+        }
+        return dir;
+    }
+
+
+    /**
+     * @return Checks if the player is within range of the ai, true if so
+     */
+    private static boolean playerNearby(int range, float wx, float wy, float awx, float awy) {
+        Vector heroWC = getTileWorldCoordinates(wx, wy);
+        Vector aiWC = getTileWorldCoordinates(awx, awy);
+        if (Math.abs(heroWC.getX() - aiWC.getX()) <= range && (Math.abs(heroWC.getY() - aiWC.getY()) <= range)) {
+            return true;
+        }
+        return false;
+    }
+
+
+//    // TODO pass in the starting coordinates of the player
+//    public static void dijkstra(int startX, int startY) {
+//        PathFinding find = new PathFinding(Server.map);
+//        find.dijkstra(startX, startY);
+//        int[][] shortest = find.findShortestPath();
+//        next = getNextDirection(dc);
+//    }
+
+    /**
+     * Get the entities world coordinates in tiles
+     * @return
+     */
+    public static Vector getTileWorldCoordinates(float wx, float wy) {
+        int tilesize = 32;
+        int offset = tilesize/2;
+        int doubleOffset = offset/2;
+        float x = Math.round((wx + offset)/tilesize) - 1;
+        float y = Math.round((wy + tilesize + doubleOffset)/tilesize) - 1;
+        return new Vector(x, y);
+    }
 
     /**
      * Randomly creates coordinates, type, and ID for the AI characters to spawn
@@ -61,9 +154,12 @@ public class AI {
     }
 
     public static ArrayList<Msg> spawnDebugEnemies(int[][] map) {
+        int tilesize = 32;
+        int offset = tilesize/2;
+        int doubleOffset = offset/2;
         ArrayList<Msg> enemies = new ArrayList<>(1);
-        float wx = (32 * 18) - 16;
-        float wy = (32 * 18) - 16 - 8;
+        float wx = (tilesize * 18) - offset;
+        float wy = (tilesize * 18) - tilesize - doubleOffset;
         Msg message = new Msg(333, "skeleton_basic",wx,wy,150);   // "x y id"
         enemies.add(message);
         return enemies;
