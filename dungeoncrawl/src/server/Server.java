@@ -9,7 +9,7 @@ public class Server extends Thread{
     // Static Objects for each thread.
     public static BlockingQueue<Msg> serverQueue = new LinkedBlockingQueue<>();
     public static ArrayList<BlockingQueue> clientQueues = new ArrayList<>();
-    public static int [][] map;;
+    public static int [][] map;
     public static ArrayList<Msg> enemies;
 
     public Server(){
@@ -34,6 +34,7 @@ public class Server extends Thread{
     }
 
     public static void main(String [] args){
+
         try {
             // Create a new Socket for the server
             ServerSocket ss = new ServerSocket(5000);
@@ -41,7 +42,8 @@ public class Server extends Thread{
             map = LoadMap.getRandomMap();
 
             // TODO generate AI characters
-            enemies = AI.spawnEnemies(map, 20);
+//            enemies = AI.spawnEnemies(map, 20);
+            enemies = AI.spawnDebugEnemies(map);
 
 
             // TODO generate items here

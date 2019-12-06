@@ -201,39 +201,14 @@ public class Level extends BasicGameState {
         }catch(IOException e){
             e.printStackTrace();
         }
-
         dc.hero = new Character(dc, wx, wy, type, id, this, false);
         dc.characters.add(dc.hero);
 
-        try{
-            Msg msg = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-            outStream.writeObject(msg);
-            System.out.println("("+dc.serverId+"): "+msg);
-//            System.out.println("write msg type: " + msg.getClass().getSimpleName());
-            outStream.flush();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
-        //give the hero leather armor with no effect
-        //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
-        /*
-        Item a = new Item(null, false, Main.im.getCurrentItemID(), dc.hero.getPid(), "", "Armor", "Leather", false, true,
-        		ResourceManager.getImage(Main.ARMOR_IRON));
-
-        Main.im.give(a, dc.hero);
-        */
-
-        // TODO spawning enemies and items should be done on the server
-        wx = (dc.tilesize * 18) - dc.offset;
-        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
-        //dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
-        spawnEnemies(dc, 20);
-         //Grabbing ArrayList of enemies.
+        //Grabbing ArrayList of enemies.
         ArrayList<Msg> enemyList = new ArrayList<>();
         try{
             enemyList = (ArrayList<Msg>) inStream.readObject();
-            //System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
+            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -242,7 +217,9 @@ public class Level extends BasicGameState {
             float y = e.wy;
             int eid = e.id;
             dc.enemies.add(new Character(dc, x, y, e.type, eid, this, true));
+//            System.out.println("Created AI " + e.toString());
         }
+
         try {
             int maxcol =  dc.map.length - 2;
             int maxrow = dc.map[0].length - 2;
@@ -1197,7 +1174,7 @@ public class Level extends BasicGameState {
 
 
         // cause AI players to move around
-        for( Character ch : dc.characters ) {
+        for( Character ch : dc.enemies ) {
             if (ch.ai) {        // if the player is an AI player, move them
                 ch.moveAI(delta);
             }
@@ -1670,7 +1647,6 @@ public class Level extends BasicGameState {
         Msg msg;
         float wx;
         float wy;
-
         for (Character ai : dc.enemies) {
             wx = ai.getWorldCoordinates().getX();
             wy = ai.getWorldCoordinates().getY();
@@ -1679,7 +1655,6 @@ public class Level extends BasicGameState {
                 outStream.writeObject(msg);
                 outStream.flush();
                 System.out.println("Sending ai: " + msg.toString());
-//            System.out.println("sent AI update type: " + msg.getClass().getSimpleName());
             }catch(IOException e){
                 e.printStackTrace();
             }
@@ -1692,18 +1667,12 @@ read the information about the AI from the server
  */
     private void readEnemyStatusFromServer(Main dc) {
         System.out.println("readEnemyStatusFromServer()");
-
         for (Character ai : dc.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-//                System.out.println("WC before: " + ai.getWorldCoordinates());
                 System.out.println("Reading ai: " + msg.toString());
-//                System.out.printf("Updating AI coordinates to : %s, %s", msg.wx, msg.wy);
                 ai.setWorldCoordinates(msg.wx, msg.wy);
                 ai.setHitPoints(msg.hp);
-//                System.out.println(" --> WC after update: " + ai.getWorldCoordinates());
-//                System.out.println();
-//                System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
@@ -1721,7 +1690,7 @@ read the information about the AI from the server
         try {
             outStream.writeObject(toServer);
             outStream.flush();
-            System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
+            System.out.println("Writing Msg "+ toServer.toString());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -1739,7 +1708,7 @@ read the information about the AI from the server
     public void updateOtherPlayers(Main dc){
         try {
             Msg read = (Msg) inStream.readObject(); // message from server
-            System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
+            System.out.println("reading Msg " + read.toString());
 //            System.out.println("("+dc.serverId+"): " + read);
 
             if(read.type.equals("Exit")) {
@@ -1817,34 +1786,6 @@ read the information about the AI from the server
         float sy = wc.getY() - dc.hero.pixelY;
         return new Vector(sx, sy);
     }
-
-
-    // TODO this will be called from the server side
-    /**
-     * Populate the world with AI characters
-     */
-    public void spawnEnemies(Main dc, int numItems) {
-        int maxcol =  dc.map.length - 2;
-        int maxrow = dc.map[0].length - 2;
-        Random rand = new Random();
-        while( numItems > 0 ){
-            int col = rand.nextInt(maxcol);
-            int row = rand.nextInt(maxrow);
-            while(row < 2 || col < 2 || dc.map[col][row] == 1){
-                col = rand.nextInt(maxcol) - 1;
-                row = rand.nextInt(maxrow) - 1;
-//                System.out.printf("getting %s, %s\n", col, row);
-            }
-//            System.out.printf("\nSpawning at %s, %s\n", col, row);
-            float wx = (dc.tilesize * row) - dc.offset;
-            float wy = (dc.tilesize * col) - dc.tilesize - dc.doubleOffset;
-            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
-
-            //create a random item at the given position
-            numItems--;
-        }
-    }
-
 
 
 }

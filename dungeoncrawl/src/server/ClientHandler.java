@@ -1,8 +1,5 @@
 package server;
 
-import client.Character;
-import client.Main;
-
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
@@ -34,18 +31,18 @@ public class ClientHandler extends Thread{
         try{
             // Write the map onto the client for rendering
             outStream.writeObject(Server.map);
-            System.out.println("Wrote map` "+ Server.map.getClass().getSimpleName());
+            System.out.println("Writing map "+ Server.map.getClass().getSimpleName());
             outStream.flush();
             outStream.writeInt(id);
-            System.out.println("Wrote id "+ id);
+            System.out.println("Writing id "+ id);
             outStream.flush();
             sendEnemyList();
             while(true) {
                 try {
                     // Receive coordinate message from the client
                     Msg message = (Msg) inStream.readObject();
-//                    System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
-                    System.out.println("Client Handler "+id+": "+message);
+                    System.out.println("reading Msg" + message.toString());
+//                    System.out.println("Client Handler "+id+": "+message);
                     toServer(message);
                     writeSuccess = writeToClient();
                     if (!writeSuccess || message.type.equals("Exit"))
@@ -78,18 +75,9 @@ public class ClientHandler extends Thread{
      */
     public void sendAIStatusToClient() {
         System.out.println("sendAIStatusToClient()");
-        Msg msg;
-        float wx;
-        float wy;
-        for (Msg ai : Server.aiList) {
-            try {
-                outStream.writeObject(ai);
-                outStream.flush();
-                System.out.println("Sending ai: " + ai.toString());
-//                System.out.println("sent AI update type: " + ai.getClass().getSimpleName());
-            }catch(IOException e){
-                e.printStackTrace();
-            }
+        for (Msg ai : Server.enemies) {
+            toServer(ai);
+            writeToClient();
         }
         System.out.println();
     }
@@ -100,12 +88,11 @@ public class ClientHandler extends Thread{
      */
     private void readAIStatusFromClient() {
         System.out.println("readAIStatusFromClient()");
-        for (Msg ai : Server.aiList) {
+        for (Msg ai : Server.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
                 System.out.println("Reading ai: " + msg.toString());
                 ai.hp = msg.hp;
-//                System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
@@ -119,8 +106,8 @@ public class ClientHandler extends Thread{
      */
     private void toServer(Msg m){
         try {
-            //System.out.println("To Server: "+ id + " "+m);
             Server.serverQueue.put(m);
+            System.out.println("Adding to queue: " + m.toString());
         } catch (InterruptedException e){
             e.printStackTrace();
         }
@@ -128,29 +115,15 @@ public class ClientHandler extends Thread{
 
     private void sendEnemyList(){
         try {
-//            System.out.printf("Sent count %s to server\n", Server.enemies.size());
-            if (Server.aiList.size() <= 0) {
-                outStream.writeInt(0);
-            }
-            else {
-                outStream.writeInt(Server.aiList.size());
-            }
+            outStream.writeObject(Server.enemies);
             outStream.flush();
-            System.out.println("Wrote count: " + Server.aiList.size());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            for (Msg ai : Server.aiList) {
-                //System.out.println("Sending Enemy info "+ s)
-                outStream.writeObject(ai);
-                outStream.flush();
-                System.out.println("Wrote ai: " + ai.toString());
-            }
+            System.out.println("Wrote Server.enemies");
         }catch(IOException e){
             e.printStackTrace();
         }
     }
+
+
     /**
      * This method takes from what the server gives to the client
      * and writes to the client.
@@ -161,7 +134,7 @@ public class ClientHandler extends Thread{
             //System.out.println("Writing to client "+id+": "+toClient);
             outStream.writeObject(toClient);
             outStream.flush();
-            System.out.println("Wrote MSG `toClient` "+ toClient.getClass().getSimpleName());
+            System.out.println("Writing " + toClient.toString());
 //            System.out.println("Sent to client "+id+": "+toClient);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

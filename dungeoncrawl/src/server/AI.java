@@ -13,7 +13,7 @@ public class AI {
      */
     public static void updatePosition() {
         // TODO run dijkstra
-        for (Msg ai : Server.aiList) {
+        for (Msg ai : Server.enemies) {
             ai.wx += 2;
             ai.wy += 2;
             // move random
@@ -48,16 +48,23 @@ public class AI {
             if (id < 0) {
                 id  = -id;
             }
-
-            // TODO will need to fix the structure of this string for parsing
-            Msg message = new Msg((int)System.nanoTime(), "skeleton_basic",wx,wy,0);   // "x y id"
-            System.out.println("Created "+message.id);
+            Msg message = new Msg(id, "skeleton_basic",wx,wy,150);   // "x y id"
+//            System.out.println("Created "+message.id);
             enemies.add(message);
 //            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
 
             //create a random item at the given position
             count--;
         }
+        return enemies;
+    }
+
+    public static ArrayList<Msg> spawnDebugEnemies(int[][] map) {
+        ArrayList<Msg> enemies = new ArrayList<>(1);
+        float wx = (32 * 18) - 16;
+        float wy = (32 * 18) - 16 - 8;
+        Msg message = new Msg(333, "skeleton_basic",wx,wy,150);   // "x y id"
+        enemies.add(message);
         return enemies;
     }
 }
