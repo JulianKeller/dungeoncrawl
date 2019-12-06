@@ -152,6 +152,9 @@ public class Main extends StateBasedGame {
     // splash screen
     public static final String TITLE = "resources/splashScreen/title.png";
     public static final String MAP_IMG = "resources/splashScreen/map_image.png";
+    
+    //character effect particles
+    public static final String RED_FLOATING_PLUS = "resources/effects/plus.png";
 
     // Screen Size
     public final int ScreenWidth;
@@ -351,6 +354,9 @@ public class Main extends StateBasedGame {
         // TITLE
         ResourceManager.loadImage(TITLE);
         ResourceManager.loadImage(MAP_IMG);
+        
+        //character effects
+        ResourceManager.loadImage(RED_FLOATING_PLUS);
 
 
     }
