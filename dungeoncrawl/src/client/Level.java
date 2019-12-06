@@ -247,8 +247,21 @@ public class Level extends BasicGameState {
         try {
             int maxcol =  dc.map.length - 2;
             int maxrow = dc.map[0].length - 2;
-            //Main.im.plant(20, rotatedMap, maxcol, maxrow);
-        } catch (SlickException e) {
+            //Main.im.plant(20, rotatedMap, maxcol, maxrow)
+            ArrayList<ItemMsg> fromServer = (ArrayList)dis.readObject();
+            //System.out.println("Read type: "+fromServer.getClass().getSimpleName());
+            for(ItemMsg i : fromServer) {
+                try {
+                    Item item = new Item(new Vector(i.wx,i.wy),false,i.id,i.oid,i.effect,
+                        i.type,i.material,i.cursed,i.identified,null,i.count);
+                    setItemImage(item);
+                    Main.im.addToWorldItems(item);
+                }catch(SlickException e){
+                    e.printStackTrace();
+                }
+
+            }
+        } catch (IOException | ClassNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return;
@@ -297,7 +310,89 @@ public class Level extends BasicGameState {
 	        }
         }
     }
-
+    
+    private void setItemImage(Item i) throws SlickException{
+        //get an image based on item type
+        Image image = null;
+        if( i.getType().equals("Potion") ){
+            int r = rand.nextInt(5);
+            switch( r ){
+                case 0:
+                    image = ResourceManager.getImage(Main.POTION_BLUE);
+                    //material = "Blue";
+                    break;
+                case 1:
+                    image = ResourceManager.getImage(Main.POTION_ORANGE);
+                    //material = "Orange";
+                    break;
+                case 2:
+                    image = ResourceManager.getImage(Main.POTION_PINK);
+                    //material = "Pink";
+                    break;
+                case 3:
+                    image = ResourceManager.getImage(Main.POTION_RED);
+                    //material = "Red";
+                    break;
+                case 4:
+                    image = ResourceManager.getImage(Main.POTION_YELLOW);
+                    //material = "Yellow";
+                    break;
+            }
+        }else if( i.getType().equals("Sword") ){
+            //wood, iron, gold
+            if( i.getMaterial().equals("Wooden") ){
+                image = ResourceManager.getImage(Main.SWORD_WOOD);
+            }else if( i.getMaterial().equals("Iron") ){
+                image = ResourceManager.getImage(Main.SWORD_IRON);
+            }else if( i.getMaterial().equals("Gold") ){
+                image = ResourceManager.getImage(Main.SWORD_GOLD);
+            }else{
+                throw new SlickException("Invalid sword material '" + i.getMaterial() + "'.");
+            }
+        }else if( i.getType().equals("Armor") ){
+            //iron, gold
+            if( i.getMaterial().equals("Iron") ){
+                image = ResourceManager.getImage(Main.ARMOR_IRON);
+            }else if( i.getMaterial().equals("Gold") ){
+                image = ResourceManager.getImage(Main.ARMOR_GOLD);
+            }else{
+                throw new SlickException("Invalid armor material '" + i.getMaterial() + "'.");
+            }
+        }else if( i.getType().equals("Arrow") ){
+            if( i.getEffect().equals("Flame") ){
+                image = ResourceManager.getImage(Main.ARROW_FLAME);
+            }else if( i.getEffect().equals("Poison") ){
+                image = ResourceManager.getImage(Main.ARROW_POISON);
+            }else if( i.getEffect().equals("Ice") ){
+                image = ResourceManager.getImage(Main.ARROW_ICE);
+            }else if( i.getEffect().equals("") ){
+                image = ResourceManager.getImage(Main.ARROW_NORMAL);
+            }else{
+                throw new SlickException("Invalid arrow effect '" + i.getEffect() + "'.");
+            }
+        }else if( i.getType().equals("Gloves") ){
+            if( i.getMaterial().equals("Red") ){
+                image = ResourceManager.getImage(Main.GLOVES_RED);
+            }else if( i.getMaterial().equals("White") ){
+                image = ResourceManager.getImage(Main.GLOVES_WHITE);
+            }else if( i.getMaterial().equals("Yellow") ){
+                image = ResourceManager.getImage(Main.GLOVES_YELLOW);
+            }else{
+                throw new SlickException("Invalid glove material '" + i.getMaterial() + "'.");
+            }
+        }else if( i.getType().equals("Staff") ){
+            if( i.getMaterial().equals("Ruby") ){
+                image = ResourceManager.getImage(Main.STAFF_RUBY);
+            }else if( i.getMaterial().equals("Emerald") ){
+                image = ResourceManager.getImage(Main.STAFF_EMERALD);
+            }else if( i.getMaterial().equals("Amethyst") ){
+                image = ResourceManager.getImage(Main.STAFF_AMETHYST);
+            }else{
+                throw new SlickException("Invalid staff material '" + i.getMaterial() + "'.");
+            }
+        }
+        i.setImage(image);
+    }
     private boolean wallAdjacent(int row, int col, int[][] map){
         //check if there is a wall or map edge in a horizontally adjacent tile
         try{
@@ -1670,7 +1765,7 @@ public class Level extends BasicGameState {
         try {
             Msg read = (Msg)dis.readObject(); // message from server
             //System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
-            System.out.println("("+dc.serverId+"): " + read);
+            //System.out.println("("+dc.serverId+"): " + read);
 
             if(read.type.equals("Exit")) {
                 dc.characters.removeIf(c -> c.getPid() == read.id);

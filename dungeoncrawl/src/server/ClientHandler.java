@@ -33,8 +33,8 @@ public class ClientHandler extends Thread{
             os.write(id);
             //System.out.println("Wrote id "+ id);
             os.flush();
-            sendItemList();
             sendEnemyList();
+            sendItemList();
             while(true) {
                 try {
                     // Receive coordinate message from the client
@@ -94,7 +94,7 @@ public class ClientHandler extends Thread{
             //System.out.println("Writing to client "+id+": "+toClient);
             os.writeObject(toClient);
             os.flush();
-            System.out.println("Sent to client "+id+": "+toClient);
+            //System.out.println("Sent to client "+id+": "+toClient);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return false;
@@ -106,6 +106,7 @@ public class ClientHandler extends Thread{
         try{
             os.writeObject(Server.worldItems);
             os.flush();
+            System.out.println("Wrote Server.worldItems, type: "+Server.worldItems.getClass().getSimpleName());
         }catch(IOException e){
             e.printStackTrace();
         }
