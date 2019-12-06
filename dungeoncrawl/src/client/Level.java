@@ -967,9 +967,15 @@ public class Level extends BasicGameState {
         
         //add visual effects to the character
         if( dc.hero.getActiveEffects().size() > 0 ){
+        	//this will create a VFXEntity on the character
+        	//  if one does not already exist
         	dc.hero.addVisualEffects();
-        }else if( dc.hero.vfx.hasAnimations() ){
+        }else{
+        	//the character is not experiencing any status effects,
+        	//  so remove all the dead animations
         	dc.hero.vfx.removeDeadAnimations();
+        	//and destroy the VFXEntity
+        	dc.hero.vfx = null;
         }
         
         //reduce the effect timers by a constant value each frame
