@@ -973,8 +973,9 @@ public class Level extends BasicGameState {
         positionToServer(dc);  // Get the player's updated position onto the server.
         updateOtherPlayers(dc);
 
-        readEnemyStatusFromServer(dc);
         sendEnemyStatusToServer(dc);
+        readEnemyStatusFromServer(dc);
+
 
 
         //cheat code to apply any effect to the character
@@ -1643,7 +1644,7 @@ public class Level extends BasicGameState {
      * @param dc
      */
     public void sendEnemyStatusToServer(Main dc) {
-        System.out.println("sendEnemyStatusToServer()");
+//        System.out.println("sendEnemyStatusToServer()");
         Msg msg;
         float wx;
         float wy;
@@ -1654,25 +1655,26 @@ public class Level extends BasicGameState {
             try {
                 outStream.writeObject(msg);
                 outStream.flush();
-                System.out.println("Sending ai: " + msg.toString());
+                outStream.reset();
+                System.out.println("writing " + msg.toString());
             }catch(IOException e){
                 e.printStackTrace();
             }
         }
-        System.out.println();
+//        System.out.println();
     }
 
     /*
 read the information about the AI from the server
  */
     private void readEnemyStatusFromServer(Main dc) {
-        System.out.println("readEnemyStatusFromServer()");
+//        System.out.println("readEnemyStatusFromServer()");
         for (Character ai : dc.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-                System.out.println("Reading ai: " + msg.toString());
+                System.out.println("reading " + msg.toString());
                 ai.setWorldCoordinates(msg.wx, msg.wy);
-                ai.setHitPoints(msg.hp);
+                ai.setHitPoints(msg.hp - 10);
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
@@ -1690,7 +1692,8 @@ read the information about the AI from the server
         try {
             outStream.writeObject(toServer);
             outStream.flush();
-            System.out.println("Writing Msg "+ toServer.toString());
+            outStream.reset();
+            System.out.println("writing "+ toServer.toString());
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -1708,7 +1711,7 @@ read the information about the AI from the server
     public void updateOtherPlayers(Main dc){
         try {
             Msg read = (Msg) inStream.readObject(); // message from server
-            System.out.println("reading Msg " + read.toString());
+            System.out.println("reading " + read.toString());
 //            System.out.println("("+dc.serverId+"): " + read);
 
             if(read.type.equals("Exit")) {

@@ -14,8 +14,9 @@ public class AI {
     public static void updatePosition() {
         // TODO run dijkstra
         for (Msg ai : Server.enemies) {
-            ai.wx += 2;
-            ai.wy += 2;
+//            ai.wx += 2;
+//            ai.wy -= 16;
+            continue;
             // move random
             // if ai close enough pathfind with dijkstra
         }

@@ -14,6 +14,7 @@ public class ClientHandler extends Thread{
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
     private BlockingQueue<Msg> threadQueue;
+    float hp = 1;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
                          BlockingQueue<Msg> queue){
         socket = s;
@@ -23,6 +24,7 @@ public class ClientHandler extends Thread{
         threadQueue = queue;
         writeSuccess = true;
         Server.clientQueues.add(threadQueue);
+
 
     }
 
@@ -41,7 +43,7 @@ public class ClientHandler extends Thread{
                 try {
                     // Receive coordinate message from the client
                     Msg message = (Msg) inStream.readObject();
-                    System.out.println("reading Msg" + message.toString());
+                    System.out.println("reading " + message.toString());
 //                    System.out.println("Client Handler "+id+": "+message);
                     toServer(message);
                     writeSuccess = writeToClient();
@@ -49,9 +51,10 @@ public class ClientHandler extends Thread{
                         break;
 
                     // TODO update AI positions
+                    readAIStatusFromClient();
                     AI.updatePosition();
                     sendAIStatusToClient();
-                    readAIStatusFromClient();
+
 
 
                 }catch(SocketException | ClassNotFoundException e){
@@ -74,7 +77,7 @@ public class ClientHandler extends Thread{
      * update the client with the position of the ai
      */
     public void sendAIStatusToClient() {
-        System.out.println("sendAIStatusToClient()");
+//        System.out.println("sendAIStatusToClient()");
         for (Msg ai : Server.enemies) {
             toServer(ai);
             writeToClient();
@@ -87,17 +90,17 @@ public class ClientHandler extends Thread{
     read the information about the AI from the server
      */
     private void readAIStatusFromClient() {
-        System.out.println("readAIStatusFromClient()");
+//        System.out.println("readAIStatusFromClient()");
         for (Msg ai : Server.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-                System.out.println("Reading ai: " + msg.toString());
+                System.out.println("reading " + msg.toString());
                 ai.hp = msg.hp;
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println();
+//        System.out.println();
     }
 
     /**
@@ -107,7 +110,7 @@ public class ClientHandler extends Thread{
     private void toServer(Msg m){
         try {
             Server.serverQueue.put(m);
-            System.out.println("Adding to queue: " + m.toString());
+//            System.out.println("Adding to queue: " + m.toString());
         } catch (InterruptedException e){
             e.printStackTrace();
         }
@@ -117,7 +120,7 @@ public class ClientHandler extends Thread{
         try {
             outStream.writeObject(Server.enemies);
             outStream.flush();
-            System.out.println("Wrote Server.enemies");
+            System.out.println("Wrote ArrayList Server.enemies");
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -128,13 +131,24 @@ public class ClientHandler extends Thread{
      * This method takes from what the server gives to the client
      * and writes to the client.
      */
+    // TODO why are we putting and taking from different queues?
     private boolean writeToClient() {
         try {
             Msg toClient = threadQueue.take();
             //System.out.println("Writing to client "+id+": "+toClient);
+//            toClient = Server.serverQueue.take();
+
             outStream.writeObject(toClient);
+            System.out.println("writing " + toClient.toString());
             outStream.flush();
-            System.out.println("Writing " + toClient.toString());
+            outStream.reset();
+
+//            hp++;
+//            Msg message = new Msg(id, "skeleton_basic",1,2,hp);   // "x y id"
+//            outStream.writeObject(message);
+//            System.out.println("writing " + message.toString());
+            outStream.flush();
+
 //            System.out.println("Sent to client "+id+": "+toClient);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
