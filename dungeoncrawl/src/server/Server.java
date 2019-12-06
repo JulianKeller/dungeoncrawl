@@ -9,9 +9,8 @@ public class Server extends Thread{
     // Static Objects for each thread.
     public static BlockingQueue<Msg> serverQueue = new LinkedBlockingQueue<>();
     public static ArrayList<BlockingQueue> clientQueues = new ArrayList<>();
-    public static int [][] map;
-    public static ArrayList<String> enemies;
-    public static ArrayList<Msg> aiList;
+    public static int [][] map;;
+    public static ArrayList<Msg> enemies;
 
     public Server(){
     }

@@ -14,11 +14,15 @@ server for player.<br>
 **[ 22 ]** Get player selection working<br>
 **[ 23 ]** Add Hit points to the client/server string.<br>
 **[ 18 ]** Make sure all clients are receiving the same server messages<br>
+**[ 25 ]** Fix optionaldataexception<br>
+**[ 24 ]** Create a message class in the server to send to the client/server.<br>
+**[ 21 ]** Receive same messages to every client<br>
 
 ## Pending Further Testing ##
-**[ 21 ]** Receive same messages to every client<br>
+
 ## PENDING ISSUES ##
 **[ 9 ]** Get item managment working on the server.<br>
-**[ 19 ]** Only update players that move<br>
-**[ 25 ]** Fix optionaldataexception<br>
-**[ 24 ]** Create a message class in the server to send to the client/server.
+**[ 19 ]** Speed up update speed<br>
+**[26]** Have items placed by server<br>
+**[27]** Make items disappear when player picks up item<br>
+**[28]** Make items reappear when player drops<br>

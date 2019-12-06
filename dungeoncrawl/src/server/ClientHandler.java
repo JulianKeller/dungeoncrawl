@@ -44,7 +44,8 @@ public class ClientHandler extends Thread{
                 try {
                     // Receive coordinate message from the client
                     Msg message = (Msg) inStream.readObject();
-                    System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
+//                    System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
+                    System.out.println("Client Handler "+id+": "+message);
                     toServer(message);
                     writeSuccess = writeToClient();
                     if (!writeSuccess || message.type.equals("Exit"))
@@ -161,6 +162,7 @@ public class ClientHandler extends Thread{
             outStream.writeObject(toClient);
             outStream.flush();
             System.out.println("Wrote MSG `toClient` "+ toClient.getClass().getSimpleName());
+//            System.out.println("Sent to client "+id+": "+toClient);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return false;
