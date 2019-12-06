@@ -252,6 +252,7 @@ public class Level extends BasicGameState {
             //System.out.println("Read type: "+fromServer.getClass().getSimpleName());
             for(ItemMsg i : fromServer) {
                 try {
+                    System.out.println("Adding item: "+i.type);
                     Item item = new Item(new Vector(i.wx,i.wy),false,i.id,i.oid,i.effect,
                         i.type,i.material,i.cursed,i.identified,null,i.count);
                     setItemImage(item);
@@ -940,6 +941,7 @@ public class Level extends BasicGameState {
             if (objectInRegion(dc, wc)) {
                 Vector sc = world2screenCoordinates(dc, wc);
                 i.setPosition(sc);
+                System.out.println("sc: " + sc);
                 i.render(g);
             }
         }

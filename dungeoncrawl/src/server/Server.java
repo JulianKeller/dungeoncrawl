@@ -90,6 +90,7 @@ public class Server extends Thread{
                 row = rand.nextInt(maxrow);
             }
             Vector wc = new Vector( row, col );
+            System.out.println("wc: " + wc);
 
             //create a random item at the given position
             ItemMsg i = generateItem();
