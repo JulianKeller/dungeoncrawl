@@ -1687,21 +1687,10 @@ public class Level extends BasicGameState {
      * @param dc
      */
     public void sendEnemyStatusToServer(Main dc) {
+        System.out.println("sendEnemyStatusToServer()");
         Msg msg;
         float wx;
         float wy;
-//        try {
-//            if (dc.enemies.size() <= 0) {
-//                outStream.writeInt(0);
-//            } else {
-//                outStream.writeInt(dc.enemies.size());
-//            }
-//            outStream.flush();
-//            System.out.printf("Sent count %s to server\n", dc.enemies.size());
-//        } catch (IOException e) {
-//            System.out.printf("FAIL: Sent count %s to server\n", dc.enemies.size());
-//            e.printStackTrace();
-//        }
 
         for (Character ai : dc.enemies) {
             wx = ai.getWorldCoordinates().getX();
@@ -1723,22 +1712,17 @@ public class Level extends BasicGameState {
 read the information about the AI from the server
  */
     private void readEnemyStatusFromServer(Main dc) {
-//        int count = 0;
-//        try {
-//            count = inStream.readInt();
-//            System.out.printf("Read count %s from client\n", count);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        System.out.println("readEnemyStatusFromServer()");
 
         for (Character ai : dc.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
 //                System.out.println("WC before: " + ai.getWorldCoordinates());
                 System.out.println("Reading ai: " + msg.toString());
+//                System.out.printf("Updating AI coordinates to : %s, %s", msg.wx, msg.wy);
                 ai.setWorldCoordinates(msg.wx, msg.wy);
                 ai.setHitPoints(msg.hp);
-//                System.out.println("WC after: " + ai.getWorldCoordinates());
+//                System.out.println(" --> WC after update: " + ai.getWorldCoordinates());
 //                System.out.println();
 //                System.out.println("read msg from client type: "+ msg.getClass().getSimpleName());
             } catch (ClassNotFoundException | IOException e) {

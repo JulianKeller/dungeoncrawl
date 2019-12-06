@@ -76,23 +76,10 @@ public class ClientHandler extends Thread{
      * update the client with the position of the ai
      */
     public void sendAIStatusToClient() {
+        System.out.println("sendAIStatusToClient()");
         Msg msg;
         float wx;
         float wy;
-//        try {
-////            System.out.printf("Sent count %s to server\n", Server.enemies.size());
-//            if (Server.aiList.size() <= 0) {
-//                outStream.writeInt(0);
-//            }
-//            else {
-//                outStream.writeInt(Server.aiList.size());
-//            }
-//            outStream.flush();
-//            System.out.println("Wrote count: " + Server.aiList.size());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
         for (Msg ai : Server.aiList) {
             try {
                 outStream.writeObject(ai);
@@ -111,16 +98,7 @@ public class ClientHandler extends Thread{
     read the information about the AI from the server
      */
     private void readAIStatusFromClient() {
-//        int count = 0;
-//        try {
-//            count = inStream.readInt();
-//            System.out.printf("Read count %s from client\n", count);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            System.out.printf("FAILED Read count %s from client\n", count);
-//        }
-
-
+        System.out.println("readAIStatusFromClient()");
         for (Msg ai : Server.aiList) {
             try {
                 Msg msg = (Msg) inStream.readObject();
