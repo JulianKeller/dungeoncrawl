@@ -3,6 +3,7 @@ package client;
 import jig.Vector;
 import server.PathFinding;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Character extends MovingEntity {
@@ -573,14 +574,32 @@ public class Character extends MovingEntity {
                 x += 1;
                 break;
         }
-        for (Character ch : dc.characters) {
+
+        if (characterCollisionHelper(dc.characters, x, y) ||
+            characterCollisionHelper(dc.enemies, x, y)) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     *
+     * @param chars list of characters
+     * @param cx current x
+     * @param cy current y
+     */
+    private boolean characterCollisionHelper(ArrayList<Character> chars, int cx, int cy) {
+        int ox; // other x, y
+        int oy;
+        for (Character ch : chars) {
             if (ch.equals(this)) {
                 continue;
             }
-            chX = (int) ch.getTileWorldCoordinates().getX();
-            chY = (int) ch.getTileWorldCoordinates().getY();
+            ox = (int) ch.getTileWorldCoordinates().getX();
+            oy = (int) ch.getTileWorldCoordinates().getY();
             // if character pos == playeres next position
-            if (chX == x && chY == y) {
+            if (ox == cx && oy == cy) {
                 return true;
             }
             if ((getNextTileWorldCoordinates().getX() == ch.getNextTileWorldCoordinates().getX() &&
@@ -596,6 +615,7 @@ public class Character extends MovingEntity {
         }
         return false;
     }
+
 
 
     private String action;
