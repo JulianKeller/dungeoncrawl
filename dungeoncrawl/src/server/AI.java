@@ -14,36 +14,66 @@ public class AI {
 
 
     /**
-     * update the position of the AI player either randomly or via dijkstra
-     * @return
+     * run dijkstra's algorithm and gets the next direction the AI should move
+     * @return the list of weights for the map from dijkstra
      */
-    public static float[][] updatePosition(float wx, float wy) {
+    public static float[][] updatePosition(Msg hero) {
         int tilesize = 32;
         int offset = tilesize/2;
         int doubleOffset = offset/2;
         int range = 8;
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
         int rand;
+        int value = 100;
+        int chance = 0;
         ArrayList<int[]> shortest = null;
 
         // run dijkstra
         PathFinding find = new PathFinding(Server.map);
-        Vector heroTile = getTileWorldCoordinates(wx, wy);
+        Vector heroTile = getTileWorldCoordinates(hero.wx, hero.wy);
         find.dijkstra((int) heroTile.getX(), (int) heroTile.getY());
 
         for (Msg ai : Server.enemies) {
-            // if ai close enough pathfind with dijkstra
-            if (playerNearby(range, wx, wy, ai.wx, ai.wy)) {
+            // if ai close enough pathfind with dijkstra and player is not invisible
+            if (playerNearby(range, hero.wx, hero.wy, ai.wx, ai.wy) && !hero.invisible) {
+                // apply effects from stinky and frightening hero
+                if (hero.stinky || hero.frightening) {
+                    Random random = new Random();
+                    value = random.nextInt(100);
+                    chance = 50;    // isFrigtening chance 50%
+                    if (hero.stinky) {
+                        chance = 30;    // stinky chance 30%
+                    }
+                }
+
+                // run dijkstra's algorithm
                 Vector aiTile = getTileWorldCoordinates(ai.wx, ai.wy);
                 shortest = find.findShortestPath((int) heroTile.getX(), (int) heroTile.getY(), (int) aiTile.getX(), (int) aiTile.getY());
                 ai.nextDirection = getNextDirection(shortest, ai.wx, ai.wy);
-//                System.out.println("Dijkstra next: " + ai.nextDirection);
+
+                // reverse ai direction if effect takes place
+                if (value <= chance && ai.nextDirection != null) {
+                    switch (ai.nextDirection) {
+                        case "walk_up":
+                            ai.nextDirection = "walk_down";
+                            break;
+                        case "walk_down":
+                            ai.nextDirection = "walk_up";
+                            break;
+                        case "walk_left":
+                            ai.nextDirection = "walk_right";
+                            break;
+                        case "walk_right":
+                            ai.nextDirection = "walk_left";
+                            break;
+                    }
+                }
             }
+
+            // otherwise if no dijkstra, choose a random direction to move
             if (shortest == null || shortest.size() <= 2) {
-                // else choose random direction
                 rand = new Random().nextInt(moves.length);
                 ai.nextDirection = moves[rand];
-//                System.out.println("Random next: " + ai.nextDirection);
             }
         }
 

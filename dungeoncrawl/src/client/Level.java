@@ -1801,6 +1801,7 @@ read the information about the AI from the server
         float wx = dc.hero.getWorldCoordinates().getX();
         float wy = dc.hero.getWorldCoordinates().getY();
         Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+        getEffectsForMsg(dc, toServer);
         try {
             outStream.writeObject(toServer);
             outStream.flush();
@@ -1810,6 +1811,34 @@ read the information about the AI from the server
             e.printStackTrace();
         }
     }
+
+
+    /**
+     * enable the effects for the server message
+     * @param dc
+     * @param msg to be sent to the server
+     */
+    private void getEffectsForMsg(Main dc, Msg msg) {
+        if (dc.hero.isInvisible()) {
+            msg.invisible = true;
+        }
+        if (dc.hero.isStinky()) {
+            msg.stinky = true;
+        }
+        if (dc.hero.isThorny()) {
+            msg.thorny = true;
+        }
+        if (dc.hero.isFrightening()) {
+            msg.frightening = true;
+        }
+        if (dc.hero.isReflecting()) {
+            msg.reflecting = true;
+        }
+        if (dc.hero.isMighty()) {
+            msg.mighty = true;
+        }
+    }
+
 
     /*
     Renders the map on screen, only drawing the necessary tiles in view

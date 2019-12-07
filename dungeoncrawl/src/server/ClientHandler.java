@@ -53,7 +53,7 @@ public class ClientHandler extends Thread {
 
                     // Update the AI Positions
                     readAIStatusFromClient();
-                    weights = AI.updatePosition(message.wx, message.wy);      // takes the hero's x, y coordinates
+                    weights = AI.updatePosition(message);      // takes the hero's x, y coordinates
                     message.dijkstraWeights = weights;
                     sendAIStatusToClient();
                     sendWeightsToClient(message);

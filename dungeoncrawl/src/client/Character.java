@@ -235,7 +235,6 @@ public class Character extends MovingEntity {
     public void moveAI(int delta) {
         String currentDirection = direction;
 
-        //CLIENT
         // moved the character fixed to the grid
         if (!canMove) {
             // update the animation to walking
@@ -248,7 +247,6 @@ public class Character extends MovingEntity {
             return;
         }
 
-        //CLIENT
         // turn towards player and attack if within 1 tile
         if (canAttackPlayer()) {
             String action = "jab_" + direction.substring("walk_".length());
@@ -272,72 +270,6 @@ public class Character extends MovingEntity {
             return;
         }
 
-
-        // run dijkstra's so enemies attack the player if the player is in range and not invisible
-//        if (playerNearby(range) && !dc.hero.isInvisible()) {
-//            Vector heroWC = dc.hero.getTileWorldCoordinates();
-//
-//            // if the player has the stench effect there is a 30% chance the AI will pathfind to the wrong coordinates
-//            if (dc.hero.isStinky() || dc.hero.isFrightening()) {
-//                Random rand = new Random();
-//                int value = rand.nextInt(100);
-//                int chance = 50;    // isFrigtening chance 50%
-//                if (dc.hero.isStinky()) {
-//                    chance = 30;    // stinky chance 30%
-//                }
-//                if (value <= chance) {
-//                    switch (dc.hero.direction) {
-//                        case "walk_up":
-//                            heroWC = new Vector(dc.hero.getTileWorldCoordinates().getX(), dc.hero.getTileWorldCoordinates().getY() + 10);
-//                            break;
-//                        case "walk_down":
-//                            heroWC = new Vector(dc.hero.getTileWorldCoordinates().getX(), dc.hero.getTileWorldCoordinates().getY() - 10);
-//                            break;
-//                        case "walk_left":
-//                            heroWC = new Vector(dc.hero.getTileWorldCoordinates().getX() + 10, dc.hero.getTileWorldCoordinates().getY());
-//                            break;
-//                        case "walk_right":
-//                            heroWC = new Vector(dc.hero.getTileWorldCoordinates().getX() - 10, dc.hero.getTileWorldCoordinates().getY());
-//                            break;
-//                    }
-//                }
-//            }
-//
-//            find = new PathFinding(dc, getTileWorldCoordinates(), heroWC);
-//            int startX = (int) getTileWorldCoordinates().getX();
-//            int startY = (int) getTileWorldCoordinates().getY();
-//            shortest = find.dijkstra(dc, startX, startY);
-//            next = getNextDirection(dc);
-//        }
-
-//        // load arrows for dijkstra's debugging
-//        if (dc.showPath) {
-//            Arrow.removeArrows(this);
-//            Arrow.loadPathArrows(dc, this);
-//            if (find != null) {
-//                weights = find.getWeights();
-//            }
-//        }
-//        else {
-//            Arrow.removeArrows(this);
-//            weights = null;
-//        }
-
-
-        // move based on the shortest path
-
-//        if (next != null) {
-//            direction = next;
-//        } else {
-//            // get a random direction to move in
-//            int rand = new Random().nextInt(moves.length);
-//            direction = moves[rand];
-//            if (direction.equals("wait")) {
-//                animate.stop();
-//                return;
-//            }
-//        }
-
         direction = next;
         if (direction == null) {
             direction = "wait";
@@ -346,7 +278,6 @@ public class Character extends MovingEntity {
             animate.stop();
             return;
         }
-
 
         String movement = direction;
         setNextTileWorldCoordinates(movement);

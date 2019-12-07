@@ -10,9 +10,14 @@ public class Msg implements Serializable {
     public int tilex;
     public int tiley;
     public float hp;
-    public String effect;
     public float[][] dijkstraWeights;
     public String nextDirection = "walk_down";      // AI attribute
+    public boolean invisible = false;
+    public boolean stinky = false;
+    public boolean thorny = false;
+    public boolean frightening = false;
+    public boolean reflecting = false;
+    public boolean mighty = false;
 
     public Msg(){
         this.id = 0;
