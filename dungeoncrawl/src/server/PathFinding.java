@@ -2,9 +2,6 @@ package server;
 
 import java.util.*;
 
-import client.Main;
-import jig.Vector;
-
 // an implementation of Dijkstra's algorithm
 public class PathFinding {
     public float[][] distance;
@@ -13,15 +10,13 @@ public class PathFinding {
     private ArrayList<Vertex> q;
     private int y;
     private int x;
-//    private final int MAX = 20000;
-private final int MAX = Integer.MAX_VALUE;
 
     public PathFinding(int[][] map) {
         this.y = map.length;
         this.x = map[0].length;
     }
 
-    // runs dijkstra's
+    // runs dijkstra's from the starting point
     public void dijkstra(int startX, int startY) {
         int[][] map = Server.map;
         Vertex min;
@@ -47,8 +42,15 @@ private final int MAX = Integer.MAX_VALUE;
         }
     }
 
-    // find the shortest path from Dijkstra
-    // TODO refactor to take targetX, targetY, startx, starty as arguments
+    /**
+     * Finds the shortest path after dijkstra's has been run between the starting and target points
+     *
+     * @param startX  x starting tile coordinates
+     * @param startY  y starting tile coordinates
+     * @param targetX x ending tile coordinates
+     * @param targetY y ending tile coordinates
+     * @return the shortest path between start and end
+     */
     public ArrayList<int[]> findShortestPath(int startX, int startY, int targetX, int targetY) {
         Stack<int[]> stack = new Stack<>();
         ArrayList<int[]> shortest = new ArrayList<>();
@@ -79,6 +81,7 @@ private final int MAX = Integer.MAX_VALUE;
         while (!stack.isEmpty()) {
             shortest.add(stack.pop());
         }
+//        printShortestPath(shortest);
         return shortest;
     }
 
@@ -118,7 +121,6 @@ private final int MAX = Integer.MAX_VALUE;
         if (!inRange(current) || !inRange(adjacent))
             return;
 
-        // TODO here seems to be the problem
         int weight = 1;
         if (map[ay][ax] == 1) {
             weight = Integer.MAX_VALUE;
@@ -128,7 +130,6 @@ private final int MAX = Integer.MAX_VALUE;
             distance[ax][ay] = distance[cx][cy] + weight;
             path[ax][ay] = current;
         }
-
     }
 
     // make sure everything is in range of the map
@@ -181,8 +182,6 @@ private final int MAX = Integer.MAX_VALUE;
             this.distance = Math.abs(startX - x) + Math.abs(startY - y);
         }
     }
-
-
 
 
 }

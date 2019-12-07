@@ -24,6 +24,7 @@ public class AI {
         int range = 8;
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
         int rand;
+        ArrayList<int[]> shortest = null;
 
         // run dijkstra
         PathFinding find = new PathFinding(Server.map);
@@ -34,11 +35,11 @@ public class AI {
             // if ai close enough pathfind with dijkstra
             if (playerNearby(range, wx, wy, ai.wx, ai.wy)) {
                 Vector aiTile = getTileWorldCoordinates(ai.wx, ai.wy);
-                ArrayList<int[]> shortest = find.findShortestPath((int) heroTile.getX(), (int) heroTile.getY(), (int) aiTile.getX(), (int) aiTile.getY());
-                ai.nextDirection = getNextDirection(shortest, wx, wy);
+                shortest = find.findShortestPath((int) heroTile.getX(), (int) heroTile.getY(), (int) aiTile.getX(), (int) aiTile.getY());
+                ai.nextDirection = getNextDirection(shortest, ai.wx, ai.wy);
 //                System.out.println("Dijkstra next: " + ai.nextDirection);
             }
-            else {
+            if (shortest == null || shortest.size() <= 2) {
                 // else choose random direction
                 rand = new Random().nextInt(moves.length);
                 ai.nextDirection = moves[rand];
@@ -67,19 +68,19 @@ public class AI {
         int py = (int) tileCoord.getY();
         String dir = null;
 
-        int[] v = shortest.get(1);
+        int[] v = shortest.get(shortest.size() - 1);
         int x = v[0];
         int y = v[1];
         if (x == px && y == py) {
             dir = "wait";
         } else if (x > px) {
-            dir = "walk_left";
-        } else if (x < px) {
             dir = "walk_right";
+        } else if (x < px) {
+            dir = "walk_left";
         } else if (y > py) {
-            dir = "walk_up";
-        } else if (y < py) {
             dir = "walk_down";
+        } else if (y < py) {
+            dir = "walk_up";
         }
         return dir;
     }
@@ -146,11 +147,7 @@ public class AI {
                 id  = -id;
             }
             Msg message = new Msg(id, "skeleton_basic",wx,wy,150);   // "x y id"
-//            System.out.println("Created "+message.id);
             enemies.add(message);
-//            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
-
-            //create a random item at the given position
             count--;
         }
         return enemies;

@@ -233,8 +233,6 @@ public class Character extends MovingEntity {
      * This is the method that should be called from the level class to move the AI
      */
     public void moveAI(int delta) {
-//        String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
-//        String next = null;
         String currentDirection = direction;
 
         //CLIENT
