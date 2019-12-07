@@ -569,10 +569,12 @@ public class Level extends BasicGameState {
         g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*8));
         g.drawString("Weight: " + dc.hero.getInventoryWeight(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*9));
 
-        if (dc.showPath) {
-            renderShortestPath(dc, g);
+//        if (dc.showPath) {
+////            renderShortestPath(dc, g);
 //            renderPathWeights(dc, g);     // this method really only works well when one AI is present
-        }
+//        }
+
+        renderPathWeights(dc, g);     // this method really only works well when one AI is present
 
         // display a paused message
         if (paused) {
@@ -662,18 +664,18 @@ public class Level extends BasicGameState {
     private void renderPathWeights(Main dc, Graphics g) {
         boolean scaled = false;
         boolean coords = false;
-        for (Character ai : dc.characters) {
-            if (ai.weights != null) {
-                for (int i = 0; i < ai.weights.length; i++) {
-                    for (int j = 0; j < ai.weights[0].length; j++) {
+//        for (Character ch : dc.characters) {
+            if (dc.hero.weights != null) {
+                for (int i = 0; i < dc.hero.weights.length; i++) {
+                    for (int j = 0; j < dc.hero.weights[0].length; j++) {
                         Color tmp = g.getColor();
                         g.setColor(new Color(255, 255, 255, 1f));
 
                         //make the messages fade away based on their timers
-                        String msg = String.valueOf((int) ai.weights[i][j]);
+                        String msg = String.valueOf((int) dc.hero.weights[i][j]);
 
                         if (!scaled) {
-                            if (ai.weights[i][j] > 200000) {
+                            if (dc.hero.weights[i][j] > 200000) {
                                 msg = "INF";
                             }
                             Vector wc = new Vector(i * dc.tilesize, j * dc.tilesize);
@@ -702,7 +704,7 @@ public class Level extends BasicGameState {
                     }
                 }
             }
-        }
+//        }
     }
 
     /**
@@ -1072,6 +1074,7 @@ public class Level extends BasicGameState {
 
         sendEnemyStatusToServer(dc);
         readEnemyStatusFromServer(dc);
+        readWeightsFromServer(dc);
 
 
 
@@ -1781,6 +1784,19 @@ read the information about the AI from the server
         }
         // System.out.println();
     }
+
+    /*
+    Read the weights from dijkstra from the server
+     */
+    private void readWeightsFromServer(Main dc) {
+        try {
+            Msg msg = (Msg) inStream.readObject();
+            dc.hero.weights = msg.dijkstraWeights;
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
       * Update the players position on the server.

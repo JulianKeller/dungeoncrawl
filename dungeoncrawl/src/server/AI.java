@@ -1,6 +1,5 @@
 package server;
 
-import client.Main;
 import jig.Vector;
 
 import java.util.ArrayList;
@@ -15,14 +14,14 @@ public class AI {
 
 
     /**
-     * update the position of the AI player
-     * // TODO run dijkstra's
+     * update the position of the AI player either randomly or via dijkstra
+     * @return
      */
-    public static void updatePosition(float wx, float wy) {
+    public static float[][] updatePosition(float wx, float wy) {
         int tilesize = 32;
         int offset = tilesize/2;
         int doubleOffset = offset/2;
-        int range = 4;
+        int range = 8;
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
         int rand;
 
@@ -46,6 +45,8 @@ public class AI {
 //                System.out.println("Random next: " + ai.nextDirection);
             }
         }
+
+        return find.getWeights();
     }
 
     // get next direction based on Dijkstra shortest path

@@ -14,6 +14,7 @@ public class ClientHandler extends Thread {
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
     private BlockingQueue<Msg> threadQueue;
+    private float[][] weights;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
                          BlockingQueue<Msg> queue){
         socket = s;
@@ -52,8 +53,10 @@ public class ClientHandler extends Thread {
 
                     // Update the AI Positions
                     readAIStatusFromClient();
-                    AI.updatePosition(message.wx, message.wy);      // takes the hero's x, y coordinates
+                    weights = AI.updatePosition(message.wx, message.wy);      // takes the hero's x, y coordinates
+                    message.dijkstraWeights = weights;
                     sendAIStatusToClient();
+                    sendWeightsToClient(message);
 
                 } catch(SocketException | ClassNotFoundException e){
                     System.out.println("Client "+id+" closed unexpectedly.\nClosing connections " +
@@ -68,6 +71,15 @@ public class ClientHandler extends Thread {
         } catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+
+    /*
+    Send weights from dijkstra's to the client
+     */
+    private void sendWeightsToClient(Msg msg) {
+        toServer(msg);
+        writeToClient();
     }
 
 

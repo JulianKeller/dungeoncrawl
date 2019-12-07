@@ -7,7 +7,7 @@ import jig.Vector;
 
 // an implementation of Dijkstra's algorithm
 public class PathFinding {
-    private float[][] distance;
+    public float[][] distance;
     private int[][][] path;
     private boolean[][] visited;
     private ArrayList<Vertex> q;
