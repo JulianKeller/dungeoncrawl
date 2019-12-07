@@ -357,34 +357,6 @@ public class Character extends MovingEntity {
         return canAttack;
     }
 
-//    // get next direction based on Dijkstra shortest path
-//    public String getNextDirection(Main dc) {
-//        if (shortest.isEmpty() || shortest.size() <= 2) {
-//            return null;
-//        }
-//        int px = (int) getTileWorldCoordinates().getX();
-//        int py = (int) getTileWorldCoordinates().getY();
-//        String dir = null;
-//
-//        int[] v = shortest.get(1);
-//        int x = v[0];
-//        int y = v[1];
-//        if (x == px && y == py) {
-//            v = shortest.get(2);
-//            x = v[0];
-//            y = v[1];
-//            dir = "wait";
-//        } else if (x > px) {
-//            dir = "walk_right";
-//        } else if (x < px) {
-//            dir = "walk_left";
-//        } else if (y > py) {
-//            dir = "walk_down";
-//        } else if (y < py) {
-//            dir = "walk_up";
-//        }
-//        return dir;
-//    }
 
     /**
      * This method updates the characters position such that it is a smooth transition without jumps. It is
@@ -574,7 +546,6 @@ public class Character extends MovingEntity {
                 x += 1;
                 break;
         }
-
         if (characterCollisionHelper(dc.characters, x, y) ||
             characterCollisionHelper(dc.enemies, x, y)) {
             return true;

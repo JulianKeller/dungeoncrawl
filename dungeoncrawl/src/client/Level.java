@@ -1380,11 +1380,6 @@ public class Level extends BasicGameState {
                         addMessage("Picked up unidentified "+i.toString()+".");
                     }
 
-
-
-
-
-
                     if( i.getType().equals("Arrow") ){
                         Image image = null;
                         if( i.getEffect().equals("Poison") ){
@@ -1498,8 +1493,6 @@ public class Level extends BasicGameState {
                 if( c.ai ){
                     //if the ai character is within one tilesize of the player
                     //in the given direction
-//                    Vector aipos = c.animate.getPosition();
-//                    Vector plpos = dc.hero.animate.getPosition();
                     Vector aipos = c.getWorldCoordinates();
                     Vector plpos = dc.hero.getWorldCoordinates();
 

@@ -18,9 +18,6 @@ public class AI {
      * @return the list of weights for the map from dijkstra
      */
     public static float[][] updatePosition(Msg hero) {
-        int tilesize = 32;
-        int offset = tilesize/2;
-        int doubleOffset = offset/2;
         int range = 8;
         String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
         int rand;
@@ -127,15 +124,6 @@ public class AI {
         }
         return false;
     }
-
-
-//    // TODO pass in the starting coordinates of the player
-//    public static void dijkstra(int startX, int startY) {
-//        PathFinding find = new PathFinding(Server.map);
-//        find.dijkstra(startX, startY);
-//        int[][] shortest = find.findShortestPath();
-//        next = getNextDirection(dc);
-//    }
 
     /**
      * Get the entities world coordinates in tiles
