@@ -495,12 +495,14 @@ Reflection:
     	return ani;
     }
     
-    public Animation getParticles(String effect, int frameCount, int duration) throws SlickException{
+    public Animation getParticles(String mainColor, int frameCount, int duration) throws SlickException{
     	SpriteSheet ss = null;
-    	if( effect.toLowerCase().equals("flame") ){
+    	if( mainColor.toLowerCase().equals("orange") ){
     		ss = ResourceManager.getSpriteSheet(Main.FLAME_PARTICLES, EffectSpriteWidth, EffectSpriteHeight);
+    	}else if( mainColor.toLowerCase().equals("green") ){
+    		ss = ResourceManager.getSpriteSheet(Main.POISON_PARTICLES, EffectSpriteWidth, EffectSpriteHeight);
     	}else{
-    		throw new SlickException("Invalid effect type '" + effect + "' for particle effect.");
+    		throw new SlickException("Invalid color '" + mainColor + "' for particle effect.");
     	}
     	
     	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);

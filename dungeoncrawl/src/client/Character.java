@@ -107,15 +107,17 @@ public class Character extends MovingEntity {
     		}else if( e.name.equals("Iron Skin") ){
     			ani = getFloatingPlusSigns("gray", 8, 125);
     		}else if( e.name.equals("Might") ){
-    			ani = getFloatingPlusSigns("yellow", 8, 125);
+    			//TODO
+    			//ani = getFloatingPlusSigns("yellow", 8, 125);
+    			
+    			
+    		}else if( e.name.equals("Flame") ){
+    			ani = getParticles("orange", 8, 125);
+    		}else if( e.name.equals("Poison") ){
+    			ani = getParticles("green", 8, 125);
     		}else{
     			throw new SlickException("Invalid effect name '" + e.name + "'.");
     		}
-    		
-    		
-    		//TODO
-    		
-    		//Animation ani = getFloatingPlusSigns("red", 8, 125);
     		
     		//add the animation to this character's vfxentity
     		vfx.addVisualEffect(ani, "healing");
