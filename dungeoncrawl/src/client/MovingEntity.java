@@ -361,7 +361,7 @@ Reflection:
     			if( !e.cursed ){
     				invisible = true;
     			}
-    		}else if( e.name.equals("Poisoned") ){
+    		}else if( e.name.equals("Poison") ){
     			//decrease health by 5 every second
     			if( !e.cursed ){
     				hitPoints -= ( (float) 5/60);
@@ -561,6 +561,11 @@ Reflection:
     	if( !effect.equals("") ){
     		addEffect(effect, cursed);
     	}
+    	System.out.println("Enemy was affected by " + effect );
+    	for( Effect e : getActiveEffects() ){
+    		System.out.println(e.name);
+    	}
+    	
     	
     	//check if this entity is dead
     	if( hitPoints <= 0 ){

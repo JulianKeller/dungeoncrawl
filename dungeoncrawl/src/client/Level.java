@@ -53,6 +53,8 @@ public class Level extends BasicGameState {
 
 
     private ArrayList<Item> itemsToRender;
+    
+    private ArrayList<Character> targets; //union of enemies and characters
 
     //whether to display player inventory/codex on the screen
     private boolean displayInventory = false;
@@ -296,6 +298,10 @@ public class Level extends BasicGameState {
 				}
 	        }
         }
+        
+        targets = new ArrayList<Character>();
+        targets.addAll(dc.characters);
+        targets.addAll(dc.enemies);
     }
 
     private boolean wallAdjacent(int row, int col, int[][] map){
@@ -964,27 +970,37 @@ public class Level extends BasicGameState {
         	}
         }
 
-        //implement effects on the character
-        dc.hero.implementEffects();
         
-        //add visual effects to the character
-        if( dc.hero.getActiveEffects().size() > 0 ){
-        	//this will create a VFXEntity on the character
-        	//  if one does not already exist
-        	dc.hero.addVisualEffects();
+        //implement effects on the character
+        //dc.hero.implementEffects();
+        
+        
+        //draw visual effects
+        for( Character ch : targets ){
         	
-        	//make it follow the player
-        	//System.out.println("Setting vfx pos to " + dc.hero.animate.getPosition().toString());
-        	dc.hero.vfx.setPosition(dc.hero.animate.getPosition());
-        }else if( dc.hero.vfx != null ){
-        	//the character is not experiencing any status effects,
-        	//  so remove all the dead animations
-        	dc.hero.vfx.removeDeadAnimations(delta);
-        	//destroy the vfx if there are no more animations
-        	if( !dc.hero.vfx.hasAnimations() ){
-        		dc.hero.vfx = null;
-        	}
+        	ch.implementEffects();
+	        
+        	//add visual effects to the character
+	        if( ch.getActiveEffects().size() > 0 ){
+	        	//this will create a VFXEntity on the character
+	        	//  if one does not already exist
+	        	ch.addVisualEffects();
+	        	
+	        	//make it follow the player
+	        	//System.out.println("Setting vfx pos to " + ch.animate.getPosition().toString());
+	        	ch.vfx.setPosition(ch.animate.getPosition());
+	        }else if( ch.vfx != null ){
+	        	//the character is not experiencing any status effects,
+	        	//  so remove all the dead animations
+	        	ch.vfx.removeDeadAnimations(delta);
+	        	//destroy the vfx if there are no more animations
+	        	if( !ch.vfx.hasAnimations() ){
+	        		ch.vfx = null;
+	        	}
+	        }
         }
+        
+
         
         //reduce the effect timers by a constant value each frame
         //  if delta is used instead of a constant, tabbing away from
@@ -1229,17 +1245,16 @@ public class Level extends BasicGameState {
 
             //check if a thrown item hit a character
             //merge the character and enemy lists
-            ArrayList<Character> targets = new ArrayList<Character>();
-            targets.addAll(dc.characters);
-            targets.addAll(dc.enemies);
             for( Character ch : targets ){
 
                 if( ch.getPid() == dc.hero.getPid() ){
                     continue;
                 }
 
-                Vector chwc = new Vector( ch.animate.getX()/dc.tilesize, ch.animate.getY()/dc.tilesize);
-
+                //Vector chwc = new Vector( ch.getTileWorldCoordinates().getX()/dc.tilesize, ch.getTileWorldCoordinates().getY()/dc.tilesize);
+                float x = ch.getTileWorldCoordinates().getX();
+                float y = ch.getTileWorldCoordinates().getY();
+                Vector chwc = new Vector((int)x, (int)y);
                 //System.out.println(chwc.toString());
 
                 if( Math.abs(chwc.getX() - ti.itm.getWorldCoordinates().getX()) < 1.5 && Math.abs(chwc.getY() - ti.itm.getWorldCoordinates().getY()) < 1.5 ){
