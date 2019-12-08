@@ -106,7 +106,7 @@ public class Character extends MovingEntity {
     		
     		//TODO
     		
-    		Animation ani = getFloatingPlusSigns("red", 3, 300);
+    		Animation ani = getFloatingPlusSigns("red", 8, 125);
     		
     		//add the animation to this character's vfxentity
     		vfx.addVisualEffect(ani, "healing");

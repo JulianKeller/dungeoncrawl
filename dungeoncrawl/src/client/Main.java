@@ -154,7 +154,7 @@ public class Main extends StateBasedGame {
     public static final String MAP_IMG = "resources/splashScreen/map_image.png";
     
     //character effect particles
-    public static final String RED_FLOATING_PLUS = "resources/effects/plus.png";
+    public static final String RED_FLOATING_PLUS = "resources/effects/red_plus.png";
 
     // Screen Size
     public final int ScreenWidth;
