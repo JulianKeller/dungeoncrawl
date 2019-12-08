@@ -120,6 +120,8 @@ public class Character extends MovingEntity {
     			ani = getFlies(8, 125);
     		}else if( e.name.equals("Thorns") ){
     			ani = getThorns(8, 125);
+    		}else if( e.name.equals("Reflection") ){
+    			ani = getReflect(8, 125);
     		}else{
     			throw new SlickException("Invalid effect name '" + e.name + "'.");
     		}
