@@ -479,6 +479,14 @@ Reflection:
     	SpriteSheet ss = null;
     	if( color.toLowerCase().equals("red") ){
     		ss = ResourceManager.getSpriteSheet(Main.RED_FLOATING_PLUS, spriteWidth, spriteHeight);
+    	}else if( color.toLowerCase().equals("green") ){
+    		ss = ResourceManager.getSpriteSheet(Main.GREEN_FLOATING_PLUS, spriteWidth, spriteHeight);
+    	}else if( color.toLowerCase().equals("blue") ){
+    		ss = ResourceManager.getSpriteSheet(Main.BLUE_FLOATING_PLUS, spriteWidth, spriteHeight);
+    	}else if( color.toLowerCase().equals("gray") ){
+    		ss = ResourceManager.getSpriteSheet(Main.GRAY_FLOATING_PLUS, spriteWidth, spriteHeight);
+    	}else if( color.toLowerCase().equals("yellow") ){
+    		ss = ResourceManager.getSpriteSheet(Main.YELLOW_FLOATING_PLUS, spriteWidth, spriteHeight);
     	}else{
     		throw new SlickException("Invalid floating plus sign color '" + color + "'.");
     	}
