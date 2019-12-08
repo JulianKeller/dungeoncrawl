@@ -116,6 +116,8 @@ public class Character extends MovingEntity {
     			ani = getParticles("green", 8, 125);
     		}else if( e.name.equals("Fright") ){
     			ani = getGhostFaces(8, 125);
+    		}else if( e.name.equals("Stench") ){
+    			ani = getFlies(8, 125);
     		}else{
     			throw new SlickException("Invalid effect name '" + e.name + "'.");
     		}
