@@ -171,6 +171,8 @@ public class Main extends StateBasedGame {
     public static final String THORNS_EFFECT = "resources/effects/thorns.png";
     
     public static final String REFLECT_EFFECT = "resources/effects/reflect.png";
+    
+    public static final String INVISIBLE_EFFECT = "resources/effects/invisibility.png";
 
     // Screen Size
     public final int ScreenWidth;
@@ -389,6 +391,8 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(THORNS_EFFECT);
 
         ResourceManager.loadImage(REFLECT_EFFECT);
+        
+        ResourceManager.loadImage(INVISIBLE_EFFECT);
     }
 
     // Send close to the server and close connections before exiting.
