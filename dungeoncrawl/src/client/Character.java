@@ -97,16 +97,25 @@ public class Character extends MovingEntity {
     		vfx = new VFXEntity(animate.getX(), animate.getY());
     	}
     	for( Effect e : super.getActiveEffects() ){
-    		/*
+    		Animation ani = null;
     		if( e.name.equals("Healing") ){
-    			addAnimation( getFloatingPlusSigns("red", 3, 50) );
+    			ani = getFloatingPlusSigns("red", 8, 125);
+    		}else if( e.name.equals("Strength") ){
+    			ani = getFloatingPlusSigns("green", 8, 125);
+    		}else if( e.name.equals("Mana") ){
+    			ani = getFloatingPlusSigns("blue", 8, 125);
+    		}else if( e.name.equals("Iron Skin") ){
+    			ani = getFloatingPlusSigns("gray", 8, 125);
+    		}else if( e.name.equals("Might") ){
+    			ani = getFloatingPlusSigns("yellow", 8, 125);
+    		}else{
+    			throw new SlickException("Invalid effect name '" + e.name + "'.");
     		}
-    		*/
     		
     		
     		//TODO
     		
-    		Animation ani = getFloatingPlusSigns("red", 8, 125);
+    		//Animation ani = getFloatingPlusSigns("red", 8, 125);
     		
     		//add the animation to this character's vfxentity
     		vfx.addVisualEffect(ani, "healing");
