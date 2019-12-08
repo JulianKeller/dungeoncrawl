@@ -159,6 +159,7 @@ public class Main extends StateBasedGame {
     public static final String GREEN_FLOATING_PLUS = "resources/effects/green_plus.png";
     public static final String YELLOW_FLOATING_PLUS = "resources/effects/yellow_plus.png";
     public static final String GRAY_FLOATING_PLUS = "resources/effects/gray_plus.png";
+    public static final String WHITE_FLOATING_PLUS = "resources/effects/white_plus.png";
     
     public static final String FLAME_PARTICLES = "resources/effects/flame.png";
     public static final String POISON_PARTICLES = "resources/effects/poison.png";
@@ -368,6 +369,7 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(BLUE_FLOATING_PLUS);
         ResourceManager.loadImage(GRAY_FLOATING_PLUS);
         ResourceManager.loadImage(YELLOW_FLOATING_PLUS);
+        ResourceManager.loadImage(WHITE_FLOATING_PLUS);
         
         ResourceManager.loadImage(FLAME_PARTICLES);
         ResourceManager.loadImage(POISON_PARTICLES);
