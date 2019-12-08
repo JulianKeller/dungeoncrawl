@@ -48,6 +48,8 @@ public class MovingEntity extends Entity {
     private Vector nextTileWorldCoordinates;
     private Main dc;
     
+    private final int EffectSpriteHeight = 64;
+    private final int EffectSpriteWidth = 32;
 
 
     
@@ -474,19 +476,17 @@ Reflection:
     }
     
     public Animation getFloatingPlusSigns(String color, int frameCount, int duration) throws SlickException{
-    	int spriteWidth = 32;
-    	int spriteHeight = 64;
     	SpriteSheet ss = null;
     	if( color.toLowerCase().equals("red") ){
-    		ss = ResourceManager.getSpriteSheet(Main.RED_FLOATING_PLUS, spriteWidth, spriteHeight);
+    		ss = ResourceManager.getSpriteSheet(Main.RED_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
     	}else if( color.toLowerCase().equals("green") ){
-    		ss = ResourceManager.getSpriteSheet(Main.GREEN_FLOATING_PLUS, spriteWidth, spriteHeight);
+    		ss = ResourceManager.getSpriteSheet(Main.GREEN_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
     	}else if( color.toLowerCase().equals("blue") ){
-    		ss = ResourceManager.getSpriteSheet(Main.BLUE_FLOATING_PLUS, spriteWidth, spriteHeight);
+    		ss = ResourceManager.getSpriteSheet(Main.BLUE_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
     	}else if( color.toLowerCase().equals("gray") ){
-    		ss = ResourceManager.getSpriteSheet(Main.GRAY_FLOATING_PLUS, spriteWidth, spriteHeight);
+    		ss = ResourceManager.getSpriteSheet(Main.GRAY_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
     	}else if( color.toLowerCase().equals("yellow") ){
-    		ss = ResourceManager.getSpriteSheet(Main.YELLOW_FLOATING_PLUS, spriteWidth, spriteHeight);
+    		ss = ResourceManager.getSpriteSheet(Main.YELLOW_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
     	}else{
     		throw new SlickException("Invalid floating plus sign color '" + color + "'.");
     	}
@@ -495,6 +495,17 @@ Reflection:
     	return ani;
     }
     
+    public Animation getParticles(String effect, int frameCount, int duration) throws SlickException{
+    	SpriteSheet ss = null;
+    	if( effect.toLowerCase().equals("flame") ){
+    		ss = ResourceManager.getSpriteSheet(Main.FLAME_PARTICLES, EffectSpriteWidth, EffectSpriteHeight);
+    	}else{
+    		throw new SlickException("Invalid effect type '" + effect + "' for particle effect.");
+    	}
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
 
     
     public boolean takeDamage(float amount, String effect, boolean cursed ){
