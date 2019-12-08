@@ -155,6 +155,10 @@ public class Main extends StateBasedGame {
     
     //character effect particles
     public static final String RED_FLOATING_PLUS = "resources/effects/red_plus.png";
+    public static final String BLUE_FLOATING_PLUS = "resources/effects/blue_plus.png";
+    public static final String GREEN_FLOATING_PLUS = "resources/effects/green_plus.png";
+    public static final String YELLOW_FLOATING_PLUS = "resources/effects/yellow_plus.png";
+    public static final String GRAY_FLOATING_PLUS = "resources/effects/gray_plus.png";
 
     // Screen Size
     public final int ScreenWidth;
@@ -357,6 +361,10 @@ public class Main extends StateBasedGame {
         
         //character effects
         ResourceManager.loadImage(RED_FLOATING_PLUS);
+        ResourceManager.loadImage(GREEN_FLOATING_PLUS);
+        ResourceManager.loadImage(BLUE_FLOATING_PLUS);
+        ResourceManager.loadImage(GRAY_FLOATING_PLUS);
+        ResourceManager.loadImage(YELLOW_FLOATING_PLUS);
 
 
     }
