@@ -539,6 +539,15 @@ Reflection:
     	return ani;
     }
     
+    public Animation getInvisible(int frameCount, int duration ){
+    	SpriteSheet ss = ResourceManager.getSpriteSheet(Main.INVISIBLE_EFFECT, EffectSpriteWidth, EffectSpriteHeight);
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
+    
+    
+    
     public boolean takeDamage(float amount, String effect, boolean cursed ){
     	hitPoints -= amount;
     	if( !effect.equals("") ){

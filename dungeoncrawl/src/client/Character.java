@@ -122,6 +122,8 @@ public class Character extends MovingEntity {
     			ani = getThorns(8, 125);
     		}else if( e.name.equals("Reflection") ){
     			ani = getReflect(8, 125);
+    		}else if( e.name.equals("Invisibility") ){
+    			ani = getInvisible(3, 300);
     		}else{
     			throw new SlickException("Invalid effect name '" + e.name + "'.");
     		}
