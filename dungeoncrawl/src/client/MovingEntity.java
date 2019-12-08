@@ -510,6 +510,13 @@ Reflection:
     	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
     	return ani;
     }
+    
+    public Animation getGhostFaces(int frameCount, int duration ){
+    	SpriteSheet ss = ResourceManager.getSpriteSheet(Main.GHOST_FACES, EffectSpriteWidth, EffectSpriteHeight);
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
 
     
     public boolean takeDamage(float amount, String effect, boolean cursed ){
