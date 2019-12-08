@@ -165,6 +165,8 @@ public class Main extends StateBasedGame {
     public static final String POISON_PARTICLES = "resources/effects/poison.png";
     
     public static final String GHOST_FACES = "resources/effects/ghost_faces.png";
+    
+    public static final String FLIES_EFFECT = "resources/effects/flies.png";
 
     // Screen Size
     public final int ScreenWidth;
@@ -377,6 +379,8 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(POISON_PARTICLES);
         
         ResourceManager.loadImage(GHOST_FACES);
+        
+        ResourceManager.loadImage(FLIES_EFFECT);
         
         
 
