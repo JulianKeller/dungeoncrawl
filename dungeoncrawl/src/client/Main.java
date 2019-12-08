@@ -161,6 +161,7 @@ public class Main extends StateBasedGame {
     public static final String GRAY_FLOATING_PLUS = "resources/effects/gray_plus.png";
     
     public static final String FLAME_PARTICLES = "resources/effects/flame.png";
+    public static final String POISON_PARTICLES = "resources/effects/poison.png";
 
     // Screen Size
     public final int ScreenWidth;
@@ -369,6 +370,7 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(YELLOW_FLOATING_PLUS);
         
         ResourceManager.loadImage(FLAME_PARTICLES);
+        ResourceManager.loadImage(POISON_PARTICLES);
         
         
 
