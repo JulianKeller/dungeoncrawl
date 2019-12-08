@@ -487,6 +487,8 @@ Reflection:
     		ss = ResourceManager.getSpriteSheet(Main.GRAY_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
     	}else if( color.toLowerCase().equals("yellow") ){
     		ss = ResourceManager.getSpriteSheet(Main.YELLOW_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
+    	}else if( color.toLowerCase().equals("white") ){
+    		ss = ResourceManager.getSpriteSheet(Main.WHITE_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
     	}else{
     		throw new SlickException("Invalid floating plus sign color '" + color + "'.");
     	}

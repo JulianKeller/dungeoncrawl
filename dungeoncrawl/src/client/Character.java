@@ -110,7 +110,8 @@ public class Character extends MovingEntity {
     			//TODO
     			//ani = getFloatingPlusSigns("yellow", 8, 125);
     			
-    			
+    		}else if( e.name.equals("Swiftness") ){
+    			ani = getFloatingPlusSigns("white", 8, 125);
     		}else if( e.name.equals("Flame") ){
     			ani = getParticles("orange", 8, 125);
     		}else if( e.name.equals("Poison") ){
