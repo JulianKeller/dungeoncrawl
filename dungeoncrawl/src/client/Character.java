@@ -98,7 +98,7 @@ public class Character extends MovingEntity {
     	}
     	for( Effect e : super.getActiveEffects() ){
     		Animation ani = null;
-    		if( e.name.equals("Healing") ){
+    		if( e.name.equals("Healing") || e.name.equals("Regeneration") ){
     			ani = getFloatingPlusSigns("red", 8, 125);
     		}else if( e.name.equals("Strength") ){
     			ani = getFloatingPlusSigns("green", 8, 125);
