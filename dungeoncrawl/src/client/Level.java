@@ -205,7 +205,7 @@ public class Level extends BasicGameState {
         dc.hero = new Character(dc, wx, wy, type, id, this, false);
         dc.characters.add(dc.hero);
 
-        receiveEnemyList(dc);
+        //receiveEnemyList(dc);
         receiveItemList();
 
         // render map
@@ -1729,7 +1729,7 @@ public class Level extends BasicGameState {
             Msg message = new Msg(dc.serverId,dc.hero.getType(),dc.hero.getWorldCoordinates().getX(),
                     dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints());
             message.ks = ks;
-            outStream.writeObject(ks);
+            outStream.writeObject(message);
             outStream.flush();
             outStream.reset();
         }catch(IOException e){
