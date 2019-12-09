@@ -390,19 +390,8 @@ Reflection:
     			//animationSpeed = 0;
     			
     		}else if( e.name.equals("Lightning") ){
-    			//roll 30% change to take 20 damage
-    			rand.setSeed(System.nanoTime());
-    			int r = rand.nextInt(100);
-    			if( r < 60 ){
-    				if( !e.cursed ){
-    					hitPoints -= 20;
-    				}else{
-    					hitPoints -= 20*curseModifier;
-    				}
-    				currentLevel.addMessage("Struck by lightning!");
-    				System.out.println("Struck by lightning!");
-    			}
-    			
+
+    			//nothing happens
     		}else if( e.name.equals("Stench") ){
     			//another AI problem, set a boolean
     			if( !e.cursed ){
@@ -562,6 +551,13 @@ Reflection:
     
     public Animation getIce(int frameCount, int duration ){
     	SpriteSheet ss = ResourceManager.getSpriteSheet(Main.ICE_EFFECT, EffectSpriteWidth, EffectSpriteHeight);
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
+    
+    public Animation getLightning(int frameCount, int duration ){
+    	SpriteSheet ss = ResourceManager.getSpriteSheet(Main.LIGHTNING_EFFECT, EffectSpriteWidth, EffectSpriteHeight);
     	
     	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
     	return ani;

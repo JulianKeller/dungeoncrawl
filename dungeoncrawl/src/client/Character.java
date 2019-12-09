@@ -129,12 +129,28 @@ public class Character extends MovingEntity {
     			ani = getInvisible(3, 300);
     		}else if( e.name.equals("Ice") ){
     			ani = getIce(3, 300);
+    		}else if( e.name.equals("Lightning") ){
+    			//roll 30% change to take 20 damage
+    			Random rand = new Random();
+    			rand.setSeed(System.nanoTime());
+    			int r = rand.nextInt(100);
+    			if( r < 60 ){
+    				if( !e.cursed ){
+    					super.setHitPoints(super.getHitPoints() - 20);
+    				}else{
+    					super.setHitPoints(super.getHitPoints() - 10);
+    				}
+    				ani = getLightning(8, 75);
+    			}
+    			
     		}else{
     			throw new SlickException("Invalid effect name '" + e.name + "'.");
     		}
     		
     		//add the animation to this character's vfxentity
-    		vfx.addVisualEffect(e.name, 2000, ani);
+    		if( ani != null ){
+    			vfx.addVisualEffect(e.name, e.timer, ani);
+    		}
 
     	}
     	
