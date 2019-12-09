@@ -1,7 +1,6 @@
 ##Open Issues##
 [5] Update/test player interactions with items
 [19] Update character images based on weapon material
-[28] Add visual indicator of character effects
 [30] Add animations for thrown items breaking
 [31] Scale thrown items to give the appearance of arc
 [36] Add sound effects and background music
@@ -32,6 +31,7 @@
 [25] Add attack functionality
 [26] Add functionality for Might effect
 [27] Add attacks for Mage and Tank classes
+[28] Add visual indicator of character effects
 [29] Implement item stacking in inventory
 [32] Adjust item spawn rates and chances of specific items
 [33] Check item level and class before picking up
