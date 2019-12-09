@@ -3,12 +3,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Scanner;
 import server.Msg;
+import server.ItemMsg;
 
 
 
@@ -24,24 +24,23 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import com.sun.java.swing.plaf.motif.MotifBorders.InternalFrameBorder;
 
 import client.MovingEntity.Effect;
 import jig.ResourceManager;
-
+import server.Server;
 
 
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-    private int serverId;
+
     private String type;
 
     private int[][] rotatedMap;
 
     Socket socket;
-    ObjectInputStream dis;
-    ObjectOutputStream dos;
+    ObjectInputStream inStream;
+    ObjectOutputStream outStream;
     String serverMessage;
 
     int tilesize = 32;
@@ -137,15 +136,15 @@ public class Level extends BasicGameState {
         messagebox = new Message[messages]; //display four messages at a time
 
         this.socket = dc.socket;
-        this.dis = dc.dis;
-        this.dos = dc.dos;
+        this.inStream = dc.dis;
+        this.outStream = dc.dos;
 
 
         // Grab the map from the server.Server
 
         try {
-           dc.map = (int[][])dis.readObject();
-            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
+            dc.map = (int[][]) inStream.readObject();
+//            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
 //           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -176,11 +175,11 @@ public class Level extends BasicGameState {
         int row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
         int col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
 
-		while(dc.map[row][col] == 1 || wallAdjacent(row, col, dc.map) ){
-			//spawn on a floor tile with 4 adjacent floor tiles
-	        row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
-			col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
-		}
+        while(dc.map[row][col] == 1 || wallAdjacent(row, col, dc.map) ){
+            //spawn on a floor tile with 4 adjacent floor tiles
+            row = rand.nextInt(dc.ScreenHeight/dc.tilesize);
+            col = rand.nextInt(dc.ScreenWidth/dc.tilesize);
+        }
 
         // map variables
         //Main dc = (Main) game;
@@ -199,59 +198,51 @@ public class Level extends BasicGameState {
         int id = 0;
         String type = setSkin();
         try {
-            id = dis.read();
-            System.out.println("reading id: " + id);
+            id = inStream.readInt();
+//            System.out.println("reading id: " + id);
             //System.out.println("Sending my player info.");
-            serverId = id;
+            dc.serverId = id;
         }catch(IOException e){
             e.printStackTrace();
         }
-
         dc.hero = new Character(dc, wx, wy, type, id, this, false);
         dc.characters.add(dc.hero);
 
+        //Grabbing ArrayList of enemies.
+        ArrayList<Msg> enemyList = new ArrayList<>();
         try{
-            Msg msg = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-            dos.writeObject(msg);
-            System.out.println("write msg type: " + msg.getClass().getSimpleName());
-            dos.flush();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
-        //give the hero leather armor with no effect
-        //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
-        /*
-        Item a = new Item(null, false, Main.im.getCurrentItemID(), dc.hero.getPid(), "", "Armor", "Leather", false, true,
-        		ResourceManager.getImage(Main.ARMOR_IRON));
-
-        Main.im.give(a, dc.hero);
-        */
-
-        // TODO spawning enemies and items should be done on the server
-//        wx = (dc.tilesize * 18) - dc.offset;
-//        wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
-//        //dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
-//        spawnEnemies(dc, 20);
-        // Grabbing ArrayList of enemies.
-        ArrayList<String> enemyList = new ArrayList<>();
-        try{
-            enemyList = (ArrayList) dis.readObject();
-            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
+            enemyList = (ArrayList<Msg>) inStream.readObject();
+//            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
-        for (String e : enemyList) {
-            float x = Float.parseFloat(e.split(" ")[2]);
-            float y = Float.parseFloat(e.split(" ")[3]);
-            int eid = Integer.parseInt(e.split(" ")[0]);
-            dc.characters.add(new Character(dc, x, y, e.split(" ")[1], eid, this, true));
+        for (Msg e : enemyList) {
+            float x = e.wx;
+            float y = e.wy;
+            int eid = e.id;
+            dc.enemies.add(new Character(dc, x, y, e.type, eid, this, true));
+//            System.out.println("Created AI " + e.toString());
         }
+
         try {
             int maxcol =  dc.map.length - 2;
             int maxrow = dc.map[0].length - 2;
-            Main.im.plant(20, rotatedMap, maxcol, maxrow);
-        } catch (SlickException e) {
+            //Main.im.plant(20, rotatedMap, maxcol, maxrow)
+            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
+            //System.out.println("Read type: "+fromServer.getClass().getSimpleName());
+            for(ItemMsg i : fromServer) {
+                try {
+                    System.out.println("Adding item: "+i.type);
+                    Item item = new Item(new Vector(i.wx,i.wy),false,i.id,i.oid,i.effect,
+                            i.type,i.material,i.cursed,i.identified,null,i.count);
+                    setItemImage(item);
+                    Main.im.addToWorldItems(item);
+                }catch(SlickException e){
+                    e.printStackTrace();
+                }
+
+            }
+        } catch (IOException | ClassNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             return;
@@ -268,36 +259,36 @@ public class Level extends BasicGameState {
         //give the mage a ruby staff with random effect
         //public Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image, int count) throws SlickException{
         if( dc.hero.getInventory().size() == 0 ){
-	        if( dc.hero.getType().toLowerCase().contains("mage")){
-		        try {
-					Item staff = new Item(null, false, -1, -1, "Healing", "Staff", "Ruby", false, true, ResourceManager.getImage(Main.STAFF_RUBY), 1);
-					 
-					Random rand = new Random();
-					rand.setSeed(System.nanoTime());
-					
-					staff.setEffect(Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ]);
-					
-					Main.im.give(staff, dc.hero);
-					
-					dc.hero.equipItem(0);
-					
-					
-				} catch (SlickException e1) {
-					return;
-				}
-	        }else if( dc.hero.getType().toLowerCase().contains("archer")){
-		        try {
-					Item arrow = new Item(null, false, -1, -1, "", "Arrow", "", false, true, ResourceManager.getImage(Main.ARROW_NORMAL), 10);
-					
-					Main.im.give(arrow, dc.hero);
-					
-					dc.hero.equipItem(0);
-					
-					
-				} catch (SlickException e1) {
-					return;
-				}
-	        }
+            if( dc.hero.getType().toLowerCase().contains("mage")){
+                try {
+                    Item staff = new Item(null, false, -1, -1, "Healing", "Staff", "Ruby", false, true, ResourceManager.getImage(Main.STAFF_RUBY), 1);
+
+                    Random rand = new Random();
+                    rand.setSeed(System.nanoTime());
+
+                    staff.setEffect(Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ]);
+
+                    Main.im.give(staff, dc.hero);
+
+                    dc.hero.equipItem(0);
+
+
+                } catch (SlickException e1) {
+                    return;
+                }
+            }else if( dc.hero.getType().toLowerCase().contains("archer")){
+                try {
+                    Item arrow = new Item(null, false, -1, -1, "", "Arrow", "", false, true, ResourceManager.getImage(Main.ARROW_NORMAL), 10);
+
+                    Main.im.give(arrow, dc.hero);
+
+                    dc.hero.equipItem(0);
+
+
+                } catch (SlickException e1) {
+                    return;
+                }
+            }
         }
         
         targets = new ArrayList<Character>();
@@ -305,6 +296,88 @@ public class Level extends BasicGameState {
         targets.addAll(dc.enemies);
     }
 
+    private void setItemImage(Item i) throws SlickException{
+        //get an image based on item type
+        Image image = null;
+        if( i.getType().equals("Potion") ){
+            int r = rand.nextInt(5);
+            switch( r ){
+                case 0:
+                    image = ResourceManager.getImage(Main.POTION_BLUE);
+                    //material = "Blue";
+                    break;
+                case 1:
+                    image = ResourceManager.getImage(Main.POTION_ORANGE);
+                    //material = "Orange";
+                    break;
+                case 2:
+                    image = ResourceManager.getImage(Main.POTION_PINK);
+                    //material = "Pink";
+                    break;
+                case 3:
+                    image = ResourceManager.getImage(Main.POTION_RED);
+                    //material = "Red";
+                    break;
+                case 4:
+                    image = ResourceManager.getImage(Main.POTION_YELLOW);
+                    //material = "Yellow";
+                    break;
+            }
+        }else if( i.getType().equals("Sword") ){
+            //wood, iron, gold
+            if( i.getMaterial().equals("Wooden") ){
+                image = ResourceManager.getImage(Main.SWORD_WOOD);
+            }else if( i.getMaterial().equals("Iron") ){
+                image = ResourceManager.getImage(Main.SWORD_IRON);
+            }else if( i.getMaterial().equals("Gold") ){
+                image = ResourceManager.getImage(Main.SWORD_GOLD);
+            }else{
+                throw new SlickException("Invalid sword material '" + i.getMaterial() + "'.");
+            }
+        }else if( i.getType().equals("Armor") ){
+            //iron, gold
+            if( i.getMaterial().equals("Iron") ){
+                image = ResourceManager.getImage(Main.ARMOR_IRON);
+            }else if( i.getMaterial().equals("Gold") ){
+                image = ResourceManager.getImage(Main.ARMOR_GOLD);
+            }else{
+                throw new SlickException("Invalid armor material '" + i.getMaterial() + "'.");
+            }
+        }else if( i.getType().equals("Arrow") ){
+            if( i.getEffect().equals("Flame") ){
+                image = ResourceManager.getImage(Main.ARROW_FLAME);
+            }else if( i.getEffect().equals("Poison") ){
+                image = ResourceManager.getImage(Main.ARROW_POISON);
+            }else if( i.getEffect().equals("Ice") ){
+                image = ResourceManager.getImage(Main.ARROW_ICE);
+            }else if( i.getEffect().equals("") ){
+                image = ResourceManager.getImage(Main.ARROW_NORMAL);
+            }else{
+                throw new SlickException("Invalid arrow effect '" + i.getEffect() + "'.");
+            }
+        }else if( i.getType().equals("Gloves") ){
+            if( i.getMaterial().equals("Red") ){
+                image = ResourceManager.getImage(Main.GLOVES_RED);
+            }else if( i.getMaterial().equals("White") ){
+                image = ResourceManager.getImage(Main.GLOVES_WHITE);
+            }else if( i.getMaterial().equals("Yellow") ){
+                image = ResourceManager.getImage(Main.GLOVES_YELLOW);
+            }else{
+                throw new SlickException("Invalid glove material '" + i.getMaterial() + "'.");
+            }
+        }else if( i.getType().equals("Staff") ){
+            if( i.getMaterial().equals("Ruby") ){
+                image = ResourceManager.getImage(Main.STAFF_RUBY);
+            }else if( i.getMaterial().equals("Emerald") ){
+                image = ResourceManager.getImage(Main.STAFF_EMERALD);
+            }else if( i.getMaterial().equals("Amethyst") ){
+                image = ResourceManager.getImage(Main.STAFF_AMETHYST);
+            }else{
+                throw new SlickException("Invalid staff material '" + i.getMaterial() + "'.");
+            }
+        }
+        i.setImage(image);
+    }
     private boolean wallAdjacent(int row, int col, int[][] map){
         //check if there is a wall or map edge in a horizontally adjacent tile
         try{
@@ -336,16 +409,16 @@ public class Level extends BasicGameState {
 
     public void addMessage(String message){
         //check for a duplicate message
-    	for( Message m : messagebox ){
-    		if( m == null ){
-    			break;
-    		}
-    		if( m.text.equals(message)){
-    			return;
-    		}
-    	}
-    	
-    	//add a message to the first index of the message box
+        for( Message m : messagebox ){
+            if( m == null ){
+                break;
+            }
+            if( m.text.equals(message)){
+                return;
+            }
+        }
+
+        //add a message to the first index of the message box
         //  and shift everything else down
         for( int i = messagebox.length-1; i > 0; i-- ){
             messagebox[i] = messagebox[i-1];
@@ -427,6 +500,8 @@ public class Level extends BasicGameState {
         // TODO will need to sort the lists and draw in order so players draw on top of others
         // draw other characters
         renderCharacters(dc, g);
+
+        renderEnemies(dc, g);
 
         // draw the hero
         dc.hero.animate.render(g);
@@ -607,44 +682,42 @@ public class Level extends BasicGameState {
     private void renderPathWeights(Main dc, Graphics g) {
         boolean scaled = false;
         boolean coords = false;
-        for (Character ai : dc.characters) {
-            if (ai.weights != null) {
-                for (int i = 0; i < ai.weights.length; i++) {
-                    for (int j = 0; j < ai.weights[0].length; j++) {
-                        Color tmp = g.getColor();
-                        g.setColor(new Color(255, 255, 255, 1f));
+        if (dc.hero.weights != null) {
+            for (int i = 0; i < dc.hero.weights.length; i++) {
+                for (int j = 0; j < dc.hero.weights[0].length; j++) {
+                    Color tmp = g.getColor();
+                    g.setColor(new Color(255, 255, 255, 1f));
 
-                        //make the messages fade away based on their timers
-                        String msg = String.valueOf((int) ai.weights[i][j]);
+                    //make the messages fade away based on their timers
+                    String msg = String.valueOf((int) dc.hero.weights[i][j]);
 
-                        if (!scaled) {
-                            if (ai.weights[i][j] > 200000) {
-                                msg = "INF";
-                            }
-                            Vector wc = new Vector(i * dc.tilesize, j * dc.tilesize);
-                            Vector sc = world2screenCoordinates(dc, wc);
-                            g.drawString(msg, sc.getX(), sc.getY());
+                    if (!scaled) {
+                        if (dc.hero.weights[i][j] > 200000) {
+                            msg = "INF";
                         }
-                        else {
-                            g.scale(.5f, .5f);
-                            Vector wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize);
-                            Vector sc = world2screenCoordinates(dc, wc);
-                            g.drawString(msg, sc.getX(), sc.getY());
-
-                            // draw x, y tile values
-                            if (coords) {
-                                g.setColor(new Color(255, 255, 255, .8f));
-                                wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize + dc.offset);
-                                sc = world2screenCoordinates(dc, wc);
-                                String I = String.valueOf(i);
-                                String J = String.valueOf(j);
-                                msg = "(" + I + "," + J + ")";
-                                g.drawString(msg, sc.getX(), sc.getY());
-                            }
-                            g.scale(2f, 2f);
-                        }
-                        g.setColor(tmp);
+                        Vector wc = new Vector(i * dc.tilesize, j * dc.tilesize);
+                        Vector sc = world2screenCoordinates(dc, wc);
+                        g.drawString(msg, sc.getX(), sc.getY());
                     }
+                    else {
+                        g.scale(.5f, .5f);
+                        Vector wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize);
+                        Vector sc = world2screenCoordinates(dc, wc);
+                        g.drawString(msg, sc.getX(), sc.getY());
+
+                        // draw x, y tile values
+                        if (coords) {
+                            g.setColor(new Color(255, 255, 255, .8f));
+                            wc = new Vector(2 * i * dc.tilesize, 2 * j * dc.tilesize + dc.offset);
+                            sc = world2screenCoordinates(dc, wc);
+                            String I = String.valueOf(i);
+                            String J = String.valueOf(j);
+                            msg = "(" + I + "," + J + ")";
+                            g.drawString(msg, sc.getX(), sc.getY());
+                        }
+                        g.scale(2f, 2f);
+                    }
+                    g.setColor(tmp);
                 }
             }
         }
@@ -907,7 +980,7 @@ public class Level extends BasicGameState {
     }
 
     /*
-    Renders the other characters and AI on the screen if they are in the players screen
+    Renders the other characters on the screen if they are in the players screen
      */
     private void renderCharacters(Main dc, Graphics g) {
         for (Character ch : dc.characters) {
@@ -918,10 +991,24 @@ public class Level extends BasicGameState {
                     ch.animate.render(g);
                 }
             }
-
         }
-        //*/
+    }
 
+
+    /*
+    Renders the  AI on the screen if they are in the players screen
+     */
+    private void renderEnemies(Main dc, Graphics g) {
+        for (Character ai : dc.enemies) {
+            if (ai.getHitPoints() <= 0) {
+                continue;
+            }
+            Vector sc = world2screenCoordinates(dc, ai.getWorldCoordinates());
+            ai.animate.setPosition(sc);
+            if (characterInRegion(dc, ai)) {
+                ai.animate.render(g);
+            }
+        }
     }
 
     private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
@@ -1047,6 +1134,12 @@ public class Level extends BasicGameState {
         positionToServer(dc);  // Get the player's updated position onto the server.
         updateOtherPlayers(dc);
 
+        sendEnemyStatusToServer(dc);
+        readEnemyStatusFromServer(dc);
+        readWeightsFromServer(dc);
+
+
+
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){
             System.out.println("Game window frozen, expecting user input.");
@@ -1138,6 +1231,24 @@ public class Level extends BasicGameState {
             			attackCooldown = itm.getWeight()*17;
             		}
             	}
+
+                //itm = dc.hero.getEquipped()[selectedEquippedItem];
+                if( attackCooldown <= 0 ){
+                    if( dc.hero.getType().toLowerCase().contains("knight") ||
+                            dc.hero.getType().toLowerCase().contains("tank") ){
+                        attack(null, dc, lastKnownDirection);
+                    }else if( canUse(itm, dc.hero) ){
+                        attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
+                    }
+
+                    //update attack cooldown based on item weight
+                    if( itm == null ){
+                        attackCooldown = 1000;
+                    }else{
+                        //max attack item weight is 60, max cooldown time should be one second
+                        attackCooldown = itm.getWeight()*17;
+                    }
+                }
             }else if( input.isKeyPressed(Input.KEY_APOSTROPHE) ){
                 //use item on own character
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
@@ -1252,13 +1363,13 @@ public class Level extends BasicGameState {
         // if the hero has no health, then replace it with a new hero character in the same spot
         if(dc.hero.getHitPoints() <= 0){
             dc.hero = new Character(dc,dc.hero.animate.getX(),dc.hero.animate.getY(),dc.hero.getType(),
-                    serverId,this,false);
+                    dc.serverId,this,false);
             dc.characters.add(0,dc.hero);
         }
 
 
         // cause AI players to move around
-        for( Character ch : dc.characters ) {
+        for( Character ch : dc.enemies ) {
             if (ch.ai) {        // if the player is an AI player, move them
                 ch.moveAI(delta);
             }
@@ -1283,6 +1394,9 @@ public class Level extends BasicGameState {
 
             //check if a thrown item hit a character
             //merge the character and enemy lists
+            ArrayList<Character> targets = new ArrayList<Character>();
+            targets.addAll(dc.characters);
+            targets.addAll(dc.enemies);
             for( Character ch : targets ){
 
                 if( ch.getPid() == dc.hero.getPid() ){
@@ -1489,8 +1603,6 @@ public class Level extends BasicGameState {
                 if( c.ai ){
                     //if the ai character is within one tilesize of the player
                     //in the given direction
-//                    Vector aipos = c.animate.getPosition();
-//                    Vector plpos = dc.hero.animate.getPosition();
                     Vector aipos = c.getWorldCoordinates();
                     Vector plpos = dc.hero.getWorldCoordinates();
 
@@ -1730,21 +1842,112 @@ public class Level extends BasicGameState {
         return ks;
     }
 
+
+    /**
+     * sends information about the enemies to the server
+     * @param dc
+     */
+    public void sendEnemyStatusToServer(Main dc) {
+//        System.out.println("sendEnemyStatusToServer()");
+        Msg msg;
+        float wx;
+        float wy;
+        for (Character ai : dc.enemies) {
+            wx = ai.getWorldCoordinates().getX();
+            wy = ai.getWorldCoordinates().getY();
+            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints());
+            try {
+                outStream.writeObject(msg);
+                outStream.flush();
+                outStream.reset();
+//                System.out.println("writing " + msg.toString());
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+//        // System.out.println();
+    }
+
+    /*
+read the information about the AI from the server
+ */
+    private void readEnemyStatusFromServer(Main dc) {
+//        System.out.println("readEnemyStatusFromServer()");
+        for (Character ai : dc.enemies) {
+            try {
+                Msg msg = (Msg) inStream.readObject();
+//                System.out.println("reading " + msg.toString());
+                if (ai.canMove) {
+                    ai.setWorldCoordinates(msg.wx, msg.wy);
+                }
+                ai.setHitPoints(msg.hp);
+                ai.next = msg.nextDirection;
+            } catch (ClassNotFoundException | IOException e) {
+                e.printStackTrace();
+            }
+        }
+        // System.out.println();
+    }
+
+    /*
+    Read the weights from dijkstra from the server
+     */
+    private void readWeightsFromServer(Main dc) {
+        try {
+            Msg msg = (Msg) inStream.readObject();
+            dc.hero.weights = msg.dijkstraWeights;
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     /**
       * Update the players position on the server.
       */
     public void positionToServer(Main dc){
         float wx = dc.hero.getWorldCoordinates().getX();
         float wy = dc.hero.getWorldCoordinates().getY();
-        Msg toServer = new Msg(serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+        getEffectsForMsg(dc, toServer);
         try {
-            dos.writeObject(toServer);
-            dos.flush();
             //System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
+            outStream.writeObject(toServer);
+            outStream.flush();
+            outStream.reset();
+//            System.out.println("writing "+ toServer.toString());
         }catch(IOException e){
             e.printStackTrace();
         }
     }
+
+
+    /**
+     * enable the effects for the server message
+     * @param dc
+     * @param msg to be sent to the server
+     */
+    private void getEffectsForMsg(Main dc, Msg msg) {
+        if (dc.hero.isInvisible()) {
+            msg.invisible = true;
+        }
+        if (dc.hero.isStinky()) {
+            msg.stinky = true;
+        }
+        if (dc.hero.isThorny()) {
+            msg.thorny = true;
+        }
+        if (dc.hero.isFrightening()) {
+            msg.frightening = true;
+        }
+        if (dc.hero.isReflecting()) {
+            msg.reflecting = true;
+        }
+        if (dc.hero.isMighty()) {
+            msg.mighty = true;
+        }
+    }
+
 
     /*
     Renders the map on screen, only drawing the necessary tiles in view
@@ -1757,9 +1960,9 @@ public class Level extends BasicGameState {
 
     public void updateOtherPlayers(Main dc){
         try {
-            Msg read = (Msg)dis.readObject(); // message from server
-            //System.out.println("reading 'read' type: " + read.getClass().getSimpleName());
-            //System.out.println("("+serverId+") Read: " + read);
+            Msg read = (Msg) inStream.readObject(); // message from server
+//            System.out.println("reading " + read.toString());
+//            System.out.println("("+dc.serverId+"): " + read);
 
             if(read.type.equals("Exit")) {
                 dc.characters.removeIf(c -> c.getPid() == read.id);
@@ -1768,7 +1971,7 @@ public class Level extends BasicGameState {
             for(Iterator<Character> i = dc.characters.iterator();i.hasNext();){
                 Character c = i.next();
                 if(c.getPid() == read.id) {
-                    if (c.getPid() == serverId) {
+                    if (c.getPid() == dc.serverId) {
                         return;
                     }
                     c.setWorldCoordinates(new Vector(read.wx,read.wy));
@@ -1836,34 +2039,6 @@ public class Level extends BasicGameState {
         float sy = wc.getY() - dc.hero.pixelY;
         return new Vector(sx, sy);
     }
-
-
-    // TODO this will be called from the server side
-    /**
-     * Populate the world with AI characters
-     */
-    public void spawnEnemies(Main dc, int numItems) {
-        int maxcol =  dc.map.length - 2;
-        int maxrow = dc.map[0].length - 2;
-        Random rand = new Random();
-        while( numItems > 0 ){
-            int col = rand.nextInt(maxcol);
-            int row = rand.nextInt(maxrow);
-            while(row < 2 || col < 2 || dc.map[col][row] == 1){
-                col = rand.nextInt(maxcol) - 1;
-                row = rand.nextInt(maxrow) - 1;
-//                System.out.printf("getting %s, %s\n", col, row);
-            }
-//            System.out.printf("\nSpawning at %s, %s\n", col, row);
-            float wx = (dc.tilesize * row) - dc.offset;
-            float wy = (dc.tilesize * col) - dc.tilesize - dc.doubleOffset;
-            dc.characters.add(new Character(dc, wx, wy, "skeleton_basic", (int) System.nanoTime(), this, true));
-
-            //create a random item at the given position
-            numItems--;
-        }
-    }
-
 
 
 }

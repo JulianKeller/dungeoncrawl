@@ -1,35 +1,24 @@
-package client;
+package server;
 
 import java.util.*;
-import jig.Vector;
 
 // an implementation of Dijkstra's algorithm
 public class PathFinding {
-    private float[][] distance;
+    public float[][] distance;
     private int[][][] path;
     private boolean[][] visited;
     private ArrayList<Vertex> q;
     private int y;
     private int x;
-    private int targetX;
-    private int targetY;
-    private int startX;
-    private int startY;
-//    private final int MAX = 20000;
-private final int MAX = Integer.MAX_VALUE;
 
-    public PathFinding(Main dc, Vector start, Vector target) {
-        this.y = dc.map.length;
-        this.x = dc.map[0].length;
-        this.targetX = (int) target.getX();
-        this.targetY = (int) target.getY();
-        this.startX = (int) start.getX();
-        this.startY = (int) start.getY();
+    public PathFinding(int[][] map) {
+        this.y = map.length;
+        this.x = map[0].length;
     }
 
-    // runs dijkstra's and then returns the shortest found path
-    public ArrayList<int[]> dijkstra(Main dc, int startX, int startY) {
-        int[][] map = dc.map;
+    // runs dijkstra's from the starting point
+    public void dijkstra(int startX, int startY) {
+        int[][] map = Server.map;
         Vertex min;
         initializeSingleSource(startX, startY);
         int[] current;
@@ -51,11 +40,18 @@ private final int MAX = Integer.MAX_VALUE;
             relax(map, current, left);
             relax(map, current, right);
         }
-        return findShortestPath();
     }
 
-    // find the shortest path from Dijkstra
-    private ArrayList<int[]> findShortestPath() {
+    /**
+     * Finds the shortest path after dijkstra's has been run between the starting and target points
+     *
+     * @param startX  x starting tile coordinates
+     * @param startY  y starting tile coordinates
+     * @param targetX x ending tile coordinates
+     * @param targetY y ending tile coordinates
+     * @return the shortest path between start and end
+     */
+    public ArrayList<int[]> findShortestPath(int startX, int startY, int targetX, int targetY) {
         Stack<int[]> stack = new Stack<>();
         ArrayList<int[]> shortest = new ArrayList<>();
         int prevx, prevy;
@@ -85,6 +81,7 @@ private final int MAX = Integer.MAX_VALUE;
         while (!stack.isEmpty()) {
             shortest.add(stack.pop());
         }
+//        printShortestPath(shortest);
         return shortest;
     }
 
@@ -124,7 +121,6 @@ private final int MAX = Integer.MAX_VALUE;
         if (!inRange(current) || !inRange(adjacent))
             return;
 
-        // TODO here seems to be the problem
         int weight = 1;
         if (map[ay][ax] == 1) {
             weight = Integer.MAX_VALUE;
@@ -134,7 +130,6 @@ private final int MAX = Integer.MAX_VALUE;
             distance[ax][ay] = distance[cx][cy] + weight;
             path[ax][ay] = current;
         }
-
     }
 
     // make sure everything is in range of the map
@@ -187,8 +182,6 @@ private final int MAX = Integer.MAX_VALUE;
             this.distance = Math.abs(startX - x) + Math.abs(startY - y);
         }
     }
-
-
 
 
 }
