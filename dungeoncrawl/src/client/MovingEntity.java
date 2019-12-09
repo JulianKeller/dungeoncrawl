@@ -480,10 +480,13 @@ Reflection:
 		 * For example, swiftness will double the speed every loop
 		 *   if it remains in the list
 		 */ 
-		activeEffects.removeIf(b -> b.name.equals("Strength") || 
+		
+    	activeEffects.removeIf(b -> b.name.equals("Strength") || 
 									b.name.equals("Healing") ||
 									b.name.equals("Lightning") ||
 									b.name.equals("Mana"));
+
+		
     }
     
     public Animation getFloatingPlusSigns(String color, int frameCount, int duration) throws SlickException{

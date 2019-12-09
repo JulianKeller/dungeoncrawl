@@ -37,13 +37,17 @@ public class VFXEntity extends Entity{
 		addAnimation(a);
 	}
 	
-	public void updateVisualEffectTimer(String effect, int time){
+	public void updateVisualEffectTimer(String effect, int time, boolean reduce){
 		//set the timer of a visual effect to the given value
 		//and remove the effect if its timer has expired
 		for( NamedAnimation na : animations ){
 			
 			if( na.effect.equals(effect) ){
-				na.timer = time;
+				if( reduce ){
+					na.timer -= time;
+				}else{
+					na.timer = time;
+				}
 				
 				if( na.timer <= 0 ){
 					na.a.stop();

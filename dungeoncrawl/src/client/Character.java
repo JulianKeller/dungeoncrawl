@@ -134,18 +134,29 @@ public class Character extends MovingEntity {
     		}
     		
     		//add the animation to this character's vfxentity
-    		vfx.addVisualEffect(e.name, e.timer, ani);
+    		vfx.addVisualEffect(e.name, 2000, ani);
     		
+    		
+    		System.out.println("added visual effect " + e.name + " with timer " + 2000 );
 
     	}
     	
 		//remove any single effects
-		removeSingleEffects();
+    	removeSingleEffects();
+
     }
     
     public void updateVisualEffectTimers(){
     	for( Effect e : super.getActiveEffects() ){
-    		vfx.updateVisualEffectTimer(e.name, e.timer);
+    		vfx.updateVisualEffectTimer(e.name, e.timer, false);
+    	}
+    	
+    	//update timers on single effects
+    	if( vfx != null ){
+	    	String[] singleEffects = {"Strength", "Healing", "Mana", "Lightning"};
+	    	for( String st : singleEffects ){
+	    		vfx.updateVisualEffectTimer(st, 16, true);
+	    	}
     	}
     }
     

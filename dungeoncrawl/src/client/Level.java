@@ -1015,7 +1015,7 @@ public class Level extends BasicGameState {
 	        //remove visual effects corresponding to removed effects
         	if( ch.vfx != null ){
 	        	for( String st : removedEffects ){
-	        		ch.vfx.updateVisualEffectTimer(st, 0);
+	        		ch.vfx.updateVisualEffectTimer(st, 0, false);
 	        	}
         	}
         	
@@ -1238,7 +1238,7 @@ public class Level extends BasicGameState {
         	if( ch.getHitPoints() <= 0 ){
         		if( ch.vfx != null ){
 	        		for( Effect e : ch.getActiveEffects() ){
-	        			ch.vfx.updateVisualEffectTimer(e.name, 0);
+	        			ch.vfx.updateVisualEffectTimer(e.name, 0, false);
 	        		}
 	        		ch.vfx = null;
 	        		
