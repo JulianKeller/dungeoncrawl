@@ -1327,6 +1327,9 @@ public class Level extends BasicGameState {
                             }
                         }
                         addMessage(m);
+                        if( ti.itm.getType().equals("Arrow") ){
+                        	reachedDestination.add(ti);
+                        }
                     }
                 }
             }
