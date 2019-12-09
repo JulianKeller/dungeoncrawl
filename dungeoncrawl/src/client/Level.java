@@ -980,12 +980,19 @@ public class Level extends BasicGameState {
 
         
         //implement effects on the character
+        //TODO: this should still be done on the client
+        // but the active effects list should be communicated
+        // to the server so that other clients can see the effect
+        // visualizations.
         //dc.hero.implementEffects();
         
         
         //draw visual effects
         for( Character ch : targets ){
         	
+        	//TODO: this should be done on the server,
+        	// not the client
+        	//(client should handle its own effects)
         	ch.implementEffects();
         	
         	
@@ -1023,13 +1030,6 @@ public class Level extends BasicGameState {
         		ch.vfx.setPosition(ch.animate.getPosition());
         	}
         }
-        
-
-        
-        //reduce the effect timers by a constant value each frame
-        //  if delta is used instead of a constant, tabbing away from
-        //  the game window can cause all effects to disappear instantly
-        //dc.hero.updateEffectTimers(16);
 
         String ks = getKeystroke(input);
         if( prevks.equals("") ){
