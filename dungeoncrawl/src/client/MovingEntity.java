@@ -561,12 +561,6 @@ Reflection:
     	if( !effect.equals("") ){
     		addEffect(effect, cursed);
     	}
-    	System.out.println("Enemy was affected by " + effect );
-    	for( Effect e : getActiveEffects() ){
-    		System.out.println(e.name);
-    	}
-    	
-    	
     	//check if this entity is dead
     	if( hitPoints <= 0 ){
     		return true;

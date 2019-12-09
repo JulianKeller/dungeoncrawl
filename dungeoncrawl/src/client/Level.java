@@ -435,6 +435,13 @@ public class Level extends BasicGameState {
         	dc.hero.vfx.render(g);
         }
         
+        //draw the vfx for all characters
+        for( Character ch : targets ){
+        	if( ch.vfx != null ){
+        		ch.vfx.render(g);
+        	}
+        }
+        
 
         renderHealthBar(dc, g);
 
