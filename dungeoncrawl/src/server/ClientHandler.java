@@ -38,7 +38,7 @@ public class ClientHandler extends Thread {
             outStream.writeInt(id);
             System.out.println("Writing id "+ id);
             outStream.flush();
-            //sendEnemyList();
+            sendEnemyList();
             sendItemList();
             while(true) {
                 try {
