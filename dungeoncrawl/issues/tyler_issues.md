@@ -17,13 +17,12 @@ server for player.<br>
 **[ 25 ]** Fix optionaldataexception<br>
 **[ 24 ]** Create a message class in the server to send to the client/server.<br>
 **[ 21 ]** Receive same messages to every client<br>
-
+**[ 19 ]** Get a clients keystroke sent to the server, and use 
+that to animate the player on other clients<br>
 ## Pending Further Testing ##
 
 ## PENDING ISSUES ##
 **[ 9 ]** Get item managment working on the server.<br>
-**[ 19 ]** Get a clients keystroke sent to the server, and use 
-that to animate the player on other clients<br>
 **[29]** Create a queue on the client to send messages over to the server.<br>
 **[30]** Create a method that sends the client how many items to read
 and have the client read through all queue messages<br>
@@ -32,3 +31,4 @@ and have the server read through all messages and send them to the server queue<
 **[26]** Have items placed by server<br>
 **[27]** Make items disappear when player picks up item<br>
 **[28]** Make items reappear when player drops<br>
+**[29]** Reduce the number of messages to clients.

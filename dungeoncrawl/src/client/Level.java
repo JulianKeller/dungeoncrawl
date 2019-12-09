@@ -208,45 +208,8 @@ public class Level extends BasicGameState {
         dc.hero = new Character(dc, wx, wy, type, id, this, false);
         dc.characters.add(dc.hero);
 
-        //Grabbing ArrayList of enemies.
-        ArrayList<Msg> enemyList = new ArrayList<>();
-        try{
-            enemyList = (ArrayList<Msg>) inStream.readObject();
-//            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
-        } catch(IOException | ClassNotFoundException e){
-            e.printStackTrace();
-        }
-        for (Msg e : enemyList) {
-            float x = e.wx;
-            float y = e.wy;
-            int eid = e.id;
-            dc.enemies.add(new Character(dc, x, y, e.type, eid, this, true));
-//            System.out.println("Created AI " + e.toString());
-        }
-
-        try {
-            int maxcol =  dc.map.length - 2;
-            int maxrow = dc.map[0].length - 2;
-            //Main.im.plant(20, rotatedMap, maxcol, maxrow)
-            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
-            //System.out.println("Read type: "+fromServer.getClass().getSimpleName());
-            for(ItemMsg i : fromServer) {
-                try {
-                    System.out.println("Adding item: "+i.type);
-                    Item item = new Item(new Vector(i.wx,i.wy),false,i.id,i.oid,i.effect,
-                            i.type,i.material,i.cursed,i.identified,null,i.count);
-                    setItemImage(item);
-                    Main.im.addToWorldItems(item);
-                }catch(SlickException e){
-                    e.printStackTrace();
-                }
-
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return;
-        }
+        receiveEnemyList(dc);
+        receiveItemList();
 
         // render map
         RenderMap.setMap(dc, dc.hero);
@@ -290,12 +253,49 @@ public class Level extends BasicGameState {
                 }
             }
         }
-        
         targets = new ArrayList<Character>();
         targets.addAll(dc.characters);
         targets.addAll(dc.enemies);
     }
 
+    private void receiveItemList(){
+        try {
+            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
+            //System.out.println("Read type: "+fromServer.getClass().getSimpleName());
+            for(ItemMsg i : fromServer) {
+                try {
+                    System.out.println("Adding item: "+i.type);
+                    Item item = new Item(new Vector(i.wx,i.wy),false,i.id,i.oid,i.effect,
+                            i.type,i.material,i.cursed,i.identified,null,i.count);
+                    setItemImage(item);
+                    Main.im.addToWorldItems(item);
+                }catch(SlickException e){
+                    e.printStackTrace();
+                }
+
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    private void receiveEnemyList(Main dc){
+        //Grabbing ArrayList of enemies.
+        ArrayList<Msg> enemyList = new ArrayList<>();
+        try{
+            enemyList = (ArrayList<Msg>) inStream.readObject();
+//            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
+        } catch(IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+        for (Msg e : enemyList) {
+            float x = e.wx;
+            float y = e.wy;
+            int eid = e.id;
+            dc.enemies.add(new Character(dc, x, y, e.type, eid, this, true));
+//            System.out.println("Created AI " + e.toString());
+        }
+    }
     private void setItemImage(Item i) throws SlickException{
         //get an image based on item type
         Image image = null;
@@ -1118,7 +1118,7 @@ public class Level extends BasicGameState {
         	}
         }
 
-        String ks = getKeystroke(input);
+        String ks = getKeystroke(input, dc);
         if( prevks.equals("") ){
             prevks = ks;
         }
@@ -1131,7 +1131,7 @@ public class Level extends BasicGameState {
             lastKnownDirection = vectorFromKeystroke(ks);
         }
         dc.hero.move(ks);
-        positionToServer(dc);  // Get the player's updated position onto the server.
+        //positionToServer(dc);  // Get the player's updated position onto the server.
         updateOtherPlayers(dc);
 
         sendEnemyStatusToServer(dc);
@@ -1817,7 +1817,7 @@ public class Level extends BasicGameState {
     /*
     get the key being pressed, returns a string
      */
-    public String getKeystroke(Input input) {
+    public String getKeystroke(Input input, Main dc) {
         String ks = "";
         if (input.isKeyDown(Input.KEY_W)) {
             ks = "w";
@@ -1838,6 +1838,17 @@ public class Level extends BasicGameState {
         // cheat slow down
         else if (input.isKeyPressed(Input.KEY_5)) {
             ks = "5";
+        }
+        try{
+            Msg message = new Msg(dc.serverId,dc.hero.getType(),dc.hero.getWorldCoordinates().getX(),
+                    dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints());
+            message.ks = ks;
+            outStream.writeObject(message);
+            System.out.println("wrote message of "+message.getClass().getSimpleName());
+            outStream.flush();
+            outStream.reset();
+        }catch(IOException e){
+            e.printStackTrace();
         }
         return ks;
     }
@@ -1905,21 +1916,62 @@ read the information about the AI from the server
     /**
       * Update the players position on the server.
       */
-    public void positionToServer(Main dc){
-        float wx = dc.hero.getWorldCoordinates().getX();
-        float wy = dc.hero.getWorldCoordinates().getY();
-        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-        getEffectsForMsg(dc, toServer);
-        try {
-            //System.out.println("Wrote 'toServer' type: "+ toServer.getClass().getSimpleName());
-            outStream.writeObject(toServer);
-            outStream.flush();
-            outStream.reset();
-//            System.out.println("writing "+ toServer.toString());
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-    }
+//    public void positionToServer(Main dc){
+//        float wx = dc.hero.getWorldCoordinates().getX();
+//        float wy = dc.hero.getWorldCoordinates().getY();
+//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+//        getEffectsForMsg(dc, toServer);
+//        try {
+//            outStream.writeObject(toServer);
+//            outStream.flush();
+//            outStream.reset();
+////            System.out.println("writing "+ toServer.toString());
+//        }catch(IOException e){
+//            e.printStackTrace();
+//        }
+//    }
+//    public void positionToServer(Main dc){
+//        float wx = dc.hero.getWorldCoordinates().getX();
+//        float wy = dc.hero.getWorldCoordinates().getY();
+//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+//        getEffectsForMsg(dc, toServer);
+//        try {
+//            outStream.writeObject(toServer);
+//            outStream.flush();
+//            outStream.reset();
+////            System.out.println("writing "+ toServer.toString());
+//        }catch(IOException e){
+//            e.printStackTrace();
+//        }
+//    }
+//    public void positionToServer(Main dc){
+//        float wx = dc.hero.getWorldCoordinates().getX();
+//        float wy = dc.hero.getWorldCoordinates().getY();
+//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+//        getEffectsForMsg(dc, toServer);
+//        try {
+//            outStream.writeObject(toServer);
+//            outStream.flush();
+//            outStream.reset();
+////            System.out.println("writing "+ toServer.toString());
+//        }catch(IOException e){
+//            e.printStackTrace();
+//        }
+//    }
+//    public void positionToServer(Main dc){
+//        float wx = dc.hero.getWorldCoordinates().getX();
+//        float wy = dc.hero.getWorldCoordinates().getY();
+//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
+//        getEffectsForMsg(dc, toServer);
+//        try {
+//            outStream.writeObject(toServer);
+//            outStream.flush();
+//            outStream.reset();
+////            System.out.println("writing "+ toServer.toString());
+//        }catch(IOException e){
+//            e.printStackTrace();
+//        }
+//    }
 
 
     /**
@@ -1974,7 +2026,7 @@ read the information about the AI from the server
                     if (c.getPid() == dc.serverId) {
                         return;
                     }
-                    c.setWorldCoordinates(new Vector(read.wx,read.wy));
+                    c.move(read.ks);
                     c.setHitPoints(read.hp);
                     return;
                 }
