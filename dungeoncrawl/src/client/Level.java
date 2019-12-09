@@ -1126,11 +1126,8 @@ public class Level extends BasicGameState {
             	
             	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
             	if( attackCooldown <= 0 ){
-            		if( dc.hero.getType().toLowerCase().contains("knight") || 
-	            			dc.hero.getType().toLowerCase().contains("tank") ){
-	            		attack(null, dc, lastKnownDirection);
-	            	}else if( canUse(itm, dc.hero) ){
-	            		attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
+	            	if( itm == null || canUse(itm, dc.hero) ){
+	            		attack(itm, dc, lastKnownDirection);
 	            	}
             		
 	            	//update attack cooldown based on item weight

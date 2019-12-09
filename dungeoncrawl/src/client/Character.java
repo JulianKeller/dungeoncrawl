@@ -135,9 +135,6 @@ public class Character extends MovingEntity {
     		
     		//add the animation to this character's vfxentity
     		vfx.addVisualEffect(e.name, 2000, ani);
-    		
-    		
-    		System.out.println("added visual effect " + e.name + " with timer " + 2000 );
 
     	}
     	
