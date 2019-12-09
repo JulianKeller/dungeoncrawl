@@ -986,6 +986,7 @@ public class Level extends BasicGameState {
         for( Character ch : targets ){
         	
         	ch.implementEffects();
+        	ch.updateEffectTimers(16);
 	        
         	//add visual effects to the character
 	        if( ch.getActiveEffects().size() > 0 ){
@@ -1012,7 +1013,7 @@ public class Level extends BasicGameState {
         //reduce the effect timers by a constant value each frame
         //  if delta is used instead of a constant, tabbing away from
         //  the game window can cause all effects to disappear instantly
-        dc.hero.updateEffectTimers(16);
+        //dc.hero.updateEffectTimers(16);
 
         String ks = getKeystroke(input);
         if( prevks.equals("") ){

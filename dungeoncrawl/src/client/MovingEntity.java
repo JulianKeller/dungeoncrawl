@@ -61,7 +61,7 @@ public class MovingEntity extends Entity {
    
     
     private ArrayList<Effect> activeEffects; //list of things currently affecting the character
-    private final int defaultEffectTimer = 5000;
+    private final int defaultEffectTimer = 3000;
     class Effect{
     	String name;
     	int timer = defaultEffectTimer;
@@ -221,8 +221,8 @@ public class MovingEntity extends Entity {
     	ArrayList<String> effectsToAdd = new ArrayList<String>();
     	ArrayList<String> cursedEffectsToAdd = new ArrayList<String>();
     	for( Effect e : activeEffects ){
-    		//System.out.println("reducing timer of " + e.name + " by " + delta);
     		e.timer -= delta;
+    		//System.out.println(e.name + ": " + e.timer);
     		if( e.timer <= 0 ){
     			//set special exit properties
     			//  for certain effects
