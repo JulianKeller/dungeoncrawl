@@ -175,6 +175,8 @@ public class Main extends StateBasedGame {
     public static final String INVISIBLE_EFFECT = "resources/effects/invisibility.png";
     
     public static final String ICE_EFFECT = "resources/effects/ice_shards.png";
+    
+    public static final String LIGHTNING_EFFECT = "resources/effects/lightning.png";
 
     // Screen Size
     public final int ScreenWidth;
@@ -397,6 +399,8 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(INVISIBLE_EFFECT);
         
         ResourceManager.loadImage(ICE_EFFECT);
+        
+        ResourceManager.loadImage(LIGHTNING_EFFECT);
     }
 
     // Send close to the server and close connections before exiting.
