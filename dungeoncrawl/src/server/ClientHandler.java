@@ -7,14 +7,14 @@ import java.util.concurrent.*;
 
 // TODO investigate why reading and writing different position values is not working
 //  it seems the client is not getting the updated value, but the server is sending it
-public class ClientHandler extends Thread{
+public class ClientHandler extends Thread {
     private Socket socket;   // Socket of client and server
     private ObjectOutputStream outStream;  // the output stream
     private ObjectInputStream inStream;  // the input stream
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
     private BlockingQueue<Msg> threadQueue;
-    float hp = 1;
+    private float[][] weights;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
                          BlockingQueue<Msg> queue){
         socket = s;
@@ -51,14 +51,14 @@ public class ClientHandler extends Thread{
                     if (!writeSuccess || message.type.equals("Exit"))
                         break;
 
-                    // TODO update AI positions
+                    // Update the AI Positions
                     readAIStatusFromClient();
-                    AI.updatePosition();
+                    weights = AI.updatePosition(message);      // takes the hero's x, y coordinates
+                    message.dijkstraWeights = weights;
                     sendAIStatusToClient();
+                    sendWeightsToClient(message);
 
-
-
-                }catch(SocketException | ClassNotFoundException e){
+                } catch(SocketException | ClassNotFoundException e){
                     System.out.println("Client "+id+" closed unexpectedly.\nClosing connections " +
                             "and terminating thread.");
                     break;
@@ -71,6 +71,15 @@ public class ClientHandler extends Thread{
         } catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+
+    /*
+    Send weights from dijkstra's to the client
+     */
+    private void sendWeightsToClient(Msg msg) {
+        toServer(msg);
+        writeToClient();
     }
 
 
@@ -96,6 +105,8 @@ public class ClientHandler extends Thread{
             try {
                 Msg msg = (Msg) inStream.readObject();
 //                System.out.println("reading " + msg.toString());
+                ai.wx = msg.wx;
+                ai.wy = msg.wy;
                 ai.hp = msg.hp;
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();

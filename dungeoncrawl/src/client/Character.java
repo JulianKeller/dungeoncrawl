@@ -1,9 +1,10 @@
 package client;
 
 import jig.Vector;
+import server.PathFinding;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Character extends MovingEntity {
     private Main dc;
@@ -11,7 +12,7 @@ public class Character extends MovingEntity {
     private String type;
     private String direction;
     private String currentAction;
-    private boolean canMove = true;
+    public boolean canMove = true;
     private boolean nearEdge = false;
     public boolean ai;
     private int movesLeft;
@@ -30,6 +31,7 @@ public class Character extends MovingEntity {
     int range;          // range to player in tiles to use dijkstra's
     private int attackTimer = 0;
     PathFinding find;
+    public String next;
 
 
     /**
@@ -51,6 +53,7 @@ public class Character extends MovingEntity {
         setStats();
         animate = new AnimateEntity(wx, wy, getAnimationSpeed(), this.type);
         direction = "walk_down";
+        next = direction;
         currentAction = direction;
         animate.selectAnimation(direction);
         animate.stop();
@@ -231,8 +234,6 @@ public class Character extends MovingEntity {
      * This is the method that should be called from the level class to move the AI
      */
     public void moveAI(int delta) {
-        String[] moves = {"walk_up", "walk_down", "walk_left", "walk_right", "wait"};
-        String next = null;
         String currentDirection = direction;
 
         // moved the character fixed to the grid
@@ -270,68 +271,15 @@ public class Character extends MovingEntity {
             return;
         }
 
-        // run dijkstra's so enemies attack the player if the player is in range and not invisible
-        if (playerNearby(range) && !dc.hero.isInvisible()) {
-            Vector heroWC = dc.hero.getTileWorldCoordinates();
-
-            // if the player has the stench effect there is a 30% chance the AI will pathfind to the wrong coordinates
-            if (dc.hero.isStinky() || dc.hero.isFrightening()) {
-                Random rand = new Random();
-                int value = rand.nextInt(100);
-                int chance = 50;    // isFrigtening chance 50%
-                if (dc.hero.isStinky()) {
-                    chance = 30;    // stinky chance 30%
-                }
-                if (value <= chance) {
-                    switch (dc.hero.direction) {
-                        case "walk_up":
-                            heroWC = new Vector(dc.hero.getTileWorldCoordinates().getX(), dc.hero.getTileWorldCoordinates().getY() + 10);
-                            break;
-                        case "walk_down":
-                            heroWC = new Vector(dc.hero.getTileWorldCoordinates().getX(), dc.hero.getTileWorldCoordinates().getY() - 10);
-                            break;
-                        case "walk_left":
-                            heroWC = new Vector(dc.hero.getTileWorldCoordinates().getX() + 10, dc.hero.getTileWorldCoordinates().getY());
-                            break;
-                        case "walk_right":
-                            heroWC = new Vector(dc.hero.getTileWorldCoordinates().getX() - 10, dc.hero.getTileWorldCoordinates().getY());
-                            break;
-                    }
-                }
-            }
-
-            find = new PathFinding(dc, getTileWorldCoordinates(), heroWC);
-            int startX = (int) getTileWorldCoordinates().getX();
-            int startY = (int) getTileWorldCoordinates().getY();
-            shortest = find.dijkstra(dc, startX, startY);
-            next = getNextDirection(dc);
+        direction = next;
+        if (direction == null) {
+            direction = "wait";
+        }
+        if (direction.equals("wait")) {
+            animate.stop();
+            return;
         }
 
-        // load arrows for dijkstra's debugging
-        if (dc.showPath) {
-            Arrow.removeArrows(this);
-            Arrow.loadPathArrows(dc, this);
-            if (find != null) {
-                weights = find.getWeights();
-            }
-        }
-        else {
-            Arrow.removeArrows(this);
-            weights = null;
-        }
-        // move based on the shortest path
-
-        if (next != null) {
-            direction = next;
-        } else {
-            // get a random direction to move in
-            int rand = new Random().nextInt(moves.length);
-            direction = moves[rand];
-            if (direction.equals("wait")) {
-                animate.stop();
-                return;
-            }
-        }
         String movement = direction;
         setNextTileWorldCoordinates(movement);
         movesLeft = dc.tilesize;
@@ -409,34 +357,6 @@ public class Character extends MovingEntity {
         return canAttack;
     }
 
-    // get next direction based on Dijkstra shortest path
-    public String getNextDirection(Main dc) {
-        if (shortest.isEmpty() || shortest.size() <= 2) {
-            return null;
-        }
-        int px = (int) getTileWorldCoordinates().getX();
-        int py = (int) getTileWorldCoordinates().getY();
-        String dir = null;
-
-        int[] v = shortest.get(1);
-        int x = v[0];
-        int y = v[1];
-        if (x == px && y == py) {
-            v = shortest.get(2);
-            x = v[0];
-            y = v[1];
-            dir = "wait";
-        } else if (x > px) {
-            dir = "walk_right";
-        } else if (x < px) {
-            dir = "walk_left";
-        } else if (y > py) {
-            dir = "walk_down";
-        } else if (y < py) {
-            dir = "walk_up";
-        }
-        return dir;
-    }
 
     /**
      * This method updates the characters position such that it is a smooth transition without jumps. It is
@@ -626,14 +546,31 @@ public class Character extends MovingEntity {
                 x += 1;
                 break;
         }
-        for (Character ch : dc.characters) {
+        if (characterCollisionHelper(dc.characters, x, y) ||
+            characterCollisionHelper(dc.enemies, x, y)) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     *
+     * @param chars list of characters
+     * @param cx current x
+     * @param cy current y
+     */
+    private boolean characterCollisionHelper(ArrayList<Character> chars, int cx, int cy) {
+        int ox; // other x, y
+        int oy;
+        for (Character ch : chars) {
             if (ch.equals(this)) {
                 continue;
             }
-            chX = (int) ch.getTileWorldCoordinates().getX();
-            chY = (int) ch.getTileWorldCoordinates().getY();
+            ox = (int) ch.getTileWorldCoordinates().getX();
+            oy = (int) ch.getTileWorldCoordinates().getY();
             // if character pos == playeres next position
-            if (chX == x && chY == y) {
+            if (ox == cx && oy == cy) {
                 return true;
             }
             if ((getNextTileWorldCoordinates().getX() == ch.getNextTileWorldCoordinates().getX() &&
@@ -649,6 +586,7 @@ public class Character extends MovingEntity {
         }
         return false;
     }
+
 
 
     private String action;

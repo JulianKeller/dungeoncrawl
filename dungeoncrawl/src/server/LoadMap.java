@@ -15,7 +15,7 @@ public class LoadMap {
         if( System.getProperty("os.name").toLowerCase().contains("windows")){
             f = new File("src/maps");
         }
-        else if( System.getProperty("os.name").toLowerCase().contains("nix")) {
+        else if( System.getProperty("os.name").toLowerCase().contains("nux")) {
             f = new File("src/maps");
         }
         else{

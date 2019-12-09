@@ -90,7 +90,7 @@ public class Server extends Thread{
             ItemMsg i = generateItem();
             i.wx = row;
             i.wy = col;
-            System.out.println("i Material: "+i.material);
+//            System.out.println("i Material: "+i.material);
 
             if( i.type.equals("Potion") || i.type.equals("Arrow") ){
                 i.requiredLevel=0;
@@ -196,7 +196,7 @@ public class Server extends Thread{
 
 
         //choose materials from the appropriate list
-        System.out.println("Item type: "+item.type);
+//        System.out.println("Item type: "+item.type);
         r = rand.nextInt(100);
 
         if( item.type.equals("Sword") ){
@@ -340,8 +340,8 @@ public class Server extends Thread{
             map = LoadMap.getRandomMap();
             rotatedMap = rotateMap(map);
             // TODO generate AI characters
-//            enemies = AI.spawnEnemies(map, 20);
-            enemies = AI.spawnDebugEnemies(map);
+            enemies = AI.spawnEnemies(map, 20);
+//            enemies = AI.spawnDebugEnemies(map);
 
 
             // TODO generate items here
