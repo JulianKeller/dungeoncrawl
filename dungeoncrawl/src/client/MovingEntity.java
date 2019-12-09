@@ -172,6 +172,10 @@ public class MovingEntity extends Entity {
      *  removed with the removeEffect method
      */
     
+    public void clearActiveEffects(){
+    	activeEffects.clear();
+    }
+    
     public void addEffect(String name, boolean cursed){
     	//if the character already has the effect,
     	// reset the timer

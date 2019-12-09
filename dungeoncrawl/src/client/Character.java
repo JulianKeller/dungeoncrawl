@@ -150,16 +150,21 @@ public class Character extends MovingEntity {
     	}
     }
     
+    /*
     public boolean takeDamage(float amount, String effect, boolean cursed){
     	boolean killed = super.takeDamage(amount, effect, cursed);
+    	/*
     	if( vfx != null && killed ){
 	    	for( Effect e : super.getActiveEffects() ){
 	    		vfx.updateVisualEffectTimer(e.name, 0);
+	    		System.out.println();
 	    	}
     		vfx = null;
     	}
+    	
     	return killed;
     }
+	*/
 
     public void setType(String type) {
         this.type = type;

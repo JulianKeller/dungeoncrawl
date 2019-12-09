@@ -988,7 +988,22 @@ public class Level extends BasicGameState {
         	
         	ch.implementEffects();
         	
-        	ArrayList<String> removedEffects = ch.updateEffectTimers(16);
+        	
+        	ArrayList<String> removedEffects = new ArrayList<String>();
+        	
+        	//check if the character is now dead (killed by status effect)
+        	if( ch.getHitPoints() <= 0 ){
+        		//if dead, remove all effects
+        		for( Effect e : ch.getActiveEffects() ){
+        			removedEffects.add(e.name);
+        		}
+        		//clear active effects
+        		ch.clearActiveEffects();
+        	}else{
+        		//if not dead update timers and remove effects
+        		//  with expired timers
+        		removedEffects = ch.updateEffectTimers(16);
+        	}
         	
 	        //remove visual effects corresponding to removed effects
         	if( ch.vfx != null ){
@@ -1226,6 +1241,9 @@ public class Level extends BasicGameState {
 	        			ch.vfx.updateVisualEffectTimer(e.name, 0);
 	        		}
 	        		ch.vfx = null;
+	        		
+	        		//remove all active effects from the 
+	        		ch.clearActiveEffects();
         		}
         	}
         }
@@ -1303,7 +1321,7 @@ public class Level extends BasicGameState {
                                 //set character action to die
                                 ch.updateAnimation("die");
                                 
-                                ch.vfx = null;
+                                //ch.vfx = null;
                             }
 
                             m = "Hit enemy for " + (int) (10*damagePercent) + " damage.";
@@ -1495,7 +1513,7 @@ public class Level extends BasicGameState {
                                 //returns true if the enemy died
                                 c.updateAnimation("die");
                                 
-                                c.vfx = null;
+                                //c.vfx = null;
 
                             }
 
@@ -1531,7 +1549,7 @@ public class Level extends BasicGameState {
                             c.updateAnimation("die");
                             
                             //destroy the character's vfx object
-                            c.vfx = null;
+                            //c.vfx = null;
 
                         }
 
