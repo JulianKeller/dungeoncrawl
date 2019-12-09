@@ -91,6 +91,9 @@ public class Character extends MovingEntity {
     
     public void addVisualEffects() throws SlickException{
     	//go through list of active effect and add visual effects
+    	if( super.getActiveEffects().size() == 0 ){
+    		return;
+    	}
     	if( vfx == null ){
     		//make a new VFXEnt at the animation position
     		System.out.println("Creating new VFXEntity at " + animate.getPosition().toString());
@@ -131,13 +134,31 @@ public class Character extends MovingEntity {
     		}
     		
     		//add the animation to this character's vfxentity
-    		vfx.addVisualEffect(ani, "healing");
+    		vfx.addVisualEffect(e.name, e.timer, ani);
     		
 
     	}
     	
 		//remove any single effects
 		removeSingleEffects();
+    }
+    
+    public void updateVisualEffectTimers(){
+    	for( Effect e : super.getActiveEffects() ){
+    		vfx.updateVisualEffectTimer(e.name, e.timer);
+    		System.out.println("Updating timer of VFX " + e.name + " to " + e.timer );
+    	}
+    }
+    
+    public boolean takeDamage(float amount, String effect, boolean cursed){
+    	boolean killed = super.takeDamage(amount, effect, cursed);
+    	if( vfx != null && killed ){
+	    	for( Effect e : super.getActiveEffects() ){
+	    		vfx.updateVisualEffectTimer(e.name, 0);
+	    	}
+    		vfx = null;
+    	}
+    	return killed;
     }
 
     public void setType(String type) {

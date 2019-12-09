@@ -26,6 +26,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import com.sun.java.swing.plaf.motif.MotifBorders.InternalFrameBorder;
 
+import client.MovingEntity.Effect;
 import jig.ResourceManager;
 
 
@@ -986,26 +987,26 @@ public class Level extends BasicGameState {
         for( Character ch : targets ){
         	
         	ch.implementEffects();
-        	ch.updateEffectTimers(16);
-	        
-        	//add visual effects to the character
-	        if( ch.getActiveEffects().size() > 0 ){
-	        	//this will create a VFXEntity on the character
-	        	//  if one does not already exist
-	        	ch.addVisualEffects();
-	        	
-	        	//make it follow the player
-	        	//System.out.println("Setting vfx pos to " + ch.animate.getPosition().toString());
-	        	ch.vfx.setPosition(ch.animate.getPosition());
-	        }else if( ch.vfx != null ){
-	        	//the character is not experiencing any status effects,
-	        	//  so remove all the dead animations
-	        	ch.vfx.removeDeadAnimations(delta);
-	        	//destroy the vfx if there are no more animations
-	        	if( !ch.vfx.hasAnimations() ){
-	        		ch.vfx = null;
+        	
+        	ArrayList<String> removedEffects = ch.updateEffectTimers(16);
+        	
+	        //remove visual effects corresponding to removed effects
+        	if( ch.vfx != null ){
+	        	for( String st : removedEffects ){
+	        		ch.vfx.updateVisualEffectTimer(st, 0);
 	        	}
-	        }
+        	}
+        	
+        	//add any new visual effects
+        	ch.addVisualEffects();
+        	//and update timers
+        	ch.updateVisualEffectTimers();
+        	
+        	
+        	//follow the character
+        	if( ch.vfx != null ){
+        		ch.vfx.setPosition(ch.animate.getPosition());
+        	}
         }
         
 
@@ -1218,7 +1219,21 @@ public class Level extends BasicGameState {
         }
 
         //remove dead characters
+        for( Character ch : dc.characters ){
+        	if( ch.getHitPoints() <= 0 ){
+        		if( ch.vfx != null ){
+	        		for( Effect e : ch.getActiveEffects() ){
+	        			ch.vfx.updateVisualEffectTimer(e.name, 0);
+	        		}
+	        		ch.vfx = null;
+        		}
+        	}
+        }
+        
+        
         dc.characters.removeIf(b -> b.getHitPoints() <= 0);
+        
+        
         // if the hero has no health, then replace it with a new hero character in the same spot
         if(dc.hero.getHitPoints() <= 0){
             dc.hero = new Character(dc,dc.hero.animate.getX(),dc.hero.animate.getY(),dc.hero.getType(),
@@ -1287,6 +1302,8 @@ public class Level extends BasicGameState {
                             if( ch.takeDamage(10*damagePercent, ti.itm.getEffect(),false) ){
                                 //set character action to die
                                 ch.updateAnimation("die");
+                                
+                                ch.vfx = null;
                             }
 
                             m = "Hit enemy for " + (int) (10*damagePercent) + " damage.";
@@ -1477,6 +1494,8 @@ public class Level extends BasicGameState {
                         	if( c.takeDamage(damage, "",false) ){
                                 //returns true if the enemy died
                                 c.updateAnimation("die");
+                                
+                                c.vfx = null;
 
                             }
 
@@ -1510,6 +1529,9 @@ public class Level extends BasicGameState {
                         if( c.takeDamage(damage, itm.getEffect(),false) ){
                             //returns true if the enemy died
                             c.updateAnimation("die");
+                            
+                            //destroy the character's vfx object
+                            c.vfx = null;
 
                         }
 

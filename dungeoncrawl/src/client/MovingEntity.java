@@ -179,6 +179,8 @@ public class MovingEntity extends Entity {
     		if( e.name.equals(name) ){
     			e.timer = defaultEffectTimer;
     			e.cursed = cursed;
+    			
+    			return;
     		}
     	}
     	//if not, add the effect
@@ -215,15 +217,17 @@ public class MovingEntity extends Entity {
      * Use this function every update loop for
      * the automatic removal of timed effects
      */
-    public void updateEffectTimers(int delta){
+    public ArrayList<String> updateEffectTimers(int delta){
     	//reduce each active effect timer by delta
     	//System.out.println("Updating effect timers")
     	ArrayList<String> effectsToAdd = new ArrayList<String>();
     	ArrayList<String> cursedEffectsToAdd = new ArrayList<String>();
+    	ArrayList<String> removedEffects = new ArrayList<String>();
     	for( Effect e : activeEffects ){
     		e.timer -= delta;
     		//System.out.println(e.name + ": " + e.timer);
     		if( e.timer <= 0 ){
+    			removedEffects.add(e.name);
     			//set special exit properties
     			//  for certain effects
     			if( e.name.equals("Swiftness") || e.name.equals("Ice") ){	
@@ -251,6 +255,7 @@ public class MovingEntity extends Entity {
     		}
     	}
     	//remove any expired effects
+    	
     	activeEffects.removeIf(b -> b.timer <= 0);
     	
     	//add any new effects
@@ -260,6 +265,8 @@ public class MovingEntity extends Entity {
     	for( String s : cursedEffectsToAdd ){
     		addEffect(s, true);
     	}
+    	
+    	return removedEffects;
     }
     
     /*

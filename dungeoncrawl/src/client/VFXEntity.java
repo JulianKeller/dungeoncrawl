@@ -11,11 +11,12 @@ public class VFXEntity extends Entity{
 	private class NamedAnimation{
 		String effect;
 		Animation a;
-		int timer = 1500;
+		int timer;
 		
-		public NamedAnimation(String effect, Animation a){
+		public NamedAnimation(String effect, int timer, Animation a){
 			this.effect = effect;
 			this.a = a;
+			this.timer = timer;
 		}
 	}
 	private ArrayList<NamedAnimation> animations;
@@ -25,29 +26,32 @@ public class VFXEntity extends Entity{
 		animations = new ArrayList<NamedAnimation>();
 	}
 	
-	public void addVisualEffect(Animation a, String effect){
+	public void addVisualEffect(String effect, int timer, Animation a){
 		//add an animation to this entity
 		for( NamedAnimation na : animations ){
 			if( na.effect.toLowerCase().equals(effect.toLowerCase()) ){
 				return;
 			}
 		}
-		animations.add(new NamedAnimation(effect, a));
+		animations.add(new NamedAnimation(effect, timer, a));
 		addAnimation(a);
 	}
 	
-	public void removeDeadAnimations(int delta){
-		//remove any animations that have stopped
-		for( NamedAnimation a : animations ){
-			/*
-			if( a.a.isStopped() ){
-				removeAnimation(a.a);
-			}
-			*/
-			a.timer -= delta;
-			if( a.timer <= 0 ){
-				removeAnimation(a.a);
+	public void updateVisualEffectTimer(String effect, int time){
+		//set the timer of a visual effect to the given value
+		//and remove the effect if its timer has expired
+		System.out.println("Updating timer for effect '" + effect + "'.");
+		for( NamedAnimation na : animations ){
+			
+			if( na.effect.equals(effect) ){
+				System.out.println("Found effect.");
+				na.timer = time;
 				
+				if( na.timer <= 0 ){
+					na.a.stop();
+					removeAnimation(na.a);
+					System.out.println("removed animation");
+				}
 			}
 		}
 		
