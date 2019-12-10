@@ -132,6 +132,9 @@ public class Level extends BasicGameState {
         serverMessage = "";
         Main dc = (Main) game;
         paused = false;
+        
+        //let there be sound \o/
+        container.setSoundOn(true);
 
         messagebox = new Message[messages]; //display four messages at a time
 

@@ -65,7 +65,7 @@ public class SFXManager {
 	 * @param action - the action to search
 	 * @throws SlickException 
 	 */
-	public void playSound(String action) throws SlickException{
+	public static void playSound(String action) throws SlickException{
 		SoundEffect result = null;
 		for( SoundEffect se : library ){
 			if( se.action.equals(action) ){
@@ -89,7 +89,7 @@ public class SFXManager {
 	 * @param action - the action to search
 	 * @throws SlickException 
 	 */
-	public void stopSound(String action) throws SlickException{
+	public static void stopSound(String action) throws SlickException{
 		SoundEffect result = null;
 		for( SoundEffect se : nowPlaying ){
 			if( se.action.equals(action) ){
@@ -111,7 +111,7 @@ public class SFXManager {
 	/**
 	 * Print a list of available sounds.
 	 */
-	public void listSounds(){
+	public static void listSounds(){
 		System.out.println("Now playing:");
 		for( SoundEffect se : nowPlaying ){
 			System.out.println(se.action + " - " + se.effect.toString());

@@ -9,6 +9,7 @@ import java.net.*;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.Sound;
 import org.newdawn.slick.state.StateBasedGame;
 
 import java.util.ArrayList;
@@ -179,6 +180,9 @@ public class Main extends StateBasedGame {
     public static final String ICE_EFFECT = "resources/effects/ice_shards.png";
     
     public static final String LIGHTNING_EFFECT = "resources/effects/lightning.png";
+    
+    //sound effects
+    public static final String SWORD_SWING_1 = "resources/sfx/sword/swing.wav";
 
     // Screen Size
     public final int ScreenWidth;
@@ -208,6 +212,10 @@ public class Main extends StateBasedGame {
     public static ItemManager im;
     Entity[][] potions;
     ArrayList<AnimateEntity> animations;
+    
+    //sound effect manager (client only)
+    public static SFXManager sm;
+    public ArrayList<Sound> sfxToAdd;
 
     //item types
     public static final String[] ItemTypes = {"Potion", "Armor", "Sword", "Arrow", "Staff", "Glove"};
@@ -220,7 +228,7 @@ public class Main extends StateBasedGame {
     public static final String[] SwordEffects = {"Fright", "Might", "Flame", "Ice"};
     public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection"};
     
-    //displayed item name should be of the form "material type of effect" using whatever fields are filled in
+    
 
 
     /**
@@ -248,8 +256,13 @@ public class Main extends StateBasedGame {
         characters = new ArrayList<>();
         enemies = new ArrayList<>();
         testItems = new ArrayList<>(50);
+        
+        sfxToAdd = new ArrayList<Sound>();
 
+        
+        
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);    // set a rectangle
+        
     }
 
     @Override
@@ -257,7 +270,10 @@ public class Main extends StateBasedGame {
         addState(new SplashScreen());
         addState(new Level());
         addState(new GameOver());
+        
 
+        
+       
         // load images
         // startup
         ResourceManager.loadImage(STARTUP_BANNER);
@@ -404,6 +420,16 @@ public class Main extends StateBasedGame {
         
         ResourceManager.loadImage(LIGHTNING_EFFECT);
     }
+    
+    public static void loadSounds(){
+        //sounds
+        //to add a sound, load it into the ResourceManager
+        //then add it to the SFXManager
+        ResourceManager.loadSound(SWORD_SWING_1);
+        
+        
+        SFXManager.addSound("swing1", ResourceManager.getSound(SWORD_SWING_1));
+    }
 
     // Send close to the server and close connections before exiting.
     @Override
@@ -426,6 +452,9 @@ public class Main extends StateBasedGame {
     public static void main(String[] args) {
     	Main game = new Main("Dungeon Crawl", 1280, 736);
     	im = new ItemManager(game);
+    	//sm = new SFXManager();
+    	loadSounds();
+    	
         AppGameContainer app;
         try {
             app = new AppGameContainer(game);
