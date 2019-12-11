@@ -20,12 +20,11 @@ server for player.<br>
 **[ 19 ]** Get a clients keystroke sent to the server, and use 
 that to animate the player on other clients<br>
 **[33]** Fix the inventory crashing the game<br>
+**[32]** Fix the coloring issue with potions<br>
 ## Pending Further Testing ##
 
 ## PENDING ISSUES ##
 **[ 9 ]** Get item managment working on the server.<br>
-**[32]** Fix the coloring issue with potions<br>
-
 **[29]** Create a queue on the client to send messages over to the server.<br>
 **[30]** Create a method that sends the client how many items to read
 and have the client read through all queue messages<br>

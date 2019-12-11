@@ -300,25 +300,25 @@ public class Level extends BasicGameState {
         //get an image based on item type
         Image image = null;
         if( i.getType().equals("Potion") ){
-            int r = rand.nextInt(5);
-            switch( r ){
-                case 0:
+            //int r = rand.nextInt(5);
+            switch( i.getMaterial() ){
+                case "Blue":
                     image = ResourceManager.getImage(Main.POTION_BLUE);
                     //material = "Blue";
                     break;
-                case 1:
+                case "Orange":
                     image = ResourceManager.getImage(Main.POTION_ORANGE);
                     //material = "Orange";
                     break;
-                case 2:
+                case "Pink":
                     image = ResourceManager.getImage(Main.POTION_PINK);
                     //material = "Pink";
                     break;
-                case 3:
+                case "Red":
                     image = ResourceManager.getImage(Main.POTION_RED);
                     //material = "Red";
                     break;
-                case 4:
+                case "Yellow":
                     image = ResourceManager.getImage(Main.POTION_YELLOW);
                     //material = "Yellow";
                     break;
