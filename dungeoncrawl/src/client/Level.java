@@ -1055,6 +1055,9 @@ public class Level extends BasicGameState {
             return;
         }
         
+        //clear out stopped sounds
+        SFXManager.replaceStoppedSounds();
+        
         //decrease attack timer
         if( attackCooldown > 0 ){
         	attackCooldown -= delta;
@@ -1574,6 +1577,13 @@ public class Level extends BasicGameState {
     }
 
     private void attack(Item itm, Main dc, Vector direction) throws SlickException{
+    	
+    	
+    	
+    	//play sound for testing
+    	SFXManager.playSound("swing1");
+    	
+    	
         //attack with the given item
         //Vector[] directions = {new Vector(0, -1), new Vector(0, 1), new Vector(-1, 0), new Vector(1, 0)};
         String dir = "";

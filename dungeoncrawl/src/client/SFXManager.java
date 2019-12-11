@@ -33,22 +33,28 @@ public class SFXManager {
 	/**
 	 * Sounds in the nowPlaying list are removed from the library list.
 	 */
-	private static ArrayList<SoundEffect> nowPlaying;
+	private static ArrayList<SoundEffect> nowPlaying = new ArrayList<SoundEffect>();
 	
-	private static ArrayList<SoundEffect> library;
+	private static ArrayList<SoundEffect> library = new ArrayList<SoundEffect>();
 	
+	/*
 	public SFXManager(){
 		nowPlaying = new ArrayList<SoundEffect>();
 		library = new ArrayList<SoundEffect>();
 	}
+	*/
 	
 	/**
 	 * Add a sound to the sound effect library
 	 * 
 	 * @param action - the name to associate with this sound effect
 	 * @param effect - the sound file to associate with this sound effect
+	 * @throws SlickException 
 	 */
-	public static void addSound(String action, Sound effect){
+	public static void addSound(String action, Sound effect) throws SlickException{
+		if( effect == null ){
+			throw new SlickException("Sound effect is null");
+		}
 		for( SoundEffect se : library ){
 			if( se.action.equals(action) ){
 				System.out.println("Sound with action '" + action + "' already in library.");
@@ -74,12 +80,13 @@ public class SFXManager {
 			}
 		}
 		if( result == null ){
-			throw new SlickException("Sound with action '" + action + "' not found.");
+			System.out.println("Sound with action '" + action + "' not found.");
+		}else{
+			library.remove(result);
+			nowPlaying.add(result);
+			
+			result.effect.play();
 		}
-		library.remove(result);
-		nowPlaying.add(result);
-		
-		result.effect.play();
 	}
 	
 	/**
@@ -106,6 +113,24 @@ public class SFXManager {
 		
 		nowPlaying.remove(result);
 		library.add(result);		
+	}
+	
+	/**
+	 * Places all sounds that have stopped back into
+	 * the sound effect library.
+	 * 
+	 * Should be called on each update loop.
+	 */
+	public static void replaceStoppedSounds(){
+		//iterate through all sounds and move the stopped ones back into the library
+		ArrayList<SoundEffect> stopped = new ArrayList<SoundEffect>();
+		for( SoundEffect se : nowPlaying ){
+			if( !se.effect.playing() ){
+				stopped.add(se);
+			}
+		}
+		nowPlaying.removeAll(stopped);
+		library.addAll(stopped);
 	}
 	
 	/**
