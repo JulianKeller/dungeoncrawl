@@ -23,6 +23,8 @@ that to animate the player on other clients<br>
 
 ## PENDING ISSUES ##
 **[ 9 ]** Get item managment working on the server.<br>
+**[32]** Fix the coloring issue with potions<br>
+**[33]** Fix the inventory crashing the game<br>
 **[29]** Create a queue on the client to send messages over to the server.<br>
 **[30]** Create a method that sends the client how many items to read
 and have the client read through all queue messages<br>
