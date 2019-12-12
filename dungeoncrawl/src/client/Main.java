@@ -220,6 +220,11 @@ public class Main extends StateBasedGame {
     public static final String THORNS_SE = "resources/sfx/thorns.wav";
     public static final String WALL_HIT = "resources/sfx/wall_hit.wav";
     
+    //music
+    public static final String TRACK1 = "resources/music/floating_cities.wav";
+    public static final String TRACK2 = "resources/music/ghost_storiy.wav";
+    public static final String TRACK3 = "resources/music/giant_wyrm.wav";
+    
 
     // Screen Size
     public final int ScreenWidth;
@@ -456,6 +461,12 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(ICE_EFFECT);
         
         ResourceManager.loadImage(LIGHTNING_EFFECT);
+        
+        //music tracks
+        ResourceManager.loadMusic(TRACK1);
+        ResourceManager.loadMusic(TRACK2);
+        ResourceManager.loadMusic(TRACK3);
+        
     }
     
     public static void loadSounds() throws SlickException{
