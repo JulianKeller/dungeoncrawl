@@ -182,7 +182,44 @@ public class Main extends StateBasedGame {
     public static final String LIGHTNING_EFFECT = "resources/effects/lightning.png";
     
     //sound effects
-    public static final String SWORD_SWING_1 = "resources/sfx/sword/swing.wav";
+    public static final String ARMOR_EQUIP = "resources/sfx/armor_equip.wav";
+    public static final String ARMOR_UP = "resources/sfx/armor_up.wav";
+    public static final String ARROW_FIRE = "resources/sfx/arrow_fire.wav";
+    public static final String BURNING_SE = "resources/sfx/burning.wav";
+    public static final String CHARACTER_DEATH = "resources/sfx/character_death.wav";
+    public static final String CHARACTER_HIT = "resources/sfx/character_hit.wav";
+    public static final String CLICK_SE = "resources/sfx/click.wav";
+    public static final String CURSE_SE = "resources/sfx/curse.wav";
+    public static final String DAMAGE_UP = "resources/sfx/damage_up.wav";
+    public static final String DROP_ITEM = "resources/sfx/drop.wav";
+    public static final String ELECTRICITY_SE = "resources/sfx/electricity.wav";
+    public static final String ENTER_LEVEL = "resources/sfx/enter.wav";
+    public static final String FREEZE_SE = "resources/sfx/freeze.wav";
+    public static final String FRIGHT_SE = "resources/sfx/fright.wav";
+    public static final String HEALING_SE = "resources/sfx/healing.wav";
+    public static final String IDENTIFY_SE = "resources/sfx/identify.wav";
+    public static final String INVISIBLE_SE = "resources/sfx/invisible.wav";
+    public static final String KNIGHT_PUNCH = "resources/sfx/knight_hit.wav";
+    public static final String MANA_SE = "resources/sfx/mana.wav";
+    public static final String OPEN_INVENTORY = "resources/sfx/open_inventory.wav";
+    public static final String ITEM_PICKUP = "resources/sfx/pickup.wav";
+    public static final String POISONED_SE = "resources/sfx/poisoned.wav";
+    public static final String POTION_BREAK = "resources/sfx/potion_break.wav";
+    public static final String POTION_DRINK = "resources/sfx/potion_drink.wav";
+    public static final String POTION_THROW = "resources/sfx/potion_throw.wav";
+    public static final String REFLECT_SE = "resources/sfx/reflect.wav";
+    public static final String SKELETON_DEATH = "resources/sfx/skeleton_death.wav";
+    public static final String SKELETON_HIT = "resources/sfx/skeleton_hit.wav";
+    public static final String SPEED_UP = "resources/sfx/speed_up.wav";
+    public static final String LAUNCH_SPELL = "resources/sfx/spell_fire.wav";
+    public static final String STENCH_SE = "resources/sfx/stench.wav";
+    public static final String STRENGTH_UP = "resources/sfx/strength.wav";
+    public static final String SWORD_SWING = "resources/sfx/sword_swing.wav";
+    public static final String SWORD_EQUIP = "resources/sfx/sword_unsheathe.wav";
+    public static final String TANK_PUNCH = "resources/sfx/tank_hit.wav";
+    public static final String THORNS_SE = "resources/sfx/thorns.wav";
+    public static final String WALL_HIT = "resources/sfx/wall_hit.wav";
+    
 
     // Screen Size
     public final int ScreenWidth;
@@ -421,14 +458,88 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(LIGHTNING_EFFECT);
     }
     
-    public static void loadSounds(){
+    public static void loadSounds() throws SlickException{
         //sounds
         //to add a sound, load it into the ResourceManager
         //then add it to the SFXManager
-        ResourceManager.loadSound(SWORD_SWING_1);
-        
-        
-        SFXManager.addSound("swing1", ResourceManager.getSound(SWORD_SWING_1));
+    	
+    	
+    	
+    	ResourceManager.loadSound(ARMOR_EQUIP);
+    	ResourceManager.loadSound(ARMOR_UP);
+    	ResourceManager.loadSound(ARROW_FIRE);
+    	ResourceManager.loadSound(BURNING_SE);
+    	ResourceManager.loadSound(CHARACTER_DEATH);
+    	ResourceManager.loadSound(CHARACTER_HIT);
+    	ResourceManager.loadSound(CLICK_SE);
+    	ResourceManager.loadSound(CURSE_SE);
+    	ResourceManager.loadSound(DAMAGE_UP);
+    	ResourceManager.loadSound(DROP_ITEM);
+    	ResourceManager.loadSound(ELECTRICITY_SE);
+    	ResourceManager.loadSound(ENTER_LEVEL);
+    	ResourceManager.loadSound(FREEZE_SE);
+    	ResourceManager.loadSound(FRIGHT_SE);
+    	ResourceManager.loadSound(HEALING_SE);
+    	ResourceManager.loadSound(IDENTIFY_SE);
+    	ResourceManager.loadSound(INVISIBLE_SE);
+    	ResourceManager.loadSound(KNIGHT_PUNCH);
+    	ResourceManager.loadSound(MANA_SE);
+    	ResourceManager.loadSound(OPEN_INVENTORY);
+    	ResourceManager.loadSound(ITEM_PICKUP);
+    	ResourceManager.loadSound(POISONED_SE);
+    	ResourceManager.loadSound(POTION_BREAK);
+    	ResourceManager.loadSound(POTION_DRINK);
+    	ResourceManager.loadSound(POTION_THROW);
+    	ResourceManager.loadSound(REFLECT_SE);
+    	ResourceManager.loadSound(SKELETON_DEATH);
+    	ResourceManager.loadSound(SKELETON_HIT);
+    	ResourceManager.loadSound(SPEED_UP);
+    	ResourceManager.loadSound(LAUNCH_SPELL);
+    	ResourceManager.loadSound(STENCH_SE);
+    	ResourceManager.loadSound(STRENGTH_UP);
+    	ResourceManager.loadSound(SWORD_SWING);
+    	ResourceManager.loadSound(SWORD_EQUIP);
+    	ResourceManager.loadSound(TANK_PUNCH);
+    	ResourceManager.loadSound(THORNS_SE);
+    	ResourceManager.loadSound(WALL_HIT);
+    	
+    	SFXManager.addSound( "equip_armor", ResourceManager.getSound(ARMOR_EQUIP));
+    	SFXManager.addSound( "armor_up", ResourceManager.getSound(ARMOR_UP));
+    	SFXManager.addSound( "shoot_arrow", ResourceManager.getSound(ARROW_FIRE));
+    	SFXManager.addSound( "burning", ResourceManager.getSound(BURNING_SE));
+    	SFXManager.addSound( "character_death", ResourceManager.getSound(CHARACTER_DEATH));
+    	SFXManager.addSound( "character_hit", ResourceManager.getSound(CHARACTER_HIT));
+    	SFXManager.addSound( "click", ResourceManager.getSound(CLICK_SE));
+    	SFXManager.addSound( "curse", ResourceManager.getSound(CURSE_SE));
+    	SFXManager.addSound( "damage_up", ResourceManager.getSound(DAMAGE_UP));
+    	SFXManager.addSound( "drop_item", ResourceManager.getSound(DROP_ITEM));
+    	SFXManager.addSound( "electricity", ResourceManager.getSound(ELECTRICITY_SE));
+    	SFXManager.addSound( "enter_level", ResourceManager.getSound(ENTER_LEVEL));
+    	SFXManager.addSound( "freezing", ResourceManager.getSound(FREEZE_SE));
+    	SFXManager.addSound( "fright", ResourceManager.getSound(FRIGHT_SE));
+    	SFXManager.addSound( "healing", ResourceManager.getSound(HEALING_SE));
+    	SFXManager.addSound( "identify", ResourceManager.getSound(IDENTIFY_SE));
+    	SFXManager.addSound( "invisible", ResourceManager.getSound(INVISIBLE_SE));
+    	SFXManager.addSound( "knight_punch", ResourceManager.getSound(KNIGHT_PUNCH));
+    	SFXManager.addSound( "mana_up", ResourceManager.getSound(MANA_SE));
+    	SFXManager.addSound( "open_inventory", ResourceManager.getSound(OPEN_INVENTORY));
+    	SFXManager.addSound( "item_pickup", ResourceManager.getSound(ITEM_PICKUP));
+    	SFXManager.addSound( "poisoned", ResourceManager.getSound(POISONED_SE));
+    	SFXManager.addSound( "potion_break", ResourceManager.getSound(POTION_BREAK));
+    	SFXManager.addSound( "potion_drink", ResourceManager.getSound(POTION_DRINK));
+    	SFXManager.addSound( "potion_throw", ResourceManager.getSound(POTION_THROW));
+    	SFXManager.addSound( "reflecting", ResourceManager.getSound(REFLECT_SE));
+    	SFXManager.addSound( "skeleton_death", ResourceManager.getSound(SKELETON_DEATH));
+    	SFXManager.addSound( "skeleton_hit", ResourceManager.getSound(SKELETON_HIT));
+    	SFXManager.addSound( "speed_up", ResourceManager.getSound(SPEED_UP));
+    	SFXManager.addSound( "launch_spell", ResourceManager.getSound(LAUNCH_SPELL));
+    	SFXManager.addSound( "stench", ResourceManager.getSound(STENCH_SE));
+    	SFXManager.addSound( "strength_up", ResourceManager.getSound(STRENGTH_UP));
+    	SFXManager.addSound( "sword_swing", ResourceManager.getSound(SWORD_SWING));
+    	SFXManager.addSound( "equip_sword", ResourceManager.getSound(SWORD_EQUIP));
+    	SFXManager.addSound( "tank_punch", ResourceManager.getSound(TANK_PUNCH));
+    	SFXManager.addSound( "thorns", ResourceManager.getSound(THORNS_SE));
+    	SFXManager.addSound( "wall_hit", ResourceManager.getSound(WALL_HIT));
     }
 
     // Send close to the server and close connections before exiting.
@@ -449,10 +560,10 @@ public class Main extends StateBasedGame {
         return false;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SlickException {
     	Main game = new Main("Dungeon Crawl", 1280, 736);
     	im = new ItemManager(game);
-    	//sm = new SFXManager();
+    	
     	loadSounds();
     	
         AppGameContainer app;
