@@ -1523,6 +1523,8 @@ public class Level extends BasicGameState {
                     	addMessage("You are encumbered.");
                     }
 	
+	                
+	                SFXManager.playSound("item_pickup");
 	                //stop rendering the item
 	                itemsToRender.remove(i);
 	                Main.im.removeFromWorldItems(i);
