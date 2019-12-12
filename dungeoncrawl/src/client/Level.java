@@ -20,7 +20,9 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.Music;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.openal.AudioImpl;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -126,6 +128,10 @@ public class Level extends BasicGameState {
     public int getID() {
         return Main.LEVEL1;
     }
+    
+    //music tracks
+    private Music currentTrack = null;
+    private Music[] tracks = new Music[3];
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) {
@@ -259,6 +265,11 @@ public class Level extends BasicGameState {
         targets = new ArrayList<Character>();
         targets.addAll(dc.characters);
         targets.addAll(dc.enemies);
+        
+        //pick music track from available tracks
+        currentTrack = tracks[ rand.nextInt(tracks.length) ];
+        
+        currentTrack.play(1, 0.3f);
     }
 
     private void receiveItemList(){
@@ -407,6 +418,11 @@ public class Level extends BasicGameState {
         messagebox = new Message[messages];
 
         itemLockTimers = new ArrayList<ItemLockTimer>();
+        
+        tracks[0] = ResourceManager.getMusic(Main.TRACK1);
+        tracks[1] = ResourceManager.getMusic(Main.TRACK2);
+        tracks[2] = ResourceManager.getMusic(Main.TRACK3);
+        
     }
 
 
@@ -1044,6 +1060,10 @@ public class Level extends BasicGameState {
             return new Vector(0, -1);
         }
     }
+    
+    
+    private int songChangeTimer = 3000;
+    
 
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
@@ -1054,6 +1074,25 @@ public class Level extends BasicGameState {
         if (paused) {
             return;
         }
+        
+        if( input.isKeyPressed(Input.KEY_RBRACKET) ){
+        	//change music in 3 seconds
+        	currentTrack.stop();
+        }
+        
+        //pick new music if the current track has expired 3 seconds ago
+        if( !currentTrack.playing() ){
+        	//decrement timer
+        	songChangeTimer -= delta;
+        	
+        	//change the song if the timer has expired
+        	if( songChangeTimer <= 0 ){
+        		songChangeTimer = 3000;
+        		currentTrack = tracks[ rand.nextInt(tracks.length) ];
+        		currentTrack.play(1, 0.3f);
+        	}
+        }
+        
         
         //decrease attack timer
         if( attackCooldown > 0 ){
@@ -1837,12 +1876,24 @@ public class Level extends BasicGameState {
         return true;
     }
 
+    private float currentTrackPosition;
 
     // pause the game
     public void pause(Input input) {
         if (input.isKeyPressed(Input.KEY_P)) {
             paused = !paused;
+            if( currentTrack.playing() ){
+            	currentTrackPosition = currentTrack.getPosition();
+            	currentTrack.stop();
+            }else{
+            	currentTrack.play(1, 0.3f);
+            	currentTrack.setPosition(currentTrackPosition);
+            }
+            
+            
         }
+        
+        
     }
 
 

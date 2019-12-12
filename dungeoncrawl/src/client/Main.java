@@ -222,7 +222,7 @@ public class Main extends StateBasedGame {
     
     //music
     public static final String TRACK1 = "resources/music/floating_cities.wav";
-    public static final String TRACK2 = "resources/music/ghost_storiy.wav";
+    public static final String TRACK2 = "resources/music/ghost_story.wav";
     public static final String TRACK3 = "resources/music/giant_wyrm.wav";
     
 
