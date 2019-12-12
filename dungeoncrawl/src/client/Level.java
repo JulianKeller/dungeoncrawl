@@ -1218,6 +1218,16 @@ public class Level extends BasicGameState {
             	if( attackCooldown <= 0 ){
 	            	if( itm == null || canUse(itm, dc.hero) ){
 	            		attack(itm, dc);
+	            		if( itm != null && !itm.isIdentified() ){
+		            		itm.identify();
+		            		System.out.println("Identified " + itm.toString());
+		            		addMessage("It is " + itm.toString());
+		            		if( itm.isCursed() ){
+		            			SFXManager.playSound("curse");
+		            		}else{
+		            			SFXManager.playSound("identify");
+		            		}
+	            		}
 	            	}
             		
 	            	//update attack cooldown based on item weight
@@ -1250,7 +1260,11 @@ public class Level extends BasicGameState {
                 //use item on own character
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
                 if( i != null ){
-                
+                	
+                	if( !i.isIdentified() ){
+                		i.identify();
+                		addMessage("It is " + i.toString());
+                	}
 	                if( canUse(i, dc.hero) ){
 		                String x = "";
 		                if( i.getType().equals("Potion") ){

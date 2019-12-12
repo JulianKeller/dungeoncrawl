@@ -156,7 +156,7 @@ public class Character extends MovingEntity {
     				SFXManager.playSound("electricity");
     			}
     			
-    		}else{
+    		}else if( !e.name.equals("") ){
     			throw new SlickException("Invalid effect name '" + e.name + "'.");
     		}
     		

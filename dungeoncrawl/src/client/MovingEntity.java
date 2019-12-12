@@ -523,7 +523,7 @@ Reflection:
     			if( !e.cursed ){
     				reflecting = true;
     			}
-    		}else{
+    		}else if( !e.name.equals("") ){
     			throw new SlickException("Unknown character effect '"+e.name+"'.");
     		}
     		
@@ -688,6 +688,7 @@ Reflection:
     /**
      * Removes an item from the client.MovingEntity's Inventory
      * @param i_id id of the item to be removed.
+     * @throws SlickException 
      */
     public Item discardItem(int i_id, boolean use){
     	for( int i = 0; i < inventory.size(); i++ ){
@@ -695,7 +696,7 @@ Reflection:
     			if( use ){
     				//if the player is using this item, identify it
     				//  and add to the codex
-    				inventory.get(i).identify();
+    				//inventory.get(i).identify();
     				if( inventory.get(i).getType().equals("Potion") ){
     					addToCodex(inventory.get(i));
     				}
@@ -733,10 +734,7 @@ Reflection:
     	}else{
     		i.count--;
     	}
-    	
-    	if( use ){
-    		i.identify();
-    	}
+
     	
     	if( i.getType().equals("Potion") ){
     		addToCodex(i);
