@@ -146,13 +146,14 @@ public class Character extends MovingEntity {
     			Random rand = new Random();
     			rand.setSeed(System.nanoTime());
     			int r = rand.nextInt(100);
-    			if( r < 60 ){
+    			if( r < 600 ){
     				if( !e.cursed ){
     					super.setHitPoints(super.getHitPoints() - 20);
     				}else{
     					super.setHitPoints(super.getHitPoints() - 10);
     				}
     				ani = getLightning(8, 75);
+    				SFXManager.playSound("electricity");
     			}
     			
     		}else{
@@ -776,7 +777,7 @@ public class Character extends MovingEntity {
 //        System.out.println("Setting animation to: " + action);
         if (action != null) {
         	if( !ai ){
-        		System.out.println("Stopping " + this.action);
+        		//System.out.println("Stopping " + this.action);
         	}
         	animate.stop(); //stop all actions
         	
@@ -787,7 +788,7 @@ public class Character extends MovingEntity {
             animate.selectAnimation(action);
             
             if( !ai ){
-            	System.out.println("Starting " + this.action);
+            	//System.out.println("Starting " + this.action);
             }
             animate.start(); //start new action
         }else{

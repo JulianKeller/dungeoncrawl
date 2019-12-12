@@ -176,7 +176,17 @@ public class MovingEntity extends Entity {
     	activeEffects.clear();
     }
     
-    public void addEffect(String name, boolean cursed){
+    private boolean playIronSkinSound = true;
+    private boolean playMightSound = true;
+    private boolean playSwiftnessSound = true;
+    private boolean playThornsSound = true;
+    private boolean playFrightSound = true;
+    private boolean playStenchSound = true;
+    private boolean playReflectionSound = true;
+    private boolean playRegenerationSound = true;
+    
+    
+    public void addEffect(String name, boolean cursed) throws SlickException{
     	//if the character already has the effect,
     	// reset the timer
     	for( Effect e : activeEffects ){
@@ -189,6 +199,63 @@ public class MovingEntity extends Entity {
     	}
     	//if not, add the effect
     	activeEffects.add(new Effect(name, cursed));
+    	
+    	//play effect sound (unless effect is lightning)
+    	if( name.equals("Healing")){
+    		SFXManager.playSound("healing");
+    	}else if(name.equals("Regeneration")){
+    		if( playRegenerationSound ){
+    			SFXManager.playSound("healing");
+    			playRegenerationSound = false;
+    		}
+    	}else if( name.equals("Mana") ){
+    		SFXManager.playSound("mana_up");
+    	}else if( name.equals("Strength") ){
+    		SFXManager.playSound("strength_up");
+    	}else if( name.equals("Iron Skin") ){
+    		if( playIronSkinSound ){
+    			SFXManager.playSound("armor_up");
+    			playIronSkinSound = false;
+    		}
+    	}else if( name.equals("Might") ){
+    		if( playMightSound ){
+    			SFXManager.playSound("damage_up");
+    			playMightSound = false;
+    		}
+    	}else if( name.equals("Swiftness") ){
+    		if( playSwiftnessSound ){
+    			SFXManager.playSound("speed_up");
+    			playSwiftnessSound = false;
+    		}
+    	}else if( name.equals("Flame") ){
+    		SFXManager.playSound("burning");
+    	}else if( name.equals("Poison") ){
+    		SFXManager.playSound("poisoned");
+    	}else if( name.equals("Ice") ){
+    		SFXManager.playSound("freezing");
+    	}else if( name.equals("Fright") ){
+    		if( playFrightSound ){
+    			SFXManager.playSound("fright");
+    			playFrightSound = false;
+    		}
+    	}else if( name.equals("Stench") ){
+    		if( playStenchSound ){
+    			SFXManager.playSound("stench");
+    			playStenchSound = false;
+    		}
+    	}else if( name.equals("Thorns") ){
+    		if( playThornsSound ){
+    			SFXManager.playSound("thorns");
+    			playThornsSound = false;
+    		}
+    	}else if( name.equals("Reflection") ){
+    		if( playReflectionSound ){
+    			SFXManager.playSound("reflecting");
+    			playReflectionSound = false;
+    		}
+    	}else if( name.equals("Invisibility") ){
+    		SFXManager.playSound("invisible");
+    	}
     }
     
     public ArrayList<Effect> getActiveEffects(){
@@ -204,24 +271,30 @@ public class MovingEntity extends Entity {
     	//special exit behavior
     	if( name.equals("Iron Skin") ){
     		armorPoints = initialArmorPoints;
+    		playIronSkinSound = true;
     	}else if( name.equals("Stench") ){
 			stinky = false;
+			playStenchSound = true;
 		}else if( name.equals("Thorns")){
 			thorny = false;
+			playThornsSound = true;
 		}else if( name.equals("Fright") ){
 			frightening = false;
+			playFrightSound = true;
 		}else if( name.equals("Invisibility") ){
 			invisible = false;
 		}else if( name.equals("Reflection") ){
 			reflecting = false;
+			playReflectionSound = true;
 		}
     }
     
     /**
      * Use this function every update loop for
      * the automatic removal of timed effects
+     * @throws SlickException 
      */
-    public ArrayList<String> updateEffectTimers(int delta){
+    public ArrayList<String> updateEffectTimers(int delta) throws SlickException{
     	//reduce each active effect timer by delta
     	//System.out.println("Updating effect timers")
     	ArrayList<String> effectsToAdd = new ArrayList<String>();
