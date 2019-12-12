@@ -1454,6 +1454,11 @@ public class Level extends BasicGameState {
         thrownItems.removeAll(reachedDestination);
         //itemsToRender.removeAll(reachedDestination);
         for( ThrownItem ti : reachedDestination ){
+        	if( ti.itm.getType().equals("Potion") ){
+        		SFXManager.playSound("potion_break");
+        	}else{
+        		SFXManager.playSound("wall_hit");
+        	}
             Main.im.removeFromWorldItems(ti.itm);
         }
 
