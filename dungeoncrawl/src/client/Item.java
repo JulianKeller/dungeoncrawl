@@ -289,24 +289,30 @@ public class Item extends StationaryObject{
 	
 	public String toString(){
 		String tmp = "";
+
+		
 		
 		if( isIdentified() ){
-			if( getMaterial() != "" ){
-				tmp = tmp + getMaterial() + " ";
-			}
-			tmp = tmp + getType();
-			if( getEffect() != "" ){
-				if( getMaterial().equals("Red") && getEffect().equals("Swiftness") ){
-					tmp = "Gloves of Running Urgently";
-				}else{
-					tmp = tmp + " of " + getEffect();
+			if( type.equals("Gloves") && material.equals("Red") && effect.equals("Swiftness") ){
+				tmp = "Gloves of Running Urgently";
+			}else{
+				if( !material.equals("") ){
+					tmp = tmp + material + " ";
+				}
+				tmp = tmp + type;
+				if( !effect.equals("") ){
+					tmp = tmp + " of " + effect;
 				}
 			}
-		}else{
-			if( getMaterial() != "" ){
-				tmp = tmp + getMaterial() + " ";
+			
+			if( cursed ){
+				tmp = "Cursed " + tmp;
 			}
-			tmp = tmp + getType();
+		}else{
+			if( !material.equals("") ){
+				tmp = tmp + material + " ";
+			}
+			tmp = tmp + type;
 		}
 		return tmp;
 	}
@@ -409,6 +415,7 @@ public class Item extends StationaryObject{
 		removeImage(this.image);
 		this.image = img;
 		addImage(img);
+		this.image = img;
 	}
 	
 	//render function

@@ -77,6 +77,7 @@ public class SplashScreen extends BasicGameState {
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         Main dc = (Main) game;
+        
         Input input = container.getInput();
 
         selectNextSubMenu(input);
@@ -88,6 +89,7 @@ public class SplashScreen extends BasicGameState {
             enterIP(input);
         }
         if (input.isKeyPressed(Input.KEY_ENTER)) {
+        	SFXManager.playSound("enter_level");
             connectToSever(dc, game);
         }
 
@@ -133,14 +135,16 @@ public class SplashScreen extends BasicGameState {
     /*
     Allows player to choose their character, currently selected character is in red
      */
-    private void selectCharacter(Input input) {
+    private void selectCharacter(Input input) throws SlickException {
         if (input.isKeyPressed(Input.KEY_LEFT)) {
+        	SFXManager.playSound("click");
             if (characterOption <= 0) {
                 characterOption = 0;
                 return;
             }
             characterOption--;
         } else if (input.isKeyPressed(Input.KEY_RIGHT)) {
+        	SFXManager.playSound("click");
             if (characterOption >= 3) {
                 characterOption = 3;
                 return;
@@ -162,14 +166,16 @@ public class SplashScreen extends BasicGameState {
     /*
     Selects the sub menu, outlines it in a white box
      */
-    private void selectNextSubMenu(Input input) {
+    private void selectNextSubMenu(Input input) throws SlickException {
         if (input.isKeyPressed(Input.KEY_DOWN)) {
+        	SFXManager.playSound("click");
             if (menuOption >= 2) {
                 menuOption = 2;
             } else {
                 menuOption++;
             }
         } else if (input.isKeyPressed(Input.KEY_UP)) {
+        	SFXManager.playSound("click");
             if (menuOption <= 0) {
                 menuOption = 0;
             } else {

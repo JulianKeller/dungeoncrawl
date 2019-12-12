@@ -17,7 +17,7 @@ public class Character extends MovingEntity {
     private Main dc;
     AnimateEntity animate;
     private String type;
-    private String direction;
+    public String direction;
     private String currentAction;
     public boolean canMove = true;
     private boolean nearEdge = false;
@@ -153,9 +153,10 @@ public class Character extends MovingEntity {
     					super.setHitPoints(super.getHitPoints() - 10);
     				}
     				ani = getLightning(8, 75);
+    				SFXManager.playSound("electricity");
     			}
     			
-    		}else{
+    		}else if( !e.name.equals("") ){
     			throw new SlickException("Invalid effect name '" + e.name + "'.");
     		}
     		
@@ -254,6 +255,7 @@ public class Character extends MovingEntity {
     public String getType() {
         return type;
     }
+    
 
 
     /**
@@ -275,10 +277,15 @@ public class Character extends MovingEntity {
             return;
         }
 
+        /*
+        //System.out.println("action = " + action );
         if (key == null || key.equals("")) {
-            animate.stop();
+            //stopAction("walk");
+        	//updateAnimation(null);
             return;
         }
+        */
+        
 
         String movement = null;
         switch (key) {
@@ -322,13 +329,35 @@ public class Character extends MovingEntity {
             changeOrigin();     // check if the screen origin needs to change
         }
     }
+    
+    public boolean takeDamage(float amount, String effect, boolean cursed) throws SlickException{
+    	boolean killed = super.takeDamage(amount, effect, cursed);
+ 
+    	//play different sound for ai and characters
+    	if( killed ){
+    		if( ai ){
+    			SFXManager.playSound("skeleton_death");
+    		}else{
+    			SFXManager.playSound("character_death");
+    		}
+    	}else{
+        	if( ai ){
+        		SFXManager.playSound("skeleton_hit");
+        	}else{
+        		SFXManager.playSound("character_hit");
+        	}
+    	}
+    	
+    	return killed;
+    }
 
 
     /**
      * Move the AI randomly until the character is within range
      * This is the method that should be called from the level class to move the AI
+     * @throws SlickException 
      */
-    public void moveAI(int delta) {
+    public void moveAI(int delta) throws SlickException {
         String currentDirection = direction;
 
         // moved the character fixed to the grid
@@ -549,6 +578,7 @@ public class Character extends MovingEntity {
             }
         } else {
             canMove = true;
+            updateAnimation(null);
         }
     }
 
@@ -746,11 +776,23 @@ public class Character extends MovingEntity {
     public void updateAnimation(String action) {
 //        System.out.println("Setting animation to: " + action);
         if (action != null) {
+        	if( !ai ){
+        		//System.out.println("Stopping " + this.action);
+        	}
+        	animate.stop(); //stop all actions
+        	
             currentAction = action;
             this.action = action;
             Vector sc = animate.getPosition();
             animate = new AnimateEntity(sc.getX(), sc.getY(), getAnimationSpeed(), this.type);
             animate.selectAnimation(action);
+            
+            if( !ai ){
+            	//System.out.println("Starting " + this.action);
+            }
+            animate.start(); //start new action
+        }else{
+        	animate.stop();
         }
     }
 

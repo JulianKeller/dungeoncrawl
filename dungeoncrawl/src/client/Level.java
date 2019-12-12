@@ -20,7 +20,9 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
+import org.newdawn.slick.Music;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.openal.AudioImpl;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -128,11 +130,18 @@ public class Level extends BasicGameState {
         return Main.LEVEL1;
     }
 
+    //music tracks
+    private Music currentTrack = null;
+    private Music[] tracks = new Music[3];
+
     @Override
     public void enter(GameContainer container, StateBasedGame game) {
         serverMessage = "";
         Main dc = (Main) game;
         paused = false;
+
+        //let there be sound \o/
+        container.setSoundOn(true);
 
         messagebox = new Message[messages]; //display four messages at a time
 
@@ -257,6 +266,11 @@ public class Level extends BasicGameState {
         targets = new ArrayList<Character>();
         targets.addAll(dc.characters);
         targets.addAll(dc.enemies);
+
+        //pick music track from available tracks
+        currentTrack = tracks[ rand.nextInt(tracks.length) ];
+
+        currentTrack.play(1, 0.3f);
     }
 
     private void receiveItemList(){
@@ -405,6 +419,11 @@ public class Level extends BasicGameState {
         messagebox = new Message[messages];
 
         itemLockTimers = new ArrayList<ItemLockTimer>();
+
+        tracks[0] = ResourceManager.getMusic(Main.TRACK1);
+        tracks[1] = ResourceManager.getMusic(Main.TRACK2);
+        tracks[2] = ResourceManager.getMusic(Main.TRACK3);
+
     }
 
 
@@ -1043,6 +1062,10 @@ public class Level extends BasicGameState {
         }
     }
 
+
+    private int songChangeTimer = 3000;
+
+
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         Input input = container.getInput();
@@ -1122,17 +1145,6 @@ public class Level extends BasicGameState {
         }
 
         String ks = getKeystroke(input, dc);
-        if( prevks.equals("") ){
-            prevks = ks;
-        }
-        //convert key stroke to vector
-        Vector lastKnownDirection;
-        //System.out.println(ks);
-        if( ks.equals("") ){
-            lastKnownDirection = vectorFromKeystroke(prevks);
-        }else{
-            lastKnownDirection = vectorFromKeystroke(ks);
-        }
         dc.hero.move(ks);
         //positionToServer(dc);  // Get the player's updated position onto the server.
 //        updateOtherPlayers(dc);
@@ -1160,10 +1172,12 @@ public class Level extends BasicGameState {
 
 
         if( input.isKeyPressed(Input.KEY_I) ){
+        	SFXManager.playSound("open_inventory");
             displayInventory = !displayInventory;
             displayCodex = false;
         }
         if( input.isKeyPressed(Input.KEY_O) ){
+        	SFXManager.playSound("open_inventory");
             displayCodex = !displayCodex;
             displayInventory = false;
         }
@@ -1223,7 +1237,17 @@ public class Level extends BasicGameState {
             	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
             	if( attackCooldown <= 0 ){
 	            	if( itm == null || canUse(itm, dc.hero) ){
-	            		attack(itm, dc, lastKnownDirection);
+	            		attack(itm, dc);
+	            		if( itm != null && !itm.isIdentified() ){
+		            		itm.identify();
+		            		System.out.println("Identified " + itm.toString());
+		            		addMessage("It is " + itm.toString());
+		            		if( itm.isCursed() ){
+		            			SFXManager.playSound("curse");
+		            		}else{
+		            			SFXManager.playSound("identify");
+		            		}
+	            		}
 	            	}
             		
 	            	//update attack cooldown based on item weight
@@ -1239,9 +1263,9 @@ public class Level extends BasicGameState {
                 if( attackCooldown <= 0 ){
                     if( dc.hero.getType().toLowerCase().contains("knight") ||
                             dc.hero.getType().toLowerCase().contains("tank") ){
-                        attack(null, dc, lastKnownDirection);
+                        attack(null, dc);
                     }else if( canUse(itm, dc.hero) ){
-                        attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
+                        attack(dc.hero.getEquipped()[selectedEquippedItem], dc);
                     }
 
                     //update attack cooldown based on item weight
@@ -1256,20 +1280,26 @@ public class Level extends BasicGameState {
                 //use item on own character
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
                 if( i != null ){
-                
+
+                	if( !i.isIdentified() ){
+                		i.identify();
+                		addMessage("It is " + i.toString());
+                	}
 	                if( canUse(i, dc.hero) ){
 		                String x = "";
 		                if( i.getType().equals("Potion") ){
 		                    x = "Drank";
+		                    SFXManager.playSound("potion_drink");
 		                }else if( i.getType().equals("Armor") ){
 		                    x = "Put on";
+		                    SFXManager.playSound("equip_armor");
 		                }else{
 		                    x = "Used";
 		                }
 		                addMessage(x + " " + i.toString());
-		                //TODO: add potion effects to character
+
 		                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
-		                    //add effect to character
+		                	//add effect to character
 		                    dc.hero.addEffect(i.getEffect(),false);
 		                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
 		                }
@@ -1315,7 +1345,9 @@ public class Level extends BasicGameState {
 	                		(int)(dc.hero.getWorldCoordinates().getY()/dc.tilesize)+1
 	                		);
 	                Main.im.take(itm, dc.hero, wc, false);
-	
+
+	                //play drop sound
+	                SFXManager.playSound("item_drop");
 	                
 	                //reduce the hero's inventory weight
 	                
@@ -1462,6 +1494,11 @@ public class Level extends BasicGameState {
         thrownItems.removeAll(reachedDestination);
         //itemsToRender.removeAll(reachedDestination);
         for( ThrownItem ti : reachedDestination ){
+        	if( ti.itm.getType().equals("Potion") ){
+        		SFXManager.playSound("potion_break");
+        	}else{
+        		SFXManager.playSound("wall_hit");
+        	}
             Main.im.removeFromWorldItems(ti.itm);
         }
 
@@ -1524,6 +1561,8 @@ public class Level extends BasicGameState {
                     	addMessage("You are encumbered.");
                     }
 	
+
+	                SFXManager.playSound("item_pickup");
 	                //stop rendering the item
 	                itemsToRender.remove(i);
 	                Main.im.removeFromWorldItems(i);
@@ -1606,32 +1645,54 @@ public class Level extends BasicGameState {
     	}
     }
 
-    private void attack(Item itm, Main dc, Vector direction) throws SlickException{
-        //attack with the given item
-        //Vector[] directions = {new Vector(0, -1), new Vector(0, 1), new Vector(-1, 0), new Vector(1, 0)};
-        String dir = "";
-        if( direction.equals(new Vector(0, -1) ) ){
-            dir = "up";
-        }else if( direction.equals(new Vector(0, 1)) ){
-            dir = "down";
-        }else if( direction.equals(new Vector(-1, 0)) ){
-            dir = "left";
-        }else if( direction.equals(new Vector(1, 0)) ){
-            dir = "right";
-        }else{
-            throw new SlickException("Invalid attack direction " + dir);
-        }
+    private Vector dirStringToVector(String dir) throws SlickException{
+    	if( dir.equals("up") ){
+    		return new Vector(0, -1);
+    	}else if( dir.equals("down") ){
+    		return new Vector(0, 1);
+    	}else if( dir.equals("left") ){
+    		return new Vector(-1, 0);
+    	}else if( dir.equals("right") ){
+    		return new Vector(1, 0);
+    	}else{
+    		throw new SlickException("Invalid directional string.");
+    	}
+    }
 
-        if( itm == null || itm.getType().equals("Sword") || itm.getType().equals("Glove")){
+    private void attack(Item itm, Main dc) throws SlickException{
+        //attack with the given item
+    	String direction = dc.hero.direction.split("_")[1];
+
+    	Vector directionVector = dirStringToVector(direction);
+
+        System.out.println("Attacking in the '" + direction + "' direction");
+
+        if( itm == null || itm.getType().equals("Sword") || itm.getType().equals("Gloves")){
+        	//play the attack sound
+        	if( itm == null ){
+        		if( dc.hero.getType().toLowerCase().contains("knight") ){
+        			SFXManager.playSound("knight_punch");
+        		}else if( dc.hero.getType().toLowerCase().contains("tank") ){
+        			SFXManager.playSound("tank_punch");
+        		}else{
+        			//if the class isn't knight or tank, it cannot punch
+        			return;
+        		}
+        	}else if( itm.getType().equals("Sword") ){
+
+        		SFXManager.playSound("sword_swing");
+        	}else if( itm.getType().equals("Gloves") ){
+        		SFXManager.playSound("tank_punch");
+        	}
             rand.setSeed(System.nanoTime());
             int r = rand.nextInt(100);
             if( r < 50 ){
                 //slash
-                dc.hero.updateAnimation("slash_" + dir);
+                dc.hero.updateAnimation("slash_" + dc.hero.direction.split("_")[1]);
                 //addMessage("Slashed " + dir );
             }else{
                 //jab
-                dc.hero.updateAnimation("jab_" + dir );
+                dc.hero.updateAnimation("jab_" + dc.hero.direction.split("_")[1] );
                 //addMessage("Jabbed " + dir );
             }
 
@@ -1723,7 +1784,8 @@ public class Level extends BasicGameState {
             dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
         }else if( itm.getType().equals("Potion") ){
-        	addThrownItem(dc, itm, itm.getImage(), direction, direction.scale(5), direction.scale(0.1f));
+        	SFXManager.playSound("potion_throw");
+        	addThrownItem(dc, itm, itm.getImage(), directionVector, directionVector.scale(5), directionVector.scale(0.1f));
         	
             if( itm.count == 1 ){
             	dc.hero.unequipItem(selectedEquippedItem);
@@ -1731,6 +1793,7 @@ public class Level extends BasicGameState {
             dc.hero.discardItem(itm, true);
 
         }else if( itm.getType().equals("Staff") ){
+        	SFXManager.playSound("launch_spell");
         	int manaCost = 0;
         	if( itm.getMaterial().equals("Ruby") ){
         		//high mana cost
@@ -1753,22 +1816,7 @@ public class Level extends BasicGameState {
         	
         	Image spellImage = getSpellImage(itm.getMaterial());
         	
-        	/*
-        	
-        	//create a new Item for the spell
-            Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
-            		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
-            
-            Item spell = new Item( wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, spellImage, 1);
-            
-            //add it to the worldItems
-            Main.im.addToWorldItems(spell);
-            
-            //make a new ThrownItem
-            thrownItems.add(new ThrownItem(spell, direction, direction.scale(10000), direction.scale(0.3f) ) );
-            */
-        	
-        	addThrownItem(dc, itm, spellImage, direction, direction.scale(10000), direction.scale(0.2f));
+        	addThrownItem(dc, itm, spellImage, directionVector, directionVector.scale(10000), directionVector.scale(0.2f));
         	
         	//decrease mana
         	dc.hero.setMana(dc.hero.getMana() - manaCost);
@@ -1776,9 +1824,13 @@ public class Level extends BasicGameState {
         }else if( itm.getType().equals("Arrow") ){
             //Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
 
-        	Image image = getArrowImage(itm.getEffect(), dir);
+        	System.out.println("throwing arrow " + dc.hero.direction.split("_")[1] );
 
-        	addThrownItem(dc, itm, image, direction, direction.scale(10000), direction.scale(0.3f));
+        	SFXManager.playSound("shoot_arrow");
+
+        	Image image = getArrowImage(itm.getEffect(), dc.hero.direction.split("_")[1]);
+
+        	addThrownItem(dc, itm, image, directionVector, directionVector.scale(10000), directionVector.scale(0.3f));
             
             if( itm.count == 1 ){
             	dc.hero.unequipItem(selectedEquippedItem);
@@ -1841,12 +1893,24 @@ public class Level extends BasicGameState {
         return true;
     }
 
+    private float currentTrackPosition;
 
     // pause the game
     public void pause(Input input) {
         if (input.isKeyPressed(Input.KEY_P)) {
             paused = !paused;
+            if( currentTrack.playing() ){
+            	currentTrackPosition = currentTrack.getPosition();
+            	currentTrack.stop();
+            }else{
+            	currentTrack.play(1, 0.3f);
+            	currentTrack.setPosition(currentTrackPosition);
+            }
+
+
         }
+
+
     }
 
 

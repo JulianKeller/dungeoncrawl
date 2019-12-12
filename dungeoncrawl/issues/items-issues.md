@@ -3,7 +3,6 @@
 [19] Update character images based on weapon material
 [30] Add animations for thrown items breaking
 [31] Scale thrown items to give the appearance of arc
-[36] Add sound effects and background music
 
 ##Resolved Issues##
 [1] Create database schema to hold items and player inventories
@@ -37,3 +36,4 @@
 [33] Check item level and class before picking up
 [34] Add weight to items and characters to slow them down
 [35] Implement cursed items that have half stats and cannot be removed
+[36] Add sound effects and background music
