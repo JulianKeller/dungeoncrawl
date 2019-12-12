@@ -512,7 +512,7 @@ public class Main extends StateBasedGame {
     	SFXManager.addSound( "click", ResourceManager.getSound(CLICK_SE));
     	SFXManager.addSound( "curse", ResourceManager.getSound(CURSE_SE));
     	SFXManager.addSound( "damage_up", ResourceManager.getSound(DAMAGE_UP));
-    	SFXManager.addSound( "drop_item", ResourceManager.getSound(DROP_ITEM));
+    	SFXManager.addSound( "item_drop", ResourceManager.getSound(DROP_ITEM));
     	SFXManager.addSound( "electricity", ResourceManager.getSound(ELECTRICITY_SE));
     	SFXManager.addSound( "enter_level", ResourceManager.getSound(ENTER_LEVEL));
     	SFXManager.addSound( "freezing", ResourceManager.getSound(FREEZE_SE));

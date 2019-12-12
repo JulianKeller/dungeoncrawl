@@ -756,7 +756,7 @@ Reflection:
     }
     
     
-    public String equipItem(int index){
+    public String equipItem(int index) throws SlickException{
     	//equip the item with id in the next available slot
     	//return a status message
     	for( int i = 0; i < equipped.length; i++ ){
@@ -770,7 +770,12 @@ Reflection:
     					System.out.print(equipped[x].getType() + " ");
     				}
     			}
-    			inventory.remove(index);
+    			System.out.println();
+
+    			Item itm = inventory.remove(index);
+    			if( itm.getType().equals("Sword") ){
+    				SFXManager.playSound("equip_sword");
+    			}
     			return null;
     		}
     		System.out.println("Slot "+i+" full.");

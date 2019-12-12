@@ -1255,15 +1255,17 @@ public class Level extends BasicGameState {
 		                String x = "";
 		                if( i.getType().equals("Potion") ){
 		                    x = "Drank";
+		                    SFXManager.playSound("potion_drink");
 		                }else if( i.getType().equals("Armor") ){
 		                    x = "Put on";
+		                    SFXManager.playSound("equip_armor");
 		                }else{
 		                    x = "Used";
 		                }
 		                addMessage(x + " " + i.toString());
-		                //TODO: add potion effects to character
+		                
 		                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
-		                    //add effect to character
+		                	//add effect to character
 		                    dc.hero.addEffect(i.getEffect(),false);
 		                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
 		                }
@@ -1309,7 +1311,9 @@ public class Level extends BasicGameState {
 	                		(int)(dc.hero.getWorldCoordinates().getY()/dc.tilesize)+1
 	                		);
 	                Main.im.take(itm, dc.hero, wc, false);
-	
+	                
+	                //play drop sound
+	                SFXManager.playSound("item_drop");
 	                
 	                //reduce the hero's inventory weight
 	                
@@ -1608,6 +1612,7 @@ public class Level extends BasicGameState {
         			return;
         		}
         	}else if( itm.getType().equals("Sword") ){
+        	
         		SFXManager.playSound("sword_swing");
         	}else if( itm.getType().equals("Gloves") ){
         		SFXManager.playSound("tank_punch");

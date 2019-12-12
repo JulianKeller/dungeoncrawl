@@ -146,7 +146,7 @@ public class Character extends MovingEntity {
     			Random rand = new Random();
     			rand.setSeed(System.nanoTime());
     			int r = rand.nextInt(100);
-    			if( r < 600 ){
+    			if( r < 60 ){
     				if( !e.cursed ){
     					super.setHitPoints(super.getHitPoints() - 20);
     				}else{
