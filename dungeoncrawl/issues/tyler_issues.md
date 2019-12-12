@@ -19,6 +19,8 @@ server for player.<br>
 **[ 21 ]** Receive same messages to every client<br>
 **[ 19 ]** Get a clients keystroke sent to the server, and use 
 that to animate the player on other clients<br>
+**[33]** Fix the inventory crashing the game<br>
+**[32]** Fix the coloring issue with potions<br>
 ## Pending Further Testing ##
 
 ## PENDING ISSUES ##

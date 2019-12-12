@@ -413,6 +413,7 @@ public class Item extends StationaryObject{
 	}
 	public void setImage(Image img){
 		removeImage(this.image);
+		this.image = img;
 		addImage(img);
 		this.image = img;
 	}
