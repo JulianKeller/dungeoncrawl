@@ -17,7 +17,7 @@ public class Character extends MovingEntity {
     private Main dc;
     AnimateEntity animate;
     private String type;
-    private String direction;
+    public String direction;
     private String currentAction;
     public boolean canMove = true;
     private boolean nearEdge = false;
@@ -254,6 +254,7 @@ public class Character extends MovingEntity {
     public String getType() {
         return type;
     }
+    
 
 
     /**
@@ -275,10 +276,15 @@ public class Character extends MovingEntity {
             return;
         }
 
+        /*
+        //System.out.println("action = " + action );
         if (key == null || key.equals("")) {
-            animate.stop();
+            //stopAction("walk");
+        	//updateAnimation(null);
             return;
         }
+        */
+        
 
         String movement = null;
         switch (key) {
@@ -549,6 +555,7 @@ public class Character extends MovingEntity {
             }
         } else {
             canMove = true;
+            updateAnimation(null);
         }
     }
 
@@ -746,11 +753,23 @@ public class Character extends MovingEntity {
     public void updateAnimation(String action) {
 //        System.out.println("Setting animation to: " + action);
         if (action != null) {
+        	if( !ai ){
+        		System.out.println("Stopping " + this.action);
+        	}
+        	animate.stop(); //stop all actions
+        	
             currentAction = action;
             this.action = action;
             Vector sc = animate.getPosition();
             animate = new AnimateEntity(sc.getX(), sc.getY(), getAnimationSpeed(), this.type);
             animate.selectAnimation(action);
+            
+            if( !ai ){
+            	System.out.println("Starting " + this.action);
+            }
+            animate.start(); //start new action
+        }else{
+        	animate.stop();
         }
     }
 
