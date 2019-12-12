@@ -328,13 +328,35 @@ public class Character extends MovingEntity {
             changeOrigin();     // check if the screen origin needs to change
         }
     }
+    
+    public boolean takeDamage(float amount, String effect, boolean cursed) throws SlickException{
+    	boolean killed = super.takeDamage(amount, effect, cursed);
+ 
+    	//play different sound for ai and characters
+    	if( killed ){
+    		if( ai ){
+    			SFXManager.playSound("skeleton_death");
+    		}else{
+    			SFXManager.playSound("character_death");
+    		}
+    	}else{
+        	if( ai ){
+        		SFXManager.playSound("skeleton_hit");
+        	}else{
+        		SFXManager.playSound("character_hit");
+        	}
+    	}
+    	
+    	return killed;
+    }
 
 
     /**
      * Move the AI randomly until the character is within range
      * This is the method that should be called from the level class to move the AI
+     * @throws SlickException 
      */
-    public void moveAI(int delta) {
+    public void moveAI(int delta) throws SlickException {
         String currentDirection = direction;
 
         // moved the character fixed to the grid

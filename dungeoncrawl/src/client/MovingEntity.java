@@ -566,7 +566,7 @@ Reflection:
     
     
     
-    public boolean takeDamage(float amount, String effect, boolean cursed ){
+    public boolean takeDamage(float amount, String effect, boolean cursed ) throws SlickException{
     	hitPoints -= amount;
     	if( !effect.equals("") ){
     		addEffect(effect, cursed);
