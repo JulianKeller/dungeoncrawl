@@ -13,6 +13,8 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import java.util.ArrayList;
 import server.Msg;
+import java.util.Queue;
+import java.util.LinkedList;
 
 
 public class Main extends StateBasedGame {
@@ -203,6 +205,8 @@ public class Main extends StateBasedGame {
     Character hero;
     public ArrayList<Character> characters;
     ArrayList<Character> enemies;
+    public Queue<Msg> messageList;
+    public Queue<Msg> received;
 
     // create an item manager
     public static ItemManager im;
@@ -248,6 +252,9 @@ public class Main extends StateBasedGame {
         characters = new ArrayList<>();
         enemies = new ArrayList<>();
         testItems = new ArrayList<>(50);
+        //enemies = new ArrayList<>();
+        messageList = new LinkedList<>();
+        received = new LinkedList<>();
 
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);    // set a rectangle
     }
@@ -410,7 +417,7 @@ public class Main extends StateBasedGame {
     public boolean closeRequested(){
         if(!localMode) {
             try {
-                dos.writeObject(new Msg(serverId,"Exit",0,0,0));
+                dos.writeObject(new Msg(serverId,"Exit",0,0,0,false));
                 dos.flush();
                 socket.close();
                 dos.close();

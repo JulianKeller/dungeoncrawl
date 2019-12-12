@@ -11,6 +11,7 @@ public class Msg implements Serializable {
     public int tiley;
     public float hp;
     public String ks;
+    public boolean ai;
     public float[][] dijkstraWeights;
     public String nextDirection = "walk_down";      // AI attribute
     public boolean invisible = false;
@@ -27,14 +28,16 @@ public class Msg implements Serializable {
         this.wy = 0;
         this.hp = 0;
         this.ks = "";
+        this.ai = false;
     }
-    public Msg(int id, String type, float wx, float wy, float hp){
+    public Msg(int id, String type, float wx, float wy, float hp, boolean ai){
         this.id = id;
         this.type = type;
         this.wx = wx;
         this.wy = wy;
         this.hp = hp;
         this.ks = "";
+        this.ai = ai;
 
     }
     @Override

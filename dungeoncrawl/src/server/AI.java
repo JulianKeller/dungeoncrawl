@@ -164,7 +164,7 @@ public class AI {
             if (id < 0) {
                 id  = -id;
             }
-            Msg message = new Msg(id, "skeleton_basic",wx,wy,150);   // "x y id"
+            Msg message = new Msg(id, "skeleton_basic",wx,wy,150,true);   // "x y id"
             enemies.add(message);
             count--;
         }
@@ -178,7 +178,7 @@ public class AI {
         ArrayList<Msg> enemies = new ArrayList<>(1);
         float wx = (tilesize * 18) - offset;
         float wy = (tilesize * 18) - tilesize - doubleOffset;
-        Msg message = new Msg(333, "skeleton_basic",wx,wy,150);   // "x y id"
+        Msg message = new Msg(333, "skeleton_basic",wx,wy,150,true);   // "x y id"
         enemies.add(message);
         return enemies;
     }

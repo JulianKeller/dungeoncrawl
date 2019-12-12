@@ -28,6 +28,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import client.MovingEntity.Effect;
 import jig.ResourceManager;
 import server.Server;
+import java.util.LinkedList;
 
 
 public class Level extends BasicGameState {
@@ -1051,7 +1052,9 @@ public class Level extends BasicGameState {
         if (paused) {
             return;
         }
-        
+        sendMessageSize(dc);
+        if(dc.messageList.size() >= 10)
+            sendListToServer(dc);
         //decrease attack timer
         if( attackCooldown > 0 ){
         	attackCooldown -= delta;
@@ -1132,11 +1135,11 @@ public class Level extends BasicGameState {
         }
         dc.hero.move(ks);
         //positionToServer(dc);  // Get the player's updated position onto the server.
-        updateOtherPlayers(dc);
+//        updateOtherPlayers(dc);
 
-        sendEnemyStatusToServer(dc);
-        readEnemyStatusFromServer(dc);
-        readWeightsFromServer(dc);
+//        sendEnemyStatusToServer(dc);
+//        readEnemyStatusFromServer(dc);
+//        readWeightsFromServer(dc);
 
 
 
@@ -1557,6 +1560,39 @@ public class Level extends BasicGameState {
         }
         //remove expired timers
         itemLockTimers.removeIf(b -> b.timer <= 0);
+        int receivedSize = receiveSize();
+        fetchMessages(receivedSize,dc);
+        updateWorld(dc);
+
+    }
+
+    private void fetchMessages(int s, Main dc){
+        try {
+            for (int i = 0; i < s; i++) {
+                Msg msg = (Msg)inStream.readObject();
+                dc.received.add(msg);
+            }
+        }catch(IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+    private void sendMessageSize(Main dc){
+        try{
+            outStream.writeObject(dc.messageList.size());
+            outStream.flush();
+            outStream.reset();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+    private int receiveSize(){
+        try {
+            int s = (int) inStream.readObject();
+            return s;
+        }catch(IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+        return -1;
     }
     private Image getSpellImage(String material) throws SlickException{
     	if( material.equals("Ruby") ){
@@ -1839,16 +1875,11 @@ public class Level extends BasicGameState {
         else if (input.isKeyPressed(Input.KEY_5)) {
             ks = "5";
         }
-        try{
-            Msg message = new Msg(dc.serverId,dc.hero.getType(),dc.hero.getWorldCoordinates().getX(),
-                    dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints());
-            message.ks = ks;
-            outStream.writeObject(message);
-            System.out.println("wrote message of "+message.getClass().getSimpleName());
-            outStream.flush();
-            outStream.reset();
-        }catch(IOException e){
-            e.printStackTrace();
+        if(!ks.equals("")){
+            Msg msg = new Msg(dc.serverId,dc.hero.getType(),dc.hero.getWorldCoordinates().getX(),
+                    dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints(),false);
+            msg.ks = ks;
+            dc.messageList.add(msg);
         }
         return ks;
     }
@@ -1866,7 +1897,7 @@ public class Level extends BasicGameState {
         for (Character ai : dc.enemies) {
             wx = ai.getWorldCoordinates().getX();
             wy = ai.getWorldCoordinates().getY();
-            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints());
+            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(),true);
             try {
                 outStream.writeObject(msg);
                 outStream.flush();
@@ -2010,6 +2041,35 @@ read the information about the AI from the server
         }
     }
 
+    public void sendListToServer(Main dc){
+        try {
+            for (int i = 0; i < dc.messageList.size(); i++) {
+                outStream.writeObject(dc.messageList.poll());
+            }
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void updateWorld(Main dc){
+        for(int i = 0; i < dc.received.size();i++){
+            Msg msg = dc.received.poll();
+            if(!msg.ai){
+                for(Character c : dc.characters){
+                    if(c.getPid() == msg.id){
+                        if(dc.serverId == c.getPid()) {
+                            break;
+                        }else{
+                            c.move(msg.ks);
+                            c.setHitPoints(msg.hp);
+                        }
+                    }
+                }
+                Character newC = new Character(dc,msg.wx,msg.wy,msg.type,msg.id,this,false);
+                dc.characters.add(newC);
+            }
+        }
+    }
     public void updateOtherPlayers(Main dc){
         try {
             Msg read = (Msg) inStream.readObject(); // message from server

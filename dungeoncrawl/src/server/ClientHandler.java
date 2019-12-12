@@ -15,6 +15,7 @@ public class ClientHandler extends Thread {
     private boolean writeSuccess;
     private BlockingQueue<Msg> threadQueue;
     private float[][] weights;
+    String clientStatus;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
                          BlockingQueue<Msg> queue){
         socket = s;
@@ -44,20 +45,20 @@ public class ClientHandler extends Thread {
                 try {
                     // Receive coordinate message from the client
                    //System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
-                    Msg message = (Msg) inStream.readObject();
+                    int size = (int) inStream.readObject();
 //                    System.out.println("reading " + message.toString());
 //                    System.out.println("Client Handler "+id+": "+message);
-                    toServer(message);
+                    clientStatus = toServer(size);
                     writeSuccess = writeToClient();
-                    if (!writeSuccess || message.type.equals("Exit"))
+                    if (!writeSuccess || clientStatus.equals("Exit"))
                         break;
 
                     // Update the AI Positions
-                    readAIStatusFromClient();
-                    weights = AI.updatePosition(message);      // takes the hero's x, y coordinates
-                    message.dijkstraWeights = weights;
-                    sendAIStatusToClient();
-                    sendWeightsToClient(message);
+//                    readAIStatusFromClient();
+//                    weights = AI.updatePosition(message);      // takes the hero's x, y coordinates
+//                    message.dijkstraWeights = weights;
+//                    sendAIStatusToClient();
+//                    sendWeightsToClient(message);
 
                 } catch(SocketException | ClassNotFoundException e){
                     System.out.println("Client "+id+" closed unexpectedly.\nClosing connections " +
@@ -79,7 +80,7 @@ public class ClientHandler extends Thread {
     Send weights from dijkstra's to the client
      */
     private void sendWeightsToClient(Msg msg) {
-        toServer(msg);
+        //toServer(msg);
         writeToClient();
     }
 
@@ -90,7 +91,7 @@ public class ClientHandler extends Thread {
     public void sendAIStatusToClient() {
 //        System.out.println("sendAIStatusToClient()");
         for (Msg ai : Server.enemies) {
-            toServer(ai);
+            //toServer(ai);
             writeToClient();
         }
         // System.out.println();
@@ -118,15 +119,23 @@ public class ClientHandler extends Thread {
 
     /**
      * This function places the string into the Server Queue.
-     * @param m message to send
+     * @param s how many messages to place onto the server.
      */
-    private void toServer(Msg m){
+    private String toServer(int s){
         try {
-            Server.serverQueue.put(m);
+            if(s >= 10) {
+                for (int i = 0; i < s; i++) {
+                    Msg msg = (Msg) inStream.readObject();
+                    Server.serverQueue.put(msg);
+                    if (msg.type.equals("Exit"))
+                        return "Exit";
+                }
+            }
 //            System.out.println("Adding to queue: " + m.toString());
-        } catch (InterruptedException e){
+        } catch (IOException | ClassNotFoundException | InterruptedException e){
             e.printStackTrace();
         }
+        return "";
     }
 
     private void sendEnemyList(){
@@ -147,12 +156,18 @@ public class ClientHandler extends Thread {
     // TODO why are we putting and taking from different queues?
     private boolean writeToClient() {
         try {
-            Msg toClient = threadQueue.take();
-            outStream.writeObject(toClient);
-//            System.out.println("writing " + toClient.toString());
+            int size = threadQueue.size();
+            outStream.writeObject(size);
             outStream.flush();
             outStream.reset();
-            outStream.flush();
+            for(int i = 0; i < size; i++) {
+                Msg toClient = threadQueue.take();
+                outStream.writeObject(toClient);
+//            System.out.println("writing " + toClient.toString());
+                outStream.flush();
+                outStream.reset();
+                outStream.flush();
+            }
 //            System.out.println("Sent to client "+id+": "+toClient);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
