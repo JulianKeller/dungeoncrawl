@@ -28,6 +28,7 @@ public class SplashScreen extends BasicGameState {
     int errorTimer = 0;
     int centerX = 427;
     int xOffset = 267;
+    int deleteTimer = 0;
 
 
     @Override
@@ -99,6 +100,9 @@ public class SplashScreen extends BasicGameState {
 
 
     private void enterIP(Input input) {
+        if (deleteTimer > 0) {
+            deleteTimer--;
+        }
         if (input.isKeyPressed(Input.KEY_0)) {
             IP += "0";
         } else if (input.isKeyPressed(Input.KEY_1)) {
@@ -123,10 +127,11 @@ public class SplashScreen extends BasicGameState {
             IP += ".";
         } else if (input.isKeyPressed(Input.KEY_SPACE)) {
             IP = "192.168.0.";
-        } else if (input.isKeyDown(Input.KEY_DELETE) || input.isKeyDown(Input.KEY_BACK)) {
+        } else if (input.isKeyDown(Input.KEY_DELETE) || input.isKeyDown(Input.KEY_BACK) && deleteTimer <= 0) {
             if (IP.length() > 0) {
                 IP = IP.substring(0, IP.length() - 1);
             }
+            deleteTimer = 7;
         }
     }
 
