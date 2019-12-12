@@ -1587,7 +1587,22 @@ public class Level extends BasicGameState {
         
         System.out.println("Attacking in the '" + direction + "' direction");
 
-        if( itm == null || itm.getType().equals("Sword") || itm.getType().equals("Glove")){
+        if( itm == null || itm.getType().equals("Sword") || itm.getType().equals("Gloves")){
+        	//play the attack sound
+        	if( itm == null ){
+        		if( dc.hero.getType().toLowerCase().contains("knight") ){
+        			SFXManager.playSound("knight_punch");
+        		}else if( dc.hero.getType().toLowerCase().contains("tank") ){
+        			SFXManager.playSound("tank_punch");
+        		}else{
+        			//if the class isn't knight or tank, it cannot punch
+        			return;
+        		}
+        	}else if( itm.getType().equals("Sword") ){
+        		SFXManager.playSound("sword_swing");
+        	}else if( itm.getType().equals("Gloves") ){
+        		SFXManager.playSound("tank_punch");
+        	}
             rand.setSeed(System.nanoTime());
             int r = rand.nextInt(100);
             if( r < 50 ){
@@ -1688,6 +1703,7 @@ public class Level extends BasicGameState {
             dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
         }else if( itm.getType().equals("Potion") ){
+        	SFXManager.playSound("potion_throw");
         	addThrownItem(dc, itm, itm.getImage(), directionVector, directionVector.scale(5), directionVector.scale(0.1f));
         	
             if( itm.count == 1 ){
@@ -1696,6 +1712,7 @@ public class Level extends BasicGameState {
             dc.hero.discardItem(itm, true);
 
         }else if( itm.getType().equals("Staff") ){
+        	SFXManager.playSound("launch_spell");
         	int manaCost = 0;
         	if( itm.getMaterial().equals("Ruby") ){
         		//high mana cost
@@ -1718,21 +1735,6 @@ public class Level extends BasicGameState {
         	
         	Image spellImage = getSpellImage(itm.getMaterial());
         	
-        	/*
-        	
-        	//create a new Item for the spell
-            Vector wc = new Vector((dc.hero.getWorldCoordinates().getX()/dc.tilesize)-0.5f, 
-            		(dc.hero.getWorldCoordinates().getY()/dc.tilesize));
-            
-            Item spell = new Item( wc, true, -1, -1, itm.getEffect(), itm.getType(), "", false, true, spellImage, 1);
-            
-            //add it to the worldItems
-            Main.im.addToWorldItems(spell);
-            
-            //make a new ThrownItem
-            thrownItems.add(new ThrownItem(spell, direction, direction.scale(10000), direction.scale(0.3f) ) );
-            */
-        	
         	addThrownItem(dc, itm, spellImage, directionVector, directionVector.scale(10000), directionVector.scale(0.2f));
         	
         	//decrease mana
@@ -1742,6 +1744,9 @@ public class Level extends BasicGameState {
             //Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
 
         	System.out.println("throwing arrow " + dc.hero.direction.split("_")[1] );
+        	
+        	SFXManager.playSound("shoot_arrow");
+        	
         	Image image = getArrowImage(itm.getEffect(), dc.hero.direction.split("_")[1]);
 
         	addThrownItem(dc, itm, image, directionVector, directionVector.scale(10000), directionVector.scale(0.3f));
