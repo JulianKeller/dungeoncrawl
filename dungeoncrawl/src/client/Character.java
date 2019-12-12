@@ -236,6 +236,13 @@ public class Character extends MovingEntity {
                 setAttackDamage(1);
                 setAttackSpeed(300);
                 break;
+            case "skeleton_boss":
+                setHitPoints(500);
+                setArmorPoints(100);
+                setAnimationSpeed(25);
+                setAttackDamage(4);
+                setAttackSpeed(300);
+                break;
             default:
                 System.out.println("ERROR: No matching Character type specified." +
                         " Setting default values\n");
