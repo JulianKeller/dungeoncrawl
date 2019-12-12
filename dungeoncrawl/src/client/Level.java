@@ -1125,17 +1125,6 @@ public class Level extends BasicGameState {
         }
 
         String ks = getKeystroke(input, dc);
-        if( prevks.equals("") ){
-            prevks = ks;
-        }
-        //convert key stroke to vector
-        Vector lastKnownDirection;
-        //System.out.println(ks);
-        if( ks.equals("") ){
-            lastKnownDirection = vectorFromKeystroke(prevks);
-        }else{
-            lastKnownDirection = vectorFromKeystroke(ks);
-        }
         dc.hero.move(ks);
         //positionToServer(dc);  // Get the player's updated position onto the server.
         updateOtherPlayers(dc);
@@ -1226,7 +1215,7 @@ public class Level extends BasicGameState {
             	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
             	if( attackCooldown <= 0 ){
 	            	if( itm == null || canUse(itm, dc.hero) ){
-	            		attack(itm, dc, lastKnownDirection);
+	            		attack(itm, dc);
 	            	}
             		
 	            	//update attack cooldown based on item weight
@@ -1242,9 +1231,9 @@ public class Level extends BasicGameState {
                 if( attackCooldown <= 0 ){
                     if( dc.hero.getType().toLowerCase().contains("knight") ||
                             dc.hero.getType().toLowerCase().contains("tank") ){
-                        attack(null, dc, lastKnownDirection);
+                        attack(null, dc);
                     }else if( canUse(itm, dc.hero) ){
-                        attack(dc.hero.getEquipped()[selectedEquippedItem], dc, lastKnownDirection);
+                        attack(dc.hero.getEquipped()[selectedEquippedItem], dc);
                     }
 
                     //update attack cooldown based on item weight
@@ -1575,40 +1564,39 @@ public class Level extends BasicGameState {
     		throw new SlickException("Invalid staff material '" + material + "'.");
     	}
     }
+    
+    private Vector dirStringToVector(String dir) throws SlickException{
+    	if( dir.equals("up") ){
+    		return new Vector(0, -1);
+    	}else if( dir.equals("down") ){
+    		return new Vector(0, 1);
+    	}else if( dir.equals("left") ){
+    		return new Vector(-1, 0);
+    	}else if( dir.equals("right") ){
+    		return new Vector(1, 0);
+    	}else{
+    		throw new SlickException("Invalid directional string.");
+    	}
+    }
 
-    private void attack(Item itm, Main dc, Vector direction) throws SlickException{
-    	
-    	
-    	
-    	//play sound for testing
-    	SFXManager.playSound("swing1");
-    	
-    	
+    private void attack(Item itm, Main dc) throws SlickException{
         //attack with the given item
-        //Vector[] directions = {new Vector(0, -1), new Vector(0, 1), new Vector(-1, 0), new Vector(1, 0)};
-        String dir = "";
-        if( direction.equals(new Vector(0, -1) ) ){
-            dir = "up";
-        }else if( direction.equals(new Vector(0, 1)) ){
-            dir = "down";
-        }else if( direction.equals(new Vector(-1, 0)) ){
-            dir = "left";
-        }else if( direction.equals(new Vector(1, 0)) ){
-            dir = "right";
-        }else{
-            throw new SlickException("Invalid attack direction " + dir);
-        }
+    	String direction = dc.hero.direction.split("_")[1];
+    	
+    	Vector directionVector = dirStringToVector(direction);
+        
+        System.out.println("Attacking in the '" + direction + "' direction");
 
         if( itm == null || itm.getType().equals("Sword") || itm.getType().equals("Glove")){
             rand.setSeed(System.nanoTime());
             int r = rand.nextInt(100);
             if( r < 50 ){
                 //slash
-                dc.hero.updateAnimation("slash_" + dir);
+                dc.hero.updateAnimation("slash_" + dc.hero.direction.split("_")[1]);
                 //addMessage("Slashed " + dir );
             }else{
                 //jab
-                dc.hero.updateAnimation("jab_" + dir );
+                dc.hero.updateAnimation("jab_" + dc.hero.direction.split("_")[1] );
                 //addMessage("Jabbed " + dir );
             }
 
@@ -1700,7 +1688,7 @@ public class Level extends BasicGameState {
             dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
         }else if( itm.getType().equals("Potion") ){
-        	addThrownItem(dc, itm, itm.getImage(), direction, direction.scale(5), direction.scale(0.1f));
+        	addThrownItem(dc, itm, itm.getImage(), directionVector, directionVector.scale(5), directionVector.scale(0.1f));
         	
             if( itm.count == 1 ){
             	dc.hero.unequipItem(selectedEquippedItem);
@@ -1745,7 +1733,7 @@ public class Level extends BasicGameState {
             thrownItems.add(new ThrownItem(spell, direction, direction.scale(10000), direction.scale(0.3f) ) );
             */
         	
-        	addThrownItem(dc, itm, spellImage, direction, direction.scale(10000), direction.scale(0.2f));
+        	addThrownItem(dc, itm, spellImage, directionVector, directionVector.scale(10000), directionVector.scale(0.2f));
         	
         	//decrease mana
         	dc.hero.setMana(dc.hero.getMana() - manaCost);
@@ -1753,9 +1741,10 @@ public class Level extends BasicGameState {
         }else if( itm.getType().equals("Arrow") ){
             //Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
 
-        	Image image = getArrowImage(itm.getEffect(), dir);
+        	System.out.println("throwing arrow " + dc.hero.direction.split("_")[1] );
+        	Image image = getArrowImage(itm.getEffect(), dc.hero.direction.split("_")[1]);
 
-        	addThrownItem(dc, itm, image, direction, direction.scale(10000), direction.scale(0.3f));
+        	addThrownItem(dc, itm, image, directionVector, directionVector.scale(10000), directionVector.scale(0.3f));
             
             if( itm.count == 1 ){
             	dc.hero.unequipItem(selectedEquippedItem);
