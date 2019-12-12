@@ -1152,10 +1152,12 @@ public class Level extends BasicGameState {
 
 
         if( input.isKeyPressed(Input.KEY_I) ){
+        	SFXManager.playSound("open_inventory");
             displayInventory = !displayInventory;
             displayCodex = false;
         }
         if( input.isKeyPressed(Input.KEY_O) ){
+        	SFXManager.playSound("open_inventory");
             displayCodex = !displayCodex;
             displayInventory = false;
         }
