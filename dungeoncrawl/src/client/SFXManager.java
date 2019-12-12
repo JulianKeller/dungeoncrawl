@@ -30,19 +30,8 @@ public class SFXManager {
 			this.effect = effect;
 		}
 	}
-	/**
-	 * Sounds in the nowPlaying list are removed from the library list.
-	 */
-	private static ArrayList<SoundEffect> nowPlaying = new ArrayList<SoundEffect>();
 	
 	private static ArrayList<SoundEffect> library = new ArrayList<SoundEffect>();
-	
-	/*
-	public SFXManager(){
-		nowPlaying = new ArrayList<SoundEffect>();
-		library = new ArrayList<SoundEffect>();
-	}
-	*/
 	
 	/**
 	 * Add a sound to the sound effect library
@@ -69,9 +58,8 @@ public class SFXManager {
 	 * and play it.
 	 * 
 	 * @param action - the action to search
-	 * @throws SlickException 
 	 */
-	public static void playSound(String action) throws SlickException{
+	public static void playSound(String action){
 		SoundEffect result = null;
 		for( SoundEffect se : library ){
 			if( se.action.equals(action) ){
@@ -82,9 +70,10 @@ public class SFXManager {
 		if( result == null ){
 			System.out.println("Sound with action '" + action + "' not found.");
 		}else{
-			library.remove(result);
-			nowPlaying.add(result);
-			
+			if( result.effect.playing() ){
+				//restart the sound effect
+				result.effect.stop();
+			}
 			result.effect.play();
 		}
 	}
@@ -94,56 +83,37 @@ public class SFXManager {
 	 * and stop it.
 	 * 
 	 * @param action - the action to search
-	 * @throws SlickException 
 	 */
-	public static void stopSound(String action) throws SlickException{
+	public static void stopSound(String action){
 		SoundEffect result = null;
-		for( SoundEffect se : nowPlaying ){
+		for( SoundEffect se : library ){
 			if( se.action.equals(action) ){
-		
 				result = se;
 				break;
 			}
 		}
 		if( result == null ){
-			throw new SlickException("Sound with action '" + action + "' not found.");
+			System.out.println("Sound with action '" + action + "' not found.");
+			return;
+		}else if( !result.effect.playing() ){
+			System.out.println("Sound with action '" + action + "' is not currently playing.");
+			return;
 		}
 		
-		result.effect.stop();
-		
-		nowPlaying.remove(result);
-		library.add(result);		
-	}
-	
-	/**
-	 * Places all sounds that have stopped back into
-	 * the sound effect library.
-	 * 
-	 * Should be called on each update loop.
-	 */
-	public static void replaceStoppedSounds(){
-		//iterate through all sounds and move the stopped ones back into the library
-		ArrayList<SoundEffect> stopped = new ArrayList<SoundEffect>();
-		for( SoundEffect se : nowPlaying ){
-			if( !se.effect.playing() ){
-				stopped.add(se);
-			}
-		}
-		nowPlaying.removeAll(stopped);
-		library.addAll(stopped);
+		result.effect.stop();	
 	}
 	
 	/**
 	 * Print a list of available sounds.
 	 */
 	public static void listSounds(){
-		System.out.println("Now playing:");
-		for( SoundEffect se : nowPlaying ){
-			System.out.println(se.action + " - " + se.effect.toString());
-		}
-		System.out.println("Sound effect library:");
+		System.out.println("Available sound effects:");
 		for( SoundEffect se : library ){
-			System.out.println(se.action + " - " + se.effect.toString() );
+			System.out.print(se.action + " - " + se.effect.toString() );
+			if( se.effect.playing() ){
+				System.out.print( " <playing>" );
+			}
+			System.out.println();
 		}
 	}
 }

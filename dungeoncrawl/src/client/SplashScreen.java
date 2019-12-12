@@ -78,8 +78,6 @@ public class SplashScreen extends BasicGameState {
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         Main dc = (Main) game;
         
-        SFXManager.replaceStoppedSounds();
-        
         Input input = container.getInput();
 
         selectNextSubMenu(input);

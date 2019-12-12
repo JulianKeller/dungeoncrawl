@@ -1055,9 +1055,6 @@ public class Level extends BasicGameState {
             return;
         }
         
-        //clear out stopped sounds
-        SFXManager.replaceStoppedSounds();
-        
         //decrease attack timer
         if( attackCooldown > 0 ){
         	attackCooldown -= delta;
