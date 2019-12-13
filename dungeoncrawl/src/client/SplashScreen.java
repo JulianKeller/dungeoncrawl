@@ -126,7 +126,7 @@ public class SplashScreen extends BasicGameState {
         } else if (input.isKeyPressed(Input.KEY_PERIOD)) {
             IP += ".";
         } else if (input.isKeyPressed(Input.KEY_SPACE)) {
-            IP = "192.168.0.";
+            IP = "10.197.33.49";
         } else if (input.isKeyDown(Input.KEY_DELETE) || input.isKeyDown(Input.KEY_BACK) && deleteTimer <= 0) {
             if (IP.length() > 0) {
                 IP = IP.substring(0, IP.length() - 1);
