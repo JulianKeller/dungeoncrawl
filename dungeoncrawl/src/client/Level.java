@@ -598,16 +598,6 @@ public class Level extends BasicGameState {
 //         renderDebug(dc, g);
 
 
-        //minimal HUD
-        //g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*3));
-        //g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
-        g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
-        g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
-        g.drawString("Coord : " + dc.hero.animate.getPosition(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*7));
-        g.drawString("Pos   : <" + (int) dc.hero.getTileWorldCoordinates().getX() + ", " +  (int) dc.hero.getTileWorldCoordinates().getY() + ">", dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*9));
-        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*8));
-        //g.drawString("Weight: " + dc.hero.getInventoryWeight(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*9));
-
         if (dc.showPath) {
             renderShortestPath(dc, g);
 //            renderPathWeights(dc, g);     // this method really only works well when one AI is present
@@ -622,8 +612,12 @@ public class Level extends BasicGameState {
         }
         
         //render visual hud
+        float alpha = 1;
+        if( dc.hero.animate.getX() > dc.ScreenWidth - (baseWidth+100) && dc.hero.animate.getY() > dc.ScreenHeight-((dc.tilesize*5)+100) ){
+        	alpha = 0.2f;
+        }
         Color tmp = g.getColor();
-        g.setColor(new Color(255, 0, 0) );
+        g.setColor(new Color(255, 0, 0, alpha) );
         g.fillRoundRect(dc.ScreenWidth - ((256 + dc.tilesize)-(baseWidth-currentHealthBarWidth)), dc.ScreenHeight-(dc.tilesize*3), currentHealthBarWidth, dc.tilesize, 0);
         g.setColor(tmp);
         g.drawImage(ResourceManager.getImage(Main.BAR_BASE), dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight - (dc.tilesize*3));
@@ -633,7 +627,7 @@ public class Level extends BasicGameState {
         //render inventory weight bar
         if( dc.hero.getInventoryWeight() != 0 ){
 	        tmp = g.getColor();
-	        g.setColor(new Color(0, 255, 0) );
+	        g.setColor(new Color(0, 255, 0, alpha) );
 	        g.fillRoundRect(dc.ScreenWidth - ((256 + dc.tilesize)-(baseWidth-currentWeightBarWidth)), dc.ScreenHeight-(dc.tilesize*4), currentWeightBarWidth, dc.tilesize, 0);
 	        g.setColor(tmp);
         }
@@ -646,7 +640,7 @@ public class Level extends BasicGameState {
         	
         	float currentManaBarWidth = baseWidth * (dc.hero.getMana()/dc.hero.getMaxMana());
             tmp = g.getColor();
-            g.setColor(new Color(0, 0, 255) );
+            g.setColor(new Color(0, 0, 255, alpha) );
             g.fillRoundRect(dc.ScreenWidth - ((256 + dc.tilesize)-(baseWidth-currentManaBarWidth)), dc.ScreenHeight-(dc.tilesize*5), currentManaBarWidth, dc.tilesize, 0);
             g.setColor(tmp);
             
