@@ -151,7 +151,7 @@ public class Level extends BasicGameState {
 
         try {
             dc.map = (int[][]) inStream.readObject();
-//            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
+            System.out.printf("Recieved the map.\n\n");
 //           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -206,8 +206,7 @@ public class Level extends BasicGameState {
         String type = setSkin();
         try {
             id = inStream.readInt();
-//            System.out.println("reading id: " + id);
-            //System.out.println("Sending my player info.");
+            System.out.printf("Reading hero's id: %s\n\n",id);
             dc.serverId = id;
         }catch(IOException e){
             e.printStackTrace();
@@ -273,7 +272,7 @@ public class Level extends BasicGameState {
     private void receiveItemList(){
         try {
             int count = inStream.readInt();
-            System.out.println("Count: " + count);
+            System.out.printf("Reading item count: %s\n\n",count);
 //            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
 
 //            List<ItemMsg> fromServer = Collections.synchronizedList(new ArrayList<>());
@@ -283,7 +282,7 @@ public class Level extends BasicGameState {
             for (int j = 0; j < count; j++) {
                 try {
                     ItemMsg i = (ItemMsg) inStream.readObject();
-                    System.out.println("Adding item: "+i.type);
+                    System.out.printf("Read: %s\n",i);
                     Item item = new Item(new Vector(i.wx,i.wy),false,i.id,i.oid,i.effect,
                             i.type,i.material,i.cursed,i.identified,null,i.count);
                     setItemImage(item);
@@ -293,6 +292,7 @@ public class Level extends BasicGameState {
                 }
 
             }
+            System.out.printf("\n");
         } catch (IOException | ClassNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -303,7 +303,7 @@ public class Level extends BasicGameState {
         ArrayList<Msg> enemyList = new ArrayList<>();
         try{
             enemyList = (ArrayList<Msg>) inStream.readObject();
-//            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
+            System.out.printf("Read: %s\n\n",enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -1975,7 +1975,7 @@ read the information about the AI from the server
         for (Character ai : dc.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-//                System.out.println("reading " + msg.toString());
+                System.out.printf("Read: %s\n\n" + msg);
                 if (ai.canMove) {
                     ai.setWorldCoordinates(msg.wx, msg.wy);
                 }
@@ -1994,6 +1994,7 @@ read the information about the AI from the server
     private void readWeightsFromServer(Main dc) {
         try {
             Msg msg = (Msg) inStream.readObject();
+            System.out.printf("Read: %s\n\n",msg);
             dc.hero.weights = msg.dijkstraWeights;
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
@@ -2101,7 +2102,7 @@ read the information about the AI from the server
     public void updateOtherPlayers(Main dc){
         try {
             Msg read = (Msg) inStream.readObject(); // message from server
-//            System.out.println("reading " + read.toString());
+            System.out.printf("Read %s\n\n", read);
 //            System.out.println("("+dc.serverId+"): " + read);
 
             if(read.type.equals("Exit")) {
