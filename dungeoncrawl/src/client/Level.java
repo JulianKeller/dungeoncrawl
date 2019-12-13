@@ -212,10 +212,11 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
         dc.hero = new Character(dc, wx, wy, type, id, this, false);
-        dc.characters.add(dc.hero);
 
+//        dc.characters.add(dc.hero);
         receiveEnemyList(dc);
         receiveItemList();
+        //readCharactersFromServer(dc);
 
         // render map
         RenderMap.setMap(dc, dc.hero);
@@ -1419,11 +1420,11 @@ public class Level extends BasicGameState {
         
         
         // if the hero has no health, then replace it with a new hero character in the same spot
-        if(dc.hero.getHitPoints() <= 0){
-            dc.hero = new Character(dc,dc.hero.animate.getX(),dc.hero.animate.getY(),dc.hero.getType(),
-                    dc.serverId,this,false);
-            dc.characters.add(0,dc.hero);
-        }
+//        if(dc.hero.getHitPoints() <= 0){
+//            dc.hero = new Character(dc,dc.hero.animate.getX(),dc.hero.animate.getY(),dc.hero.getType(),
+//                    dc.serverId,this,false);
+//            //dc.characters.add(0,dc.hero);
+//        }
 
 
         // cause AI players to move around
@@ -1625,6 +1626,7 @@ public class Level extends BasicGameState {
     }
 
     private void sendCharactersToServer(Main dc){
+        System.out.println("begin sendCharactersToServer() ");
         int count = dc.characters.size();
         try {
             outStream.writeObject(count);
@@ -1643,10 +1645,12 @@ public class Level extends BasicGameState {
     }
 
     private void readCharactersFromServer(Main dc){
+        System.out.printf("begin readCharactersFromServer() ");
         int count = 0;
         int numCharacters = dc.characters.size();
         try{
-            count = (int)inStream.readObject();
+            System.out.printf("before count\n");
+            count = inStream.readInt();
             System.out.printf("Read count %s\n",count);
             if(count > numCharacters){
                 int difference = count - numCharacters;
@@ -1671,6 +1675,7 @@ public class Level extends BasicGameState {
                     character.move(msg.ks);
                 }
             }
+            System.out.println();
         }catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }

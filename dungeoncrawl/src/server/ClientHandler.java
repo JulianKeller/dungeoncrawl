@@ -39,6 +39,7 @@ public class ClientHandler extends Thread {
             outStream.flush();
             sendEnemyList();
             sendItemList();
+            //sendCharactersToClient();
             while(true) {
                 try {
                     // Receive coordinate message from the client about the Hero
@@ -172,9 +173,11 @@ public class ClientHandler extends Thread {
         return true;
     }
     public void readCharactersFromClient(){
+        System.out.println("Begin readCharactersFromClient() ");
         int count = 0;
         try {
-            count = (int) inStream.readObject();
+            count = inStream.readInt();
+            System.out.printf("Read: %s\n",count);
             synchronized(Server.characters) {
                 for (int i = 0; i < count; i++) {
                     Msg character = Server.characters.get(i);
@@ -184,21 +187,25 @@ public class ClientHandler extends Thread {
                     character.wx = msg.wx;
                     character.wy = msg.wy;
                     character.ks = msg.ks;
+                    character.hp = msg.hp;
                     System.out.printf("character %s after: wx= %s, wy= %s, ks= %s\n\n",i,character.wx,
                             character.wy,character.ks);
                 }
             }
+            System.out.printf("\n");
         }catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
     }
 
     public void sendCharactersToClient(){
+        System.out.printf("begin sendCharactersToClient() ");
         synchronized (Server.characters){
             int count = Server.characters.size();
             try {
-                outStream.writeObject(count);
+                outStream.writeInt(count);
                 outStream.reset();
+                System.out.printf("Send %s\n",count);
                 for(int i = 0; i < count;i++){
                     Msg character = Server.characters.get(i);
                     outStream.writeObject(character);
@@ -210,6 +217,7 @@ public class ClientHandler extends Thread {
                 e.printStackTrace();
             }
         }
+        System.out.printf("\n");
     }
     public void sendItemList(){
         try{
