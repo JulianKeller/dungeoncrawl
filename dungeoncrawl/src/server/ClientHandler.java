@@ -14,7 +14,7 @@ public class ClientHandler extends Thread {
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
     public BlockingQueue<Msg> threadQueue;
-    private float[][] weights;
+//    private float[][] weights;
     public Msg hero;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
                          BlockingQueue<Msg> queue){
@@ -175,7 +175,6 @@ public class ClientHandler extends Thread {
             outStream.writeInt(count);
 //            System.out.println("writing " + toClient.toString());
             outStream.reset();
-
             synchronized (Server.worldItems) {
                 for (int i = 0; i < count; i++) {
                     ItemMsg item = Server.worldItems.get(i);
@@ -187,6 +186,7 @@ public class ClientHandler extends Thread {
             e.printStackTrace();
         }
     }
+
     public int getClientId(){
         return id;
     }

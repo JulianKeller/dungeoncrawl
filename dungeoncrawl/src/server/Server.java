@@ -29,10 +29,33 @@ public class Server extends Thread{
     public void run() {
         while(true){
 
-            // TODO need to re-architect so we can read from all clients
-            //  then I can compute dijkstra for each player
-            //  then determine the next moves for all AI
-            //  then send the AI data back to the AI
+            // TODO use Tylers player list when it is ready instead of the clients list
+            // calculate dijkstra's weights for each active player
+//            synchronized (clients) {
+//                for (ClientHandler c : clients) {
+//                    // TODO set this to the pl
+//                    // AI.getDijkstraWeights(client);       // updates clients weights and paths
+//
+//                }
+//            }
+
+            // TODO, may not need to run every time
+            // for each enemy find the closest player to them,
+            // use closestPlayer.dijkstraWeights to determine path to player
+//            synchronized (enemies) {
+//                float closest = 10000;
+//                for (Msg ai : enemies) {
+//                    Msg closestHero = null;
+//                    float distance = 0;
+//                    synchronized (clients) {  // TODO change to list of players
+//                        distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
+//                        if (distance < closest) {
+//                            // then ai.get next direction
+//                            AI.updatePosition(ai, hero);
+//                        }
+//                    }
+//                }
+//            }
 
             sendToClients();
         }

@@ -5,7 +5,7 @@ import java.util.*;
 // an implementation of Dijkstra's algorithm
 public class PathFinding {
     public float[][] distance;
-    private int[][][] path;
+    public int[][][] path;
     private boolean[][] visited;
     private ArrayList<Vertex> q;
     private int y;
@@ -51,7 +51,7 @@ public class PathFinding {
      * @param targetY y ending tile coordinates
      * @return the shortest path between start and end
      */
-    public ArrayList<int[]> findShortestPath(int startX, int startY, int targetX, int targetY) {
+    public static ArrayList<int[]> findShortestPath(int[][][] path, int startX, int startY, int targetX, int targetY) {
         Stack<int[]> stack = new Stack<>();
         ArrayList<int[]> shortest = new ArrayList<>();
         int prevx, prevy;

@@ -20,6 +20,7 @@ public class Msg implements Serializable {
     public boolean frightening = false;
     public boolean reflecting = false;
     public boolean mighty = false;
+    public int[][][] path;
 
     public Msg(){
         this.id = 0;
