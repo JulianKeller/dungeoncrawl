@@ -57,10 +57,10 @@ public class ClientHandler extends Thread {
                         break;
 
                     // Update the AI Positions
-                    readAIStatusFromClient();
+//                    readAIStatusFromClient();
 //                    weights = AI.updatePosition(message);      // takes the hero's x, y coordinates
 //                    message.dijkstraWeights = weights;
-                    sendAIStatusToClient();
+//                    sendAIStatusToClient();
 //                    sendWeightsToClient(message);
 
                 } catch(SocketException | ClassNotFoundException e){
