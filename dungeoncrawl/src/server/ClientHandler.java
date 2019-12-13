@@ -13,7 +13,7 @@ public class ClientHandler extends Thread {
     private ObjectInputStream inStream;  // the input stream
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
-    private BlockingQueue<Msg> threadQueue;
+    public BlockingQueue<Msg> threadQueue;
     private float[][] weights;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
                          BlockingQueue<Msg> queue){
@@ -23,9 +23,6 @@ public class ClientHandler extends Thread {
         id = s.getPort();
         threadQueue = queue;
         writeSuccess = true;
-        Server.clientQueues.add(threadQueue);
-
-
     }
 
     @Override
@@ -65,7 +62,8 @@ public class ClientHandler extends Thread {
                     break;
                 }
             }
-            Server.clientQueues.remove(threadQueue);
+//            Server.clientQueues.remove(threadQueue);
+            Server.clients.remove(this);
             outStream.close();
             inStream.close();
             socket.close();
@@ -132,7 +130,7 @@ public class ClientHandler extends Thread {
     private void sendEnemyList(){
         try {
             outStream.writeObject(Server.enemies);
-            outStream.flush();
+            outStream.reset();
 //            System.out.println("Wrote ArrayList Server.enemies");
         }catch(IOException e){
             e.printStackTrace();
@@ -150,9 +148,7 @@ public class ClientHandler extends Thread {
             Msg toClient = threadQueue.take();
             outStream.writeObject(toClient);
 //            System.out.println("writing " + toClient.toString());
-            outStream.flush();
             outStream.reset();
-            outStream.flush();
 //            System.out.println("Sent to client "+id+": "+toClient);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -163,10 +159,18 @@ public class ClientHandler extends Thread {
 
     public void sendItemList(){
         try{
-            outStream.writeObject(Server.worldItems);
-            outStream.flush();
+            int count = Server.worldItems.size();
+            outStream.writeInt(count);
+//            System.out.println("writing " + toClient.toString());
             outStream.reset();
-            System.out.println("Wrote Server.worldItems, type: "+Server.worldItems.getClass().getSimpleName());
+
+            synchronized (Server.worldItems) {
+                for (int i = 0; i < count; i++) {
+                    ItemMsg item = Server.worldItems.get(i);
+                    outStream.writeObject(item);
+                    outStream.reset();
+                }
+            }
         }catch(IOException e){
             e.printStackTrace();
         }

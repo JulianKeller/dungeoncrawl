@@ -2,6 +2,9 @@ package server;
 
 import client.Main;
 import org.newdawn.slick.SlickException;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import java.io.*;
@@ -12,11 +15,12 @@ import java.util.concurrent.*;
 public class Server extends Thread{
     // Static Objects for each thread.
     public static BlockingQueue<Msg> serverQueue = new LinkedBlockingQueue<>();
-    public static ArrayList<BlockingQueue> clientQueues = new ArrayList<>();
+//    public static List<ClientQueue> clientQueues = Collections.synchronizedList(new ArrayList<>());
+    public static List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
     public static int [][] map;
     public static int [][] rotatedMap;
-    public static ArrayList<Msg> enemies;
-    public static ArrayList<ItemMsg> worldItems = new ArrayList<>();
+    public static List<Msg> enemies = Collections.synchronizedList(new ArrayList<>());
+    public static List<ItemMsg> worldItems = Collections.synchronizedList(new ArrayList<>());
 
     public Server(){
     }
@@ -29,14 +33,13 @@ public class Server extends Thread{
     }
 
     public void sendToClients(){
-            try {
-                Msg playerInfo = serverQueue.take();
-                for(BlockingQueue c : clientQueues)
-                    c.put(playerInfo);
-
-                } catch(InterruptedException e){
-                    e.printStackTrace();
-                }
+        try {
+            Msg playerInfo = serverQueue.take();
+            for(ClientHandler c : clients)
+                c.threadQueue.put(playerInfo);
+            } catch(InterruptedException e){
+                e.printStackTrace();
+            }
     }
 
 
@@ -337,7 +340,7 @@ public class Server extends Thread{
             // Create a new Socket for the server
             ServerSocket ss = new ServerSocket(5000);
             // Generate the map
-            map = LoadMap.getRandomMap();
+//            map = LoadMap.getRandomMap();
             rotatedMap = rotateMap(map);
             // TODO generate AI characters
             enemies = AI.spawnEnemies(map, 20);
@@ -364,6 +367,7 @@ public class Server extends Thread{
                 // This is the client handler thread.
                 System.out.println("Creating new thread for this client...");
                 ClientHandler t = new ClientHandler(s, is, os, new LinkedBlockingQueue<>());
+                clients.add(t);
                 t.start();
 
             }
