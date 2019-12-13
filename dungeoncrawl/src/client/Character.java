@@ -12,7 +12,7 @@ import org.newdawn.slick.Animation;
 import org.newdawn.slick.SlickException;
 
 import jig.Vector;
-
+import server.Msg;
 public class Character extends MovingEntity {
     private Main dc;
     AnimateEntity animate;
@@ -825,6 +825,11 @@ public class Character extends MovingEntity {
         float wy = (oy * dc.tilesize) + sc.getY();
         setWorldCoordinates(wx, wy);    // world coordinates
     }
-
-
+    public Msg toMsg(){
+        float hp = this.getHitPoints();
+        float wx = this.getWorldCoordinates().getX();
+        float wy = this.getWorldCoordinates().getY();
+        Msg msg = new Msg(this.id,this.type,wx,wy,hp,this.ai);
+        return msg;
+    }
 }

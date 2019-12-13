@@ -42,6 +42,7 @@ public class Msg implements Serializable {
     }
     @Override
     public String toString(){
-        return("Id = "+id+" type = "+type+" wx = "+wx+" wy = "+wy+" hp = "+hp);
+        return("Id = "+id+" type = "+type+" wx = "+wx+" wy = "+wy+" hp = "+hp+" " +
+                " ai = "+ai+" ks = "+ks);
     }
 }

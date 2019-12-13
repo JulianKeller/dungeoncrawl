@@ -1168,7 +1168,9 @@ public class Level extends BasicGameState {
         String ks = getKeystroke(input, dc);
         dc.hero.move(ks);
         //positionToServer(dc);  // Get the player's updated position onto the server.
-        updateOtherPlayers(dc);
+//        updateOtherPlayers(dc);
+        sendCharactersToServer(dc);
+        readCharactersFromServer(dc);
 //
 //        sendEnemyStatusToServer(dc);
 //        readEnemyStatusFromServer(dc);
@@ -1620,6 +1622,62 @@ public class Level extends BasicGameState {
         }
         //remove expired timers
         itemLockTimers.removeIf(b -> b.timer <= 0);
+    }
+
+    private void sendCharactersToServer(Main dc){
+        int count = dc.characters.size();
+        try {
+            outStream.writeObject(count);
+            outStream.reset();
+            System.out.printf("send: %s\n\n",count);
+            for(int i = 0; i < count; i++){
+                Msg msg = dc.characters.get(i).toMsg();
+                outStream.writeObject(msg);
+                outStream.reset();
+                System.out.printf("send %s\n",msg);
+            }
+            System.out.printf("\n");
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void readCharactersFromServer(Main dc){
+        int count = 0;
+        int numCharacters = dc.characters.size();
+        try{
+            count = (int)inStream.readObject();
+            System.out.printf("Read count %s\n",count);
+            if(count > numCharacters){
+                int difference = count - numCharacters;
+                int i = 0;
+                for(; i < count-difference;i++){
+                    Character character = dc.characters.get(i);
+                    Msg msg = (Msg)inStream.readObject();
+                    character.setHitPoints(msg.hp);
+                    character.move(msg.ks);
+                }
+                for(; i < count;i++){
+                    Msg msg=(Msg)inStream.readObject();
+                    addCharacterFromMsg(dc,msg);
+                }
+            } else if(count < numCharacters){
+
+            } else {
+                for(int i = 0; i < count;i++){
+                    Character character = dc.characters.get(i);
+                    Msg msg = (Msg)inStream.readObject();
+                    character.setHitPoints(msg.hp);
+                    character.move(msg.ks);
+                }
+            }
+        }catch(IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+    private void addCharacterFromMsg(Main dc,Msg msg){
+        Character c = new Character(dc,msg.wx,msg.wy,msg.type,msg.id,this,msg.ai);
+        dc.characters.add(c);
     }
     private Image getSpellImage(String material) throws SlickException{
     	if( material.equals("Ruby") ){

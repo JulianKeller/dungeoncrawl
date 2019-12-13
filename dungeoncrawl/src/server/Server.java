@@ -21,6 +21,7 @@ public class Server extends Thread{
     public static int [][] rotatedMap;
     public static List<Msg> enemies = Collections.synchronizedList(new ArrayList<>());
     public static List<ItemMsg> worldItems = Collections.synchronizedList(new ArrayList<>());
+    public static List<Msg> characters = Collections.synchronizedList(new ArrayList<>());
 
     public Server(){
     }

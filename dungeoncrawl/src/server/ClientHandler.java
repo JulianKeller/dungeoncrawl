@@ -45,14 +45,15 @@ public class ClientHandler extends Thread {
                     Msg message = (Msg) inStream.readObject();
                     System.out.printf("read %s\n", message);
                     if (init) {
-                        hero = message;
+                        Server.characters.add(message);
                         init = false;
                     }
-
+                    readCharactersFromClient();
+                    sendCharactersToClient();
 //                    System.out.println("reading " + message.toString());
 //                    System.out.println("Client Handler "+id+": "+message);
-                    toServer(message);
-                    writeSuccess = writeToClient();
+                    //toServer(message);
+                    //writeSuccess = writeToClient();
                     if (!writeSuccess || message.type.equals("Exit"))
                         break;
 
@@ -170,7 +171,46 @@ public class ClientHandler extends Thread {
         }
         return true;
     }
+    public void readCharactersFromClient(){
+        int count = 0;
+        try {
+            count = (int) inStream.readObject();
+            synchronized(Server.characters) {
+                for (int i = 0; i < count; i++) {
+                    Msg character = Server.characters.get(i);
+                    System.out.printf("character %s before: wx= %s, wy= %s, ks= %s\n",i,character.wx,
+                            character.wy,character.ks);
+                    Msg msg = (Msg)inStream.readObject();
+                    character.wx = msg.wx;
+                    character.wy = msg.wy;
+                    character.ks = msg.ks;
+                    System.out.printf("character %s after: wx= %s, wy= %s, ks= %s\n\n",i,character.wx,
+                            character.wy,character.ks);
+                }
+            }
+        }catch(IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+    }
 
+    public void sendCharactersToClient(){
+        synchronized (Server.characters){
+            int count = Server.characters.size();
+            try {
+                outStream.writeObject(count);
+                outStream.reset();
+                for(int i = 0; i < count;i++){
+                    Msg character = Server.characters.get(i);
+                    outStream.writeObject(character);
+                    outStream.reset();
+                    System.out.printf("send %s\n",character);
+                }
+                System.out.printf("\n");
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
     public void sendItemList(){
         try{
             int count = Server.worldItems.size();
