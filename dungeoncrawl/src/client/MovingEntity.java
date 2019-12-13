@@ -654,18 +654,36 @@ Reflection:
 
     public void addItem(Item i){
     	boolean add = true;
-    	for( Item itm : inventory ){
-    		if( itm.equals(i) ){
-    			itm.count += i.count;
+    	boolean addedToHand = false;
+    	//try to add to equipped items first
+    	for( int x = 0; x < equipped.length; x++ ){
+    		if( equipped[x] == null ){
+    			equipped[x] = i;
     			inventoryWeight += i.getWeight();
-    			add = false;
+    			addedToHand = true;
+    			break;
+    		}else if( i.equals(equipped[x]) ){
+    			equipped[x].count += i.count;
+    			inventoryWeight += i.getWeight();
+    			addedToHand = true;
     			break;
     		}
     	}
-    	if( add ){
-    		inventory.add(i);
-    		inventoryWeight += i.getWeight();
+    	if( !addedToHand ){
+	    	for( Item itm : inventory ){
+	    		if( itm.equals(i) ){
+	    			itm.count += i.count;
+	    			inventoryWeight += i.getWeight();
+	    			add = false;
+	    			break;
+	    		}
+	    	}
+	    	if( add ){
+	    		inventory.add(i);
+	    		inventoryWeight += i.getWeight();
+	    	}
     	}
+    	
         if( i.isIdentified() && i.getType().equals("Potion") ){
         	addToCodex(i);
         }

@@ -242,9 +242,6 @@ public class Level extends BasicGameState {
 
                     Main.im.give(staff, dc.hero);
 
-                    dc.hero.equipItem(0);
-
-
                 } catch (SlickException e1) {
                     return;
                 }
@@ -253,8 +250,6 @@ public class Level extends BasicGameState {
                     Item arrow = new Item(null, false, -1, -1, "", "Arrow", "", false, true, ResourceManager.getImage(Main.ARROW_NORMAL), 10);
 
                     Main.im.give(arrow, dc.hero);
-
-                    dc.hero.equipItem(0);
 
 
                 } catch (SlickException e1) {
@@ -836,12 +831,17 @@ public class Level extends BasicGameState {
                 g.drawString(dc.hero.getEquipped()[i].getRequiredLevel()+"", x+(dc.tilesize*i), y);
                 g.setColor(tmp2);
                 
-                g.setColor(Color.white);
-                g.drawString(dc.hero.getEquipped()[selectedEquippedItem].toString(), dc.ScreenWidth-(dc.tilesize*6), dc.ScreenHeight-(dc.tilesize));
+
             }
         }
+
         g.setColor(Color.white);
-        g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
+        if( dc.hero.getEquipped()[selectedEquippedItem] != null ){
+        	g.drawString(dc.hero.getEquipped()[selectedEquippedItem].toString(), dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight-(dc.tilesize));
+        }
+        if( x > 0 ){
+        	g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
+        }
         
         g.setColor(tmp);
     }
