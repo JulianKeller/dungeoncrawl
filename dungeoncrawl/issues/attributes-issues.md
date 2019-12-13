@@ -1,5 +1,5 @@
 ## Current Issues
-[36] - add image attribute for boss
+[38] - Fix the tank as it runs off the screen
 
 ## Open Issues ##
 [12] - update floor tiles
@@ -34,4 +34,5 @@
 [32] - refactor and fix framerate drop
 [34] - add invincibility cheat
 [35] - add controls to splash screen
+[36] - add image attribute for boss
 [37] - fix splash screen enter button
