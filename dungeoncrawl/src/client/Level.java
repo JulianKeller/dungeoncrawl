@@ -1168,10 +1168,10 @@ public class Level extends BasicGameState {
         String ks = getKeystroke(input, dc);
         dc.hero.move(ks);
         //positionToServer(dc);  // Get the player's updated position onto the server.
-        updateOtherPlayers(dc);
-
-        sendEnemyStatusToServer(dc);
-        readEnemyStatusFromServer(dc);
+//        updateOtherPlayers(dc);
+//
+//        sendEnemyStatusToServer(dc);
+//        readEnemyStatusFromServer(dc);
 //        readWeightsFromServer(dc);
 
 
