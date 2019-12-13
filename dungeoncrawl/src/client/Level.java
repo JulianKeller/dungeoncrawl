@@ -1170,8 +1170,8 @@ public class Level extends BasicGameState {
         //positionToServer(dc);  // Get the player's updated position onto the server.
 //        updateOtherPlayers(dc);
 //
-//        sendEnemyStatusToServer(dc);
-//        readEnemyStatusFromServer(dc);
+        sendEnemyStatusToServer(dc);
+        readEnemyStatusFromServer(dc);
 //        readWeightsFromServer(dc);
 
 
