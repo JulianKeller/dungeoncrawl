@@ -1932,6 +1932,7 @@ public class Level extends BasicGameState {
                     dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints(), dc.hero.ai);
             message.ks = ks;
             outStream.writeObject(message);
+            System.out.printf("send %s\n", message);
             //System.out.println("wrote message of "+message.getClass().getSimpleName());
             outStream.flush();
             outStream.reset();
@@ -1957,6 +1958,7 @@ public class Level extends BasicGameState {
             msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(), ai.ai);
             try {
                 outStream.writeObject(msg);
+                System.out.printf("send %s\n", msg);
                 outStream.flush();
                 outStream.reset();
 //                System.out.println("writing " + msg.toString());
