@@ -19,6 +19,7 @@ public class Server extends Thread{
     public static List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
     public static int [][] map;
     public static int [][] rotatedMap;
+    public static List<Msg> players = Collections.synchronizedList(new ArrayList<>());
     public static List<Msg> enemies = Collections.synchronizedList(new ArrayList<>());
     public static List<ItemMsg> worldItems = Collections.synchronizedList(new ArrayList<>());
 
@@ -28,6 +29,12 @@ public class Server extends Thread{
     @Override
     public void run() {
         while(true){
+
+            // TODO need to re-architect so we can read from all clients
+            //  then I can compute dijkstra for each player
+            //  then determine the next moves for all AI
+            //  then send the AI data back to the AI
+
             sendToClients();
         }
     }
@@ -334,13 +341,14 @@ public class Server extends Thread{
             }
         }
     }
+
     public static void main(String [] args){
 
         try {
             // Create a new Socket for the server
             ServerSocket ss = new ServerSocket(5000);
             // Generate the map
-//            map = LoadMap.getRandomMap();
+            map = LoadMap.getRandomMap();
             rotatedMap = rotateMap(map);
             // TODO generate AI characters
             enemies = AI.spawnEnemies(map, 20);

@@ -27,6 +27,7 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run(){
+        boolean init = true;
         try{
             // Write the map onto the client for rendering
             outStream.writeObject(Server.map);
@@ -39,9 +40,13 @@ public class ClientHandler extends Thread {
             sendItemList();
             while(true) {
                 try {
-                    // Receive coordinate message from the client
-                   //System.out.println("reading 'message' type: " + message.getClass().getSimpleName());
+                    // Receive coordinate message from the client about the Hero
                     Msg message = (Msg) inStream.readObject();
+                    if (init) {
+                        Server.players.add(message);
+                        init = false;
+                    }
+
 //                    System.out.println("reading " + message.toString());
 //                    System.out.println("Client Handler "+id+": "+message);
                     toServer(message);
@@ -51,10 +56,10 @@ public class ClientHandler extends Thread {
 
                     // Update the AI Positions
                     readAIStatusFromClient();
-                    weights = AI.updatePosition(message);      // takes the hero's x, y coordinates
-                    message.dijkstraWeights = weights;
+//                    weights = AI.updatePosition(message);      // takes the hero's x, y coordinates
+//                    message.dijkstraWeights = weights;
                     sendAIStatusToClient();
-                    sendWeightsToClient(message);
+//                    sendWeightsToClient(message);
 
                 } catch(SocketException | ClassNotFoundException e){
                     System.out.println("Client "+id+" closed unexpectedly.\nClosing connections " +
@@ -87,9 +92,11 @@ public class ClientHandler extends Thread {
      */
     public void sendAIStatusToClient() {
 //        System.out.println("sendAIStatusToClient()");
-        for (Msg ai : Server.enemies) {
-            toServer(ai);
-            writeToClient();
+        synchronized (Server.enemies) {
+            for (Msg ai : Server.enemies) {
+                toServer(ai);
+                writeToClient();
+            }
         }
         // System.out.println();
     }
@@ -100,6 +107,7 @@ public class ClientHandler extends Thread {
      */
     private void readAIStatusFromClient() {
 //        System.out.println("readAIStatusFromClient()");
+        synchronized (Server.enemies) {
         for (Msg ai : Server.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
@@ -110,6 +118,7 @@ public class ClientHandler extends Thread {
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
             }
+        }
         }
 //        // System.out.println();
     }
@@ -129,7 +138,9 @@ public class ClientHandler extends Thread {
 
     private void sendEnemyList(){
         try {
-            outStream.writeObject(Server.enemies);
+            synchronized (Server.enemies) {
+                outStream.writeObject(Server.enemies);
+            }
             outStream.reset();
 //            System.out.println("Wrote ArrayList Server.enemies");
         }catch(IOException e){
@@ -178,4 +189,5 @@ public class ClientHandler extends Thread {
     public int getClientId(){
         return id;
     }
+
 }

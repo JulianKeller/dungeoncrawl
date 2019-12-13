@@ -1,6 +1,6 @@
 ## Current Issues
 [38] - Fix the tank as it runs off the screen
-[41] - Fix the server so it runs fast
+[42] - Fix the server so it runs fast, convert to threadsafe arrays
 
 ## Open Issues ##
 [12] - update floor tiles

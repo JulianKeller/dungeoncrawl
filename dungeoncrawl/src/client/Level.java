@@ -1172,7 +1172,7 @@ public class Level extends BasicGameState {
 
         sendEnemyStatusToServer(dc);
         readEnemyStatusFromServer(dc);
-        readWeightsFromServer(dc);
+//        readWeightsFromServer(dc);
 
 
 

@@ -16,6 +16,7 @@ public class AI {
     /**
      * run dijkstra's algorithm and gets the next direction the AI should move
      * @return the list of weights for the map from dijkstra
+     * // TODO need to make this thread safe
      */
     public static float[][] updatePosition(Msg hero) {
         int range = 8;
