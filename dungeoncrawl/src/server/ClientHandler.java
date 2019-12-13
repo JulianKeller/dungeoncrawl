@@ -32,10 +32,10 @@ public class ClientHandler extends Thread {
         try{
             // Write the map onto the client for rendering
             outStream.writeObject(Server.map);
-            System.out.println("Writing map "+ Server.map.getClass().getSimpleName());
+            System.out.println("send map "+ Server.map.getClass().getSimpleName());
             outStream.flush();
             outStream.writeInt(id);
-            System.out.println("Writing id "+ id);
+            System.out.println("send id "+ id);
             outStream.flush();
             sendEnemyList();
             sendItemList();
@@ -43,6 +43,7 @@ public class ClientHandler extends Thread {
                 try {
                     // Receive coordinate message from the client about the Hero
                     Msg message = (Msg) inStream.readObject();
+                    System.out.printf("read %s\n", message);
                     if (init) {
                         hero = message;
                         init = false;
@@ -112,7 +113,7 @@ public class ClientHandler extends Thread {
         for (Msg ai : Server.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-//                System.out.println("reading " + msg.toString());
+                System.out.printf("send " + msg);
                 ai.wx = msg.wx;
                 ai.wy = msg.wy;
                 ai.hp = msg.hp;
@@ -121,7 +122,7 @@ public class ClientHandler extends Thread {
             }
         }
         }
-//        // System.out.println();
+         System.out.println();
     }
 
     /**
@@ -141,6 +142,7 @@ public class ClientHandler extends Thread {
         try {
             synchronized (Server.enemies) {
                 outStream.writeObject(Server.enemies);
+                System.out.printf("send Server.enemies\n");
             }
             outStream.reset();
 //            System.out.println("Wrote ArrayList Server.enemies");
@@ -159,7 +161,7 @@ public class ClientHandler extends Thread {
         try {
             Msg toClient = threadQueue.take();
             outStream.writeObject(toClient);
-//            System.out.println("writing " + toClient.toString());
+            System.out.printf("send %s\n", toClient);
             outStream.reset();
 //            System.out.println("Sent to client "+id+": "+toClient);
         } catch (IOException | InterruptedException e) {
@@ -180,6 +182,7 @@ public class ClientHandler extends Thread {
                 for (int i = 0; i < count; i++) {
                     ItemMsg item = Server.worldItems.get(i);
                     outStream.writeObject(item);
+                    System.out.print("send Server.enemies\n");
                     outStream.reset();
                 }
             }

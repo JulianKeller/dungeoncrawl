@@ -283,7 +283,7 @@ public class Level extends BasicGameState {
             for (int j = 0; j < count; j++) {
                 try {
                     ItemMsg i = (ItemMsg) inStream.readObject();
-                    System.out.println("Adding item: "+i.type);
+//                    System.out.println("Adding item: "+i.type);
                     Item item = new Item(new Vector(i.wx,i.wy),false,i.id,i.oid,i.effect,
                             i.type,i.material,i.cursed,i.identified,null,i.count);
                     setItemImage(item);
