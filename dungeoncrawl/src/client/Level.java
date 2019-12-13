@@ -1929,7 +1929,7 @@ public class Level extends BasicGameState {
         }
         try{
             Msg message = new Msg(dc.serverId,dc.hero.getType(),dc.hero.getWorldCoordinates().getX(),
-                    dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints());
+                    dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints(), dc.hero.ai);
             message.ks = ks;
             outStream.writeObject(message);
             //System.out.println("wrote message of "+message.getClass().getSimpleName());
@@ -1954,7 +1954,7 @@ public class Level extends BasicGameState {
         for (Character ai : dc.enemies) {
             wx = ai.getWorldCoordinates().getX();
             wy = ai.getWorldCoordinates().getY();
-            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints());
+            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(), ai.ai);
             try {
                 outStream.writeObject(msg);
                 outStream.flush();

@@ -15,6 +15,7 @@ public class ClientHandler extends Thread {
     private boolean writeSuccess;
     public BlockingQueue<Msg> threadQueue;
     private float[][] weights;
+    public Msg hero;
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
                          BlockingQueue<Msg> queue){
         socket = s;
@@ -43,7 +44,7 @@ public class ClientHandler extends Thread {
                     // Receive coordinate message from the client about the Hero
                     Msg message = (Msg) inStream.readObject();
                     if (init) {
-                        Server.players.add(message);
+                        hero = message;
                         init = false;
                     }
 
