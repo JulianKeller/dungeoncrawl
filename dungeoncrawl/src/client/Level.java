@@ -1977,7 +1977,7 @@ read the information about the AI from the server
         for (Character ai : dc.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-                System.out.printf("Read: %s\n\n" + msg);
+                System.out.printf("Read: %s\n\n", msg);
                 if (ai.canMove) {
                     ai.setWorldCoordinates(msg.wx, msg.wy);
                 }
