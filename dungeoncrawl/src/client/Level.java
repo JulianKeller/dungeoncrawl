@@ -836,6 +836,8 @@ public class Level extends BasicGameState {
                 g.drawString(dc.hero.getEquipped()[i].getRequiredLevel()+"", x+(dc.tilesize*i), y);
                 g.setColor(tmp2);
                 
+                g.setColor(Color.white);
+                g.drawString(dc.hero.getEquipped()[selectedEquippedItem].toString(), dc.ScreenWidth-(dc.tilesize*6), dc.ScreenHeight-(dc.tilesize));
             }
         }
         g.setColor(Color.white);
