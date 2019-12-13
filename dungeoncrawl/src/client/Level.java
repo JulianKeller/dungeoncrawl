@@ -612,7 +612,50 @@ public class Level extends BasicGameState {
             renderShortestPath(dc, g);
 //            renderPathWeights(dc, g);     // this method really only works well when one AI is present
         }
+        
+        int baseWidth = 256;
+        float currentHealthBarWidth = baseWidth * (dc.hero.getHitPoints()/dc.hero.getStartingHitPoints());
+        
+        float currentWeightBarWidth = baseWidth * ((float) dc.hero.getInventoryWeight()/ (float) dc.hero.getMaxInventoryWeight());
+        if( currentWeightBarWidth > 256 ){
+        	currentWeightBarWidth = 256;
+        }
+        
+        //render visual hud
+        Color tmp = g.getColor();
+        g.setColor(new Color(255, 0, 0) );
+        g.fillRoundRect(dc.ScreenWidth - ((256 + dc.tilesize)-(baseWidth-currentHealthBarWidth)), dc.ScreenHeight-(dc.tilesize*3), currentHealthBarWidth, dc.tilesize, 0);
+        g.setColor(tmp);
+        g.drawImage(ResourceManager.getImage(Main.BAR_BASE), dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight - (dc.tilesize*3));
 
+        g.drawImage(ResourceManager.getImage(Main.HEALTHBAR_SYM), dc.ScreenWidth - dc.tilesize  - dc.tilesize/2, dc.ScreenHeight - (dc.tilesize*3));
+
+        //render inventory weight bar
+        if( dc.hero.getInventoryWeight() != 0 ){
+	        tmp = g.getColor();
+	        g.setColor(new Color(0, 255, 0) );
+	        g.fillRoundRect(dc.ScreenWidth - ((256 + dc.tilesize)-(baseWidth-currentWeightBarWidth)), dc.ScreenHeight-(dc.tilesize*4), currentWeightBarWidth, dc.tilesize, 0);
+	        g.setColor(tmp);
+        }
+        
+        g.drawImage(ResourceManager.getImage(Main.BAR_BASE), dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight-(dc.tilesize*4));
+        g.drawImage(ResourceManager.getImage(Main.WEIGHT_SYM), dc.ScreenWidth - dc.tilesize - dc.tilesize/2, dc.ScreenHeight - (dc.tilesize*4));
+        
+        //render mana bar if character is a mage
+        if( dc.hero.getType().toLowerCase().contains("mage") ){
+        	
+        	float currentManaBarWidth = baseWidth * (dc.hero.getMana()/dc.hero.getMaxMana());
+            tmp = g.getColor();
+            g.setColor(new Color(0, 0, 255) );
+            g.fillRoundRect(dc.ScreenWidth - ((256 + dc.tilesize)-(baseWidth-currentManaBarWidth)), dc.ScreenHeight-(dc.tilesize*5), currentManaBarWidth, dc.tilesize, 0);
+            g.setColor(tmp);
+            
+            g.drawImage(ResourceManager.getImage(Main.BAR_BASE), dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight-(dc.tilesize*5));
+            g.drawImage(ResourceManager.getImage(Main.MANA_SYM), dc.ScreenWidth - dc.tilesize - dc.tilesize/2, dc.ScreenHeight - (dc.tilesize*5));
+        }
+        
+        
+        
         // display a paused message
         if (paused) {
             renderPauseMessage(dc, g);
