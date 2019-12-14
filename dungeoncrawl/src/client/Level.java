@@ -67,6 +67,8 @@ public class Level extends BasicGameState {
     private int itemx = 0;
     private int itemy = 0; //which item is currently selected in the inventory
     private int selectedEquippedItem = 0; //item selected in the hotbar
+    
+    private int itemsIdentified = 0;
 
     private class Message{
         protected int timer = messageTimer;
@@ -272,7 +274,7 @@ public class Level extends BasicGameState {
         //add item boxes
         itemBoxes.add(new ItemBox("Inventory", 4, 8));
         itemBoxes.add(new ItemBox("Codex", 10, 8));
-        itemBoxes.add(new ItemBox("Character", 5, 6));
+        itemBoxes.add(new ItemBox("Character", 5, 7));
         
     }
 
@@ -806,9 +808,10 @@ public class Level extends BasicGameState {
 
     		ib.addString(g, dc, "Strength:   " + dc.hero.getStrength(), 0, 1);
     		ib.addString(g, dc, "Speed:      " + dc.hero.getMovementSpeed(), 0, 2);
-    		ib.addString(g, dc, "Max mana:   " + (int) dc.hero.getMaxMana(), 0, 3);
-    		ib.addString(g, dc, "Max health: " + (int) dc.hero.getStartingHitPoints(), 0, 4);
-    		ib.addString(g, dc, "Max weight: " + (int) dc.hero.getMaxInventoryWeight(), 0, 5);
+    		ib.addString(g, dc, "Identified: " + itemsIdentified, 0, 3);
+    		ib.addString(g, dc, "Max mana:   " + (int) dc.hero.getMaxMana(), 0, 4);
+    		ib.addString(g, dc, "Max health: " + (int) dc.hero.getStartingHitPoints(), 0, 5);
+    		ib.addString(g, dc, "Max weight: " + (int) dc.hero.getMaxInventoryWeight(), 0, 6);
     		
     		g.setColor(tmp);
 		}
@@ -1349,6 +1352,7 @@ public class Level extends BasicGameState {
 		            		itm.identify();
 		            		System.out.println("Identified " + itm.toString());
 		            		addMessage("It is " + itm.toString());
+		            		itemsIdentified++;
 		            		if( itm.isCursed() ){
 		            			SFXManager.playSound("curse");
 		            		}else{
@@ -1391,6 +1395,7 @@ public class Level extends BasicGameState {
                 	if( !i.isIdentified() ){
                 		i.identify();
                 		addMessage("It is " + i.toString());
+                		itemsIdentified++;
                 	}
 	                if( canUse(i, dc.hero) ){
 		                String x = "";
@@ -1419,8 +1424,6 @@ public class Level extends BasicGameState {
 		                if( i.getType().equals("Potion") ){
 		                    dc.hero.discardItem(i.getID(), true);
 		                }else if( i.getType().equals("Armor") ){
-		                    i.identify();
-		
 		                    //set the hero type to change the armor
 		                    if( dc.hero.getType().contains("knight") ){
 		                        dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
@@ -1851,6 +1854,7 @@ public class Level extends BasicGameState {
                         if( !itm.isIdentified() ){
                             addMessage("It is " + itm.toString() );
                             itm.identify();
+                            itemsIdentified++;
                         }
                     }
                 }
