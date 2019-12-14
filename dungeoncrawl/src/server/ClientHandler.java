@@ -94,7 +94,7 @@ public class ClientHandler extends Thread {
      * @param hero
      */
     private void sendHeroToClient(Msg hero) throws IOException {
-        if (debug) System.out.println("sendHeroToClient()");
+        if (debug) System.out.println("sendHeroToClient() " + this.getId());
         outStream.writeObject(hero);
         if (debug) System.out.printf("send: %s\n\n", hero);
     }
@@ -128,7 +128,7 @@ public class ClientHandler extends Thread {
     read the information about the AI from the server
      */
     private void readAIStatusFromClient() {
-        if (debug) System.out.println("readAIStatusFromClient()");
+        if (debug) System.out.println("readAIStatusFromClient() " + this.getId());
         synchronized (Server.enemies) {
             for (Msg ai : Server.enemies) {
                 try {
@@ -163,7 +163,7 @@ public class ClientHandler extends Thread {
      * Send the list of enemies tot he client
      */
     private void sendEnemyList() {
-        if (debug) System.out.println("sendEnemyList()");
+        if (debug) System.out.println("sendEnemyList() " + this.getId());
         try {
             synchronized (Server.enemies) {
                 outStream.writeObject(Server.enemies);
@@ -184,7 +184,7 @@ public class ClientHandler extends Thread {
      */
     // TODO why are we putting and taking from different queues?
     private boolean writeToClient() {
-        if (debug) System.out.println("writeToClient()");
+        if (debug) System.out.println("writeToClient() " + this.getId());
         try {
             Msg toClient = threadQueue.take();
             outStream.writeObject(toClient);
@@ -201,7 +201,7 @@ public class ClientHandler extends Thread {
     }
 
     public void readCharactersFromClient() {
-        if (debug) System.out.println("readCharactersFromClient()");
+        if (debug) System.out.println("readCharactersFromClient() " + this.getId());
         int count = 0;
         try {
             count = inStream.readInt();
@@ -230,7 +230,7 @@ public class ClientHandler extends Thread {
     }
 
     public void sendCharactersToClient() {
-        if (debug) System.out.println("sendCharactersToClient()");
+        if (debug) System.out.println("sendCharactersToClient() " + this.getId());
         synchronized (Server.characters) {
             int count = Server.characters.size();
             try {
@@ -254,7 +254,7 @@ public class ClientHandler extends Thread {
 
     
     public void sendItemList() {
-        if (debug) System.out.println("sendItemList()");
+        if (debug) System.out.println("sendItemList() " + this.getId());
         try {
             int count = Server.worldItems.size();
             outStream.writeInt(count);
