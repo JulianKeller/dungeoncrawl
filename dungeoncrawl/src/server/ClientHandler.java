@@ -240,10 +240,23 @@ public class ClientHandler extends Thread {
                 for (int i = 0; i < count; i++) {
 //                    Msg character = Server.characters.get(i);
 //                    toServer(character);
-                    writeToClient();
+//                    writeToClient();
 //                    outStream.writeObject(character);
 //                    outStream.reset();
 //                    if (debug) System.out.printf("send %s\n", character);
+                    Msg toClient = null;
+                    try {
+                        toClient = threadQueue.take();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (toClient == null) {
+                        i--;
+                        continue;
+                    }
+                    outStream.writeObject(toClient);
+                    if (debug) System.out.printf("send %s\n", toClient);
+                    outStream.reset();
                 }
             } catch (IOException e) {
                 e.printStackTrace();

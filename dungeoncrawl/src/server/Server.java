@@ -64,6 +64,7 @@ public class Server extends Thread {
             // TODO
             //  if all clients have sent back updates, then update the clients
 //            sendToClients();        // put updates in client queues
+
             sendMsgListToClients(characters);
 //            sendMsgListToClients(enemies);
 
@@ -80,18 +81,18 @@ public class Server extends Thread {
         synchronized (clients) {
             for (ClientHandler c : clients) {
                 System.out.println("sendMsgListToClients() -> queue " + c.getId());
-                // put characters
-                synchronized (entities) {
-                    for (Msg chars : entities) {
-                        try {
-                            c.threadQueue.put(chars);
-                            System.out.printf("Putting %s into queue\n", chars);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    // put characters
+                    synchronized (entities) {
+                        for (Msg chars : entities) {
+                            try {
+                                c.threadQueue.put(chars);
+                                System.out.printf("Putting %s into queue\n", chars);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
+                        System.out.println();
                     }
-                    System.out.println();
-                }
             }
         }
     }
