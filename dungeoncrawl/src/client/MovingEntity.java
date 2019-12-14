@@ -657,13 +657,13 @@ Reflection:
     	boolean addedToHand = false;
     	//try to add to equipped items first
     	for( int x = 0; x < equipped.length; x++ ){
-    		if( equipped[x] == null ){
-    			equipped[x] = i;
+    		if( equipped[x] != null && i.equals(equipped[x]) ){
+    			equipped[x].count += i.count;
     			inventoryWeight += i.getWeight();
     			addedToHand = true;
     			break;
-    		}else if( i.equals(equipped[x]) ){
-    			equipped[x].count += i.count;
+    		}else if( equipped[x] == null ){
+    			equipped[x] = i;
     			inventoryWeight += i.getWeight();
     			addedToHand = true;
     			break;
