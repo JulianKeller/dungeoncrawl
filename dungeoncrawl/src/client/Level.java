@@ -516,6 +516,31 @@ public class Level extends BasicGameState {
         }
         return image;
     }
+    
+    public boolean canRemoveCursed(Main dc, Item i) throws SlickException{
+    	if( i == null ){
+    		throw new SlickException("Null item.");
+    	}
+    	//check if the cursed item list contains an item of the same type
+    	ArrayList<Item> cursedItems = dc.hero.getCursedItems();
+    	boolean containsType = false;
+    	for( Item itm : cursedItems ){
+    		if( itm.getType().equals(i.getType()) ){
+    			containsType = true;
+    			break;
+    		}
+    	}
+    	
+    	if( !containsType ){
+    		return true;
+    	}
+    	
+    	//check if the item is in the cursedItem list
+    	if( cursedItems.contains(i) ){
+    		return true;
+    	}
+    	return false;
+    }
 
 
     @Override
@@ -1354,6 +1379,12 @@ public class Level extends BasicGameState {
             		return;
             	}
             	
+            	//if a cursed item of the same type is held, cannot switch
+            	if( itm != null && !canRemoveCursed(dc, itm) ){
+            		addMessage("You cannot remove your cursed " + itm.getType().toLowerCase());
+            		return;
+            	}
+            	
             	if( attackCooldown <= 0 ){
 	            	if( itm == null || canUse(itm, dc.hero) ){
 	            		attack(itm, dc);
@@ -1364,6 +1395,7 @@ public class Level extends BasicGameState {
 		            		itemsIdentified++;
 		            		if( itm.isCursed() ){
 		            			SFXManager.playSound("curse");
+		            			dc.hero.addCursedItem(itm);
 		            		}else{
 		            			SFXManager.playSound("identify");
 		            		}
@@ -1385,6 +1417,7 @@ public class Level extends BasicGameState {
                             dc.hero.getType().toLowerCase().contains("tank") ){
                         attack(null, dc);
                     }else if( canUse(itm, dc.hero) ){
+                    	itm.isEquipped = true;
                         attack(dc.hero.getEquipped()[selectedEquippedItem], dc);
                     }
 
@@ -1406,11 +1439,22 @@ public class Level extends BasicGameState {
                 		return;
                 	}
                 	
+                	//if a cursed item of the same type is held, cannot switch
+                	if( !canRemoveCursed(dc, i) ){
+                		addMessage("You cannot remove your cursed " + i.getType().toLowerCase());
+                		return;
+                	}
                 	
                 	if( !i.isIdentified() ){
                 		i.identify();
                 		addMessage("It is " + i.toString());
                 		itemsIdentified++;
+                		if( i.isCursed() ){
+                			SFXManager.playSound("cursed");
+                			dc.hero.addCursedItem(i);
+                		}else{
+                			SFXManager.playSound("identify");
+                		}
                 	}
 	                if( canUse(i, dc.hero) ){
 		                String x = "";
@@ -1435,6 +1479,7 @@ public class Level extends BasicGameState {
 		
 		                //remove the item from hands
 		                dc.hero.unequipItem(selectedEquippedItem);
+		                i.isEquipped = true;
 		
 		                //only remove the item from the inventory if it is a potion/consumable
 		                //armor should remain in the player's inventory

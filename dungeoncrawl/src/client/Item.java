@@ -151,10 +151,14 @@ public class Item extends StationaryObject{
 		}
 		
 		//items have a chance to be cursed (for now?)
-		if( rand.nextInt(100) <= 30 ){
-			cursed = true;
-		}else{
+		if( type.equals("Potion") || type.equals("Arrow") ){
 			cursed = false;
+		}else{
+			if( rand.nextInt(100) <= 30 ){
+				cursed = true;
+			}else{
+				cursed = false;
+			}
 		}
 		
 		//all items start unidentified

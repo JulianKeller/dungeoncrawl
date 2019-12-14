@@ -42,7 +42,10 @@ public class MovingEntity extends Entity {
     private ArrayList<Item> inventory;
     private ArrayList<Item> codex; //list of identified items
     private Item [] equipped;
-    private ArrayList<String> cursedItemTypes; //list of cursed item types the player is using/wearing
+
+    private ArrayList<Item> cursedItems = new ArrayList<Item>();
+    
+    
     private Vector position;
     private Vector tileWorldCoordinates;
     private Vector nextTileWorldCoordinates;
@@ -98,7 +101,7 @@ public class MovingEntity extends Entity {
         strength = 1;
         this.pid = pid;
         inventory = new ArrayList<Item>(10);
-        cursedItemTypes = new ArrayList<String>();
+
         equipped = new Item[4];
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
@@ -135,7 +138,7 @@ public class MovingEntity extends Entity {
         strength = 1;
         this.pid = pid;
         inventory = new ArrayList<Item>(10);
-        cursedItemTypes = new ArrayList<String>();
+
         equipped = new Item[5];
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
@@ -1001,9 +1004,10 @@ Reflection:
     public Item[] getEquipped(){
     	return equipped;
     }
-    public ArrayList<String> getCursedItemTypes(){
-    	return cursedItemTypes;
+    public ArrayList<Item> getCursedItems(){
+    	return cursedItems;
     }
+
 
     public void setPosition(Vector p){
         position = p;
@@ -1013,8 +1017,8 @@ Reflection:
         return position;
     }
     
-    public void addCursedItemType(String type){
-    	cursedItemTypes.add(type);
+    public void addCursedItem(Item i){
+    	cursedItems.add(i);
     }
 
     /**
