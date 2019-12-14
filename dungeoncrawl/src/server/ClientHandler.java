@@ -238,12 +238,12 @@ public class ClientHandler extends Thread {
                 outStream.reset();
                 if (debug) System.out.printf("send %s items\n", count);
                 for (int i = 0; i < count; i++) {
-                    Msg character = Server.characters.get(i);
+//                    Msg character = Server.characters.get(i);
 //                    toServer(character);
-//                    writeToClient();
-                    outStream.writeObject(character);
-                    outStream.reset();
-                    if (debug) System.out.printf("send %s\n", character);
+                    writeToClient();
+//                    outStream.writeObject(character);
+//                    outStream.reset();
+//                    if (debug) System.out.printf("send %s\n", character);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
