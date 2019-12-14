@@ -17,7 +17,7 @@ public class ClientHandler extends Thread {
     private boolean writeSuccess;
     public BlockingQueue<Msg> threadQueue;
     //    private float[][] weights;
-    private boolean debug = false;
+    private boolean debug = true;
     private boolean exit = false;
     int tilesize = 32;
     int offset = tilesize/2;
@@ -45,7 +45,7 @@ public class ClientHandler extends Thread {
 
             // read in type of hero from client
             String type = inStream.readUTF();
-            System.out.println("read: " + type);
+            if (debug) System.out.println("read: " + type);
             // spawn the hero
             // TODO update spawning to be dynamic
             float wx = (tilesize * 20) - offset;
@@ -53,7 +53,6 @@ public class ClientHandler extends Thread {
             int id = (int)System.nanoTime();
             if (id < 0) {
                 id  = -id;
-                System.out.println("id " + id);
             }
             Msg hero = new Msg(id, type, wx, wy, 100, false);
             sendHeroToClient(hero);
@@ -97,7 +96,7 @@ public class ClientHandler extends Thread {
     private void sendHeroToClient(Msg hero) throws IOException {
         if (debug) System.out.println("sendHeroToClient()");
         outStream.writeObject(hero);
-        System.out.printf("send: %s\n\n", hero);
+        if (debug) System.out.printf("send: %s\n\n", hero);
     }
 
 
@@ -210,14 +209,10 @@ public class ClientHandler extends Thread {
             synchronized (Server.characters) {
                 for (int i = 0; i < count; i++) {
                     Msg character = Server.characters.get(i);
-                    System.out.printf("reading %s: wx= %s, wy= %s, ks= %s\n", i, character.wx,
-                            character.wy, character.ks);
                     Msg msg = (Msg) inStream.readObject();
-
                     if (msg.type.equals("Exit")) {
                         exit = true;
                     }
-
                     if (debug) System.out.printf("read: %s\n", msg);
                     character.wx = msg.wx;
                     character.wy = msg.wy;
@@ -228,7 +223,7 @@ public class ClientHandler extends Thread {
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("Exiting Game: failed to read character: " + e);
+            if (debug) System.out.println("Exiting Game: failed to read character: " + e);
             exit = true;
         }
         if (debug) System.out.println();
@@ -241,16 +236,14 @@ public class ClientHandler extends Thread {
             try {
                 outStream.writeInt(count);
                 outStream.reset();
-                if (debug) System.out.printf("Send %s items\n", count);
+                if (debug) System.out.printf("send %s items\n", count);
                 for (int i = 0; i < count; i++) {
                     Msg character = Server.characters.get(i);
-                    toServer(character);
-                    writeToClient();
-//                    System.out.printf("sending %s: wx= %s, wy= %s, ks= %s\n", i, character.wx,
-//                            character.wy, character.ks);
-//                    outStream.writeObject(character);
-//                    outStream.reset();
-//                    if (debug) System.out.printf("send %s\n", character);
+//                    toServer(character);
+//                    writeToClient();
+                    outStream.writeObject(character);
+                    outStream.reset();
+                    if (debug) System.out.printf("send %s\n", character);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

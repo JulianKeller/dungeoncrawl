@@ -593,6 +593,7 @@ public class Character extends MovingEntity {
     Should only be called from the move method.
      */
     private void moveMapHelper() {
+        System.out.println("Player near edge");
         if (movesLeft > 0) {
             switch (direction) {
                 case "walk_up":

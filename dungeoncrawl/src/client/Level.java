@@ -26,7 +26,7 @@ import jig.ResourceManager;
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-    private boolean debug = false;
+    private boolean debug = true;
     private String type;
 
     private int[][] rotatedMap;
@@ -200,7 +200,7 @@ public class Level extends BasicGameState {
             type = setSkin();
             outStream.writeUTF(type);
             outStream.reset();
-            System.out.println("send " + type);
+            if (debug) System.out.println("send " + type);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -539,7 +539,7 @@ public class Level extends BasicGameState {
         renderEnemies(dc, g);
 
         // draw the hero
-        dc.hero.animate.render(g);
+//        dc.hero.animate.render(g);
         
         //draw the hero's visual effects
         if( dc.hero.vfx != null ){
@@ -1027,16 +1027,18 @@ public class Level extends BasicGameState {
      */
     private void renderCharacters(Main dc, Graphics g) {
         for (Character ch : dc.characters) {
-            // TODO
-//            if (ch.getCharacterID() != dc.hero.getCharacterID()) {
-            if (true) {
+            if (ch.getCharacterID() != dc.hero.getCharacterID()) {
                 Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
                 ch.animate.setPosition(sc);
                 if (characterInRegion(dc, ch)) {
                     ch.animate.render(g);
-                    System.out.println("Rendering " + ch.getCharacterID());
+//                    System.out.println("Rendering " + ch.getCharacterID());
                 }
             }
+            else {
+                ch.animate.render(g);       // render the hero
+            }
+
         }
     }
 
@@ -1739,14 +1741,12 @@ public class Level extends BasicGameState {
             if (debug) System.out.printf("send: %s\n",count);
             for(int i = 0; i < count; i++){
                 Msg msg = dc.characters.get(i).toMsg();
-                System.out.printf("sending character %s: wx= %s, wy= %s, ks= %s\n", i, msg.wx,
-                        msg.wy, msg.ks);
                 outStream.writeObject(msg);
                 outStream.reset();
                 if (debug) System.out.printf("send: %s\n",msg);
             }
         }catch(IOException e){
-            System.out.println("failed to send character: " + e);
+            if (debug) System.out.println("failed to send character: " + e);
             e.printStackTrace();
         }
         if (debug) System.out.println();
@@ -1806,8 +1806,6 @@ public class Level extends BasicGameState {
                 for(; i < count-difference;i++){
                     Character character = dc.characters.get(i);
                     Msg msg = (Msg)inStream.readObject();
-                    System.out.printf("reading character %s: wx= %s, wy= %s, ks= %s\n", i, msg.wx,
-                            msg.wy, msg.ks);
                     if (debug) System.out.printf("read %s\n", msg);
                     character.setHitPoints(msg.hp);
                     character.move(msg.ks);
@@ -1840,12 +1838,12 @@ public class Level extends BasicGameState {
         Character newCharacter = new Character(dc,msg.wx,msg.wy,msg.type,msg.id,this,msg.ai);
         for (Character c : dc.characters) {
             if (newCharacter.getCharacterID() == c.getCharacterID()) {
-                System.out.println("Character Already Exists: " + msg);
+                if (debug) System.out.println("Character Already Exists: " + msg);
                 return;
             }
         }
         dc.characters.add(newCharacter);
-        System.out.println("Adding Character: " + msg);
+        if (debug) System.out.println("Adding Character: " + msg);
     }
 
 
