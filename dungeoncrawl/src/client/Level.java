@@ -3,10 +3,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
+
 import server.Msg;
 import server.ItemMsg;
 
@@ -280,10 +278,17 @@ public class Level extends BasicGameState {
 
     private void receiveItemList(){
         try {
-            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
+            int count = inStream.readInt();
+            System.out.println("Count: " + count);
+//            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
+
+//            List<ItemMsg> fromServer = Collections.synchronizedList(new ArrayList<>());
+
             //System.out.println("Read type: "+fromServer.getClass().getSimpleName());
-            for(ItemMsg i : fromServer) {
+//            for(ItemMsg i : fromServer) {
+            for (int j = 0; j < count; j++) {
                 try {
+                    ItemMsg i = (ItemMsg) inStream.readObject();
                     System.out.println("Adding item: "+i.type);
                     Item item = new Item(new Vector(i.wx,i.wy),false,i.id,i.oid,i.effect,
                             i.type,i.material,i.cursed,i.identified,null,i.count);
@@ -1246,7 +1251,7 @@ public class Level extends BasicGameState {
 
         sendEnemyStatusToServer(dc);
         readEnemyStatusFromServer(dc);
-        readWeightsFromServer(dc);
+//        readWeightsFromServer(dc);
 
 
 
@@ -2021,7 +2026,7 @@ public class Level extends BasicGameState {
         }
         try{
             Msg message = new Msg(dc.serverId,dc.hero.getType(),dc.hero.getWorldCoordinates().getX(),
-                    dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints());
+                    dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints(), dc.hero.ai);
             message.ks = ks;
             outStream.writeObject(message);
             //System.out.println("wrote message of "+message.getClass().getSimpleName());
@@ -2046,7 +2051,7 @@ public class Level extends BasicGameState {
         for (Character ai : dc.enemies) {
             wx = ai.getWorldCoordinates().getX();
             wy = ai.getWorldCoordinates().getY();
-            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints());
+            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(), ai.ai);
             try {
                 outStream.writeObject(msg);
                 outStream.flush();

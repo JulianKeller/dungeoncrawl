@@ -28,6 +28,7 @@ public class SplashScreen extends BasicGameState {
     int errorTimer = 0;
     int centerX = 427;
     int xOffset = 267;
+    int deleteTimer = 0;
 
 
     @Override
@@ -47,7 +48,6 @@ public class SplashScreen extends BasicGameState {
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) {
-//        Main dc = (Main) game;
     }
 
     @Override
@@ -55,22 +55,20 @@ public class SplashScreen extends BasicGameState {
         Main dc = (Main) game;
 
         renderNameAndBackground(dc, g);
-        renderCharacters(dc, g);
-        renderIP(dc, g);
-        renderLaunch(dc, g);
-        renderControls(dc, g);
+        renderCharacters(g);
+        renderIP(g);
+        renderLaunch(g);
+        renderControls(g);
         Color tmp = g.getColor();
         g.setColor(new Color(255, 255, 255, 1f));
         if (selectCharacter) {
             g.drawRect(427, 160, 426, 75);
         } else if (enterAddress) {
             g.drawRect(427, 235, 426, 75);
-        } else if (connect) {
-            g.drawRect(427, 310, 426, 75);
         }
         g.setColor(tmp);
         if (error) {
-            renderError(dc, g);
+            renderError(g);
         }
     }
 
@@ -102,6 +100,9 @@ public class SplashScreen extends BasicGameState {
 
 
     private void enterIP(Input input) {
+        if (deleteTimer > 0) {
+            deleteTimer--;
+        }
         if (input.isKeyPressed(Input.KEY_0)) {
             IP += "0";
         } else if (input.isKeyPressed(Input.KEY_1)) {
@@ -124,10 +125,13 @@ public class SplashScreen extends BasicGameState {
             IP += "9";
         } else if (input.isKeyPressed(Input.KEY_PERIOD)) {
             IP += ".";
-        } else if (input.isKeyPressed(Input.KEY_DELETE) || input.isKeyPressed(Input.KEY_BACK)) {
+        } else if (input.isKeyPressed(Input.KEY_SPACE)) {
+            IP = "192.168.0.";
+        } else if (input.isKeyDown(Input.KEY_DELETE) || input.isKeyDown(Input.KEY_BACK) && deleteTimer <= 0) {
             if (IP.length() > 0) {
                 IP = IP.substring(0, IP.length() - 1);
             }
+            deleteTimer = 7;
         }
     }
 
@@ -169,8 +173,8 @@ public class SplashScreen extends BasicGameState {
     private void selectNextSubMenu(Input input) throws SlickException {
         if (input.isKeyPressed(Input.KEY_DOWN)) {
         	SFXManager.playSound("click");
-            if (menuOption >= 2) {
-                menuOption = 2;
+            if (menuOption >= 1) {
+                menuOption = 1;
             } else {
                 menuOption++;
             }
@@ -187,22 +191,14 @@ public class SplashScreen extends BasicGameState {
             case 0:
                 selectCharacter = true;
                 enterAddress = false;
-                connect = false;
                 break;
             case 1:
                 selectCharacter = false;
                 enterAddress = true;
-                connect = false;
-                break;
-            case 2:
-                selectCharacter = false;
-                enterAddress = false;
-                connect = true;
                 break;
             default:
                 selectCharacter = true;
                 enterAddress = false;
-                connect = false;
                 break;
         }
     }
@@ -211,7 +207,7 @@ public class SplashScreen extends BasicGameState {
     /*
     render game controls
      */
-    private void renderControls(Main dc, Graphics g) {
+    private void renderControls(Graphics g) {
         Color tmp = g.getColor();
         int shift = 465;
         int left = 150;
@@ -234,7 +230,7 @@ public class SplashScreen extends BasicGameState {
     /*
     let the player know there is an error
      */
-    private void renderError(Main dc, Graphics g) {
+    private void renderError(Graphics g) {
         String msg = "Error: Check that your IP Address is correct and that the server is running.";
         Color tmp = g.getColor();
         g.setColor(new Color(255, 0, 0, 1f));
@@ -242,7 +238,7 @@ public class SplashScreen extends BasicGameState {
         g.setColor(tmp);
     }
 
-    private void renderLaunch(Main dc, Graphics g) {
+    private void renderLaunch(Graphics g) {
         Color tmp = g.getColor();
         g.setColor(new Color(255, 255, 255, 1f));
         g.drawString("Press ", 200 + xOffset, 325);
@@ -258,10 +254,9 @@ public class SplashScreen extends BasicGameState {
     /**
      * Shows the names of the characters
      *
-     * @param dc
      * @param g
      */
-    private void renderIP(Main dc, Graphics g) {
+    private void renderIP(Graphics g) {
         Color tmp = g.getColor();
         g.setColor(new Color(255, 255, 255, 1f));
         g.drawString("Enter Server IP Address:", 200 + xOffset, 250);
@@ -276,10 +271,9 @@ public class SplashScreen extends BasicGameState {
     /**
      * Shows the names of the characters
      *
-     * @param dc
      * @param g
      */
-    private void renderCharacters(Main dc, Graphics g) {
+    private void renderCharacters(Graphics g) {
         Color tmp = g.getColor();
         g.setColor(new Color(255, 255, 255, 1f));
         g.drawString("Select Character:", 200 + xOffset, 175);
@@ -315,12 +309,6 @@ public class SplashScreen extends BasicGameState {
         g.fillRect(0, 0, dc.ScreenWidth, dc.ScreenHeight);
         g.setColor(tmp);
         g.drawImage(ResourceManager.getImage(Main.TITLE), 0, 0);
-
-//        Color tmp = g.getColor();
-//        g.setColor(new Color(0, 0, 0, .3f));
-//        g.setColor(new Color(255, 255, 255, 1f));
-//        g.drawString("Dungeon Crawl", (float) dc.ScreenWidth / 2 - 12, 50);
-//        g.setColor(tmp);
     }
 
 
@@ -357,7 +345,7 @@ public class SplashScreen extends BasicGameState {
     /**
      * Connects the client to the server
      *
-     * @param dc
+
      */
     private void connectToSever(Main dc,StateBasedGame game) {
         // Setting up the connection to the server

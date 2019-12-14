@@ -76,6 +76,7 @@ public class Main extends StateBasedGame {
     public static final String SKELETON_BASIC = "resources/skeleton/skeleton_basic.png";
     public static final String SKELETON_LEATHER = "resources/skeleton/skeleton_leather.png";
     public static final String SKELETON_CHAIN = "resources/skeleton/skeleton_chainmail.png";
+    public static final String SKELETON_BOSS = "resources/skeleton/skeleton_boss2.png";
 
     // dark elf
     public static final String ICE_ELF = "resources/darkelf/iceelf.png";
@@ -253,6 +254,7 @@ public class Main extends StateBasedGame {
     boolean invincible;
     ArrayList<DisplayItem> testItems;
     Character hero;
+    Character boss;
     public ArrayList<Character> characters;
     ArrayList<Character> enemies;
 
@@ -318,10 +320,7 @@ public class Main extends StateBasedGame {
         addState(new SplashScreen());
         addState(new Level());
         addState(new GameOver());
-        
 
-        
-       
         // load images
         // startup
         ResourceManager.loadImage(STARTUP_BANNER);
@@ -365,6 +364,7 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(SKELETON_BASIC);
         ResourceManager.loadImage(SKELETON_CHAIN);
         ResourceManager.loadImage(SKELETON_LEATHER);
+        ResourceManager.loadImage(SKELETON_BOSS);
 
         // ELF
         ResourceManager.loadImage(ICE_ELF);
@@ -570,7 +570,7 @@ public class Main extends StateBasedGame {
     public boolean closeRequested(){
         if(!localMode) {
             try {
-                dos.writeObject(new Msg(serverId,"Exit",0,0,0));
+                dos.writeObject(new Msg(serverId,"Exit",0,0,0, false));
                 dos.flush();
                 socket.close();
                 dos.close();

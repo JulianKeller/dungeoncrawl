@@ -201,14 +201,11 @@ public class Character extends MovingEntity {
     private void setStats() {
         switch (type) {
             case "knight_leather": // Knight
-            case "knight_iron":
-            case "knight_gold":
                 setHitPoints(100);
                 setArmorPoints(100);
                 setAnimationSpeed(50);
                 break;
             case "mage_leather": // Mage
-            case "mage_improved":
                 setHitPoints(80);
                 setArmorPoints(50);
                 setAnimationSpeed(75);
@@ -221,12 +218,8 @@ public class Character extends MovingEntity {
                 setAnimationSpeed(75);
                 break;
             case "tank_leather": // Tank
-                break;
-            case "tank_iron":
-                break;
-            case "tank_gold":
                 setHitPoints(150);
-                setArmorPoints(100);
+                setArmorPoints(110);
                 setAnimationSpeed(25);
                 break;
             case "skeleton_basic":
@@ -234,6 +227,13 @@ public class Character extends MovingEntity {
                 setArmorPoints(100);
                 setAnimationSpeed(25);
                 setAttackDamage(1);
+                setAttackSpeed(300);
+                break;
+            case "skeleton_boss":
+                setHitPoints(500);
+                setArmorPoints(100);
+                setAnimationSpeed(25);
+                setAttackDamage(4);
                 setAttackSpeed(300);
                 break;
             default:

@@ -101,6 +101,10 @@ public class AnimateEntity extends Entity {
                 spritesheet = Main.SKELETON_CHAIN;
                 break;
             }
+            case "skeleton_boss": {
+                spritesheet = Main.SKELETON_BOSS;
+                break;
+            }
             case "ice_elf": {
                 spritesheet = Main.ICE_ELF;
                 break;
