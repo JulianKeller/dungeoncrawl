@@ -18,9 +18,11 @@ public class ClientHandler extends Thread {
     public BlockingQueue<Msg> threadQueue;
     //    private float[][] weights;
     private boolean debug = false;
+    private boolean exit = false;
     int tilesize = 32;
     int offset = tilesize/2;
     int doubleOffset = offset/2;
+
 
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, BlockingQueue<Msg> queue) {
         socket = s;
@@ -48,7 +50,7 @@ public class ClientHandler extends Thread {
             // TODO update spawning to be dynamic
             float wx = (tilesize * 20) - offset;
             float wy = (tilesize * 18) - tilesize - doubleOffset;
-            Msg hero = new Msg(id, type, wx, wy, 0, false);
+            Msg hero = new Msg(id, type, wx, wy, 100, false);
             sendHeroToClient(hero);
 
             Server.characters.add(hero);
@@ -63,6 +65,9 @@ public class ClientHandler extends Thread {
                 try {
                     readCharactersFromClient();
                     sendCharactersToClient();
+                    if (exit) {
+                        break;
+                    }
                     // TODO handle exit
                 } catch (Exception e) {
                     if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
@@ -70,42 +75,12 @@ public class ClientHandler extends Thread {
                     break;
                 }
             }
-//                try {
-//                    // Receive coordinate message from the client about the Hero
-////                    Msg message = (Msg) inStream.readObject();
-////                    if (debug) System.out.printf("read %s\n", message);
-////                    if (init) {
-////                        Server.characters.add(message);
-////                        init = false;
-////                    }
-//                    readCharactersFromClient();
-//                    sendCharactersToClient();
-////                    if (debug) System.out.println("reading " + message.toString());
-////                    if (debug) System.out.println("Client Handler "+id+": "+message);
-//                    //toServer(message);
-//                    //writeSuccess = writeToClient();
-////                    if (!writeSuccess || message.type.equals("Exit"))
-////                        break;
-//
-//                    // Update the AI Positions
-////                    readAIStatusFromClient();
-////                    weights = AI.updatePosition(message);      // takes the hero's x, y coordinates
-////                    message.dijkstraWeights = weights;
-////                    sendAIStatusToClient();
-////                    sendWeightsToClient(message);
-//
-//                } catch (SocketException | ClassNotFoundException e) {
-//                    if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
-//                            "and terminating thread.");
-//                    break;
-//                }
-//            }
-//            Server.clientQueues.remove(threadQueue);
             Server.clients.remove(this);
             outStream.close();
             inStream.close();
             socket.close();
-        } catch (IOException e) {
+            this.join();
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -215,6 +190,7 @@ public class ClientHandler extends Thread {
             if (debug) System.out.println();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            exit = true;
             return false;
         }
         return true;
@@ -229,23 +205,28 @@ public class ClientHandler extends Thread {
             synchronized (Server.characters) {
                 for (int i = 0; i < count; i++) {
                     Msg character = Server.characters.get(i);
-                    if (debug) System.out.printf("character %s before: wx= %s, wy= %s, ks= %s\n", i, character.wx,
+                    System.out.printf("reading %s: wx= %s, wy= %s, ks= %s\n", i, character.wx,
                             character.wy, character.ks);
                     Msg msg = (Msg) inStream.readObject();
+
+                    if (msg.type.equals("Exit")) {
+                        exit = true;
+                    }
+
                     if (debug) System.out.printf("read: %s\n", msg);
                     character.wx = msg.wx;
                     character.wy = msg.wy;
                     character.ks = msg.ks;
                     character.hp = msg.hp;
-//                    if (debug) System.out.printf("character %s after: wx= %s, wy= %s, ks= %s\n\n", i, character.wx,
-//                            character.wy, character.ks);
+/*                    System.out.printf("character %s after: wx= %s, wy= %s, ks= %s\n\n", i, character.wx,
+                            character.wy, character.ks);*/
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
-            System.out.println("failed to read character: " + e);
-            e.printStackTrace();
+            System.out.println("Exiting Game: failed to read character: " + e);
+            exit = true;
         }
-        if (debug) System.out.println("Leaving readCharactersFromClient()");
+        if (debug) System.out.println();
     }
 
     public void sendCharactersToClient() {
@@ -258,6 +239,8 @@ public class ClientHandler extends Thread {
                 if (debug) System.out.printf("Send %s items\n", count);
                 for (int i = 0; i < count; i++) {
                     Msg character = Server.characters.get(i);
+                    System.out.printf("sending %s: wx= %s, wy= %s, ks= %s\n", i, character.wx,
+                            character.wy, character.ks);
                     outStream.writeObject(character);
                     outStream.reset();
                     if (debug) System.out.printf("send %s\n", character);
@@ -266,7 +249,7 @@ public class ClientHandler extends Thread {
                 e.printStackTrace();
             }
         }
-        if (debug) System.out.println("Leaving sendCharactersFromClient()\n");
+        if (debug) System.out.println();
     }
 
     

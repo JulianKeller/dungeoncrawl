@@ -1013,7 +1013,9 @@ public class Level extends BasicGameState {
      */
     private void renderCharacters(Main dc, Graphics g) {
         for (Character ch : dc.characters) {
-            if (ch.getCharacterID() != dc.hero.getCharacterID()) {
+            // TODO
+//            if (ch.getCharacterID() != dc.hero.getCharacterID()) {
+            if (true) {
                 Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
                 ch.animate.setPosition(sc);
                 if (characterInRegion(dc, ch)) {
@@ -1072,7 +1074,7 @@ public class Level extends BasicGameState {
         }
     }
     
-    
+
     private int songChangeTimer = 3000;
     
 
@@ -1085,6 +1087,8 @@ public class Level extends BasicGameState {
         if (paused) {
             return;
         }
+
+        if (debug) System.out.println("Size of Characters List: " + dc.characters.size());
         
         if( input.isKeyPressed(Input.KEY_RBRACKET) ){
         	//change music in 3 seconds
@@ -1639,6 +1643,8 @@ public class Level extends BasicGameState {
             if (debug) System.out.printf("send: %s\n",count);
             for(int i = 0; i < count; i++){
                 Msg msg = dc.characters.get(i).toMsg();
+                System.out.printf("sending character %s: wx= %s, wy= %s, ks= %s\n", i, msg.wx,
+                        msg.wy, msg.ks);
                 outStream.writeObject(msg);
                 outStream.reset();
                 if (debug) System.out.printf("send: %s\n",msg);
@@ -1664,9 +1670,24 @@ public class Level extends BasicGameState {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        if (msg != null)
+        if (msg != null) {
             dc.hero = new Character(dc, msg.wx, msg.wy, msg.type, msg.id, this, false);
+            dc.characters.add(dc.hero);
+            printCharactersInList(dc.characters);
+        }
+
+
         if (debug) System.out.printf("read %s\n", msg);
+    }
+
+
+    public static void printCharactersInList(ArrayList<Character> characters) {
+        System.out.println("Printing Characters List");
+        System.out.println("Size of List: " + characters.size());
+        for (Character c : characters) {
+            System.out.println(c.toMsg());
+        }
+        System.out.println();
     }
 
 
@@ -1675,7 +1696,7 @@ public class Level extends BasicGameState {
      * @param dc
      */
     private void readCharactersFromServer(Main dc){
-        if (debug) System.out.println("begin readCharactersFromServer()");
+        if (debug) System.out.println("readCharactersFromServer()");
         int count = 0;
         int numCharacters = dc.characters.size();
         try{
@@ -1689,6 +1710,8 @@ public class Level extends BasicGameState {
                 for(; i < count-difference;i++){
                     Character character = dc.characters.get(i);
                     Msg msg = (Msg)inStream.readObject();
+                    System.out.printf("reading character %s: wx= %s, wy= %s, ks= %s\n", i, msg.wx,
+                            msg.wy, msg.ks);
                     if (debug) System.out.printf("read %s\n", msg);
                     character.setHitPoints(msg.hp);
                     character.move(msg.ks);
@@ -1697,7 +1720,7 @@ public class Level extends BasicGameState {
                 for(; i < count;i++){
                     Msg msg=(Msg)inStream.readObject();
                     if (debug) System.out.printf("read %s\n", msg);
-                    addCharacterFromMsg(dc,msg);
+//                    addCharacterFromMsg(dc,msg);
                 }
             } else if(count < numCharacters){
 
@@ -1718,8 +1741,14 @@ public class Level extends BasicGameState {
 
 
     private void addCharacterFromMsg(Main dc,Msg msg){
-        Character c = new Character(dc,msg.wx,msg.wy,msg.type,msg.id,this,msg.ai);
-        dc.characters.add(c);
+        Character newCharacter = new Character(dc,msg.wx,msg.wy,msg.type,msg.id,this,msg.ai);
+        for (Character c : dc.characters) {
+            if (newCharacter.getCharacterID() == c.getCharacterID()) {
+                System.out.println("Character Already Exists: " + msg);
+                return;
+            }
+        }
+        dc.characters.add(newCharacter);
         System.out.println("Adding Character: " + msg);
     }
 
