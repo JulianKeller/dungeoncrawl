@@ -113,15 +113,13 @@ public class Level extends BasicGameState {
 
     private class ThrownItem{
         Item itm;
-        Vector direction;
         Vector finalLocation;
         Vector step;
         
         ArrayList<Integer> hitEnemyIds = new ArrayList<Integer>();
 
-        public ThrownItem(Item itm, Vector direction, Vector finalLocation, Vector step){
+        public ThrownItem(Item itm, Vector finalLocation, Vector step){
             this.itm = itm;
-            this.direction = direction;
             this.finalLocation = finalLocation;
             this.step = step;
         }
@@ -1959,7 +1957,7 @@ public class Level extends BasicGameState {
         Main.im.addToWorldItems(emissive);
         
         //create the thrown item
-        thrownItems.add(new ThrownItem(emissive, direction, destination, step));
+        thrownItems.add(new ThrownItem(emissive, destination, step));
     }
     
     
