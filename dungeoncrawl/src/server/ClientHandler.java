@@ -21,6 +21,7 @@ public class ClientHandler extends Thread {
     int tilesize = 32;
     int offset = tilesize/2;
     int doubleOffset = offset/2;
+    public final PauseObject pauseObject;
 
 
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, BlockingQueue<Msg> queue, int id) {
@@ -30,6 +31,7 @@ public class ClientHandler extends Thread {
         this.id = id;
         threadQueue = queue;
         writeSuccess = true;
+        pauseObject = new PauseObject();
     }
 
     @Override
@@ -57,6 +59,9 @@ public class ClientHandler extends Thread {
             while (true) {
                 try {
                     readHeroFromClient();
+                    synchronized (pauseObject) {
+                        pauseObject.wait();
+                    }
                     sendCharactersToClient();
                     if (exit) {
                         break;
@@ -266,6 +271,10 @@ public class ClientHandler extends Thread {
 
     public int getClientId() {
         return id;
+    }
+
+
+    public class PauseObject {
     }
 
 }
