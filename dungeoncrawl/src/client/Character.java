@@ -5,14 +5,12 @@ import jig.Vector;
 import server.Msg;
 import server.PathFinding;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.SlickException;
 
-import jig.Vector;
 
 public class Character extends MovingEntity {
     private Main dc;
@@ -40,6 +38,7 @@ public class Character extends MovingEntity {
     private int attackTimer = 0;
     PathFinding find;
     public String next;
+    public String keystroke;
 
 
     /**
@@ -266,6 +265,7 @@ public class Character extends MovingEntity {
      * @param key String representing a keystroke
      */
     public void move(String key) {
+        keystroke = key;
         // move the screen under the character, fixed to a grid
         if (nearEdge) {
             moveMapHelper();
@@ -835,6 +835,7 @@ public class Character extends MovingEntity {
         float wx = this.getWorldCoordinates().getX();
         float wy = this.getWorldCoordinates().getY();
         Msg msg = new Msg(this.id,this.type,wx,wy,hp,this.ai);
+        msg.ks = keystroke;
         return msg;
     }
 
