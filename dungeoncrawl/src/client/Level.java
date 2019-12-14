@@ -1347,9 +1347,13 @@ public class Level extends BasicGameState {
                 selectedEquippedItem++;
             }else if( input.isKeyPressed(Input.KEY_ENTER) ){
                 //attack with item
-                //System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
-            	
             	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
+            	
+            	//these items cannot be used to attack
+            	if( itm != null && itm.getType().equals("Armor") ){
+            		return;
+            	}
+            	
             	if( attackCooldown <= 0 ){
 	            	if( itm == null || canUse(itm, dc.hero) ){
 	            		attack(itm, dc);
@@ -1396,6 +1400,12 @@ public class Level extends BasicGameState {
                 //use item on own character
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
                 if( i != null ){
+                	
+                	//these items cannot be used on self
+                	if( i.getType().equals("Sword") || i.getType().equals("Gloves") || i.getType().equals("Staff") || i.getType().equals("Arrow")){
+                		return;
+                	}
+                	
                 	
                 	if( !i.isIdentified() ){
                 		i.identify();
@@ -1778,11 +1788,9 @@ public class Level extends BasicGameState {
             if( r < 50 ){
                 //slash
                 dc.hero.updateAnimation("slash_" + dc.hero.direction.split("_")[1]);
-                //addMessage("Slashed " + dir );
             }else{
                 //jab
                 dc.hero.updateAnimation("jab_" + dc.hero.direction.split("_")[1] );
-                //addMessage("Jabbed " + dir );
             }
 
             for( Character c : dc.characters ){
