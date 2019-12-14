@@ -151,7 +151,7 @@ public class Level extends BasicGameState {
 
         try {
             dc.map = (int[][]) inStream.readObject();
-//            System.out.println("reading dc.map type: " + dc.map.getClass().getSimpleName());
+            System.out.printf("Recieved the map.\n");
 //           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -206,17 +206,17 @@ public class Level extends BasicGameState {
         String type = setSkin();
         try {
             id = inStream.readInt();
-//            System.out.println("reading id: " + id);
-            //System.out.println("Sending my player info.");
+            System.out.printf("Reading hero's id: %s\n",id);
             dc.serverId = id;
         }catch(IOException e){
             e.printStackTrace();
         }
         dc.hero = new Character(dc, wx, wy, type, id, this, false);
-        dc.characters.add(dc.hero);
 
+//        dc.characters.add(dc.hero);
         receiveEnemyList(dc);
         receiveItemList();
+        //readCharactersFromServer(dc);
 
         // render map
         RenderMap.setMap(dc, dc.hero);
@@ -271,9 +271,10 @@ public class Level extends BasicGameState {
     }
 
     private void receiveItemList(){
+        System.out.println("\nreceiveItemList()");
         try {
             int count = inStream.readInt();
-            System.out.println("Count: " + count);
+            System.out.printf("Reading item count: %s\n",count);
 //            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
 
 //            List<ItemMsg> fromServer = Collections.synchronizedList(new ArrayList<>());
@@ -283,7 +284,7 @@ public class Level extends BasicGameState {
             for (int j = 0; j < count; j++) {
                 try {
                     ItemMsg i = (ItemMsg) inStream.readObject();
-                    System.out.println("Adding item: "+i.type);
+                    System.out.printf("Read: %s\n",i);
                     Item item = new Item(new Vector(i.wx,i.wy),false,i.id,i.oid,i.effect,
                             i.type,i.material,i.cursed,i.identified,null,i.count);
                     setItemImage(item);
@@ -297,13 +298,17 @@ public class Level extends BasicGameState {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        System.out.printf("\n");
     }
+
+
     private void receiveEnemyList(Main dc){
+        System.out.println("receiveEnemyList()");
         //Grabbing ArrayList of enemies.
         ArrayList<Msg> enemyList = new ArrayList<>();
         try{
             enemyList = (ArrayList<Msg>) inStream.readObject();
-//            System.out.println("reading enemyList type: " + enemyList.getClass().getSimpleName());
+            System.out.printf("Read: %s\n",enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -1169,9 +1174,11 @@ public class Level extends BasicGameState {
         dc.hero.move(ks);
         //positionToServer(dc);  // Get the player's updated position onto the server.
 //        updateOtherPlayers(dc);
-
-        sendEnemyStatusToServer(dc);
-        readEnemyStatusFromServer(dc);
+        sendCharactersToServer(dc);
+        readCharactersFromServer(dc);
+//
+//        sendEnemyStatusToServer(dc);
+//        readEnemyStatusFromServer(dc);
 //        readWeightsFromServer(dc);
 
 
@@ -1417,11 +1424,11 @@ public class Level extends BasicGameState {
         
         
         // if the hero has no health, then replace it with a new hero character in the same spot
-        if(dc.hero.getHitPoints() <= 0){
-            dc.hero = new Character(dc,dc.hero.animate.getX(),dc.hero.animate.getY(),dc.hero.getType(),
-                    dc.serverId,this,false);
-            dc.characters.add(0,dc.hero);
-        }
+//        if(dc.hero.getHitPoints() <= 0){
+//            dc.hero = new Character(dc,dc.hero.animate.getX(),dc.hero.animate.getY(),dc.hero.getType(),
+//                    dc.serverId,this,false);
+//            //dc.characters.add(0,dc.hero);
+//        }
 
 
         // cause AI players to move around
@@ -1620,6 +1627,68 @@ public class Level extends BasicGameState {
         }
         //remove expired timers
         itemLockTimers.removeIf(b -> b.timer <= 0);
+    }
+
+    private void sendCharactersToServer(Main dc){
+        System.out.println("sendCharactersToServer() ");
+        int count = dc.characters.size();
+        try {
+            outStream.writeObject(count);
+            outStream.reset();
+            System.out.printf("send: %s\n",count);
+            for(int i = 0; i < count; i++){
+                Msg msg = dc.characters.get(i).toMsg();
+                outStream.writeObject(msg);
+                outStream.reset();
+                System.out.printf("send %s\n",msg);
+            }
+            System.out.printf("\n");
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void readCharactersFromServer(Main dc){
+        System.out.printf("begin readCharactersFromServer()\n");
+        int count = 0;
+        int numCharacters = dc.characters.size();
+        try{
+            count = inStream.readInt();
+            System.out.printf("Read count %s\n",count);
+            if(count > numCharacters){
+                int difference = count - numCharacters;
+                int i = 0;
+                for(; i < count-difference;i++){
+                    Character character = dc.characters.get(i);
+                    Msg msg = (Msg)inStream.readObject();
+                    System.out.printf("read %s\n", msg);
+                    character.setHitPoints(msg.hp);
+                    character.move(msg.ks);
+                }
+                for(; i < count;i++){
+                    Msg msg=(Msg)inStream.readObject();
+                    System.out.printf("read %s\n", msg);
+                    addCharacterFromMsg(dc,msg);
+                }
+            } else if(count < numCharacters){
+
+            } else {
+                for(int i = 0; i < count;i++){
+                    Character character = dc.characters.get(i);
+                    Msg msg = (Msg)inStream.readObject();
+                    System.out.printf("read %s\n", msg);
+                    character.setHitPoints(msg.hp);
+                    character.move(msg.ks);
+                }
+            }
+            System.out.println();
+        }catch(IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+    private void addCharacterFromMsg(Main dc,Msg msg){
+        Character c = new Character(dc,msg.wx,msg.wy,msg.type,msg.id,this,msg.ai);
+        dc.characters.add(c);
     }
     private Image getSpellImage(String material) throws SlickException{
     	if( material.equals("Ruby") ){
@@ -1932,6 +2001,7 @@ public class Level extends BasicGameState {
                     dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints(), dc.hero.ai);
             message.ks = ks;
             outStream.writeObject(message);
+            System.out.printf("send %s\n", message);
             //System.out.println("wrote message of "+message.getClass().getSimpleName());
             outStream.flush();
             outStream.reset();
@@ -1957,6 +2027,7 @@ public class Level extends BasicGameState {
             msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(), ai.ai);
             try {
                 outStream.writeObject(msg);
+                System.out.printf("send %s\n", msg);
                 outStream.flush();
                 outStream.reset();
 //                System.out.println("writing " + msg.toString());
@@ -1975,7 +2046,7 @@ read the information about the AI from the server
         for (Character ai : dc.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-//                System.out.println("reading " + msg.toString());
+                System.out.printf("Read: %s\n", msg);
                 if (ai.canMove) {
                     ai.setWorldCoordinates(msg.wx, msg.wy);
                 }
@@ -1985,15 +2056,17 @@ read the information about the AI from the server
                 e.printStackTrace();
             }
         }
-        // System.out.println();
+         System.out.println();
     }
 
     /*
     Read the weights from dijkstra from the server
      */
     private void readWeightsFromServer(Main dc) {
+        System.out.println("readWeightsFromServer()");
         try {
             Msg msg = (Msg) inStream.readObject();
+            System.out.printf("Read: %s\n\n",msg);
             dc.hero.weights = msg.dijkstraWeights;
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
@@ -2099,9 +2172,10 @@ read the information about the AI from the server
     }
 
     public void updateOtherPlayers(Main dc){
+        System.out.println("updateOtherPlayers()");
         try {
             Msg read = (Msg) inStream.readObject(); // message from server
-//            System.out.println("reading " + read.toString());
+            System.out.printf("Read %s\n\n", read);
 //            System.out.println("("+dc.serverId+"): " + read);
 
             if(read.type.equals("Exit")) {

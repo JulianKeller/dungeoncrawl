@@ -16,7 +16,7 @@ public class LoadMap {
             f = new File("src/maps");
         }
         else if( System.getProperty("os.name").toLowerCase().contains("nux")) {
-            f = new File("src/maps");
+            f = new File("dungeoncrawl/src/maps");
         }
         else{
             f = new File("dungeoncrawl/src/maps");
