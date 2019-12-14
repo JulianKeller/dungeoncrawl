@@ -876,6 +876,11 @@ public class Level extends BasicGameState {
                         dc.tilesize,
                         dc.tilesize
                 );
+                
+                
+                //draw a string representation of the the selected item
+                g.drawString( items.get((itemy*4)+itemx).toString(), dc.tilesize, 9*dc.tilesize);
+                
                 g.setColor(tmp);
             }
         }
