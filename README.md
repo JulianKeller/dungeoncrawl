@@ -53,6 +53,9 @@ Dungeon Crawl is a 2D dungeon crawler in which up to four players must crawl the
 
 ## Low Bar features not completed
 
+## Other Features completed
+- 1: Random Generated Maps
+
 ## Credits
 
 <b>Networking</b><br>
