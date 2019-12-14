@@ -16,6 +16,7 @@ public class ClientHandler extends Thread {
     public BlockingQueue<Msg> threadQueue;
     //    private float[][] weights;
     public Msg hero;
+    private boolean debug = false;
 
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, BlockingQueue<Msg> queue) {
         socket = s;
@@ -32,11 +33,11 @@ public class ClientHandler extends Thread {
         try {
             // Write the map onto the client for rendering
             outStream.writeObject(Server.map);
-            System.out.println("send map " + Server.map.getClass().getSimpleName());
+            if (debug) System.out.println("send map " + Server.map.getClass().getSimpleName());
             outStream.reset();
 
             outStream.writeInt(id);
-            System.out.println("send id " + id);
+            if (debug) System.out.println("send id " + id);
             outStream.reset();
 
             sendEnemyList();
@@ -48,7 +49,7 @@ public class ClientHandler extends Thread {
                     sendCharactersToClient();
                     // TODO handle exit
                 } catch (Exception e) {
-                    System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
+                    if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
                             "and terminating thread.");
                     break;
                 }
@@ -56,15 +57,15 @@ public class ClientHandler extends Thread {
 //                try {
 //                    // Receive coordinate message from the client about the Hero
 ////                    Msg message = (Msg) inStream.readObject();
-////                    System.out.printf("read %s\n", message);
+////                    if (debug) System.out.printf("read %s\n", message);
 ////                    if (init) {
 ////                        Server.characters.add(message);
 ////                        init = false;
 ////                    }
 //                    readCharactersFromClient();
 //                    sendCharactersToClient();
-////                    System.out.println("reading " + message.toString());
-////                    System.out.println("Client Handler "+id+": "+message);
+////                    if (debug) System.out.println("reading " + message.toString());
+////                    if (debug) System.out.println("Client Handler "+id+": "+message);
 //                    //toServer(message);
 //                    //writeSuccess = writeToClient();
 ////                    if (!writeSuccess || message.type.equals("Exit"))
@@ -78,7 +79,7 @@ public class ClientHandler extends Thread {
 ////                    sendWeightsToClient(message);
 //
 //                } catch (SocketException | ClassNotFoundException e) {
-//                    System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
+//                    if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
 //                            "and terminating thread.");
 //                    break;
 //                }
@@ -107,14 +108,14 @@ public class ClientHandler extends Thread {
      * update the client with the position of the ai
      */
     public void sendAIStatusToClient() {
-//        System.out.println("sendAIStatusToClient()");
+//        if (debug) System.out.println("sendAIStatusToClient()");
         synchronized (Server.enemies) {
             for (Msg ai : Server.enemies) {
                 toServer(ai);
                 writeToClient();
             }
         }
-//         System.out.println();
+//         if (debug) System.out.println();
     }
 
 
@@ -122,12 +123,12 @@ public class ClientHandler extends Thread {
     read the information about the AI from the server
      */
     private void readAIStatusFromClient() {
-        System.out.println("readAIStatusFromClient()");
+        if (debug) System.out.println("readAIStatusFromClient()");
         synchronized (Server.enemies) {
             for (Msg ai : Server.enemies) {
                 try {
                     Msg msg = (Msg) inStream.readObject();
-                    System.out.printf("send " + msg);
+                    if (debug) System.out.printf("send " + msg);
                     ai.wx = msg.wx;
                     ai.wy = msg.wy;
                     ai.hp = msg.hp;
@@ -136,7 +137,7 @@ public class ClientHandler extends Thread {
                 }
             }
         }
-        System.out.println();
+        if (debug) System.out.println();
     }
 
     /**
@@ -147,7 +148,7 @@ public class ClientHandler extends Thread {
     private void toServer(Msg m) {
         try {
             Server.serverQueue.put(m);
-//            System.out.println("Adding to queue: " + m.toString());
+//            if (debug) System.out.println("Adding to queue: " + m.toString());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -157,18 +158,18 @@ public class ClientHandler extends Thread {
      * Send the list of enemies tot he client
      */
     private void sendEnemyList() {
-        System.out.println("sendEnemyList()");
+        if (debug) System.out.println("sendEnemyList()");
         try {
             synchronized (Server.enemies) {
                 outStream.writeObject(Server.enemies);
-                System.out.printf("send Server.enemies\n");
+                if (debug) System.out.printf("send Server.enemies\n");
             }
             outStream.reset();
-//            System.out.println("Wrote ArrayList Server.enemies");
+//            if (debug) System.out.println("Wrote ArrayList Server.enemies");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println();
+        if (debug) System.out.println();
     }
 
 
@@ -178,14 +179,14 @@ public class ClientHandler extends Thread {
      */
     // TODO why are we putting and taking from different queues?
     private boolean writeToClient() {
-        System.out.println("writeToClient()");
+        if (debug) System.out.println("writeToClient()");
         try {
             Msg toClient = threadQueue.take();
             outStream.writeObject(toClient);
-            System.out.printf("send %s\n", toClient);
+            if (debug) System.out.printf("send %s\n", toClient);
             outStream.reset();
-//            System.out.println("Sent to client "+id+": "+toClient);
-            System.out.println();
+//            if (debug) System.out.println("Sent to client "+id+": "+toClient);
+            if (debug) System.out.println();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return false;
@@ -194,72 +195,72 @@ public class ClientHandler extends Thread {
     }
 
     public void readCharactersFromClient() {
-        System.out.println("readCharactersFromClient()");
+        if (debug) System.out.println("readCharactersFromClient()");
         int count = 0;
         try {
             count = inStream.readInt();
-            System.out.printf("Read: %s\n", count);
+            if (debug) System.out.printf("Read: %s\n", count);
             synchronized (Server.characters) {
                 for (int i = 0; i < count; i++) {
                     Msg character = Server.characters.get(i);
-//                    System.out.printf("character %s before: wx= %s, wy= %s, ks= %s\n", i, character.wx,
+//                    if (debug) System.out.printf("character %s before: wx= %s, wy= %s, ks= %s\n", i, character.wx,
 //                            character.wy, character.ks);
                     Msg msg = (Msg) inStream.readObject();
-                    System.out.printf("read: %s\n", msg);
+                    if (debug) System.out.printf("read: %s\n", msg);
                     character.wx = msg.wx;
                     character.wy = msg.wy;
                     character.ks = msg.ks;
                     character.hp = msg.hp;
-//                    System.out.printf("character %s after: wx= %s, wy= %s, ks= %s\n\n", i, character.wx,
+//                    if (debug) System.out.printf("character %s after: wx= %s, wy= %s, ks= %s\n\n", i, character.wx,
 //                            character.wy, character.ks);
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-        System.out.println();
+        if (debug) System.out.println();
     }
 
     public void sendCharactersToClient() {
-        System.out.println("sendCharactersToClient()");
+        if (debug) System.out.println("sendCharactersToClient()");
         synchronized (Server.characters) {
             int count = Server.characters.size();
             try {
                 outStream.writeInt(count);
                 outStream.reset();
-                System.out.printf("Send %s items\n", count);
+                if (debug) System.out.printf("Send %s items\n", count);
                 for (int i = 0; i < count; i++) {
                     Msg character = Server.characters.get(i);
                     outStream.writeObject(character);
                     outStream.reset();
-                    System.out.printf("send %s\n", character);
+                    if (debug) System.out.printf("send %s\n", character);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println();
+        if (debug) System.out.println();
     }
 
     public void sendItemList() {
-        System.out.println("sendItemList()");
+        if (debug) System.out.println("sendItemList()");
         try {
             int count = Server.worldItems.size();
             outStream.writeInt(count);
-            System.out.println("send " + count);
+            if (debug) System.out.println("send " + count);
             outStream.reset();
             synchronized (Server.worldItems) {
                 for (int i = 0; i < count; i++) {
                     ItemMsg item = Server.worldItems.get(i);
                     outStream.writeObject(item);
-                    System.out.print("send item\n");
+                    if (debug) System.out.print("send item\n");
                     outStream.reset();
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println();
+        if (debug) System.out.println();
     }
 
     public int getClientId() {

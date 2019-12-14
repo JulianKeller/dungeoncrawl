@@ -26,7 +26,7 @@ import jig.ResourceManager;
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-
+    private boolean debug = false;
     private String type;
 
     private int[][] rotatedMap;
@@ -144,13 +144,13 @@ public class Level extends BasicGameState {
 
         try {
             dc.map = (int[][]) inStream.readObject();
-            System.out.printf("Recieved the map.\n");
-//           System.out.println("I got the map!");
+            if (debug) System.out.printf("Recieved the map.\n");
+//           if (debug) System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-//        System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
+//        if (debug) System.out.printf("Map Size: %s, %s\n", dc.map[0].length, dc.map.length);
 
         //rotated map verified correct
         rotatedMap = new int[dc.map[0].length][dc.map.length];
@@ -191,7 +191,7 @@ public class Level extends BasicGameState {
         float wx = (dc.tilesize * 20) - dc.offset;
         float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
 
-//        System.out.printf("setting character at %s, %s\n", wx, wy);
+//        if (debug) System.out.printf("setting character at %s, %s\n", wx, wy);
 
         // Setting starting position for the hero.
         String coord = wx + " " + wy;
@@ -199,14 +199,14 @@ public class Level extends BasicGameState {
         String type = setSkin();
         try {
             id = inStream.readInt();
-            System.out.printf("Reading hero's id: %s\n",id);
+            if (debug) System.out.printf("Reading hero's id: %s\n",id);
             dc.serverId = id;
         }catch(IOException e){
             e.printStackTrace();
         }
         dc.hero = new Character(dc, wx, wy, type, id, this, false);
 
-//        dc.characters.add(dc.hero);
+        dc.characters.add(dc.hero);
         receiveEnemyList(dc);
         receiveItemList();
         readCharactersFromServer(dc);
@@ -264,20 +264,20 @@ public class Level extends BasicGameState {
     }
 
     private void receiveItemList(){
-        System.out.println("\nreceiveItemList()");
+        if (debug) System.out.println("\nreceiveItemList()");
         try {
             int count = inStream.readInt();
-            System.out.printf("Reading item count: %s\n",count);
+            if (debug) System.out.printf("Reading item count: %s\n",count);
 //            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
 
 //            List<ItemMsg> fromServer = Collections.synchronizedList(new ArrayList<>());
 
-            //System.out.println("Read type: "+fromServer.getClass().getSimpleName());
+            //if (debug) System.out.println("Read type: "+fromServer.getClass().getSimpleName());
 //            for(ItemMsg i : fromServer) {
             for (int j = 0; j < count; j++) {
                 try {
                     ItemMsg i = (ItemMsg) inStream.readObject();
-                    System.out.printf("Read: %s\n",i);
+                    if (debug) System.out.printf("Read: %s\n",i);
                     Item item = new Item(new Vector(i.wx,i.wy),false,i.id,i.oid,i.effect,
                             i.type,i.material,i.cursed,i.identified,null,i.count);
                     setItemImage(item);
@@ -291,17 +291,17 @@ public class Level extends BasicGameState {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        System.out.printf("\n");
+        if (debug) System.out.printf("\n");
     }
 
 
     private void receiveEnemyList(Main dc){
-        System.out.println("receiveEnemyList()");
+        if (debug) System.out.println("receiveEnemyList()");
         //Grabbing ArrayList of enemies.
         ArrayList<Msg> enemyList = new ArrayList<>();
         try{
             enemyList = (ArrayList<Msg>) inStream.readObject();
-            System.out.printf("Read: %s\n",enemyList.getClass().getSimpleName());
+            if (debug) System.out.printf("Read: %s\n",enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -310,7 +310,7 @@ public class Level extends BasicGameState {
             float y = e.wy;
             int eid = e.id;
             dc.enemies.add(new Character(dc, x, y, e.type, eid, this, true));
-//            System.out.println("Created AI " + e.toString());
+//            if (debug) System.out.println("Created AI " + e.toString());
         }
     }
     private void setItemImage(Item i) throws SlickException{
@@ -1178,15 +1178,15 @@ public class Level extends BasicGameState {
 
         //cheat code to apply any effect to the character
         if( input.isKeyPressed(Input.KEY_LALT) ){
-            System.out.println("Game window frozen, expecting user input.");
-            System.out.println("Enter valid effect name (e.g. Healing) ");
+            if (debug) System.out.println("Game window frozen, expecting user input.");
+            if (debug) System.out.println("Enter valid effect name (e.g. Healing) ");
 
             String effect = scan.next().trim();
 
             if( effect.equals("Iron") ){
                 effect = "Iron Skin";
             }
-            System.out.println("Got effect '"+effect+"'");
+            if (debug) System.out.println("Got effect '"+effect+"'");
 
             dc.hero.addEffect(effect,false);
         }
@@ -1217,7 +1217,7 @@ public class Level extends BasicGameState {
                 //selectedItem.setX(selectedItem.getX()+1);
                 itemx++;
             }else if( input.isKeyPressed(Input.KEY_ENTER) ){
-                System.out.println("Equipping "+((itemy*4)+itemx)+"...");
+                if (debug) System.out.println("Equipping "+((itemy*4)+itemx)+"...");
                 //dc.hero.equipItem( dc.hero.getInventory().get((itemy*4)+itemx).getID(), 0);
                 try{
                     String m = dc.hero.equipItem((itemy*4)+itemx);
@@ -1227,7 +1227,7 @@ public class Level extends BasicGameState {
                         addMessage(m);
                     }
                 }catch(IndexOutOfBoundsException ex){
-                    System.out.println("Out of bounds.");
+                    if (debug) System.out.println("Out of bounds.");
                 }
             }
 
@@ -1245,7 +1245,7 @@ public class Level extends BasicGameState {
                 itemy = dc.hero.getInventory().size()/4;
             }
 
-            //System.out.println(itemx+", "+itemy);
+            //if (debug) System.out.println(itemx+", "+itemy);
         }else{
             if( input.isKeyPressed(Input.KEY_LEFT) ){
                 selectedEquippedItem--;
@@ -1253,7 +1253,7 @@ public class Level extends BasicGameState {
                 selectedEquippedItem++;
             }else if( input.isKeyPressed(Input.KEY_ENTER) ){
                 //attack with item
-                //System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
+                //if (debug) System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
             	
             	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
             	if( attackCooldown <= 0 ){
@@ -1261,7 +1261,7 @@ public class Level extends BasicGameState {
 	            		attack(itm, dc);
 	            		if( itm != null && !itm.isIdentified() ){
 		            		itm.identify();
-		            		System.out.println("Identified " + itm.toString());
+		            		if (debug) System.out.println("Identified " + itm.toString());
 		            		addMessage("It is " + itm.toString());
 		            		if( itm.isCursed() ){
 		            			SFXManager.playSound("curse");
@@ -1376,7 +1376,7 @@ public class Level extends BasicGameState {
 	                itm.lock();
 	                //add item lock timer
 	                itemLockTimers.add( new ItemLockTimer(itm.getID()) );
-	                System.out.println("Locked dropped item.");
+	                if (debug) System.out.println("Locked dropped item.");
 	
 	                //add the item to the render list
 	                // TODO may need to be changed to be added to worldItems
@@ -1463,7 +1463,7 @@ public class Level extends BasicGameState {
                 float x = ch.getTileWorldCoordinates().getX();
                 float y = ch.getTileWorldCoordinates().getY();
                 Vector chwc = new Vector((int)x, (int)y);
-                //System.out.println(chwc.toString());
+                //if (debug) System.out.println(chwc.toString());
 
                 if( Math.abs(chwc.getX() - ti.itm.getWorldCoordinates().getX()) < 1.5 && Math.abs(chwc.getY() - ti.itm.getWorldCoordinates().getY()) < 1.5 ){
                     //addMessage("thrown " + ti.itm.getType() + " hit enemy");
@@ -1623,44 +1623,44 @@ public class Level extends BasicGameState {
     }
 
     private void sendCharactersToServer(Main dc){
-        System.out.println("sendCharactersToServer() ");
+        if (debug) System.out.println("sendCharactersToServer() ");
         int count = dc.characters.size();
         try {
             outStream.writeObject(count);
             outStream.reset();
-            System.out.printf("send: %s\n",count);
+            if (debug) System.out.printf("send: %s\n",count);
             for(int i = 0; i < count; i++){
                 Msg msg = dc.characters.get(i).toMsg();
                 outStream.writeObject(msg);
                 outStream.reset();
-                System.out.printf("send %s\n",msg);
+                if (debug) System.out.printf("send %s\n",msg);
             }
         }catch(IOException e){
             e.printStackTrace();
         }
-        System.out.println();
+        if (debug) System.out.println();
     }
 
     private void readCharactersFromServer(Main dc){
-        System.out.println("begin readCharactersFromServer()");
+        if (debug) System.out.println("begin readCharactersFromServer()");
         int count = 0;
         int numCharacters = dc.characters.size();
         try{
             count = inStream.readInt();
-            System.out.printf("Read count %s\n",count);
+            if (debug) System.out.printf("Read count %s\n",count);
             if(count > numCharacters){
                 int difference = count - numCharacters;
                 int i = 0;
                 for(; i < count-difference;i++){
                     Character character = dc.characters.get(i);
                     Msg msg = (Msg)inStream.readObject();
-                    System.out.printf("read %s\n", msg);
+                    if (debug) System.out.printf("read %s\n", msg);
                     character.setHitPoints(msg.hp);
                     character.move(msg.ks);
                 }
                 for(; i < count;i++){
                     Msg msg=(Msg)inStream.readObject();
-                    System.out.printf("read %s\n", msg);
+                    if (debug) System.out.printf("read %s\n", msg);
                     addCharacterFromMsg(dc,msg);
                 }
             } else if(count < numCharacters){
@@ -1669,12 +1669,12 @@ public class Level extends BasicGameState {
                 for(int i = 0; i < count;i++){
                     Character character = dc.characters.get(i);
                     Msg msg = (Msg)inStream.readObject();
-                    System.out.printf("read %s\n", msg);
+                    if (debug) System.out.printf("read %s\n", msg);
                     character.setHitPoints(msg.hp);
                     character.move(msg.ks);
                 }
             }
-            System.out.println();
+            if (debug) System.out.println();
         }catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -1715,7 +1715,7 @@ public class Level extends BasicGameState {
     	
     	Vector directionVector = dirStringToVector(direction);
         
-        System.out.println("Attacking in the '" + direction + "' direction");
+        if (debug) System.out.println("Attacking in the '" + direction + "' direction");
 
         if( itm == null || itm.getType().equals("Sword") || itm.getType().equals("Gloves")){
         	//play the attack sound
@@ -1874,7 +1874,7 @@ public class Level extends BasicGameState {
         }else if( itm.getType().equals("Arrow") ){
             //Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
 
-        	System.out.println("throwing arrow " + dc.hero.direction.split("_")[1] );
+        	if (debug) System.out.println("throwing arrow " + dc.hero.direction.split("_")[1] );
         	
         	SFXManager.playSound("shoot_arrow");
         	
@@ -1968,7 +1968,7 @@ public class Level extends BasicGameState {
     get the key being pressed, returns a string
      */
     public String getKeystroke(Input input, Main dc) {
-//        System.out.println("getKeystroke()");
+//        if (debug) System.out.println("getKeystroke()");
         String ks = "";
         if (input.isKeyDown(Input.KEY_W)) {
             ks = "w";
@@ -1995,13 +1995,13 @@ public class Level extends BasicGameState {
 //                    dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints(), dc.hero.ai);
 //            message.ks = ks;
 //            outStream.writeObject(message);
-//            System.out.printf("send %s\n", message);
+//            if (debug) System.out.printf("send %s\n", message);
 //            outStream.flush();
 //            outStream.reset();
 //        }catch(IOException e){
 //            e.printStackTrace();
 //        }
-//        System.out.println();
+//        if (debug) System.out.println();
         return ks;
     }
 
@@ -2011,7 +2011,7 @@ public class Level extends BasicGameState {
      * @param dc
      */
     public void sendEnemyStatusToServer(Main dc) {
-        System.out.println("sendEnemyStatusToServer()");
+        if (debug) System.out.println("sendEnemyStatusToServer()");
         Msg msg;
         float wx;
         float wy;
@@ -2021,25 +2021,25 @@ public class Level extends BasicGameState {
             msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(), ai.ai);
             try {
                 outStream.writeObject(msg);
-                System.out.printf("send: %s\n", msg);
+                if (debug) System.out.printf("send: %s\n", msg);
                 outStream.flush();
                 outStream.reset();
             }catch(IOException e){
                 e.printStackTrace();
             }
         }
-         System.out.println();
+         if (debug) System.out.println();
     }
 
     /*
     read the information about the AI from the server
      */
     private void readEnemyStatusFromServer(Main dc) {
-        System.out.println("readEnemyStatusFromServer()");
+        if (debug) System.out.println("readEnemyStatusFromServer()");
         for (Character ai : dc.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-                System.out.printf("Read: %s\n", msg);
+                if (debug) System.out.printf("Read: %s\n", msg);
                 if (ai.canMove) {
                     ai.setWorldCoordinates(msg.wx, msg.wy);
                 }
@@ -2049,22 +2049,22 @@ public class Level extends BasicGameState {
                 e.printStackTrace();
             }
         }
-         System.out.println();
+         if (debug) System.out.println();
     }
 
     /*
     Read the weights from dijkstra from the server
      */
     private void readWeightsFromServer(Main dc) {
-        System.out.println("readWeightsFromServer()");
+        if (debug) System.out.println("readWeightsFromServer()");
         try {
             Msg msg = (Msg) inStream.readObject();
-            System.out.printf("Read: %s\n",msg);
+            if (debug) System.out.printf("Read: %s\n",msg);
             dc.hero.weights = msg.dijkstraWeights;
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
-        System.out.println();
+        if (debug) System.out.println();
     }
 
 
@@ -2080,7 +2080,7 @@ public class Level extends BasicGameState {
 //            outStream.writeObject(toServer);
 //            outStream.flush();
 //            outStream.reset();
-////            System.out.println("writing "+ toServer.toString());
+////            if (debug) System.out.println("writing "+ toServer.toString());
 //        }catch(IOException e){
 //            e.printStackTrace();
 //        }
@@ -2094,7 +2094,7 @@ public class Level extends BasicGameState {
 //            outStream.writeObject(toServer);
 //            outStream.flush();
 //            outStream.reset();
-////            System.out.println("writing "+ toServer.toString());
+////            if (debug) System.out.println("writing "+ toServer.toString());
 //        }catch(IOException e){
 //            e.printStackTrace();
 //        }
@@ -2108,7 +2108,7 @@ public class Level extends BasicGameState {
 //            outStream.writeObject(toServer);
 //            outStream.flush();
 //            outStream.reset();
-////            System.out.println("writing "+ toServer.toString());
+////            if (debug) System.out.println("writing "+ toServer.toString());
 //        }catch(IOException e){
 //            e.printStackTrace();
 //        }
@@ -2122,7 +2122,7 @@ public class Level extends BasicGameState {
 //            outStream.writeObject(toServer);
 //            outStream.flush();
 //            outStream.reset();
-////            System.out.println("writing "+ toServer.toString());
+////            if (debug) System.out.println("writing "+ toServer.toString());
 //        }catch(IOException e){
 //            e.printStackTrace();
 //        }
@@ -2166,11 +2166,11 @@ public class Level extends BasicGameState {
     }
 
     public void updateOtherPlayers(Main dc){
-        System.out.println("updateOtherPlayers()");
+        if (debug) System.out.println("updateOtherPlayers()");
         try {
             Msg read = (Msg) inStream.readObject(); // message from server
-            System.out.printf("Read %s\n\n", read);
-//            System.out.println("("+dc.serverId+"): " + read);
+            if (debug) System.out.printf("Read %s\n\n", read);
+//            if (debug) System.out.println("("+dc.serverId+"): " + read);
 
             if(read.type.equals("Exit")) {
                 dc.characters.removeIf(c -> c.getPid() == read.id);
