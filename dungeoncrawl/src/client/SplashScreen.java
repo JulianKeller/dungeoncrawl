@@ -17,8 +17,7 @@ public class SplashScreen extends BasicGameState {
     ArrayList<Element> characterTypes;
     ArrayList<SubMenu> menus;
     String selectedPlayer;
-//    String IP = "127.0.0.1";        // default IP
-    String IP = "192.168.0.";        // default IP
+    String IP = "127.0.0.1";        // default IP
 
     int menuOption = 0;
     int characterOption = 0;
@@ -127,7 +126,7 @@ public class SplashScreen extends BasicGameState {
         } else if (input.isKeyPressed(Input.KEY_PERIOD)) {
             IP += ".";
         } else if (input.isKeyPressed(Input.KEY_SPACE)) {
-            IP = "10.197.33.49";
+            IP = "192.168.0.";
         } else if (input.isKeyDown(Input.KEY_DELETE) || input.isKeyDown(Input.KEY_BACK) && deleteTimer <= 0) {
             if (IP.length() > 0) {
                 IP = IP.substring(0, IP.length() - 1);

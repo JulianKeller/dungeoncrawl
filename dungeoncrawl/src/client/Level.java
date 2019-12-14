@@ -26,7 +26,7 @@ import jig.ResourceManager;
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-    private boolean debug = false;
+    private boolean debug = true;
     private String type;
 
     private int[][] rotatedMap;
@@ -94,9 +94,8 @@ public class Level extends BasicGameState {
             case "Tank":
                 return "tank_leather";
             default:
-                break;
+                return "";
         }
-        return "";
     }
 
     private class ThrownItem{
@@ -140,11 +139,10 @@ public class Level extends BasicGameState {
         this.outStream = dc.dos;
 
 
-        // Grab the map from the server.Server
-
+        // read the map from the server.Server
         try {
             dc.map = (int[][]) inStream.readObject();
-            if (debug) System.out.printf("Recieved the map.\n");
+            if (debug) System.out.printf("read: map\n");
 //           if (debug) System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -186,27 +184,36 @@ public class Level extends BasicGameState {
         dc.mapWidth = dc.map[0].length;
         dc.mapHeight = dc.map.length;
 
-        // TODO setting the hero coordinates/type should be done on the server
         // setup the dc.hero character
-        float wx = (dc.tilesize * 20) - dc.offset;
-        float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
+//        float wx = (dc.tilesize * 20) - dc.offset;
+//        float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
 
 //        if (debug) System.out.printf("setting character at %s, %s\n", wx, wy);
 
-        // Setting starting position for the hero.
-        String coord = wx + " " + wy;
-        int id = 0;
-        String type = setSkin();
+        // Send the players type to the server
         try {
-            id = inStream.readInt();
-            if (debug) System.out.printf("Reading hero's id: %s\n",id);
-            dc.serverId = id;
-        }catch(IOException e){
+            type = setSkin();
+            outStream.writeUTF(type);
+            outStream.reset();
+            System.out.println("send " + type);
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        dc.hero = new Character(dc, wx, wy, type, id, this, false);
 
-        dc.characters.add(dc.hero);
+//        // read the hero's starting position
+//        String coord = wx + " " + wy;
+//        int id = 0;
+//        String type = setSkin();
+//        try {
+//            id = inStream.readInt();
+//            if (debug) System.out.printf("Reading hero's id: %s\n",id);
+//            dc.serverId = id;
+//        }catch(IOException e){
+//            e.printStackTrace();
+//        }
+
+        readHeroFromServer(dc);
+//        dc.characters.add(dc.hero);
         receiveEnemyList(dc);
         receiveItemList();
         readCharactersFromServer(dc);
@@ -1633,14 +1640,39 @@ public class Level extends BasicGameState {
                 Msg msg = dc.characters.get(i).toMsg();
                 outStream.writeObject(msg);
                 outStream.reset();
-                if (debug) System.out.printf("send %s\n",msg);
+                if (debug) System.out.printf("send: %s\n",msg);
             }
         }catch(IOException e){
+            System.out.println("failed to send character: " + e);
             e.printStackTrace();
         }
         if (debug) System.out.println();
     }
 
+    /**
+     * read the hero from the server on enter()
+     * and set the clients hero character
+     */
+    private void readHeroFromServer(Main dc) {
+        if (debug) System.out.println("readHeroFromServer()");
+        Msg msg = null;
+        try {
+            msg = (Msg) inStream.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (msg != null)
+            dc.hero = new Character(dc, msg.wx, msg.wy, msg.type, msg.id, this, false);
+        if (debug) System.out.printf("read %s\n", msg);
+    }
+
+
+    /**
+     * Read the list of characters from the server
+     * @param dc
+     */
     private void readCharactersFromServer(Main dc){
         if (debug) System.out.println("begin readCharactersFromServer()");
         int count = 0;
@@ -1658,6 +1690,7 @@ public class Level extends BasicGameState {
                     character.setHitPoints(msg.hp);
                     character.move(msg.ks);
                 }
+                // TODO this is going to add characters even if the number of caracters decreases
                 for(; i < count;i++){
                     Msg msg=(Msg)inStream.readObject();
                     if (debug) System.out.printf("read %s\n", msg);

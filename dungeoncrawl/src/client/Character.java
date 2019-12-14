@@ -278,14 +278,12 @@ public class Character extends MovingEntity {
             return;
         }
 
-        /*
         //System.out.println("action = " + action );
         if (key == null || key.equals("")) {
             //stopAction("walk");
         	//updateAnimation(null);
             return;
         }
-        */
         
 
         String movement = null;

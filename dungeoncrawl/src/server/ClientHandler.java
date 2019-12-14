@@ -1,5 +1,7 @@
 package server;
 
+import client.Character;
+
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
@@ -16,7 +18,10 @@ public class ClientHandler extends Thread {
     public BlockingQueue<Msg> threadQueue;
     //    private float[][] weights;
     public Msg hero;
-    private boolean debug = false;
+    private boolean debug = true;
+    int tilesize = 32;
+    int offset = tilesize/2;
+    int doubleOffset = offset/2;
 
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, BlockingQueue<Msg> queue) {
         socket = s;
@@ -30,15 +35,27 @@ public class ClientHandler extends Thread {
     @Override
     public void run() {
         boolean init = true;
+
         try {
             // Write the map onto the client for rendering
             outStream.writeObject(Server.map);
             if (debug) System.out.println("send map " + Server.map.getClass().getSimpleName());
             outStream.reset();
 
-            outStream.writeInt(id);
-            if (debug) System.out.println("send id " + id);
-            outStream.reset();
+            // read in type of hero from client
+            String type = inStream.readUTF();
+            System.out.println("read: " + type);
+            // spawn the hero
+            // TODO update spawning to be dynamic
+            float wx = (tilesize * 20) - offset;
+            float wy = (tilesize * 18) - tilesize - doubleOffset;
+            Msg hero = new Msg(id, type, wx, wy, 0, false);
+            sendHeroToClient(hero);
+
+            Server.characters.add(hero);
+//            outStream.writeInt(id);
+//            if (debug) System.out.println("send id " + id);
+//            outStream.reset();
 
             sendEnemyList();
             sendItemList();
@@ -92,6 +109,16 @@ public class ClientHandler extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * send the hero to the client on enter
+     * @param hero
+     */
+    private void sendHeroToClient(Msg hero) throws IOException {
+        if (debug) System.out.println("sendHeroToClient()");
+        outStream.writeObject(hero);
+        System.out.printf("send: %s\n\n", hero);
     }
 
 
@@ -202,9 +229,10 @@ public class ClientHandler extends Thread {
             if (debug) System.out.printf("Read: %s\n", count);
             synchronized (Server.characters) {
                 for (int i = 0; i < count; i++) {
+                    System.out.println("Receiving first character");
                     Msg character = Server.characters.get(i);
-//                    if (debug) System.out.printf("character %s before: wx= %s, wy= %s, ks= %s\n", i, character.wx,
-//                            character.wy, character.ks);
+                    if (debug) System.out.printf("character %s before: wx= %s, wy= %s, ks= %s\n", i, character.wx,
+                            character.wy, character.ks);
                     Msg msg = (Msg) inStream.readObject();
                     if (debug) System.out.printf("read: %s\n", msg);
                     character.wx = msg.wx;
@@ -216,15 +244,17 @@ public class ClientHandler extends Thread {
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
+            System.out.println("failed to read character: " + e);
             e.printStackTrace();
         }
-        if (debug) System.out.println();
+        if (debug) System.out.println("Leaving readCharactersFromClient()");
     }
 
     public void sendCharactersToClient() {
         if (debug) System.out.println("sendCharactersToClient()");
         synchronized (Server.characters) {
             int count = Server.characters.size();
+            System.out.println("Got count to send: " + count);
             try {
                 outStream.writeInt(count);
                 outStream.reset();
@@ -239,9 +269,10 @@ public class ClientHandler extends Thread {
                 e.printStackTrace();
             }
         }
-        if (debug) System.out.println();
+        if (debug) System.out.println("Leaving sendCharactersFromClient()\n");
     }
 
+    
     public void sendItemList() {
         if (debug) System.out.println("sendItemList()");
         try {
