@@ -517,6 +517,9 @@ Reflection:
     					hitPoints += 3*curseModifier;
     				}
     			}
+    			if( hitPoints > startingHitPoints ){
+    				hitPoints = startingHitPoints;
+    			}
     			
     		}else if( e.name.equals("Reflection") ){
     			//AI problem, see thorns
