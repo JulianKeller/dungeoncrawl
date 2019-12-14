@@ -50,6 +50,11 @@ public class ClientHandler extends Thread {
             // TODO update spawning to be dynamic
             float wx = (tilesize * 20) - offset;
             float wy = (tilesize * 18) - tilesize - doubleOffset;
+            int id = (int)System.nanoTime();
+            if (id < 0) {
+                id  = -id;
+                System.out.println("id " + id);
+            }
             Msg hero = new Msg(id, type, wx, wy, 100, false);
             sendHeroToClient(hero);
 
