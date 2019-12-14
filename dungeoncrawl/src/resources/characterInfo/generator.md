@@ -1,4 +1,5 @@
 # A list of all the characters and the link to where they were generated
+http://gaurav.munjal.us/Universal-LPC-Spritesheet-Character-Generator/
 
 ## Knight
 - leather: http://gaurav.munjal.us/Universal-LPC-Spritesheet-client.Character-Generator/#?body=light&nose=straight&legs=pants_white&armor=chest_leather&hair=plain_brunette&sex=male&arms=plate&shoulders=leather&spikes=none&bracers=leather&gloves=none&hat=none&=shoes_brown&weapon=dagger&shield=none
@@ -27,6 +28,7 @@
 - basic: http://gaurav.munjal.us/Universal-LPC-Spritesheet-client.Character-Generator/#?body=skeleton&eyes=red&clothes=none&armor=none
 - leather: http://gaurav.munjal.us/Universal-LPC-Spritesheet-client.Character-Generator/#?body=skeleton&eyes=red&clothes=none&armor=chest_leather&mail=none&hair=none&arms=none&spikes=none&weapon=none&shoes=none
 - chainmail: http://gaurav.munjal.us/Universal-LPC-Spritesheet-client.Character-Generator/#?body=skeleton&eyes=red&clothes=none&armor=none&mail=chain&hair=none&arms=none&spikes=none&weapon=none&shoes=none
+- boss: http://gaurav.munjal.us/Universal-LPC-Spritesheet-Character-Generator/#?body=skeleton&eyes=blue&hat=none&spikes=none&weapon=dagger&armor=none&greaves=none&gloves=golden&belt=none&shoulders=none&hair=mohawk_raven&arms=none&shoes=none&bracelet=none&shield=none
 
 ## Ice Elf
 http://gaurav.munjal.us/Universal-LPC-Spritesheet-client.Character-Generator/#?sex=female&body=darkelf&eyes=purple&nose=big&ears=big&legs=pants_white&clothes=pirate_white&armor=none&jacket=none&hair=unkempt_white_cyan&shoulders=none&gloves=none&bracers=none&hat=tiara_iron&hats=tiara_purple&shoes=none&=shoes_black&gown-underdress=0&gown-overskirt=0&gown-blue-vest=0&weapon=wand_wood

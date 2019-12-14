@@ -1,6 +1,7 @@
 package client;
 
 import jig.Entity;
+import jig.ResourceManager;
 import jig.Vector;
 
 import java.util.ArrayList;
@@ -8,8 +9,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
+import org.newdawn.slick.Animation;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
 
 public class MovingEntity extends Entity {
     private float hitPoints;
@@ -17,15 +20,19 @@ public class MovingEntity extends Entity {
     private int armorPoints;
     private int initialArmorPoints = -1;
     private float mana;
+    private float maxMana;
     private int strength; //determines what level of items the player can pick up
-
+    private int inventoryWeight = 0; //weight of items factored into movement speed
+    private int attackDamage;   // determines the amount of damage AI can deal
+    private int attackSpeed;    // determines how fast the ai deal the attackDamage
     //boolean effects for AI
     private boolean invisible = false;
     private boolean stinky = false;
     private boolean thorny = false;
     private boolean frightening = false;
     private boolean reflecting = false;
-
+    private boolean mighty = false;
+    
     private Vector worldCoordinates;
     private int animationSpeed;
     private int initialMovementSpeed;
@@ -35,38 +42,46 @@ public class MovingEntity extends Entity {
     private ArrayList<Item> inventory;
     private ArrayList<Item> codex; //list of identified items
     private Item [] equipped;
+    private ArrayList<String> cursedItemTypes; //list of cursed item types the player is using/wearing
     private Vector position;
     private Vector tileWorldCoordinates;
+    private Vector nextTileWorldCoordinates;
     private Main dc;
+    
+    private final int EffectSpriteHeight = 64;
+    private final int EffectSpriteWidth = 32;
 
+
+    
     //random number generator
     private Random rand = new Random();
-
+    
     //provides ability to add messages to the level
     private Level currentLevel;
-
-
+   
+    
     private ArrayList<Effect> activeEffects; //list of things currently affecting the character
-    private final int defaultEffectTimer = 5000;
-    private class Effect{
+    private final int defaultEffectTimer = 3000;
+    class Effect{
     	String name;
     	int timer = defaultEffectTimer;
+    	boolean cursed;
     	
-    	public Effect(String name){
+    	public Effect(String name, boolean cursed){
     		this.name = name;
+    		this.cursed = cursed;
     	}
     }
     /**
      * Create a new Entity (x,y)
-     * @param wx starting world x coordinate
      * @param wy starting world y coordinate
      * @param wx starting world x coordinate
      */
+
     public MovingEntity(final float wx, final float wy, int pid, Level level) {
         super(wx, wy);
-
+        
         currentLevel = level;
-
 
         hitPoints = 0;
         //startingHitPoints = hitPoints;
@@ -75,13 +90,15 @@ public class MovingEntity extends Entity {
         animationSpeed = 1;
         initialMovementSpeed = movementSpeed = 1;
 
-
         tileWorldCoordinates = getTileWorldCoordinates();
+        nextTileWorldCoordinates = tileWorldCoordinates;
 
         mana = 0;
+        maxMana = 0;
         strength = 1;
         this.pid = pid;
         inventory = new ArrayList<Item>(10);
+        cursedItemTypes = new ArrayList<String>();
         equipped = new Item[4];
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
@@ -102,11 +119,11 @@ public class MovingEntity extends Entity {
      */
     public MovingEntity(Vector wc, int pid, Level level) {
         super(wc.getX(), wc.getY());
-
-
+        
+        
         currentLevel = level;
-
-
+        
+        
         hitPoints = 0;
         //startingHitPoints = hitPoints;
         armorPoints = 0;
@@ -114,9 +131,11 @@ public class MovingEntity extends Entity {
         animationSpeed = 1;
         initialMovementSpeed = movementSpeed = 1;
         mana = 0;
+        maxMana = 0;
         strength = 1;
         this.pid = pid;
         inventory = new ArrayList<Item>(10);
+        cursedItemTypes = new ArrayList<String>();
         equipped = new Item[5];
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
@@ -138,7 +157,10 @@ public class MovingEntity extends Entity {
     public boolean isReflecting(){
     	return reflecting;
     }
-
+    public boolean isMighty(){
+    	return mighty;
+    }
+    
     /*
      * Note on effects:
      * -Effects to be removed automatically after a period of time
@@ -149,23 +171,97 @@ public class MovingEntity extends Entity {
      * -Effects to be removed in any other situation can be manually
      *  removed with the removeEffect method
      */
-
-    public void addEffect(String name){
+    
+    public void clearActiveEffects(){
+    	activeEffects.clear();
+    }
+    
+    private boolean playIronSkinSound = true;
+    private boolean playMightSound = true;
+    private boolean playSwiftnessSound = true;
+    private boolean playThornsSound = true;
+    private boolean playFrightSound = true;
+    private boolean playStenchSound = true;
+    private boolean playReflectionSound = true;
+    private boolean playRegenerationSound = true;
+    
+    
+    public void addEffect(String name, boolean cursed) throws SlickException{
     	//if the character already has the effect,
     	// reset the timer
     	for( Effect e : activeEffects ){
     		if( e.name.equals(name) ){
     			e.timer = defaultEffectTimer;
+    			e.cursed = cursed;
+    			
+    			return;
     		}
     	}
     	//if not, add the effect
-    	activeEffects.add(new Effect(name));
+    	activeEffects.add(new Effect(name, cursed));
+    	
+    	//play effect sound (unless effect is lightning)
+    	if( name.equals("Healing")){
+    		SFXManager.playSound("healing");
+    	}else if(name.equals("Regeneration")){
+    		if( playRegenerationSound ){
+    			SFXManager.playSound("healing");
+    			playRegenerationSound = false;
+    		}
+    	}else if( name.equals("Mana") ){
+    		SFXManager.playSound("mana_up");
+    	}else if( name.equals("Strength") ){
+    		SFXManager.playSound("strength_up");
+    	}else if( name.equals("Iron Skin") ){
+    		if( playIronSkinSound ){
+    			SFXManager.playSound("armor_up");
+    			playIronSkinSound = false;
+    		}
+    	}else if( name.equals("Might") ){
+    		if( playMightSound ){
+    			SFXManager.playSound("damage_up");
+    			playMightSound = false;
+    		}
+    	}else if( name.equals("Swiftness") ){
+    		if( playSwiftnessSound ){
+    			SFXManager.playSound("speed_up");
+    			playSwiftnessSound = false;
+    		}
+    	}else if( name.equals("Flame") ){
+    		SFXManager.playSound("burning");
+    	}else if( name.equals("Poison") ){
+    		SFXManager.playSound("poisoned");
+    	}else if( name.equals("Ice") ){
+    		SFXManager.playSound("freezing");
+    	}else if( name.equals("Fright") ){
+    		if( playFrightSound ){
+    			SFXManager.playSound("fright");
+    			playFrightSound = false;
+    		}
+    	}else if( name.equals("Stench") ){
+    		if( playStenchSound ){
+    			SFXManager.playSound("stench");
+    			playStenchSound = false;
+    		}
+    	}else if( name.equals("Thorns") ){
+    		if( playThornsSound ){
+    			SFXManager.playSound("thorns");
+    			playThornsSound = false;
+    		}
+    	}else if( name.equals("Reflection") ){
+    		if( playReflectionSound ){
+    			SFXManager.playSound("reflecting");
+    			playReflectionSound = false;
+    		}
+    	}else if( name.equals("Invisibility") ){
+    		SFXManager.playSound("invisible");
+    	}
     }
     
     public ArrayList<Effect> getActiveEffects(){
     	return activeEffects;
     }
-
+    
     /**
      * Use this function to remove effects caused by
      * an equipped item when said item is unequipped
@@ -175,34 +271,43 @@ public class MovingEntity extends Entity {
     	//special exit behavior
     	if( name.equals("Iron Skin") ){
     		armorPoints = initialArmorPoints;
+    		playIronSkinSound = true;
     	}else if( name.equals("Stench") ){
 			stinky = false;
+			playStenchSound = true;
 		}else if( name.equals("Thorns")){
 			thorny = false;
+			playThornsSound = true;
 		}else if( name.equals("Fright") ){
 			frightening = false;
+			playFrightSound = true;
 		}else if( name.equals("Invisibility") ){
 			invisible = false;
 		}else if( name.equals("Reflection") ){
 			reflecting = false;
+			playReflectionSound = true;
 		}
     }
-
+    
     /**
      * Use this function every update loop for
      * the automatic removal of timed effects
+     * @throws SlickException 
      */
-    public void updateEffectTimers(int delta){
+    public ArrayList<String> updateEffectTimers(int delta) throws SlickException{
     	//reduce each active effect timer by delta
     	//System.out.println("Updating effect timers")
     	ArrayList<String> effectsToAdd = new ArrayList<String>();
+    	ArrayList<String> cursedEffectsToAdd = new ArrayList<String>();
+    	ArrayList<String> removedEffects = new ArrayList<String>();
     	for( Effect e : activeEffects ){
-    		//System.out.println("reducing timer of " + e.name + " by " + delta);
     		e.timer -= delta;
+    		//System.out.println(e.name + ": " + e.timer);
     		if( e.timer <= 0 ){
+    			removedEffects.add(e.name);
     			//set special exit properties
     			//  for certain effects
-    			if( e.name.equals("Swiftness") || e.name.equals("Ice") ){
+    			if( e.name.equals("Swiftness") || e.name.equals("Ice") ){	
     				//reset to initial movement speed
     				movementSpeed = initialMovementSpeed;
     			}else if( e.name.equals("Iron Skin") ){
@@ -227,14 +332,20 @@ public class MovingEntity extends Entity {
     		}
     	}
     	//remove any expired effects
+    	
     	activeEffects.removeIf(b -> b.timer <= 0);
-
+    	
     	//add any new effects
     	for( String s : effectsToAdd ){
-    		addEffect(s);
+    		addEffect(s, false);
     	}
+    	for( String s : cursedEffectsToAdd ){
+    		addEffect(s, true);
+    	}
+    	
+    	return removedEffects;
     }
-
+    
     /*
      * Healing:
 	Restore 25% of lost HP
@@ -271,10 +382,12 @@ Regeneration:
 Reflection:
 	Attacking enemies will take 50% of the damage they deal.
      */
+    
 
-
-
-    public void implementEffects() throws SlickException{
+    
+    public ArrayList<String> implementEffects() throws SlickException{
+    	ArrayList<String> returnMessages = new ArrayList<String>();
+    	float curseModifier = 0.5f;
     	for( Effect e : activeEffects ){
     		//System.out.println(e.name);
     		if( e.name.equals("Healing") ){
@@ -283,63 +396,97 @@ Reflection:
     			//  current value
     			if( startingHitPoints > hitPoints ){
 	    			float diff = startingHitPoints - hitPoints;
-	    			hitPoints += (diff*0.25);
+	    			if( !e.cursed ){
+	    				hitPoints += (diff*0.25);
+	    			}else{
+	    				hitPoints += (diff*0.25)*curseModifier;
+	    			}
     			}
-
+    			
     		}else if( e.name.equals("Strength") ){
     			//increment the player's strength variable
     			strength++;
     			//this should only happen once
-
+    			
+    			//remove all curses from the player's equipped items
+    			boolean curseRemoved = false;
+    			for( Item i : inventory ){
+    				if( i.isEquipped && i.isCursed() ){
+    					i.removeCurse();
+    					curseRemoved = true;
+    				}
+    			}
+    			if( curseRemoved ){
+    				returnMessages.add("Your strength has overcome curses in your equipped items.");
+    			}
+    			
     		}else if( e.name.equals("Flame") ){
     			//decrease health by 10 every second
     			//	want to lose 10 hp per second
     			//	assume 60 frames per second
     			//	10/60 = amount of hp lost per frame
-    			hitPoints -= ( (float) 10/60);
-
+    			if( !e.cursed ){
+    				hitPoints -= ( (float) 10/60 );
+    			}else{
+    				hitPoints -= ( (float) (10*curseModifier)/60 );
+    			}
+    			
     		}else if( e.name.equals("Mana") ){
     			//add 15% to the current maximum mana
-    			mana += (mana*0.15);
-
+    			if( !e.cursed ){
+    				maxMana += (maxMana*0.15);
+    			}else{
+    				maxMana += (maxMana*0.15*curseModifier);
+    			}
+    			
     		}else if( e.name.equals("Invisibility") ){
     			//little too complicated for this function,
     			//  just set a boolean value
-    			invisible = true;
-    		}else if( e.name.equals("Poisoned") ){
+    			if( !e.cursed ){
+    				invisible = true;
+    			}
+    		}else if( e.name.equals("Poison") ){
     			//decrease health by 5 every second
-    			hitPoints -= ( (float) 5/60);
-
+    			if( !e.cursed ){
+    				hitPoints -= ( (float) 5/60);
+    			}else{
+    				hitPoints -= ( (float) (5*curseModifier)/60);
+    			}
+    			
     		}else if( e.name.equals("Ice") ){
     			//set movement speed to zero
-    			movementSpeed = 0;
-    			//animationSpeed = 0;
-
-    		}else if( e.name.equals("Lightning") ){
-    			//roll 30% change to take 20 damage
-    			rand.setSeed(System.nanoTime());
-    			int r = rand.nextInt(100);
-    			if( r < 60 ){
-    				hitPoints -= 20;
-    				currentLevel.addMessage("Struck by lightning!");
-    				System.out.println("Struck by lightning!");
+    			if( !e.cursed ){
+    				movementSpeed = 0;
+    			}else{
+    				movementSpeed /= 2;
     			}
+    			//animationSpeed = 0;
+    			
+    		}else if( e.name.equals("Lightning") ){
 
+    			//nothing happens
     		}else if( e.name.equals("Stench") ){
     			//another AI problem, set a boolean
-    			stinky = true;
-
+    			if( !e.cursed ){
+    				stinky = true;
+    			}
     		}else if( e.name.equals("Iron Skin") ){
     			//double the armor points variable
     			if( armorPoints == initialArmorPoints ){
-    				armorPoints *= 2;
+    				if( !e.cursed ){
+    					armorPoints *= 2;
+    				}else{
+    					armorPoints *= 2*curseModifier;
+    				}
     			}
-
-
+    			
+    			
     		}else if( e.name.equals("Thorns") ){
     			//AI problem
-    			thorny = true;
-
+    			if( !e.cursed ){
+    				thorny = true;
+    			}
+    			
     		}else if( e.name.equals("Swiftness") ){
     			//double movement speed
     			//  only if the current speed is equal to the
@@ -347,52 +494,156 @@ Reflection:
     			if( movementSpeed == initialMovementSpeed ){
     				doubleMoveSpeed();
     			}
-
+    			
     		}else if( e.name.equals("Fright") ){
     			//AI problem, see stench
-    			frightening = true;
-
+    			if( !e.cursed ){
+    				frightening = true;
+    			}
     		}else if( e.name.equals("Might") ){
     			//double player's attack damage
-    			//TODO: add attack system
-
+    			if( !e.cursed ){
+    				mighty = true;
+    			}
+    			
     		}else if( e.name.equals("Regeneration") ){
     			//roll 50% chance to restore 3 hp
     			rand.setSeed(System.nanoTime());
     			int r = rand.nextInt(100);
     			if( r < 50 ){
-    				hitPoints += 3;
+    				if( !e.cursed ){
+    					hitPoints += 3;
+    				}else{
+    					hitPoints += 3*curseModifier;
+    				}
     			}
-
+    			
     		}else if( e.name.equals("Reflection") ){
     			//AI problem, see thorns
-    			reflecting = true;
-
-    		}else{
-    			throw new SlickException("Unknown character effect.");
+    			if( !e.cursed ){
+    				reflecting = true;
+    			}
+    		}else if( !e.name.equals("") ){
+    			throw new SlickException("Unknown character effect '"+e.name+"'.");
     		}
-
+    		
 
     	}
+    	
 
+		
+		return returnMessages;
+					
+    }
+    
+    public void removeSingleEffects(){
 		/*
 		 * Some effects should only be applied once.
 		 * For example, swiftness will double the speed every loop
 		 *   if it remains in the list
-		 */
-		activeEffects.removeIf(b -> b.name.equals("Strength") ||
+		 */ 
+		
+    	activeEffects.removeIf(b -> b.name.equals("Strength") || 
 									b.name.equals("Healing") ||
 									b.name.equals("Lightning") ||
 									b.name.equals("Mana"));
 
+		
+    }
+    
+    public Animation getFloatingPlusSigns(String color, int frameCount, int duration) throws SlickException{
+    	SpriteSheet ss = null;
+    	if( color.toLowerCase().equals("red") ){
+    		ss = ResourceManager.getSpriteSheet(Main.RED_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
+    	}else if( color.toLowerCase().equals("green") ){
+    		ss = ResourceManager.getSpriteSheet(Main.GREEN_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
+    	}else if( color.toLowerCase().equals("blue") ){
+    		ss = ResourceManager.getSpriteSheet(Main.BLUE_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
+    	}else if( color.toLowerCase().equals("gray") ){
+    		ss = ResourceManager.getSpriteSheet(Main.GRAY_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
+    	}else if( color.toLowerCase().equals("yellow") ){
+    		ss = ResourceManager.getSpriteSheet(Main.YELLOW_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
+    	}else if( color.toLowerCase().equals("white") ){
+    		ss = ResourceManager.getSpriteSheet(Main.WHITE_FLOATING_PLUS, EffectSpriteWidth, EffectSpriteHeight);
+    	}else{
+    		throw new SlickException("Invalid floating plus sign color '" + color + "'.");
+    	}
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
+    
+    public Animation getParticles(String mainColor, int frameCount, int duration) throws SlickException{
+    	SpriteSheet ss = null;
+    	if( mainColor.toLowerCase().equals("orange") ){
+    		ss = ResourceManager.getSpriteSheet(Main.FLAME_PARTICLES, EffectSpriteWidth, EffectSpriteHeight);
+    	}else if( mainColor.toLowerCase().equals("green") ){
+    		ss = ResourceManager.getSpriteSheet(Main.POISON_PARTICLES, EffectSpriteWidth, EffectSpriteHeight);
+    	}else{
+    		throw new SlickException("Invalid color '" + mainColor + "' for particle effect.");
+    	}
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
+    
+    public Animation getGhostFaces(int frameCount, int duration ){
+    	SpriteSheet ss = ResourceManager.getSpriteSheet(Main.GHOST_FACES, EffectSpriteWidth, EffectSpriteHeight);
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
+    
+    public Animation getFlies(int frameCount, int duration){
+    	SpriteSheet ss = ResourceManager.getSpriteSheet(Main.FLIES_EFFECT, EffectSpriteWidth, EffectSpriteHeight);
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
+    
+    public Animation getThorns(int frameCount, int duration ){
+    	SpriteSheet ss = ResourceManager.getSpriteSheet(Main.THORNS_EFFECT, EffectSpriteWidth, EffectSpriteHeight);
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
     }
 
-    public boolean takeDamage(float amount, String effect ){
+    public Animation getReflect(int frameCount, int duration ){
+    	SpriteSheet ss = ResourceManager.getSpriteSheet(Main.REFLECT_EFFECT, EffectSpriteWidth, EffectSpriteHeight);
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
+    
+    public Animation getInvisible(int frameCount, int duration ){
+    	SpriteSheet ss = ResourceManager.getSpriteSheet(Main.INVISIBLE_EFFECT, EffectSpriteWidth, EffectSpriteHeight);
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
+    
+    public Animation getIce(int frameCount, int duration ){
+    	SpriteSheet ss = ResourceManager.getSpriteSheet(Main.ICE_EFFECT, EffectSpriteWidth, EffectSpriteHeight);
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
+    
+    public Animation getLightning(int frameCount, int duration ){
+    	SpriteSheet ss = ResourceManager.getSpriteSheet(Main.LIGHTNING_EFFECT, EffectSpriteWidth, EffectSpriteHeight);
+    	
+    	Animation ani = new Animation(ss, 0, 0, frameCount-1, 0, true, duration, true);
+    	return ani;
+    }
+    
+    
+    
+    
+    public boolean takeDamage(float amount, String effect, boolean cursed ) throws SlickException{
     	hitPoints -= amount;
     	if( !effect.equals("") ){
-    		addEffect(effect);
+    		addEffect(effect, cursed);
     	}
-
     	//check if this entity is dead
     	if( hitPoints <= 0 ){
     		return true;
@@ -402,7 +653,19 @@ Reflection:
     }
 
     public void addItem(Item i){
-        inventory.add(i);
+    	boolean add = true;
+    	for( Item itm : inventory ){
+    		if( itm.equals(i) ){
+    			itm.count += i.count;
+    			inventoryWeight += i.getWeight();
+    			add = false;
+    			break;
+    		}
+    	}
+    	if( add ){
+    		inventory.add(i);
+    		inventoryWeight += i.getWeight();
+    	}
         if( i.isIdentified() && i.getType().equals("Potion") ){
         	addToCodex(i);
         }
@@ -425,6 +688,7 @@ Reflection:
     /**
      * Removes an item from the client.MovingEntity's Inventory
      * @param i_id id of the item to be removed.
+     * @throws SlickException 
      */
     public Item discardItem(int i_id, boolean use){
     	for( int i = 0; i < inventory.size(); i++ ){
@@ -432,19 +696,65 @@ Reflection:
     			if( use ){
     				//if the player is using this item, identify it
     				//  and add to the codex
-    				inventory.get(i).identify();
+    				//inventory.get(i).identify();
     				if( inventory.get(i).getType().equals("Potion") ){
     					addToCodex(inventory.get(i));
     				}
     			}
-    			return inventory.remove(i);
+    			Item ret;
+    			//return inventory.remove(i);
+    			if( inventory.get(i).count == 1 ){
+    				inventory.get(i).count--;
+    				ret = inventory.remove(i);
+    			}else{
+    				inventory.get(i).count--;
+    				ret = inventory.get(i);
+    			}
+    	    	//update weight
+    	    	//take off the whole stack
+    	    	inventoryWeight -= ret.getWeight();
+    	    	//get the weight of the new stack
+    	    	ret.updateWeight();
+    	    	//add the new weight
+    	    	inventoryWeight += ret.getWeight();
+    	    	
+    	    	return ret;
     		}
     	}
     	return null;
         //inventory.removeIf(item -> item.getID() == i_id);
     }
     
-    public String equipItem(int index){
+    public Item discardItem(Item i, boolean use){
+    	boolean removed = false;
+    	if( i.count == 1 ){
+    		i.count--;
+    		inventory.remove(i);
+    		removed = true;
+    	}else{
+    		i.count--;
+    	}
+
+    	
+    	if( i.getType().equals("Potion") ){
+    		addToCodex(i);
+    	}
+    	
+    	//update weight
+    	//take off the whole stack
+    	inventoryWeight -= i.getWeight();
+    	//get the weight of the new stack
+    	i.updateWeight();
+    	if( !removed ){
+    		//add the new weight
+    		inventoryWeight += i.getWeight();
+    	}
+    	
+    	return i;
+    }
+    
+    
+    public String equipItem(int index) throws SlickException{
     	//equip the item with id in the next available slot
     	//return a status message
     	for( int i = 0; i < equipped.length; i++ ){
@@ -458,7 +768,12 @@ Reflection:
     					System.out.print(equipped[x].getType() + " ");
     				}
     			}
-    			inventory.remove(index);
+    			System.out.println();
+
+    			Item itm = inventory.remove(index);
+    			if( itm.getType().equals("Sword") ){
+    				SFXManager.playSound("equip_sword");
+    			}
     			return null;
     		}
     		System.out.println("Slot "+i+" full.");
@@ -528,7 +843,7 @@ Reflection:
             }
         }
     }
-
+    
 
     /**
      * Unequips the item from client.MovingEntity's equipped list and places it in inventory.
@@ -547,9 +862,31 @@ Reflection:
         	startingHitPoints = hitPoints;
         }
     }
+
+    public float getStartingHitPoints() {
+        return startingHitPoints;
+    }
+
     public float getHitPoints(){
         return hitPoints;
     }
+
+    public void setAttackDamage(int dmg) {
+        attackDamage = dmg;
+    }
+
+    public int getAttackDamage() {
+        return attackDamage;
+    }
+
+    public void setAttackSpeed(int speed) {
+        attackSpeed = speed;
+    }
+
+    public int getAttackSpeed() {
+        return attackSpeed;
+    }
+
 
     public void setArmorPoints(int ap){
         armorPoints = ap;
@@ -564,14 +901,26 @@ Reflection:
     public int getArmorPoints(){
         return armorPoints;
     }
-    public void setMana(int m){
+    public void setMana(float m){
         mana = m;
+    }
+    public void setMaxMana(float m){
+    	maxMana = m;
     }
     public float getMana(){
         return mana;
     }
+    public float getMaxMana(){
+    	return maxMana;
+    }
     public int getStrength(){
     	return strength;
+    }
+    public int getInventoryWeight(){
+    	return inventoryWeight;
+    }
+    public int getMaxInventoryWeight(){
+    	return (int) startingHitPoints * strength;
     }
 
     public void setAnimationSpeed(int sp){
@@ -583,34 +932,30 @@ Reflection:
         	initialAnimationSpeed = sp;
         }
     }
-
+    
     public void setMovementSpeed(int sp){
         if (sp <= 0) {
             return;
         }
         movementSpeed = sp;
     }
-
+    
     public void doubleMoveSpeed(){
         if (movementSpeed >= 32) {
-            System.out.println("Speed at Maximum: " + movementSpeed);
             return;
         }
         setAnimationSpeed(getAnimationSpeed() / 2);
         movementSpeed *= 2;
-        System.out.println("Speed increased to: " + movementSpeed);
     }
-
+    
     public void halfMoveSpeed(){
         if (movementSpeed <= 1) {
-            System.out.println("Speed at Minimum: " + movementSpeed);
             return;
         }
         setAnimationSpeed(getAnimationSpeed() * 2);
         movementSpeed /= 2;
-        System.out.println("Speed Decreased to: " + movementSpeed);
     }
-
+    
     /**
      * Retreive client.MovingEntity's speed
      * @return speed
@@ -635,6 +980,9 @@ Reflection:
     public Item[] getEquipped(){
     	return equipped;
     }
+    public ArrayList<String> getCursedItemTypes(){
+    	return cursedItemTypes;
+    }
 
     public void setPosition(Vector p){
         position = p;
@@ -643,6 +991,11 @@ Reflection:
     public Vector getPosition(){
         return position;
     }
+    
+    public void addCursedItemType(String type){
+    	cursedItemTypes.add(type);
+    }
+
     /**
      * Sets the moving entity's worldcoordinates
      * @param wc Vector to set entity's world coordinates.
@@ -680,6 +1033,33 @@ Reflection:
         float x = Math.round((worldCoordinates.getX() + currentLevel.offset)/currentLevel.tilesize) - 1;
         float y = Math.round((worldCoordinates.getY() + currentLevel.tilesize + currentLevel.doubleOffset)/currentLevel.tilesize) - 1;
         return new Vector(x, y);
+    }
+
+    public void setNextTileWorldCoordinates(String direction) {
+        int x = (int) getTileWorldCoordinates().getX();
+        int y = (int) getTileWorldCoordinates().getY();
+        switch (direction) {
+            case "walk_up":
+                y -= 1;
+                break;
+            case "walk_down":
+                y += 1;
+                break;
+            case "walk_left":
+                x -= 1;
+                break;
+            case "walk_right":
+                x += 1;
+                break;
+        }
+        nextTileWorldCoordinates = new Vector(x, y);
+    }
+
+    /*
+    The players next coordinates
+     */
+    public Vector getNextTileWorldCoordinates() {
+        return nextTileWorldCoordinates;
     }
 
 
