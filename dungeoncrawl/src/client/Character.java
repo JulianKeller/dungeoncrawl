@@ -2,6 +2,7 @@ package client;
 
 
 import jig.Vector;
+import server.Msg;
 import server.PathFinding;
 
 import java.lang.reflect.Array;
@@ -815,7 +816,6 @@ public class Character extends MovingEntity {
         setWorldCoordinates(wx, wy);    // world coordinates
     }
 
-
     /**
      * Updates the characters world position when the screen is scrolling
      */
@@ -826,5 +826,16 @@ public class Character extends MovingEntity {
         setWorldCoordinates(wx, wy);    // world coordinates
     }
 
+    /**
+     * Returns a Msg object containing character information
+     * @return
+     */
+    public Msg toMsg(){
+        float hp = this.getHitPoints();
+        float wx = this.getWorldCoordinates().getX();
+        float wy = this.getWorldCoordinates().getY();
+        Msg msg = new Msg(this.id,this.type,wx,wy,hp,this.ai);
+        return msg;
+    }
 
 }
