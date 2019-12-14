@@ -1546,14 +1546,14 @@ public class Level extends BasicGameState {
             //check if a thrown item went off the screen
             if( ti.itm.getWorldCoordinates().getX() < 0 + dc.hero.getOrigin().getX() || ti.itm.getWorldCoordinates().getX() > dc.hero.getOrigin().getX() + (dc.ScreenWidth/dc.tilesize)){
                 reachedDestination.add(ti);
-                addMessage("thrown " + ti.itm.getType() + " went off screen");
+                //addMessage("thrown " + ti.itm.getType() + " went off screen");
             }else if( ti.itm.getWorldCoordinates().getY() < 0 + dc.hero.getOrigin().getY() || ti.itm.getWorldCoordinates().getY() > dc.hero.getOrigin().getY() + (dc.ScreenHeight/dc.tilesize)){
                 reachedDestination.add(ti);
-                addMessage("thrown " + ti.itm.getType() + " went off screen");
+                //addMessage("thrown " + ti.itm.getType() + " went off screen");
             }
             if( throwItem(ti, dc) ){
                 reachedDestination.add(ti);
-                addMessage("thrown " + ti.itm.getType() + " reached destination");
+                //addMessage("thrown " + ti.itm.getType() + " reached destination");
             }
 
             
@@ -1594,7 +1594,7 @@ public class Level extends BasicGameState {
                                 //ch.vfx = null;
                             }
 
-                            m = "Hit enemy for " + (int) (10*damagePercent) + " damage.";
+                            m = "Hit enemy for " + (int) Math.ceil(10*damagePercent) + " damage.";
                             if( damagePercent >= 0.8 ){
                                 m = m + " Critical hit!";
                             }
@@ -1820,7 +1820,7 @@ public class Level extends BasicGameState {
                     float damage = 0;
                     if( itm == null ){
                     	//max damage: 10
-                    	damage = 10 * percentOfMaxDamage;
+                    	damage = (float) Math.ceil(10 * percentOfMaxDamage);
                         
                     	//copy this block here instead of doing a bunch of null checks
                     	if( c.takeDamage(damage, "",false) ){
