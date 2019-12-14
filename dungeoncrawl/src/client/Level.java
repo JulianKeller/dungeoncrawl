@@ -1413,7 +1413,9 @@ public class Level extends BasicGameState {
 		                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
 		                	//add effect to character
 		                    dc.hero.addEffect(i.getEffect(),false);
-		                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
+		                    if( !i.getEffect().equals("")){
+		                    	addMessage("You are now affected by " + i.getEffect().toLowerCase());
+		                    }
 		                }
 		
 		                //remove the item from hands
