@@ -116,6 +116,8 @@ public class Level extends BasicGameState {
         Vector direction;
         Vector finalLocation;
         Vector step;
+        
+        ArrayList<Integer> hitEnemyIds = new ArrayList<Integer>();
 
         public ThrownItem(Item itm, Vector direction, Vector finalLocation, Vector step){
             this.itm = itm;
@@ -1536,6 +1538,8 @@ public class Level extends BasicGameState {
                 ch.moveAI(delta);
             }
         }
+        
+        //ArrayList<Integer> hitEnemyIds = new ArrayList<Integer>();
 
         //advance any thrown items along their path
         ArrayList<ThrownItem> reachedDestination = new ArrayList<ThrownItem>();
@@ -1554,24 +1558,19 @@ public class Level extends BasicGameState {
                 addMessage("thrown " + ti.itm.getType() + " reached destination");
             }
 
+            
             //check if a thrown item hit a character
-            //merge the character and enemy lists
-            ArrayList<Character> targets = new ArrayList<Character>();
-            targets.addAll(dc.characters);
-            targets.addAll(dc.enemies);
-            for( Character ch : targets ){
+            for( Character ch : enemiesJoinCharacters(dc) ){
 
                 if( ch.getPid() == dc.hero.getPid() ){
                     continue;
                 }
+                if( ti.hitEnemyIds.contains(ch.getPid())){
+                	continue;
+                }
 
-                //Vector chwc = new Vector( ch.getTileWorldCoordinates().getX()/dc.tilesize, ch.getTileWorldCoordinates().getY()/dc.tilesize);
-                float x = ch.getTileWorldCoordinates().getX();
-                float y = ch.getTileWorldCoordinates().getY();
-                Vector chwc = new Vector((int)x, (int)y);
-                //System.out.println(chwc.toString());
-
-                if( Math.abs(chwc.getX() - ti.itm.getWorldCoordinates().getX()) < 1.5 && Math.abs(chwc.getY() - ti.itm.getWorldCoordinates().getY()) < 1.5 ){
+                if( distanceBetweenVectors(ch.getTileWorldCoordinates(), ti.itm.getWorldCoordinates()) < 1 ){
+                	ti.hitEnemyIds.add(ch.getPid());
                     //addMessage("thrown " + ti.itm.getType() + " hit enemy");
 
                     //potions do no damage but cause status effects on the target
