@@ -256,6 +256,13 @@ public class Character extends MovingEntity {
         return type;
     }
     
+    public String getClassName(){
+    	String tmp = type.split("_")[0];
+    	
+    	tmp = tmp.substring(0, 1).toUpperCase() + tmp.substring(1);
+    	
+    	return tmp;
+    }
 
 
     /**
