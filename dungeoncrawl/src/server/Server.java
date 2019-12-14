@@ -400,7 +400,7 @@ public class Server extends Thread {
     }
 
     public static void main(String[] args) {
-
+        int currentPlayerId = 0;
         try {
             // Create a new Socket for the server
             ServerSocket ss = new ServerSocket(5000);
@@ -431,10 +431,10 @@ public class Server extends Thread {
                 ObjectInputStream is = new ObjectInputStream(s.getInputStream());
                 // This is the client handler thread.
                 System.out.println("Creating new thread for this client...");
-                ClientHandler t = new ClientHandler(s, is, os, new LinkedBlockingQueue<>());
+                ClientHandler t = new ClientHandler(s, is, os, new LinkedBlockingQueue<>(), currentPlayerId);
                 clients.add(t);
                 t.start();
-
+                currentPlayerId++;
             }
         } catch (IOException e) {
             e.printStackTrace();

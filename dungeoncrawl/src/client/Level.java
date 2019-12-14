@@ -1265,7 +1265,7 @@ public class Level extends BasicGameState {
         if (debug) System.out.println("3: Size of Characters List: " + dc.characters.size());
         //positionToServer(dc);  // Get the player's updated position onto the server.
 //        updateOtherPlayers(dc);
-        sendCharactersToServer(dc);
+        sendHeroToServer(dc);
         readCharactersFromServer(dc);
 //
 //        sendEnemyStatusToServer(dc);
@@ -1739,19 +1739,16 @@ public class Level extends BasicGameState {
         itemLockTimers.removeIf(b -> b.timer <= 0);
     }
 
-    private void sendCharactersToServer(Main dc){
-        if (debug) System.out.println("sendCharactersToServer() ");
+    /*
+    Sends the hero's updated info to the server
+     */
+    private void sendHeroToServer(Main dc){
+        if (debug) System.out.println("sendHeroToServer() ");
         try {
-            int count = dc.characters.size();
-            outStream.writeInt(count);
+            Msg msg = dc.characters.get(dc.hero.getCharacterID()).toMsg();
+            outStream.writeObject(msg);
             outStream.reset();
-            if (debug) System.out.printf("send: %s\n",count);
-            for(int i = 0; i < count; i++){
-                Msg msg = dc.characters.get(i).toMsg();
-                outStream.writeObject(msg);
-                outStream.reset();
-                if (debug) System.out.printf("send: %s\n",msg);
-            }
+            if (debug) System.out.printf("send: %s\n",msg);
         }catch(IOException e){
             if (debug) System.out.println("failed to send character: " + e);
             e.printStackTrace();

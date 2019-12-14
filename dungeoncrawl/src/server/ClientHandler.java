@@ -1,7 +1,5 @@
 package server;
 
-import client.Character;
-
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
@@ -25,19 +23,17 @@ public class ClientHandler extends Thread {
     int doubleOffset = offset/2;
 
 
-    public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, BlockingQueue<Msg> queue) {
+    public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, BlockingQueue<Msg> queue, int id) {
         socket = s;
         this.inStream = is;
         this.outStream = os;
-        id = s.getPort();
+        this.id = id;
         threadQueue = queue;
         writeSuccess = true;
     }
 
     @Override
     public void run() {
-        boolean init = true;
-
         try {
             // Write the map onto the client for rendering
             outStream.writeObject(Server.map);
@@ -51,24 +47,16 @@ public class ClientHandler extends Thread {
             // TODO update spawning to be dynamic
             float wx = (tilesize * 20) - offset;
             float wy = (tilesize * 18) - tilesize - doubleOffset;
-            int id = (int)System.nanoTime();
-            if (id < 0) {
-                id  = -id;
-            }
             Msg hero = new Msg(id, type, wx, wy, 100, false);
             sendHeroToClient(hero);
-
             Server.characters.add(hero);
-//            outStream.writeInt(id);
-//            if (debug) System.out.println("send id " + id);
-//            outStream.reset();
 
             sendEnemyList();
             sendItemList();
             sendCharactersToClient();
             while (true) {
                 try {
-                    readCharactersFromClient();
+                    readHeroFromClient();
                     sendCharactersToClient();
                     if (exit) {
                         break;
@@ -201,27 +189,20 @@ public class ClientHandler extends Thread {
         return true;
     }
 
-    public void readCharactersFromClient() {
+    public void readHeroFromClient() {
         if (debug) System.out.println("readCharactersFromClient() " + this.getId());
-        int count = 0;
         try {
-            count = inStream.readInt();
-            if (debug) System.out.printf("Read: %s\n", count);
             synchronized (Server.characters) {
-                for (int i = 0; i < count; i++) {
-                    Msg character = Server.characters.get(i);
-                    Msg msg = (Msg) inStream.readObject();
-                    if (msg.type.equals("Exit")) {
-                        exit = true;
-                    }
-                    if (debug) System.out.printf("read: %s\n", msg);
-                    character.wx = msg.wx;
-                    character.wy = msg.wy;
-                    character.ks = msg.ks;
-                    character.hp = msg.hp;
-/*                    System.out.printf("character %s after: wx= %s, wy= %s, ks= %s\n\n", i, character.wx,
-                            character.wy, character.ks);*/
+                Msg hero = Server.characters.get(id);
+                Msg msg = (Msg) inStream.readObject();
+                if (msg.type.equals("Exit")) {
+                    exit = true;
                 }
+                if (debug) System.out.printf("read: %s\n", msg);
+                hero.wx = msg.wx;
+                hero.wy = msg.wy;
+                hero.ks = msg.ks;
+                hero.hp = msg.hp;
             }
         } catch (IOException | ClassNotFoundException e) {
             if (debug) System.out.println("Exiting Game: failed to read character: " + e);
@@ -229,6 +210,7 @@ public class ClientHandler extends Thread {
         }
         if (debug) System.out.println();
     }
+
 
     public void sendCharactersToClient() {
         if (debug) System.out.println("sendCharactersToClient() " + this.getId());
@@ -249,10 +231,6 @@ public class ClientHandler extends Thread {
                         toClient = threadQueue.take();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                    }
-                    if (toClient == null) {
-                        i--;
-                        continue;
                     }
                     outStream.writeObject(toClient);
                     if (debug) System.out.printf("send %s\n", toClient);

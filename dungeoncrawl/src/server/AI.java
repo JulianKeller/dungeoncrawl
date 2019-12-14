@@ -153,6 +153,7 @@ public class AI {
      * The result is saved to an arraylist of strings which is then returned
      */
     public static ArrayList<Msg> spawnEnemies(int[][] map, int count) {
+        int id = 0;
         int tilesize = 32;
         int offset = tilesize/2;
         int doubleOffset = offset/2;
@@ -169,14 +170,10 @@ public class AI {
             }
             float wx = (tilesize * row) - offset;
             float wy = (tilesize * col) - tilesize - doubleOffset;
-            int id = (int)System.nanoTime();
-
-            if (id < 0) {
-                id  = -id;
-            }
             Msg message = new Msg(id, "skeleton_basic",wx,wy,150, true);   // "x y id"
             enemies.add(message);
             count--;
+            id++;
         }
         return enemies;
     }
