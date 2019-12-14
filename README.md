@@ -34,11 +34,30 @@ Dungeon Crawl is a 2D dungeon crawler in which up to four players must crawl the
         - Reflection
    - entering an invalid status effect will crash the client
 
+## Low Bar features finished
+-  1: Top-down 2D map/entities
+-  2: Four classes
+-  3: Potions
+-  4: Loot
+-  5: 'Triggered' State Change Events
+-  6: Smooth Movement
+-  7: Custom Artwork
+-  8: Music and Sound Effects
+-  9: Boss Room
+- 10: Dungeon Maps
+
+## Low Bar features partially completed
+- 1: Networking
+- 2: Effective Enemy AI
+- 3: Boss
+
+## Low Bar features not completed
 
 ## Credits
 
 <b>Networking</b><br>
 &nbsp;&nbsp;Tyler Higgins
+&nbsp;&nbsp;Julian Keller
 	
 <b>Items and Inventory</b><br>
 &nbsp;&nbsp;Jacob Pugsley
@@ -106,5 +125,6 @@ Dungeon Crawl is a 2D dungeon crawler in which up to four players must crawl the
 &nbsp;&nbsp;"Floating Cities" by Kevin MacLeod (https://incompetech.com) CC-BY
 
 &nbsp;&nbsp;"Giant Wyrm" by Kevin MacLeod (https://incompetech.com) CC-BY
-	
+
+Dungeoncrawl is created under the creative commons license.	
 For license information, please visit https://creativecommons.org/licenses.
