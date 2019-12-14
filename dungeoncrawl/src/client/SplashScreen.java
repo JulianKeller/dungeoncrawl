@@ -17,7 +17,8 @@ public class SplashScreen extends BasicGameState {
     ArrayList<Element> characterTypes;
     ArrayList<SubMenu> menus;
     String selectedPlayer;
-    String IP = "127.0.0.1";        // default IP
+//    String IP = "127.0.0.1";        // default IP
+    String IP = "192.168.0.";        // default IP
 
     int menuOption = 0;
     int characterOption = 0;
