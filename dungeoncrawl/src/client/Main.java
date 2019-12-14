@@ -276,7 +276,7 @@ public class Main extends StateBasedGame {
     public static final String[] StaffEffects = {"Healing", "Lightning", "Flame", "Ice"};
     public static final String[] ArmorEffects = {"Stench", "Iron Skin", "Thorns", "Swiftness"};
     public static final String[] SwordEffects = {"Fright", "Might", "Flame", "Ice"};
-    public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection"};
+    public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection", ""};
     
     
 

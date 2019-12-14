@@ -1767,6 +1767,11 @@ public class Level extends BasicGameState {
         		SFXManager.playSound("sword_swing");
         	}else if( itm.getType().equals("Gloves") ){
         		SFXManager.playSound("tank_punch");
+        		
+        		//add the glove effect to the tank
+        		if( !itm.getEffect().equals("") ){
+        			dc.hero.addEffect(itm.getEffect(), itm.isCursed());
+        		}
         	}
             rand.setSeed(System.nanoTime());
             int r = rand.nextInt(100);
