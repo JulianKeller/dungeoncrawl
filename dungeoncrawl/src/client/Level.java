@@ -151,7 +151,7 @@ public class Level extends BasicGameState {
 
         try {
             dc.map = (int[][]) inStream.readObject();
-            System.out.printf("Recieved the map.\n\n");
+            System.out.printf("Recieved the map.\n");
 //           System.out.println("I got the map!");
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -206,7 +206,7 @@ public class Level extends BasicGameState {
         String type = setSkin();
         try {
             id = inStream.readInt();
-            System.out.printf("Reading hero's id: %s\n\n",id);
+            System.out.printf("Reading hero's id: %s\n",id);
             dc.serverId = id;
         }catch(IOException e){
             e.printStackTrace();
@@ -271,9 +271,10 @@ public class Level extends BasicGameState {
     }
 
     private void receiveItemList(){
+        System.out.println("\nreceiveItemList()");
         try {
             int count = inStream.readInt();
-            System.out.printf("Reading item count: %s\n\n",count);
+            System.out.printf("Reading item count: %s\n",count);
 //            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
 
 //            List<ItemMsg> fromServer = Collections.synchronizedList(new ArrayList<>());
@@ -300,11 +301,12 @@ public class Level extends BasicGameState {
         }
     }
     private void receiveEnemyList(Main dc){
+        System.out.println("receiveEnemyList()");
         //Grabbing ArrayList of enemies.
         ArrayList<Msg> enemyList = new ArrayList<>();
         try{
             enemyList = (ArrayList<Msg>) inStream.readObject();
-            System.out.printf("Read: %s\n\n",enemyList.getClass().getSimpleName());
+            System.out.printf("Read: %s\n",enemyList.getClass().getSimpleName());
         } catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -1626,12 +1628,12 @@ public class Level extends BasicGameState {
     }
 
     private void sendCharactersToServer(Main dc){
-        System.out.println("begin sendCharactersToServer() ");
+        System.out.println("sendCharactersToServer() ");
         int count = dc.characters.size();
         try {
             outStream.writeObject(count);
             outStream.reset();
-            System.out.printf("send: %s\n\n",count);
+            System.out.printf("send: %s\n",count);
             for(int i = 0; i < count; i++){
                 Msg msg = dc.characters.get(i).toMsg();
                 outStream.writeObject(msg);
@@ -1645,11 +1647,10 @@ public class Level extends BasicGameState {
     }
 
     private void readCharactersFromServer(Main dc){
-        System.out.printf("begin readCharactersFromServer() ");
+        System.out.printf("begin readCharactersFromServer()\n");
         int count = 0;
         int numCharacters = dc.characters.size();
         try{
-            System.out.printf("before count\n");
             count = inStream.readInt();
             System.out.printf("Read count %s\n",count);
             if(count > numCharacters){
@@ -1658,11 +1659,13 @@ public class Level extends BasicGameState {
                 for(; i < count-difference;i++){
                     Character character = dc.characters.get(i);
                     Msg msg = (Msg)inStream.readObject();
+                    System.out.printf("read %s\n", msg);
                     character.setHitPoints(msg.hp);
                     character.move(msg.ks);
                 }
                 for(; i < count;i++){
                     Msg msg=(Msg)inStream.readObject();
+                    System.out.printf("read %s\n", msg);
                     addCharacterFromMsg(dc,msg);
                 }
             } else if(count < numCharacters){
@@ -1671,6 +1674,7 @@ public class Level extends BasicGameState {
                 for(int i = 0; i < count;i++){
                     Character character = dc.characters.get(i);
                     Msg msg = (Msg)inStream.readObject();
+                    System.out.printf("read %s\n", msg);
                     character.setHitPoints(msg.hp);
                     character.move(msg.ks);
                 }
@@ -2040,7 +2044,7 @@ read the information about the AI from the server
         for (Character ai : dc.enemies) {
             try {
                 Msg msg = (Msg) inStream.readObject();
-                System.out.printf("Read: %s\n\n", msg);
+                System.out.printf("Read: %s\n", msg);
                 if (ai.canMove) {
                     ai.setWorldCoordinates(msg.wx, msg.wy);
                 }
@@ -2050,13 +2054,14 @@ read the information about the AI from the server
                 e.printStackTrace();
             }
         }
-        // System.out.println();
+         System.out.println();
     }
 
     /*
     Read the weights from dijkstra from the server
      */
     private void readWeightsFromServer(Main dc) {
+        System.out.println("readWeightsFromServer()");
         try {
             Msg msg = (Msg) inStream.readObject();
             System.out.printf("Read: %s\n\n",msg);
@@ -2165,6 +2170,7 @@ read the information about the AI from the server
     }
 
     public void updateOtherPlayers(Main dc){
+        System.out.println("updateOtherPlayers()");
         try {
             Msg read = (Msg) inStream.readObject(); // message from server
             System.out.printf("Read %s\n\n", read);

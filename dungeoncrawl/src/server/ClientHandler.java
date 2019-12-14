@@ -34,12 +34,14 @@ public class ClientHandler extends Thread {
             outStream.writeObject(Server.map);
             System.out.println("send map "+ Server.map.getClass().getSimpleName());
             outStream.flush();
+
             outStream.writeInt(id);
             System.out.println("send id "+ id);
             outStream.flush();
+
             sendEnemyList();
             sendItemList();
-            //sendCharactersToClient();
+            sendCharactersToClient();
             while(true) {
                 try {
                     // Receive coordinate message from the client about the Hero
@@ -110,7 +112,7 @@ public class ClientHandler extends Thread {
     read the information about the AI from the server
      */
     private void readAIStatusFromClient() {
-//        System.out.println("readAIStatusFromClient()");
+        System.out.println("readAIStatusFromClient()");
         synchronized (Server.enemies) {
         for (Msg ai : Server.enemies) {
             try {
@@ -141,6 +143,7 @@ public class ClientHandler extends Thread {
     }
 
     private void sendEnemyList(){
+        System.out.println("sendEnemyList()");
         try {
             synchronized (Server.enemies) {
                 outStream.writeObject(Server.enemies);
@@ -172,8 +175,9 @@ public class ClientHandler extends Thread {
         }
         return true;
     }
+
     public void readCharactersFromClient(){
-        System.out.println("Begin readCharactersFromClient() ");
+        System.out.println("readCharactersFromClient()");
         int count = 0;
         try {
             count = inStream.readInt();
@@ -199,44 +203,46 @@ public class ClientHandler extends Thread {
     }
 
     public void sendCharactersToClient(){
-        System.out.printf("begin sendCharactersToClient() ");
+        System.out.printf("sendCharactersToClient()\n");
         synchronized (Server.characters){
             int count = Server.characters.size();
             try {
                 outStream.writeInt(count);
                 outStream.reset();
-                System.out.printf("Send %s\n",count);
+                System.out.printf("Send %s items\n",count);
                 for(int i = 0; i < count;i++){
                     Msg character = Server.characters.get(i);
                     outStream.writeObject(character);
                     outStream.reset();
                     System.out.printf("send %s\n",character);
                 }
-                System.out.printf("\n");
             }catch(IOException e){
                 e.printStackTrace();
             }
         }
         System.out.printf("\n");
     }
+
     public void sendItemList(){
+        System.out.println("sendItemList()");
         try{
             int count = Server.worldItems.size();
             outStream.writeInt(count);
-//            System.out.println("writing " + toClient.toString());
+            System.out.println("send " + count);
             outStream.reset();
 
             synchronized (Server.worldItems) {
                 for (int i = 0; i < count; i++) {
                     ItemMsg item = Server.worldItems.get(i);
                     outStream.writeObject(item);
-                    System.out.print("send Server.enemies\n");
+                    System.out.print("send item\n");
                     outStream.reset();
                 }
             }
         }catch(IOException e){
             e.printStackTrace();
         }
+        System.out.println();
     }
     public int getClientId(){
         return id;
