@@ -280,11 +280,10 @@ public class Character extends MovingEntity {
 
         //System.out.println("action = " + action );
         if (key == null || key.equals("")) {
-            //stopAction("walk");
-        	//updateAnimation(null);
+//            stopAction("walk");
+//        	updateAnimation(null);
             return;
         }
-        
 
         String movement = null;
         switch (key) {
@@ -740,7 +739,7 @@ public class Character extends MovingEntity {
         int ox; // other x, y
         int oy;
         for (Character ch : chars) {
-            if (ch.equals(this)) {
+            if (ch.getCharacterID() == this.getCharacterID()) {
                 continue;
             }
             ox = (int) ch.getTileWorldCoordinates().getX();

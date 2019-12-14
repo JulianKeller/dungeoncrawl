@@ -26,7 +26,7 @@ import jig.ResourceManager;
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-    private boolean debug = true;
+    private boolean debug = false;
     private String type;
 
     private int[][] rotatedMap;
@@ -1013,11 +1013,12 @@ public class Level extends BasicGameState {
      */
     private void renderCharacters(Main dc, Graphics g) {
         for (Character ch : dc.characters) {
-            if (!ch.equals(dc.hero)) {
+            if (ch.getCharacterID() != dc.hero.getCharacterID()) {
                 Vector sc = world2screenCoordinates(dc, ch.getWorldCoordinates());
                 ch.animate.setPosition(sc);
                 if (characterInRegion(dc, ch)) {
                     ch.animate.render(g);
+                    System.out.println("Rendering " + ch.getCharacterID());
                 }
             }
         }
@@ -1683,6 +1684,8 @@ public class Level extends BasicGameState {
             if(count > numCharacters){
                 int difference = count - numCharacters;
                 int i = 0;
+                // TODO can consolidate two loops here
+                // TODO ignore hero character
                 for(; i < count-difference;i++){
                     Character character = dc.characters.get(i);
                     Msg msg = (Msg)inStream.readObject();
@@ -1712,10 +1715,15 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
     }
+
+
     private void addCharacterFromMsg(Main dc,Msg msg){
         Character c = new Character(dc,msg.wx,msg.wy,msg.type,msg.id,this,msg.ai);
         dc.characters.add(c);
+        System.out.println("Adding Character: " + msg);
     }
+
+
     private Image getSpellImage(String material) throws SlickException{
     	if( material.equals("Ruby") ){
     		return ResourceManager.getImage(Main.SPELL_RED);
@@ -2198,34 +2206,34 @@ public class Level extends BasicGameState {
         }
     }
 
-    public void updateOtherPlayers(Main dc){
-        if (debug) System.out.println("updateOtherPlayers()");
-        try {
-            Msg read = (Msg) inStream.readObject(); // message from server
-            if (debug) System.out.printf("Read %s\n\n", read);
-//            if (debug) System.out.println("("+dc.serverId+"): " + read);
-
-            if(read.type.equals("Exit")) {
-                dc.characters.removeIf(c -> c.getPid() == read.id);
-                return;
-            }
-            for(Iterator<Character> i = dc.characters.iterator();i.hasNext();){
-                Character c = i.next();
-                if(c.getPid() == read.id) {
-                    if (c.getPid() == dc.serverId) {
-                        return;
-                    }
-                    c.move(read.ks);
-                    c.setHitPoints(read.hp);
-                    return;
-                }
-
-            }
-            dc.characters.add(new Character(dc,read.wx,read.wy,read.type,read.id,this,false));
-        }catch(IOException | ClassNotFoundException e){
-            e.printStackTrace();
-        }
-    }
+//    public void updateOtherPlayers(Main dc){
+//        if (debug) System.out.println("updateOtherPlayers()");
+//        try {
+//            Msg read = (Msg) inStream.readObject(); // message from server
+//            if (debug) System.out.printf("Read %s\n\n", read);
+////            if (debug) System.out.println("("+dc.serverId+"): " + read);
+//
+//            if(read.type.equals("Exit")) {
+//                dc.characters.removeIf(c -> c.getPid() == read.id);
+//                return;
+//            }
+//            for(Iterator<Character> i = dc.characters.iterator();i.hasNext();){
+//                Character c = i.next();
+//                if(c.getPid() == read.id) {
+//                    if (c.getPid() == dc.serverId) {
+//                        return;
+//                    }
+//                    c.move(read.ks);
+//                    c.setHitPoints(read.hp);
+//                    return;
+//                }
+//
+//            }
+//            dc.characters.add(new Character(dc,read.wx,read.wy,read.type,read.id,this,false));
+//        }catch(IOException | ClassNotFoundException e){
+//            e.printStackTrace();
+//        }
+//    }
 
 
     /**

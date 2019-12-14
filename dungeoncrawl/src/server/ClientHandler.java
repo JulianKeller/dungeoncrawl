@@ -17,8 +17,7 @@ public class ClientHandler extends Thread {
     private boolean writeSuccess;
     public BlockingQueue<Msg> threadQueue;
     //    private float[][] weights;
-    public Msg hero;
-    private boolean debug = true;
+    private boolean debug = false;
     int tilesize = 32;
     int offset = tilesize/2;
     int doubleOffset = offset/2;
@@ -229,7 +228,6 @@ public class ClientHandler extends Thread {
             if (debug) System.out.printf("Read: %s\n", count);
             synchronized (Server.characters) {
                 for (int i = 0; i < count; i++) {
-                    System.out.println("Receiving first character");
                     Msg character = Server.characters.get(i);
                     if (debug) System.out.printf("character %s before: wx= %s, wy= %s, ks= %s\n", i, character.wx,
                             character.wy, character.ks);
@@ -254,7 +252,6 @@ public class ClientHandler extends Thread {
         if (debug) System.out.println("sendCharactersToClient()");
         synchronized (Server.characters) {
             int count = Server.characters.size();
-            System.out.println("Got count to send: " + count);
             try {
                 outStream.writeInt(count);
                 outStream.reset();
