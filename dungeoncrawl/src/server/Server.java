@@ -401,6 +401,7 @@ public class Server extends Thread {
 
     public static void main(String[] args) {
         int currentPlayerId = 0;
+        int maxPlayers = 4;
         try {
             // Create a new Socket for the server
             ServerSocket ss = new ServerSocket(5000);
@@ -425,6 +426,9 @@ public class Server extends Thread {
             server.start();
             // This listens for new connections.
             while (true) {
+                if (currentPlayerId >= maxPlayers) {     // limit the game to 4 players
+                    continue;
+                }
                 Socket s = ss.accept();
                 System.out.println("A new client has connected " + s);
                 ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());

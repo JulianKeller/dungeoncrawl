@@ -21,6 +21,7 @@ public class ClientHandler extends Thread {
     int tilesize = 32;
     int offset = tilesize/2;
     int doubleOffset = offset/2;
+    int sendCount = 10;
 
 
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, BlockingQueue<Msg> queue, int id) {
@@ -212,14 +213,17 @@ public class ClientHandler extends Thread {
     }
 
 
+    /**
+     * Send characters and AI to the client
+     */
     public void sendCharactersToClient() {
         if (debug) System.out.println("sendCharactersToClient() " + this.getId());
-            int count = Server.characters.size();
+//            int count = Server.characters.size();
             try {
-                outStream.writeInt(count);
-                outStream.reset();
-                if (debug) System.out.printf("send %s items\n", count);
-                for (int i = 0; i < count; i++) {
+//                outStream.writeInt(count);
+//                outStream.reset();
+//                if (debug) System.out.printf("send %s items\n", count);
+                for (int i = 0; i < sendCount; i++) {
 //                    Msg character = Server.characters.get(i);
 //                    toServer(character);
 //                    writeToClient();

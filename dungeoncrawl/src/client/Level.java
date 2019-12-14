@@ -39,6 +39,7 @@ public class Level extends BasicGameState {
     int tilesize = 32;
     int offset = tilesize/2;
     int doubleOffset = offset/2;
+    private int readCount = 10;
 
     private final int messageTimer = 2000;
     
@@ -1797,23 +1798,38 @@ public class Level extends BasicGameState {
      */
     private void readCharactersFromServer(Main dc){
         if (debug) System.out.println("readCharactersFromServer()");
-        int count = 0;
-        int numCharacters = dc.characters.size();
+//        int count = 0;
+//        int numCharacters = dc.characters.size();
         try{
-            count = inStream.readInt();
-            if (debug) System.out.printf("Read count %s\n",count);
-            int difference = count - numCharacters;
-                for(int i = 0; i < count-difference; i++){
-                    Character character = dc.characters.get(i);
+//            count = inStream.readInt();
+//            if (debug) System.out.printf("Read count %s\n",count);
+//            int difference = count - numCharacters;
+                for(int i = 0; i < readCount; i++){
+
                     Msg msg = (Msg)inStream.readObject();
+                    if (msg.ai) {
+                        // take down ai details
+                        Character ai = dc.enemies.get(msg.id);
+                        ai.setHitPoints(msg.hp);
+                        // TODO set health and next direction
+                    }
+                    else {
+                        Character character = dc.characters.get(msg.id);
+                        if (character == null) {
+                            System.out.println("Need to add new character");
+                            addCharacterFromMsg(dc, msg);
+                        }
+                        if (debug) System.out.printf("read %s\n", msg);
+                        character.setHitPoints(msg.hp);
+                        character.move(msg.ks);
+                    }
+
 
                     // TODO handle removing characters in the future
-                    if (difference != 0) {
-                        addCharacterFromMsg(dc,msg);        // add new characters
-                    }
-                    if (debug) System.out.printf("read %s\n", msg);
-                    character.setHitPoints(msg.hp);
-                    character.move(msg.ks);
+//                    if (difference != 0) {
+//                        addCharacterFromMsg(dc,msg);        // add new characters
+//                    }
+
                 }
             if (debug) System.out.println();
         }catch(IOException | ClassNotFoundException e){
