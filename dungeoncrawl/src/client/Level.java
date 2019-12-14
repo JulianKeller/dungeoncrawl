@@ -1798,15 +1798,17 @@ public class Level extends BasicGameState {
      */
     private void readCharactersFromServer(Main dc){
         if (debug) System.out.println("readCharactersFromServer()");
-//        int count = 0;
-//        int numCharacters = dc.characters.size();
+        int count = 0;
+        int numCharacters = dc.characters.size();
         try{
-//            count = inStream.readInt();
-//            if (debug) System.out.printf("Read count %s\n",count);
-//            int difference = count - numCharacters;
-                for(int i = 0; i < readCount; i++){
-
+            count = inStream.readInt();
+            if (debug) System.out.printf("Read count %s\n",count);
+            int difference = count - numCharacters;
+                for(int i = 0; i < count; i++){
                     Msg msg = (Msg)inStream.readObject();
+                    if (difference != 0) {
+                        addCharacterFromMsg(dc, msg);
+                    }
                     if (msg.ai) {
                         // take down ai details
                         Character ai = dc.enemies.get(msg.id);

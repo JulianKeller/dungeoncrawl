@@ -21,7 +21,7 @@ public class ClientHandler extends Thread {
     int tilesize = 32;
     int offset = tilesize/2;
     int doubleOffset = offset/2;
-    int sendCount = 10;
+    public final PauseObject pauseObject;
 
 
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, BlockingQueue<Msg> queue, int id) {
@@ -31,6 +31,7 @@ public class ClientHandler extends Thread {
         this.id = id;
         threadQueue = queue;
         writeSuccess = true;
+        pauseObject = new PauseObject();
     }
 
     @Override
@@ -58,6 +59,9 @@ public class ClientHandler extends Thread {
             while (true) {
                 try {
                     readHeroFromClient();
+                    synchronized (pauseObject) {
+                        pauseObject.wait();
+                    }
                     sendCharactersToClient();
                     if (exit) {
                         break;
@@ -213,17 +217,14 @@ public class ClientHandler extends Thread {
     }
 
 
-    /**
-     * Send characters and AI to the client
-     */
     public void sendCharactersToClient() {
         if (debug) System.out.println("sendCharactersToClient() " + this.getId());
-//            int count = Server.characters.size();
+            int count = Server.characters.size();
             try {
-//                outStream.writeInt(count);
-//                outStream.reset();
-//                if (debug) System.out.printf("send %s items\n", count);
-                for (int i = 0; i < sendCount; i++) {
+                outStream.writeInt(count);
+                outStream.reset();
+                if (debug) System.out.printf("send %s items\n", count);
+                for (int i = 0; i < count; i++) {
 //                    Msg character = Server.characters.get(i);
 //                    toServer(character);
 //                    writeToClient();
@@ -270,6 +271,10 @@ public class ClientHandler extends Thread {
 
     public int getClientId() {
         return id;
+    }
+
+
+    public class PauseObject {
     }
 
 }
