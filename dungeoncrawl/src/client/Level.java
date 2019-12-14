@@ -1745,7 +1745,7 @@ public class Level extends BasicGameState {
     private void sendHeroToServer(Main dc){
         if (debug) System.out.println("sendHeroToServer() ");
         try {
-            Msg msg = dc.characters.get(dc.hero.getCharacterID()).toMsg();
+            Msg msg = dc.hero.toMsg();
             outStream.writeObject(msg);
             outStream.reset();
             if (debug) System.out.printf("send: %s\n",msg);
