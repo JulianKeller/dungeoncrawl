@@ -238,7 +238,7 @@ public class ClientHandler extends Thread {
                         e.printStackTrace();
                     }
                     outStream.writeObject(toClient);
-                    if (debug) System.out.printf("send %s\n", toClient);
+                    if (debug) System.out.printf("%s :send %s\n", this.getId(), toClient);
                     outStream.reset();
                 }
             } catch (IOException e) {

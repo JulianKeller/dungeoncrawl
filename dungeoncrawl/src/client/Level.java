@@ -1179,8 +1179,6 @@ public class Level extends BasicGameState {
             return;
         }
 
-        System.out.println("Update Start");
-        if (debug) System.out.println("1: Size of Characters List: " + dc.characters.size());
         
         if( input.isKeyPressed(Input.KEY_RBRACKET) ){
         	//change music in 3 seconds
@@ -1213,8 +1211,6 @@ public class Level extends BasicGameState {
         		dc.hero.setMana(dc.hero.getMaxMana());
         	}
         }
-
-        if (debug) System.out.println("2: Size of Characters List: " + dc.characters.size());
         
         //draw visual effects
         for( Character ch : targets ){
@@ -1263,7 +1259,6 @@ public class Level extends BasicGameState {
         String ks = getKeystroke(input, dc);
         dc.hero.move(ks);
 
-        if (debug) System.out.println("3: Size of Characters List: " + dc.characters.size());
         //positionToServer(dc);  // Get the player's updated position onto the server.
 //        updateOtherPlayers(dc);
         sendHeroToServer(dc);
@@ -1315,8 +1310,6 @@ public class Level extends BasicGameState {
         		ib.visible = !ib.visible;
         	}
         }
-
-        if (debug) System.out.println("4: Size of Characters List: " + dc.characters.size());
 
         ItemBox ib = getItemBoxByTitle("Inventory");
         if( ib != null && ib.visible ){
@@ -1515,8 +1508,6 @@ public class Level extends BasicGameState {
             }
         }
 
-        if (debug) System.out.println("5: Size of Characters List: " + dc.characters.size());
-
         //remove dead characters
         for( Character ch : dc.characters ){
         	if( ch.getHitPoints() <= 0 ){
@@ -1535,7 +1526,6 @@ public class Level extends BasicGameState {
         
         dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
-        if (debug) System.out.println("6: Size of Characters List: " + dc.characters.size());
         // if the hero has no health, then replace it with a new hero character in the same spot
 //        if(dc.hero.getHitPoints() <= 0){
 //            dc.hero = new Character(dc,dc.hero.animate.getX(),dc.hero.animate.getY(),dc.hero.getType(),
@@ -1624,7 +1614,6 @@ public class Level extends BasicGameState {
                 }
             }
 
-            if (debug) System.out.println("7: Size of Characters List: " + dc.characters.size());
 
             //check if an item hit a wall tile
             if( rotatedMap[(int) ti.itm.getWorldCoordinates().getX()][(int) ti.itm.getWorldCoordinates().getY()] == 1 ){
@@ -1706,7 +1695,6 @@ public class Level extends BasicGameState {
 	                Main.im.removeFromWorldItems(i);
 	            }
             }
-            if (debug) System.out.println("8: Size of Characters List: " + dc.characters.size() + "\n");
         }
 
 
@@ -1806,31 +1794,22 @@ public class Level extends BasicGameState {
             int difference = count - numCharacters;
                 for(int i = 0; i < count; i++){
                     Msg msg = (Msg)inStream.readObject();
-                    if (difference != 0) {
-                        addCharacterFromMsg(dc, msg);
+                    Character character = null;
+                    try {
+                        character = dc.characters.get(msg.id);
+                    } catch (IndexOutOfBoundsException e) {
+                        character = addCharacterFromMsg(dc, msg);
                     }
-                    if (msg.ai) {
-                        // take down ai details
-                        Character ai = dc.enemies.get(msg.id);
-                        ai.setHitPoints(msg.hp);
-                        // TODO set health and next direction
+
+                    if (debug) System.out.printf("read %s\n", msg);
+                    if (character == null) {
+                        continue;
                     }
-                    else {
-                        Character character = dc.characters.get(msg.id);
-                        if (character == null) {
-                            System.out.println("Need to add new character");
-                            addCharacterFromMsg(dc, msg);
-                        }
-                        if (debug) System.out.printf("read %s\n", msg);
-                        character.setHitPoints(msg.hp);
+                    character.setHitPoints(msg.hp);
+                    if (character.getCharacterID() != dc.hero.getCharacterID()) {
                         character.move(msg.ks);
                     }
 
-
-                    // TODO handle removing characters in the future
-//                    if (difference != 0) {
-//                        addCharacterFromMsg(dc,msg);        // add new characters
-//                    }
 
                 }
             if (debug) System.out.println();
@@ -1845,16 +1824,17 @@ public class Level extends BasicGameState {
      * @param dc
      * @param msg
      */
-    private void addCharacterFromMsg(Main dc,Msg msg){
+    private Character addCharacterFromMsg(Main dc,Msg msg){
         Character newCharacter = new Character(dc,msg.wx,msg.wy,msg.type,msg.id,this,msg.ai);
         for (Character c : dc.characters) {
             if (newCharacter.getCharacterID() == c.getCharacterID()) {
                 if (debug) System.out.println("Character Already Exists: " + msg);
-                return;
+                return null;
             }
         }
         dc.characters.add(newCharacter);
         if (debug) System.out.println("Adding Character: " + msg);
+        return newCharacter;
     }
 
 

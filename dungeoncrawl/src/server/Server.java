@@ -94,7 +94,7 @@ public class Server extends Thread {
                         System.out.println();
                     }
                 synchronized (c.pauseObject) {
-                    c.pauseObject.notify();
+                    c.pauseObject.notifyAll();
                 }
             }
         }
