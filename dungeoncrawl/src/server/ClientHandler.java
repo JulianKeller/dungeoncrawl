@@ -19,6 +19,7 @@ public class ClientHandler extends Thread {
     //    private float[][] weights;
     private boolean debug = true;
     private boolean exit = false;
+    public Boolean send = false;
     int tilesize = 32;
     int offset = tilesize/2;
     int doubleOffset = offset/2;
@@ -231,7 +232,6 @@ public class ClientHandler extends Thread {
 
     public void sendCharactersToClient() {
         if (debug) System.out.println("sendCharactersToClient() " + this.getId());
-        synchronized (Server.characters) {
             int count = Server.characters.size();
             try {
                 outStream.writeInt(count);
@@ -248,7 +248,6 @@ public class ClientHandler extends Thread {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
         if (debug) System.out.println();
     }
 
