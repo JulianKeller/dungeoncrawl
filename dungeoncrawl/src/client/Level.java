@@ -783,6 +783,7 @@ public class Level extends BasicGameState {
         }
 
         g.setColor(Color.white);
+        g.drawString("Selected:", dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight-(dc.tilesize*2));
         if( dc.hero.getEquipped()[selectedEquippedItem] != null ){
         	g.drawString(dc.hero.getEquipped()[selectedEquippedItem].toString(), dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight-(dc.tilesize));
         }
