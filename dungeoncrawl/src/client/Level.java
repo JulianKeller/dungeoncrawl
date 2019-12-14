@@ -50,11 +50,16 @@ public class Level extends BasicGameState {
     private ArrayList<Character> targets; //union of enemies and characters
 
     //whether to display player inventory/codex on the screen
+    /*
     private boolean displayInventory = false;
     private boolean displayCodex = false;
+    private boolean displayCharacterSheet = false;
+    */
     private int itemx = 0;
     private int itemy = 0; //which item is currently selected in the inventory
     private int selectedEquippedItem = 0; //item selected in the hotbar
+    
+    private int itemsIdentified = 0;
 
     private class Message{
         protected int timer = messageTimer;
@@ -240,9 +245,6 @@ public class Level extends BasicGameState {
 
                     Main.im.give(staff, dc.hero);
 
-                    dc.hero.equipItem(0);
-
-
                 } catch (SlickException e1) {
                     return;
                 }
@@ -251,8 +253,6 @@ public class Level extends BasicGameState {
                     Item arrow = new Item(null, false, -1, -1, "", "Arrow", "", false, true, ResourceManager.getImage(Main.ARROW_NORMAL), 10);
 
                     Main.im.give(arrow, dc.hero);
-
-                    dc.hero.equipItem(0);
 
 
                 } catch (SlickException e1) {
@@ -268,6 +268,12 @@ public class Level extends BasicGameState {
         currentTrack = tracks[ rand.nextInt(tracks.length) ];
         
         currentTrack.play(1, 0.3f);
+        
+        //add item boxes
+        itemBoxes.add(new ItemBox("Inventory", 4, 8));
+        itemBoxes.add(new ItemBox("Codex", 10, 8));
+        itemBoxes.add(new ItemBox("Character", 5, 7));
+        
     }
 
     private void receiveItemList(){
@@ -552,77 +558,72 @@ public class Level extends BasicGameState {
 
         //render messages
         renderMessages(dc, g);
+        
+        //render item box containers
+        renderItemBoxes(g, dc);
 
         //display player inventory
         renderInventory(dc, g);
 
         // render the codex
         renderCodex(dc, g);
+        
+        renderCharacterSheet(dc, g);
 
         //draw the player's equipped items
         renderEquippedItems(dc, g);
-
-        //display player inventory
-//        renderInventory(dc, g);
-        if( displayInventory ){
-            renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
-            ArrayList<Item> items = dc.hero.getInventory();
-            if( items.size() != 0 ){
-                int row = 2;
-                int col = 1;
-                for( int i = 0; i < items.size(); i++ ){
-                    g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
-                    col++;
-                    if( i > 4 && i % 4 == 0 ){
-                        row++;
-                        col = 1;
-                    }
-                }
-                //draw a square around the selected item
-                Color tmp = g.getColor();
-                g.setColor(Color.white);
-                g.drawRect(
-                        (itemx + 1)*dc.tilesize,
-                        (itemy + 2)*dc.tilesize,
-                        dc.tilesize,
-                        dc.tilesize
-                );
-                try{
-                    Item sItem = items.get((itemy*4)+itemx);
-                    if( sItem.isIdentified() ){
-                        g.drawString(sItem.toString(), dc.tilesize+10, dc.tilesize*8);
-                    }else{
-                        g.drawString("Unidentified " + sItem.toString(), dc.tilesize+10, (dc.tilesize*8)+(dc.tilesize/4));
-                    }
-                }catch(IndexOutOfBoundsException ex){
-
-                }
-                g.setColor(tmp);
-            }
-        }
-        //draw the player's equipped items
-        renderEquippedItems(dc, g);
-
-        // draw test items
-//        renderTestItems(dc, g);
-//         renderDebug(dc, g);
-
-
-        //minimal HUD
-        g.drawString("HP: " + dc.hero.getHitPoints(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*3));
-        g.drawString("Mana: " + dc.hero.getMana(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*4));
-        g.drawString("Strength: "+dc.hero.getStrength(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*5));
-        g.drawString("Speed: "+dc.hero.getMovementSpeed(), dc.ScreenWidth-150, dc.ScreenHeight-(dc.tilesize*6));
-        g.drawString("Coord : " + dc.hero.animate.getPosition(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*7));
-        g.drawString("Pos   : <" + (int) dc.hero.getTileWorldCoordinates().getX() + ", " +  (int) dc.hero.getTileWorldCoordinates().getY() + ">", dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*9));
-        g.drawString("Origin: " + dc.hero.getOrigin().toString(), dc.ScreenWidth-200, dc.ScreenHeight-(dc.tilesize*8));
-        g.drawString("Weight: " + dc.hero.getInventoryWeight(), dc.ScreenWidth-300, dc.ScreenHeight-(dc.tilesize*9));
 
         if (dc.showPath) {
             renderShortestPath(dc, g);
-//            renderPathWeights(dc, g);     // this method really only works well when one AI is present
         }
+        
+        int baseWidth = 256;
+        float currentHealthBarWidth = baseWidth * (dc.hero.getHitPoints()/dc.hero.getStartingHitPoints());
+        
+        float currentWeightBarWidth = baseWidth * ((float) dc.hero.getInventoryWeight()/ (float) dc.hero.getMaxInventoryWeight());
+        if( currentWeightBarWidth > 256 ){
+        	currentWeightBarWidth = 256;
+        }
+        
+        //render visual hud
+        float alpha = 1;
+        if( dc.hero.animate.getX() > dc.ScreenWidth - (baseWidth+100) && dc.hero.animate.getY() > dc.ScreenHeight-((dc.tilesize*5)+100) ){
+        	alpha = 0.2f;
+        }
+        Color tmp = g.getColor();
+        g.setColor(new Color(255, 0, 0, alpha) );
+        g.fillRoundRect(dc.ScreenWidth - ((256 + dc.tilesize)-(baseWidth-currentHealthBarWidth)), dc.ScreenHeight-(dc.tilesize*3), currentHealthBarWidth, dc.tilesize, 0);
+        g.setColor(tmp);
+        g.drawImage(ResourceManager.getImage(Main.BAR_BASE), dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight - (dc.tilesize*3));
 
+        g.drawImage(ResourceManager.getImage(Main.HEALTHBAR_SYM), dc.ScreenWidth - dc.tilesize  - dc.tilesize/2, dc.ScreenHeight - (dc.tilesize*3));
+
+        //render inventory weight bar
+        if( dc.hero.getInventoryWeight() != 0 ){
+	        tmp = g.getColor();
+	        g.setColor(new Color(0, 255, 0, alpha) );
+	        g.fillRoundRect(dc.ScreenWidth - ((256 + dc.tilesize)-(baseWidth-currentWeightBarWidth)), dc.ScreenHeight-(dc.tilesize*4), currentWeightBarWidth, dc.tilesize, 0);
+	        g.setColor(tmp);
+        }
+        
+        g.drawImage(ResourceManager.getImage(Main.BAR_BASE), dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight-(dc.tilesize*4));
+        g.drawImage(ResourceManager.getImage(Main.WEIGHT_SYM), dc.ScreenWidth - dc.tilesize - dc.tilesize/2, dc.ScreenHeight - (dc.tilesize*4));
+        
+        //render mana bar if character is a mage
+        if( dc.hero.getType().toLowerCase().contains("mage") ){
+        	
+        	float currentManaBarWidth = baseWidth * (dc.hero.getMana()/dc.hero.getMaxMana());
+            tmp = g.getColor();
+            g.setColor(new Color(0, 0, 255, alpha) );
+            g.fillRoundRect(dc.ScreenWidth - ((256 + dc.tilesize)-(baseWidth-currentManaBarWidth)), dc.ScreenHeight-(dc.tilesize*5), currentManaBarWidth, dc.tilesize, 0);
+            g.setColor(tmp);
+            
+            g.drawImage(ResourceManager.getImage(Main.BAR_BASE), dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight-(dc.tilesize*5));
+            g.drawImage(ResourceManager.getImage(Main.MANA_SYM), dc.ScreenWidth - dc.tilesize - dc.tilesize/2, dc.ScreenHeight - (dc.tilesize*5));
+        }
+        
+        
+        
         // display a paused message
         if (paused) {
             renderPauseMessage(dc, g);
@@ -764,27 +765,7 @@ public class Level extends BasicGameState {
                 //i is y, j is x
             }
         }
-        if( displayCodex ){
-            //display this box next to the item box
-            //  if it is open
-            int x = dc.tilesize;
-            if( displayInventory ){
-                x *= 4;
-            }
 
-            renderItemBox(dc, g, "Codex", x, dc.tilesize, dc.tilesize * 10, dc.tilesize*8);
-
-            ArrayList<Item> items = dc.hero.getCodex();
-            int row = 2;
-            for( Item i : items ){
-                g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
-                Color tmp = g.getColor();
-                g.setColor(Color.white);
-                g.drawString(i.toString(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
-                g.setColor(tmp);
-                row++;
-            }
-        }
     }
 
     /**
@@ -809,13 +790,43 @@ public class Level extends BasicGameState {
                 g.drawString(dc.hero.getEquipped()[i].getRequiredLevel()+"", x+(dc.tilesize*i), y);
                 g.setColor(tmp2);
                 
+
             }
         }
+
         g.setColor(Color.white);
-        g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
+        g.drawString("Selected:", dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight-(dc.tilesize*2));
+        if( dc.hero.getEquipped()[selectedEquippedItem] != null ){
+        	g.drawString(dc.hero.getEquipped()[selectedEquippedItem].toString(), dc.ScreenWidth - (256 + dc.tilesize), dc.ScreenHeight-(dc.tilesize));
+        }
+        if( x > 0 ){
+        	g.drawRect(x+(dc.tilesize*selectedEquippedItem), y, dc.tilesize, dc.tilesize);
+        }
         
         g.setColor(tmp);
     }
+    
+    
+    private void renderCharacterSheet(Main dc, Graphics g){
+    	//display useful character information to the player
+		ItemBox ib = getItemBoxByTitle("Character");
+		if( ib != null && ib.visible ){
+
+    		
+    		Color tmp = g.getColor();
+    		g.setColor(Color.white);
+
+    		ib.addString(g, dc, "Strength:   " + dc.hero.getStrength(), 0, 1);
+    		ib.addString(g, dc, "Speed:      " + dc.hero.getMovementSpeed(), 0, 2);
+    		ib.addString(g, dc, "Identified: " + itemsIdentified, 0, 3);
+    		ib.addString(g, dc, "Max mana:   " + (int) dc.hero.getMaxMana(), 0, 4);
+    		ib.addString(g, dc, "Max health: " + (int) dc.hero.getStartingHitPoints(), 0, 5);
+    		ib.addString(g, dc, "Max weight: " + (int) dc.hero.getMaxInventoryWeight(), 0, 6);
+    		
+    		g.setColor(tmp);
+		}
+	}
+    	
 
 
 
@@ -825,27 +836,20 @@ public class Level extends BasicGameState {
      * @param g
      */
     private void renderCodex(Main dc, Graphics g) {
-        if( displayCodex ){
-            //display this box next to the item box
-            //  if it is open
-            int x = dc.tilesize;
-            if( displayInventory ){
-                x *= 4;
-            }
-
-            renderItemBox(dc, g, "Codex", x, dc.tilesize, dc.tilesize * 10, dc.tilesize*8);
-
+    	ItemBox ib = getItemBoxByTitle("Codex");
+    	if( ib != null && ib.visible ){
             ArrayList<Item> items = dc.hero.getCodex();
-            int row = 2;
+            int row = 1;
             for( Item i : items ){
-                g.drawImage(i.getImage(), dc.tilesize, row*dc.tilesize);
-                Color tmp = g.getColor();
-                g.setColor(Color.white);
-                g.drawString(i.toString(), dc.tilesize*2, dc.tilesize*row + dc.tilesize*0.25f);
-                g.setColor(tmp);
+            	ib.addImage(g, dc, i.getImage(), 0, row);
+            	Color tmp = g.getColor();
+            	g.setColor(Color.white);
+            	ib.addString(g, dc, i.toString(), 1, row);
+            	g.setColor(tmp);
+            	
                 row++;
             }
-        }
+    	}
     }
 
     /**
@@ -854,19 +858,24 @@ public class Level extends BasicGameState {
      * @param g
      */
     private void renderInventory(Main dc, Graphics g) {
-        if( displayInventory ){
-            Color tmp = g.getColor();
+
+        
+        ItemBox ib = getItemBoxByTitle("Inventory");
+        if( ib != null && ib.visible ){
+        	Color tmp = g.getColor();
             g.setColor(Color.white);
-            
-            renderItemBox(dc, g, "Inventory", dc.tilesize, dc.tilesize, dc.tilesize*4, dc.tilesize*8);
             ArrayList<Item> items = dc.hero.getInventory();
             if( items.size() != 0 ){
-                int row = 2;
-                int col = 1;
+                int row = 1;
+                int col = 0;
                 for( int i = 0; i < items.size(); i++ ){
-                    g.drawImage(items.get(i).getImage(), col*dc.tilesize, row*dc.tilesize);
-                    g.drawString(items.get(i).count+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-15);
-                    g.drawString(items.get(i).getRequiredLevel()+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-30);
+                	
+                	ib.addImage(g, dc, items.get(i).getImage(), col, row);
+                	
+                	ib.addStringFineGrained(g, dc, items.get(i).count+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-15);
+                	
+                	ib.addStringFineGrained(g, dc, items.get(i).getRequiredLevel()+"", ((1+col)*dc.tilesize)-10, ((1+row)*dc.tilesize)-30);
+
                     col++;
                     if( i > 4 && i % 4 == 0 ){
                         row++;
@@ -881,6 +890,11 @@ public class Level extends BasicGameState {
                         dc.tilesize,
                         dc.tilesize
                 );
+                
+                
+                //draw a string representation of the the selected item
+                g.drawString( items.get((itemy*4)+itemx).toString(), dc.tilesize, 9*dc.tilesize);
+                
                 g.setColor(tmp);
             }
         }
@@ -1042,19 +1056,93 @@ public class Level extends BasicGameState {
             }
         }
     }
+    
+    private class ItemBox{
+    	private String title;
+    	private int width;
+    	private int height;
+    	private int x;
+    	private boolean visible;
+    	
+    	public ItemBox(String title, int width, int height){
+    		this.title = title;
+    		this.width = width;
+    		this.height = height;
+    	}
+    	
+    	public void setX(int x){
+    		this.x = x;
+    	}
+    	
+    	public void render(Graphics g, Main dc){
+            Color tmp = g.getColor();
+            g.setColor(new Color(0, 0, 0, 0.5f));
 
-    private void renderItemBox(Main dc, Graphics g, String title, int x, int y, int width, int height){
-        Color tmp = g.getColor();
-        g.setColor(new Color(0, 0, 0, 0.5f));
+            //create a rectangle that can fit all the player's items with 4 items per row
+            //System.out.println("Drawing " + title + " at " + x + ", " + y);
+            g.fillRoundRect(x*dc.tilesize, dc.tilesize, width*dc.tilesize, height*dc.tilesize, 0);
 
-        //create a rectangle that can fit all the player's items with 4 items per row
-        g.fillRoundRect(dc.tilesize, dc.tilesize, width, height, 0);
-
-        g.setColor(Color.white);
-        g.drawString(title, dc.tilesize + 10, dc.tilesize + 10);
-        g.setColor(tmp);
+            g.setColor(Color.white);
+            g.drawString(title, x*dc.tilesize + 10, dc.tilesize + 10);
+            g.setColor(tmp);
+    	}
+    	
+    	/**
+    	 * Add an image to this ItemBox
+    	 * 
+    	 * @param x - x position of image relative to item box
+    	 * @param y - y position of image relative to item box
+    	 */
+    	public void addImage(Graphics g, Main dc, Image img, int x, int y){
+    		g.drawImage(img, (x + this.x)*dc.tilesize, (y+1)*dc.tilesize);
+    	}
+    	
+    	
+    	/**
+    	 * Add a string to this ItemBox
+    	 * 
+    	 * @param x - x position of string relative to item box
+    	 * @param y - y position of string relative to item box
+    	 */
+    	public void addString(Graphics g, Main dc, String text, int x, int y){
+    		g.drawString(text, (x + this.x)*dc.tilesize, (y+1)*dc.tilesize);
+    	}
+    	
+    	public void addStringFineGrained(Graphics g, Main dc, String text, float screenX, float screenY){
+    		//add a string using screen coordinates instead of tile coordinates
+    		g.drawString(text, screenX + (this.x*dc.tilesize), screenY + dc.tilesize);
+    	}
+    	
 
     }
+    
+    private ArrayList<ItemBox> itemBoxes = new ArrayList<ItemBox>();
+    
+    private void renderItemBoxes(Graphics g, Main dc){
+    	//render all the item boxes that need to be displayed
+    	
+    	int nextX = 1;
+    	
+    	for( ItemBox ib : itemBoxes ){
+    		//get the correct x value based on open item boxes
+    		if( ib.visible ){
+    			ib.setX(nextX);
+    			nextX += ib.width;
+    			ib.render(g, dc);
+    		}
+    	}
+    }
+    
+    private ItemBox getItemBoxByTitle(String title){
+    	for( ItemBox ib : itemBoxes ){
+    		if( ib.title.equals(title) ){
+    			return ib;
+    		}
+    	}
+    	return null;
+    }
+    
+
 
     private Scanner scan = new Scanner(System.in);
 
@@ -1121,15 +1209,6 @@ public class Level extends BasicGameState {
         		dc.hero.setMana(dc.hero.getMaxMana());
         	}
         }
-
-        
-        //implement effects on the character
-        //TODO: this should still be done on the client
-        // but the active effects list should be communicated
-        // to the server so that other clients can see the effect
-        // visualizations.
-        //dc.hero.implementEffects();
-        
         
         //draw visual effects
         for( Character ch : targets ){
@@ -1206,16 +1285,31 @@ public class Level extends BasicGameState {
 
         if( input.isKeyPressed(Input.KEY_I) ){
         	SFXManager.playSound("open_inventory");
-            displayInventory = !displayInventory;
-            displayCodex = false;
+            
+            ItemBox ib = getItemBoxByTitle("Inventory");
+            if( ib != null ){
+            	ib.visible = !ib.visible;
+            }
         }
         if( input.isKeyPressed(Input.KEY_O) ){
         	SFXManager.playSound("open_inventory");
-            displayCodex = !displayCodex;
-            displayInventory = false;
+
+            ItemBox ib = getItemBoxByTitle("Codex");
+            if( ib != null ){
+            	ib.visible = !ib.visible;
+            }
+        }
+        if( input.isKeyPressed(Input.KEY_U) ){
+        	SFXManager.playSound("open_inventory");
+
+        	ItemBox ib = getItemBoxByTitle("Character");
+        	if( ib != null ){
+        		ib.visible = !ib.visible;
+        	}
         }
 
-        if( displayInventory ){
+        ItemBox ib = getItemBoxByTitle("Inventory");
+        if( ib != null && ib.visible ){
             if( input.isKeyPressed(Input.KEY_UP) ){
                 //selectedItem.setY(selectedItem.getY()-1);
                 itemy--;
@@ -1275,6 +1369,7 @@ public class Level extends BasicGameState {
 		            		itm.identify();
 		            		if (debug) System.out.println("Identified " + itm.toString());
 		            		addMessage("It is " + itm.toString());
+		            		itemsIdentified++;
 		            		if( itm.isCursed() ){
 		            			SFXManager.playSound("curse");
 		            		}else{
@@ -1317,6 +1412,7 @@ public class Level extends BasicGameState {
                 	if( !i.isIdentified() ){
                 		i.identify();
                 		addMessage("It is " + i.toString());
+                		itemsIdentified++;
                 	}
 	                if( canUse(i, dc.hero) ){
 		                String x = "";
@@ -1334,7 +1430,9 @@ public class Level extends BasicGameState {
 		                if( i.getType().equals("Potion") || i.getType().equals("Armor") ){
 		                	//add effect to character
 		                    dc.hero.addEffect(i.getEffect(),false);
-		                    addMessage("You are now affected by " + i.getEffect().toLowerCase());
+		                    if( !i.getEffect().equals("")){
+		                    	addMessage("You are now affected by " + i.getEffect().toLowerCase());
+		                    }
 		                }
 		
 		                //remove the item from hands
@@ -1345,8 +1443,6 @@ public class Level extends BasicGameState {
 		                if( i.getType().equals("Potion") ){
 		                    dc.hero.discardItem(i.getID(), true);
 		                }else if( i.getType().equals("Armor") ){
-		                    i.identify();
-		
 		                    //set the hero type to change the armor
 		                    if( dc.hero.getType().contains("knight") ){
 		                        dc.hero.setType("knight_"+i.getMaterial().toLowerCase());
@@ -1897,6 +1993,7 @@ public class Level extends BasicGameState {
                         if( !itm.isIdentified() ){
                             addMessage("It is " + itm.toString() );
                             itm.identify();
+                            itemsIdentified++;
                         }
                     }
                 }

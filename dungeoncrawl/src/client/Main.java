@@ -182,6 +182,12 @@ public class Main extends StateBasedGame {
     
     public static final String LIGHTNING_EFFECT = "resources/effects/lightning.png";
     
+    //player hud
+    public static final String BAR_BASE = "resources/hud/bar_base.png";
+    public static final String HEALTHBAR_SYM = "resources/hud/healthbar_symbol.png";
+    public static final String WEIGHT_SYM = "resources/hud/weight_symbol.png";
+    public static final String MANA_SYM = "resources/hud/mana_symbol.png";
+    
     //sound effects
     public static final String ARMOR_EQUIP = "resources/sfx/armor_equip.wav";
     public static final String ARMOR_UP = "resources/sfx/armor_up.wav";
@@ -461,6 +467,12 @@ public class Main extends StateBasedGame {
         ResourceManager.loadImage(ICE_EFFECT);
         
         ResourceManager.loadImage(LIGHTNING_EFFECT);
+        
+        //player hud
+        ResourceManager.loadImage(BAR_BASE);
+        ResourceManager.loadImage(HEALTHBAR_SYM);
+        ResourceManager.loadImage(WEIGHT_SYM);
+        ResourceManager.loadImage(MANA_SYM);
         
         //music tracks
         ResourceManager.loadMusic(TRACK1);

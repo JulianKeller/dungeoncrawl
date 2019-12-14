@@ -37,3 +37,4 @@
 [34] Add weight to items and characters to slow them down
 [35] Implement cursed items that have half stats and cannot be removed
 [36] Add sound effects and background music
+[37] Improve visual hud
