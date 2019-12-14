@@ -1752,6 +1752,18 @@ public class Level extends BasicGameState {
     		throw new SlickException("Invalid directional string.");
     	}
     }
+    
+    
+    private float distanceBetweenVectors(Vector a, Vector b){
+    	return Math.abs(a.getX() - b.getX() + a.getY() - b.getY());
+    }
+    
+    private ArrayList<Character> enemiesJoinCharacters(Main dc){
+    	ArrayList<Character> targets = new ArrayList<Character>();
+    	targets.addAll(dc.characters);
+    	targets.addAll(dc.enemies);
+    	return targets;
+    }
 
     private void attack(Item itm, Main dc) throws SlickException{
         //attack with the given item
@@ -1793,68 +1805,31 @@ public class Level extends BasicGameState {
                 dc.hero.updateAnimation("jab_" + dc.hero.direction.split("_")[1] );
             }
 
-            for( Character c : dc.characters ){
-                if( c.ai ){
-                    //if the ai character is within one tilesize of the player
-                    //in the given direction
-                    Vector aipos = c.getWorldCoordinates();
-                    Vector plpos = dc.hero.getWorldCoordinates();
+            for( Character c : enemiesJoinCharacters(dc) ){
+            	
+            	if( c.getPid() == dc.hero.getPid() ){
+            		continue;
+            	}
+                
+                Vector target = c.getTileWorldCoordinates();
+                Vector plpos = dc.hero.getTileWorldCoordinates();
 
-                    double x = Math.pow(aipos.getX()-plpos.getX(), 2);
-                    double y = Math.pow(aipos.getY()-plpos.getY(), 2);
-                    float distance = (float) Math.sqrt(x + y);
 
-                    if(  distance <= (dc.tilesize*1.5) ){
-                        //roll damage amount
-                        rand.setSeed(System.nanoTime());
-                        float percentOfMaxDamage = rand.nextInt(100)/(float) 100;
+                if( distanceBetweenVectors(target, plpos) < 1.5 ){
+                    //roll damage amount
+                    rand.setSeed(System.nanoTime());
+                    float percentOfMaxDamage = rand.nextInt(100)/(float) 100;
 
-                        float damage = 0;
-                        if( itm == null ){
-                        	//max damage: 10
-                        	damage = 10 * percentOfMaxDamage;
-                            
-                        	//copy this block here instead of doing a bunch of null checks
-                        	if( c.takeDamage(damage, "",false) ){
-                                //returns true if the enemy died
-                                c.updateAnimation("die");
-                                
-                                //c.vfx = null;
-
-                            }
-
-                            if( percentOfMaxDamage == 0 ){
-                                addMessage("Missed.");
-                            }else{
-                                String m = "Hit enemy for " + (int) damage + " damage.";
-                                if( percentOfMaxDamage >= 0.8 ){
-                                    m = m + " Critical hit!";
-                                }
-                                addMessage(m);
-                            }
-                            return;
-                        }else if( itm.getMaterial().equals("Wooden") ){
-                            //max damage: 30
-                            damage = 30 * percentOfMaxDamage;
-                        }else if( itm.getMaterial().equals("Iron") ){
-                            //max damage: 60
-                            damage = 60 * percentOfMaxDamage;
-                        }else if( itm.getMaterial().equals("Gold") ){
-                            //max damage: 100
-                            damage = 100 * percentOfMaxDamage;
-                        }
-
-                        //pass damage and effect to enemy
+                    float damage = 0;
+                    if( itm == null ){
+                    	//max damage: 10
+                    	damage = 10 * percentOfMaxDamage;
                         
-                        if( itm.getEffect().equals("Might") ){
-                        	damage *= 2;
-                        }
-
-                        if( c.takeDamage(damage, itm.getEffect(),false) ){
+                    	//copy this block here instead of doing a bunch of null checks
+                    	if( c.takeDamage(damage, "",false) ){
                             //returns true if the enemy died
                             c.updateAnimation("die");
                             
-                            //destroy the character's vfx object
                             //c.vfx = null;
 
                         }
@@ -1868,16 +1843,52 @@ public class Level extends BasicGameState {
                             }
                             addMessage(m);
                         }
+                        return;
+                    }else if( itm.getMaterial().equals("Wooden") ){
+                        //max damage: 30
+                        damage = 30 * percentOfMaxDamage;
+                    }else if( itm.getMaterial().equals("Iron") ){
+                        //max damage: 60
+                        damage = 60 * percentOfMaxDamage;
+                    }else if( itm.getMaterial().equals("Gold") ){
+                        //max damage: 100
+                        damage = 100 * percentOfMaxDamage;
+                    }
 
-                        //reveal the effect to the character
-                        // if it is not known
-                        if( !itm.isIdentified() ){
-                            addMessage("It is " + itm.toString() );
-                            itm.identify();
-                            itemsIdentified++;
+                    //pass damage and effect to enemy
+                    
+                    if( itm.getEffect().equals("Might") ){
+                    	damage *= 2;
+                    }
+
+                    if( c.takeDamage(damage, itm.getEffect(),false) ){
+                        //returns true if the enemy died
+                        c.updateAnimation("die");
+                        
+                        //destroy the character's vfx object
+                        //c.vfx = null;
+
+                    }
+
+                    if( percentOfMaxDamage == 0 ){
+                        addMessage("Missed.");
+                    }else{
+                        String m = "Hit enemy for " + (int) damage + " damage.";
+                        if( percentOfMaxDamage >= 0.8 ){
+                            m = m + " Critical hit!";
                         }
+                        addMessage(m);
+                    }
+
+                    //reveal the effect to the character
+                    // if it is not known
+                    if( !itm.isIdentified() ){
+                        addMessage("It is " + itm.toString() );
+                        itm.identify();
+                        itemsIdentified++;
                     }
                 }
+               
             }
             dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
