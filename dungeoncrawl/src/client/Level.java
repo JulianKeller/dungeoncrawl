@@ -1624,9 +1624,9 @@ public class Level extends BasicGameState {
 
     private void sendCharactersToServer(Main dc){
         if (debug) System.out.println("sendCharactersToServer() ");
-        int count = dc.characters.size();
         try {
-            outStream.writeObject(count);
+            int count = dc.characters.size();
+            outStream.writeInt(count);
             outStream.reset();
             if (debug) System.out.printf("send: %s\n",count);
             for(int i = 0; i < count; i++){
