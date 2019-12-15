@@ -3,7 +3,6 @@
 [19] Update character images based on weapon material
 [30] Add animations for thrown items breaking
 [31] Scale thrown items to give the appearance of arc
-[38] Update tank weapons/attacks
 [39] Fix attack animation looping forever
 
 ##Resolved Issues##
@@ -40,3 +39,4 @@
 [35] Implement cursed items that have half stats and cannot be removed
 [36] Add sound effects and background music
 [37] Improve visual hud
+[38] Update tank weapons/attacks
