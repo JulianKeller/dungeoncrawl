@@ -517,9 +517,9 @@ Reflection:
     			int r = rand.nextInt(100);
     			if( r < 50 ){
     				if( !e.cursed ){
-    					hitPoints += 3;
+    					hitPoints += 0.02f;
     				}else{
-    					hitPoints += 3*curseModifier;
+    					hitPoints += 0.02f*curseModifier;
     				}
     			}
     			if( hitPoints > startingHitPoints ){
