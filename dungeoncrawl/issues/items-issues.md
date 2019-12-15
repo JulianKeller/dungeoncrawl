@@ -4,6 +4,7 @@
 [30] Add animations for thrown items breaking
 [31] Scale thrown items to give the appearance of arc
 [39] Fix attack animation looping forever
+[40] Update server item generation to use client item class
 
 ##Resolved Issues##
 [1] Create database schema to hold items and player inventories
