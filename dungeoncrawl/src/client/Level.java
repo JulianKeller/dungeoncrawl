@@ -1986,6 +1986,8 @@ public class Level extends BasicGameState {
         		return;
         	}
         	
+        	dc.hero.updateAnimation("spell_" + direction);
+        	
         	Image spellImage = getSpellImage(itm.getMaterial());
         	
         	addThrownItem(dc, itm, spellImage, directionVector, directionVector.scale(10000), directionVector.scale(0.2f));
@@ -1998,7 +2000,9 @@ public class Level extends BasicGameState {
 
         	System.out.println("throwing arrow " + dc.hero.direction.split("_")[1] );
         	
+        	dc.hero.updateAnimation("shoot_" + direction);
         	SFXManager.playSound("shoot_arrow");
+        	
         	
         	Image image = getArrowImage(itm.getEffect(), dc.hero.direction.split("_")[1]);
 
