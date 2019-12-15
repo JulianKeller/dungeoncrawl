@@ -1895,21 +1895,32 @@ public class Level extends BasicGameState {
                     }else if( itm.getMaterial().equals("Gold") ){
                         //max damage: 100
                         damage = 100 * percentOfMaxDamage;
+                    }else if( itm.getMaterial().equals("Red") ){
+                    	//max damage 20
+                    	damage = 20 * percentOfMaxDamage;
+                    }else if( itm.getMaterial().equals("White") ){
+                    	//max damage 50
+                    	damage = 50 * percentOfMaxDamage;
+                    }else if( itm.getMaterial().equals("Yellow") ){
+                    	//max damage 90
+                    	damage = 90 * percentOfMaxDamage;
                     }
 
-                    //pass damage and effect to enemy
-                    
+                    //pass damage and effect to enemy  
                     if( itm.getEffect().equals("Might") ){
                     	damage *= 2;
                     }
-
-                    if( c.takeDamage(damage, itm.getEffect(),false) ){
-                        //returns true if the enemy died
-                        c.updateAnimation("die");
-                        
-                        //destroy the character's vfx object
-                        //c.vfx = null;
-
+                    
+                    boolean killed = false;
+                    //gloves status effects and might/fright should not be imparted on enemies
+                    if( itm.getType().equals("Gloves") || itm.getEffect().equals("Might") || itm.getEffect().equals("Fright")){
+                    	killed = c.takeDamage(damage, "", false);
+                    }else{
+                    	killed = c.takeDamage(damage, itm.getEffect(), itm.isCursed());
+                    }
+                    
+                    if( killed ){
+                    	c.updateAnimation("die");
                     }
 
                     if( percentOfMaxDamage == 0 ){
