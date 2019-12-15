@@ -1810,7 +1810,7 @@ public class Level extends BasicGameState {
                     character.setHitPoints(msg.hp);
                     character.weights = msg.dijkstraWeights;
                     if (character.getCharacterID() != dc.hero.getCharacterID()) {
-                        character.moveOtherPlayers(msg.ks);
+                        character.move(msg.ks);
 //                        character.setWorldCoordinates(msg.wx, msg.wy);
                     }
                 }
