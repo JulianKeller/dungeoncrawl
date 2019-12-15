@@ -2,6 +2,7 @@ package server;
 
 import java.net.*;
 import java.io.*;
+import java.util.List;
 import java.util.concurrent.*;
 
 
@@ -14,6 +15,7 @@ public class ClientHandler extends Thread {
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
     public BlockingQueue<Msg> threadQueue;
+    public BlockingQueue<List<Msg>> characterList;
     //    private float[][] weights;
     private boolean debug = true;
     private boolean exit = false;
@@ -24,12 +26,12 @@ public class ClientHandler extends Thread {
     public final PauseObject pauseObject;
 
 
-    public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, BlockingQueue<Msg> queue, int id) {
+    public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, int id) {
         socket = s;
         this.inStream = is;
         this.outStream = os;
         this.id = id;
-        threadQueue = queue;
+        threadQueue = new LinkedBlockingQueue<>();
         writeSuccess = true;
         pauseObject = new PauseObject();
     }
@@ -219,7 +221,7 @@ public class ClientHandler extends Thread {
 
     public void sendCharactersToClient() {
         if (debug) System.out.println("sendCharactersToClient() " + this.getId());
-            int count = Server.characters.size();
+            int count = Server.characters.size() - 1;
             try {
                 outStream.writeInt(count);
                 outStream.reset();
@@ -236,6 +238,9 @@ public class ClientHandler extends Thread {
                         toClient = threadQueue.take();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                    }
+                    if (toClient != null && toClient.id == id) {
+                        continue;
                     }
                     outStream.writeObject(toClient);
                     if (debug) System.out.printf("%s :send %s\n", this.getId(), toClient);

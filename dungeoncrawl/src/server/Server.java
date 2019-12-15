@@ -84,6 +84,9 @@ public class Server extends Thread {
                     // put characters
                     synchronized (entities) {
                         for (Msg chars : entities) {
+                            if (chars.id == c.getClientId()) {
+                                continue;
+                            }
                             try {
                                 c.threadQueue.put(chars);
                                 System.out.printf("Putting %s into queue\n", chars);
@@ -438,7 +441,7 @@ public class Server extends Thread {
                 ObjectInputStream is = new ObjectInputStream(s.getInputStream());
                 // This is the client handler thread.
                 System.out.println("Creating new thread for this client...");
-                ClientHandler t = new ClientHandler(s, is, os, new LinkedBlockingQueue<>(), currentPlayerId);
+                ClientHandler t = new ClientHandler(s, is, os, currentPlayerId);
                 clients.add(t);
                 t.start();
                 currentPlayerId++;

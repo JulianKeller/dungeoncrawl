@@ -26,7 +26,7 @@ import jig.ResourceManager;
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-    private boolean debug = true;
+    private boolean debug = false;
     private String type;
 
     private int[][] rotatedMap;
@@ -540,7 +540,7 @@ public class Level extends BasicGameState {
         renderEnemies(dc, g);
 
         // draw the hero
-//        dc.hero.animate.render(g);
+        dc.hero.animate.render(g);
         
         //draw the hero's visual effects
         if( dc.hero.vfx != null ){
@@ -1033,11 +1033,12 @@ public class Level extends BasicGameState {
                 ch.animate.setPosition(sc);
                 if (characterInRegion(dc, ch)) {
                     ch.animate.render(g);
-//                    System.out.println("Rendering " + ch.getCharacterID());
+                    System.out.println("Rendering character: " + ch.getCharacterID());
                 }
             }
             else {
                 ch.animate.render(g);       // render the hero
+                System.out.println("Rendering hero: " + ch.getCharacterID());
             }
 
         }
@@ -1179,6 +1180,7 @@ public class Level extends BasicGameState {
             return;
         }
 
+        printCharactersInList(dc.characters);
         
         if( input.isKeyPressed(Input.KEY_RBRACKET) ){
         	//change music in 3 seconds
@@ -1523,8 +1525,8 @@ public class Level extends BasicGameState {
         	}
         }
         
-        
-        dc.characters.removeIf(b -> b.getHitPoints() <= 0);
+        // TODO check why this is here twice...
+//        dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
         // if the hero has no health, then replace it with a new hero character in the same spot
 //        if(dc.hero.getHitPoints() <= 0){
@@ -1761,8 +1763,8 @@ public class Level extends BasicGameState {
         }
         if (msg != null) {
             dc.hero = new Character(dc, msg.wx, msg.wy, msg.type, msg.id, this, false);
-            dc.characters.add(dc.hero);
-            printCharactersInList(dc.characters);
+//            dc.characters.add(dc.hero);
+//            printCharactersInList(dc.characters);
         }
 
 
@@ -1785,24 +1787,23 @@ public class Level extends BasicGameState {
      * @param dc
      */
     private void readCharactersFromServer(Main dc){
-        if (debug) System.out.println("readCharactersFromServer()");
-        int count = 0;
-        int numCharacters = dc.characters.size();
+//        if (debug)
+            System.out.println("readCharactersFromServer()");
         try{
-            count = inStream.readInt();
+            int count = inStream.readInt();
             if (debug) System.out.printf("Read count %s\n",count);
-            int difference = count - numCharacters;
                 for(int i = 0; i < count; i++){
                     Msg msg = (Msg)inStream.readObject();
+//                    if (debug)
+                        System.out.printf("read %s\n", msg);
                     Character character = null;
                     try {
                         character = dc.characters.get(msg.id);
                     } catch (IndexOutOfBoundsException e) {
                         character = addCharacterFromMsg(dc, msg);
                     }
-
-                    if (debug) System.out.printf("read %s\n", msg);
-                    if (character == null) {
+                    if (character == null || msg.id == dc.hero.getCharacterID()) {
+                        System.out.println("Character is null");
                         continue;
                     }
                     character.setHitPoints(msg.hp);
@@ -1825,6 +1826,7 @@ public class Level extends BasicGameState {
      * @param msg
      */
     private Character addCharacterFromMsg(Main dc,Msg msg){
+        System.out.println("addCharacterFromMsg()");
         Character newCharacter = new Character(dc,msg.wx,msg.wy,msg.type,msg.id,this,msg.ai);
         for (Character c : dc.characters) {
             if (newCharacter.getCharacterID() == c.getCharacterID()) {
@@ -1833,7 +1835,8 @@ public class Level extends BasicGameState {
             }
         }
         dc.characters.add(newCharacter);
-        if (debug) System.out.println("Adding Character: " + msg);
+//        if (debug)
+            System.out.println("Adding Character: " + msg);
         return newCharacter;
     }
 
@@ -1987,7 +1990,9 @@ public class Level extends BasicGameState {
                     }
                 }
             }
-            dc.characters.removeIf(b -> b.getHitPoints() <= 0);
+
+            // TODO add back in later
+//            dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
         }else if( itm.getType().equals("Potion") ){
         	SFXManager.playSound("potion_throw");
