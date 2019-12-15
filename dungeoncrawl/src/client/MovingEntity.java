@@ -310,7 +310,9 @@ public class MovingEntity extends Entity {
     			removedEffects.add(e.name);
     			//set special exit properties
     			//  for certain effects
-    			if( e.name.equals("Swiftness") || e.name.equals("Ice") ){	
+    			if( e.name.equals("Swiftness") ){	
+    				effectsToAdd.add("Swiftness");
+    			}else if( e.name.equals("Ice") ){
     				//reset to initial movement speed
     				movementSpeed = initialMovementSpeed;
     			}else if( e.name.equals("Iron Skin") ){
