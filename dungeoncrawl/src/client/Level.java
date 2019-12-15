@@ -1168,7 +1168,6 @@ public class Level extends BasicGameState {
     
 
     private int songChangeTimer = 3000;
-    
     boolean first = true;
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
@@ -1180,6 +1179,7 @@ public class Level extends BasicGameState {
             return;
         }
 
+        // first time through add hero to client, doing it here for random bug reasons
         if (first) {
             dc.characters.add(dc.hero);
             first = false;
@@ -1815,7 +1815,8 @@ public class Level extends BasicGameState {
                     }
                     character.setHitPoints(msg.hp);
                     if (character.getCharacterID() != dc.hero.getCharacterID()) {
-                        character.move(msg.ks);
+//                        character.move(msg.ks);
+                        character.setWorldCoordinates(msg.wx, msg.wy);
                     }
 
 
