@@ -1169,7 +1169,7 @@ public class Level extends BasicGameState {
 
     private int songChangeTimer = 3000;
     
-
+    boolean first = true;
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         Input input = container.getInput();
@@ -1178,6 +1178,11 @@ public class Level extends BasicGameState {
         pause(input);
         if (paused) {
             return;
+        }
+
+        if (first) {
+            dc.characters.add(dc.hero);
+            first = false;
         }
 
         printCharactersInList(dc.characters);
@@ -1261,8 +1266,10 @@ public class Level extends BasicGameState {
         String ks = getKeystroke(input, dc);
         dc.hero.move(ks);
 
-        //positionToServer(dc);  // Get the player's updated position onto the server.
+        //positionToServer(dc);  // Get the play
+        // er's updated position onto the server.
 //        updateOtherPlayers(dc);
+        System.out.println("Hero is: " + dc.hero.toMsg());
         sendHeroToServer(dc);
         readCharactersFromServer(dc);
 //
