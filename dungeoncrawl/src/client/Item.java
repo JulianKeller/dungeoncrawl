@@ -161,8 +161,12 @@ public class Item extends StationaryObject{
 			}
 		}
 		
-		//all items start unidentified
-		identified = false;
+		//all items except arrows start unidentified
+		if( type.equals("Arrow") ){
+			identified = true;
+		}else{
+			identified = false;
+		}
 		
 
 		//get an image based on item type
