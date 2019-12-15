@@ -59,17 +59,8 @@ public class Server extends Thread {
 //                }
 //            }
 
-
-
-
-            // TODO
-            //  if all clients have sent back updates, then update the clients
-//            sendToClients();        // put updates in client queues
-
             sendMsgListToClients(characters);
-//            sendMsgListToClients(enemies);
-
-
+            sendMsgListToClients(enemies);
         }
     }
 

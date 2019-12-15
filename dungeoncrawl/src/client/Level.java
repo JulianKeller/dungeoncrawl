@@ -1267,6 +1267,7 @@ public class Level extends BasicGameState {
 
         sendHeroToServer(dc);
         readCharactersFromServer(dc);
+        readEnemiesFromServer(dc);
 //
 //        sendEnemyStatusToServer(dc);
 //        readEnemyStatusFromServer(dc);
@@ -1765,11 +1766,7 @@ public class Level extends BasicGameState {
         }
         if (msg != null) {
             dc.hero = new Character(dc, msg.wx, msg.wy, msg.type, msg.id, this, false);
-//            dc.characters.add(dc.hero);
-//            printCharactersInList(dc.characters);
         }
-
-
         if (debug) System.out.printf("read %s\n", msg);
     }
 
@@ -1814,6 +1811,32 @@ public class Level extends BasicGameState {
 //                        character.setWorldCoordinates(msg.wx, msg.wy);
                     }
                 }
+            if (debug) System.out.println();
+        }catch(IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+
+
+    private void readEnemiesFromServer(Main dc){
+        if (debug) System.out.println("readEnemiesFromServer()");
+        try{
+            int count = inStream.readInt();
+            if (debug) System.out.printf("Read count %s\n",count);
+            for(int i = 0; i < count; i++){
+                Msg msg = (Msg)inStream.readObject();
+                if (debug) System.out.printf("read %s\n", msg);
+                Character ai = null;
+                try {
+                    ai = dc.enemies.get(msg.id);
+                } catch (IndexOutOfBoundsException e) {
+                    ai = addCharacterFromMsg(dc, msg);
+                }
+                if (ai == null) {
+                    continue;
+                }
+                ai.setHitPoints(msg.hp);
+            }
             if (debug) System.out.println();
         }catch(IOException | ClassNotFoundException e){
             e.printStackTrace();

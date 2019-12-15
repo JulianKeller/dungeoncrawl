@@ -56,18 +56,21 @@ public class ClientHandler extends Thread {
 
             sendEnemyList();
             sendItemList();
-            sendCharactersToClient();
+            sendCharactersToClient("characters");
             while (true) {
                 try {
+                    if (exit) {
+                        break;
+                    }
                     readHeroFromClient();
                     synchronized (pauseObject) {
                         pauseObject.wait();
                     }
-                    sendCharactersToClient();
-                    if (exit) {
-                        break;
+                    sendCharactersToClient("characters");
+                    synchronized (pauseObject) {
+                        pauseObject.wait();
                     }
-                    // TODO handle exit
+                    sendCharactersToClient("enemies");
                 } catch (Exception e) {
                     if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
                             "and terminating thread.");
@@ -206,10 +209,6 @@ public class ClientHandler extends Thread {
                 }
                 if (debug) System.out.printf("read: %s\n", msg);
                 Msg.saveMsgToCharacter(hero, msg);
-//                hero.wx = msg.wx;
-//                hero.wy = msg.wy;
-//                hero.ks = msg.ks;
-//                hero.hp = msg.hp;
             }
         } catch (IOException | ClassNotFoundException e) {
             if (debug) System.out.println("Exiting Game: failed to read character: " + e);
@@ -220,20 +219,20 @@ public class ClientHandler extends Thread {
 
 
 
-    public void sendCharactersToClient() {
+    public void sendCharactersToClient(String type) {
+        int count = 0;
         if (debug) System.out.println("sendCharactersToClient() " + this.getId());
-            int count = Server.characters.size() - 1;
+        if (type.equals("characters")) {
+            count = Server.characters.size() - 1;
+        }
+        else if (type.equals("enemies")) {
+            count = Server.enemies.size();
+        }
             try {
                 outStream.writeInt(count);
                 outStream.reset();
                 if (debug) System.out.printf("send %s items\n", count);
                 for (int i = 0; i < count; i++) {
-//                    Msg character = Server.characters.get(i);
-//                    toServer(character);
-//                    writeToClient();
-//                    outStream.writeObject(character);
-//                    outStream.reset();
-//                    if (debug) System.out.printf("send %s\n", character);
                     Msg toClient = null;
                     try {
                         toClient = threadQueue.take();

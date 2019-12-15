@@ -1,16 +1,16 @@
 ## Current Issues
-
+[39] - add AI, boss back into the game
 
 ## Open Issues ##
 [12] - update floor tiles
 [13] - update wall tiles
 [29] - order characters on screen so they draw correctly
 
-[39] - add AI, boss back into the game
 [40] - fix so that other players effects/shooting animations render on other clients 
 [41] - probably a little broken around players leaving and going 
 [43] - add the boss into the game when all skeletons are dead
 [44] - add a winning state when the boss is defeated
+[45] - update player HP 
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
