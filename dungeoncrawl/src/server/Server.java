@@ -24,6 +24,8 @@ public class Server extends Thread{
     public static int [][] rotatedMap;
     public static List<Msg> enemies = Collections.synchronizedList(new ArrayList<>());
     public static List<ItemMsg> worldItems = Collections.synchronizedList(new ArrayList<>());
+    
+    private static int currentItemId = 0;
 
     public Server(){
     }
@@ -82,8 +84,6 @@ public class Server extends Thread{
             }
 
         }
-        int currentItemID = 0;
-        //int[][] potionAt = new int[game.map.length][game.map.length];
 
 
         while( numItems > 0 ){
@@ -153,18 +153,18 @@ public class Server extends Thread{
             }
             worldItems.add(i);
 
-            currentItemID++;
-
             numItems--;
         }
     }
 
     public static ItemMsg generateItem() throws SlickException{
-    	Item i = new Item( new Vector(0, 0), false, 0, 0, false);
+    	Item i = new Item( new Vector(0, 0), false, currentItemId, 0, false);
     	
         ItemMsg im = new ItemMsg(i.getID(), i.getOID(), i.getWorldCoordinates().getX(), i.getWorldCoordinates().getY(),
         						i.getType(), i.getEffect(), i.getMaterial(), i.getRequiredClasses(), i.isCursed(),
         						i.isIdentified(), i.getWeight(), i.count, i.getRequiredLevel());
+        
+        currentItemId++;
         
         return im;
     }
