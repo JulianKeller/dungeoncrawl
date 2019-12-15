@@ -44,7 +44,7 @@ public class AI {
         ArrayList<int[]> shortest = null;
 
         // if ai close enough pathfind with dijkstra and player is not invisible
-        if (playerNearby(range, hero.wx, hero.wy, ai.wx, ai.wy) && !hero.invisible) {
+        if (hero.path != null && playerNearby(range, hero.wx, hero.wy, ai.wx, ai.wy) && !hero.invisible) {
             // apply effects from stinky and frightening hero
             if (hero.stinky || hero.frightening) {
                 Random random = new Random();

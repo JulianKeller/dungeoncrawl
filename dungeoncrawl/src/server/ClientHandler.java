@@ -71,11 +71,11 @@ public class ClientHandler extends Thread {
                     }
                     sendCharactersToClient("characters");
 
-                    readAIStatusFromClient();
-                    synchronized (pauseObject) {
-                        pauseObject.wait();
-                    }
-                    sendCharactersToClient("enemies");
+//                    readAIStatusFromClient();
+//                    synchronized (pauseObject) {
+//                        pauseObject.wait();
+//                    }
+//                    sendCharactersToClient("enemies");
                 } catch (Exception e) {
                     if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
                             "and terminating thread.");

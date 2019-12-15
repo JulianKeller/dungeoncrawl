@@ -31,34 +31,33 @@ public class Server extends Thread {
     public void run() {
         while (true) {
 
-            // TODO use Tylers player list when it is ready instead of the clients list
             // calculate dijkstra's weights for each active player
-//            synchronized (clients) {
-//                for (ClientHandler c : clients) {
-//                    // TODO set this to the pl
-//                    // AI.getDijkstraWeights(client);       // updates clients weights and paths
-//
-//                }
-//            }
+            synchronized (clients) {
+                for (Msg c : characters) {
+                    AI.getDijkstraWeights(c);       // updates clients weights and paths
+                    if (debug) System.out.println("Ran Dijkstra on player: " + c.id);
+                }
+            }
 
-            // TODO, may not need to run every time
             // for each enemy find the closest player to them,
             // use closestPlayer.dijkstraWeights to determine path to player
-//            synchronized (enemies) {
-//                float closest = 10000;
-//                for (Msg ai : enemies) {
-//                    Msg closestHero = null;
-//                    float distance = 0;
-//                    synchronized (clients) {  // TODO change to list of players
-//                        distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
-//                        if (distance < closest) {
-//                            // then ai.get next direction
-//                            AI.updatePosition(ai, hero);
-//                        }
-//                    }
-//                }
-//            }
+            synchronized (enemies) {
+                float closest = 10000;
+                for (Msg ai : enemies) {
+                    float distance = 0;
+                    synchronized (characters) {  // TODO change to list of players
+                        for (Msg hero : characters) {
+                            distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
+                            if (distance < closest) {
+                                AI.updatePosition(ai, hero);    // then ai.get next direction
+                            }
+                        }
+                    }
+                    if (debug) System.out.printf("AI %s next direction: %s\n", ai.id, ai.nextDirection);
+                }
+            }
 
+            // update all clients with latest details of other players and enemies
             sendMsgListToClients(characters);
             sendMsgListToClients(enemies);
         }

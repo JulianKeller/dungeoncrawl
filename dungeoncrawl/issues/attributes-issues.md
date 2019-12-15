@@ -11,6 +11,7 @@
 [43] - add the boss into the game when all skeletons are dead
 [44] - add a winning state when the boss is defeated
 [45] - update player HP 
+[46] - send path weights back to the player again using existing methods
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters

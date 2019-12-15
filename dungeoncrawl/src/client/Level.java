@@ -575,7 +575,8 @@ public class Level extends BasicGameState {
         renderEquippedItems(dc, g);
 
         if (dc.showPath) {
-            renderShortestPath(dc, g);
+//            renderShortestPath(dc, g);
+            renderPathWeights(dc, g);
         }
         
         int baseWidth = 256;
@@ -711,6 +712,7 @@ public class Level extends BasicGameState {
      * @param g
      */
     private void renderPathWeights(Main dc, Graphics g) {
+        System.out.println("Rendering path weights");
         boolean scaled = false;
         boolean coords = false;
         if (dc.hero.weights != null) {
@@ -1267,8 +1269,9 @@ public class Level extends BasicGameState {
 
         sendHeroToServer(dc);
         readCharactersFromServer(dc);
-        sendEnemyStatusToServer(dc);
-        readEnemiesFromServer(dc);
+//        sendEnemyStatusToServer(dc);
+//        readEnemyStatusFromServer(dc);
+//        readEnemiesFromServer(dc);
 
 //
 //        sendEnemyStatusToServer(dc);
@@ -1820,6 +1823,9 @@ public class Level extends BasicGameState {
     }
 
 
+    /*
+    read the information about the AI from the server
+     */
     private void readEnemiesFromServer(Main dc){
         if (debug) System.out.println("readEnemiesFromServer()");
         try{
@@ -1827,17 +1833,19 @@ public class Level extends BasicGameState {
             if (debug) System.out.printf("Read count %s\n",count);
             for(int i = 0; i < count; i++){
                 Msg msg = (Msg)inStream.readObject();
-                if (debug) System.out.printf("read %s\n", msg);
                 Character ai = null;
                 try {
                     ai = dc.enemies.get(msg.id);
                 } catch (IndexOutOfBoundsException e) {
-                    ai = addCharacterFromMsg(dc, msg);
-                }
-                if (ai == null) {
                     continue;
                 }
+                if (debug) System.out.printf("read %s %s\n", msg, msg.nextDirection);
+                if (debug) System.out.printf("Read: %s\n", msg);
+                if (ai.canMove) {
+                    ai.setWorldCoordinates(msg.wx, msg.wy);
+                }
                 ai.setHitPoints(msg.hp);
+                ai.next = msg.nextDirection;
             }
             if (debug) System.out.println();
         }catch(IOException | ClassNotFoundException e){
@@ -2205,26 +2213,6 @@ public class Level extends BasicGameState {
          if (debug) System.out.println();
     }
 
-    /*
-    read the information about the AI from the server
-     */
-    private void readEnemyStatusFromServer(Main dc) {
-        if (debug) System.out.println("readEnemyStatusFromServer()");
-        for (Character ai : dc.enemies) {
-            try {
-                Msg msg = (Msg) inStream.readObject();
-                if (debug) System.out.printf("Read: %s\n", msg);
-                if (ai.canMove) {
-                    ai.setWorldCoordinates(msg.wx, msg.wy);
-                }
-                ai.setHitPoints(msg.hp);
-                ai.next = msg.nextDirection;
-            } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace();
-            }
-        }
-         if (debug) System.out.println();
-    }
 
     /*
     Read the weights from dijkstra from the server
