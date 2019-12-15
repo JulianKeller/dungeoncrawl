@@ -1181,6 +1181,7 @@ public class Level extends BasicGameState {
     
     
     private int songChangeTimer = 3000;
+    private int attackAnimationTimer = -1;
     
 
     @Override
@@ -1211,6 +1212,14 @@ public class Level extends BasicGameState {
         	}
         }
         
+        if( attackAnimationTimer > 0 ){
+        	attackAnimationTimer -= delta;
+        }else{
+	        //stop all attack animations
+	        if( dc.hero.getAction() != null && !dc.hero.getAction().contains("walk") ){
+	        	dc.hero.updateAnimation(null);
+	        }
+        }
         
         //decrease attack timer
         if( attackCooldown > 0 ){
@@ -1885,6 +1894,7 @@ public class Level extends BasicGameState {
                             }
                             addMessage(m);
                         }
+                        attackAnimationTimer = 500;
                         return;
                     }else if( itm.getMaterial().equals("Wooden") ){
                         //max damage: 30
@@ -1999,6 +2009,10 @@ public class Level extends BasicGameState {
             }
             dc.hero.discardItem(itm, true);
         }
+        
+        
+        //start attack animation timer
+        attackAnimationTimer = 500;
     }
     
     private void addThrownItem(Main dc, Item emitter, Image image, Vector direction, Vector destination, Vector step) throws SlickException{
