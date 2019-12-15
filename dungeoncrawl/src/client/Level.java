@@ -1033,12 +1033,10 @@ public class Level extends BasicGameState {
                 ch.animate.setPosition(sc);
                 if (characterInRegion(dc, ch)) {
                     ch.animate.render(g);
-                    System.out.println("Rendering character: " + ch.getCharacterID());
                 }
             }
             else {
                 ch.animate.render(g);       // render the hero
-                System.out.println("Rendering hero: " + ch.getCharacterID());
             }
 
         }
@@ -1185,7 +1183,7 @@ public class Level extends BasicGameState {
             first = false;
         }
 
-        printCharactersInList(dc.characters);
+        if (debug) printCharactersInList(dc.characters);
         
         if( input.isKeyPressed(Input.KEY_RBRACKET) ){
         	//change music in 3 seconds
@@ -1267,10 +1265,6 @@ public class Level extends BasicGameState {
         dc.hero.keystroke = ks;
         dc.hero.move(ks);
 
-        //positionToServer(dc);  // Get the play
-        // er's updated position onto the server.
-//        updateOtherPlayers(dc);
-        System.out.println("Hero is: " + dc.hero.toMsg());
         sendHeroToServer(dc);
         readCharactersFromServer(dc);
 //
@@ -1780,9 +1774,11 @@ public class Level extends BasicGameState {
     }
 
 
+    /**
+     * prints the character list of debugging
+     * @param characters
+     */
     public static void printCharactersInList(ArrayList<Character> characters) {
-        System.out.println("Printing Characters List");
-        System.out.println("Size of List: " + characters.size());
         for (Character c : characters) {
             System.out.println(c.toMsg());
         }
@@ -1795,15 +1791,13 @@ public class Level extends BasicGameState {
      * @param dc
      */
     private void readCharactersFromServer(Main dc){
-//        if (debug)
-            System.out.println("readCharactersFromServer()");
+        if (debug) System.out.println("readCharactersFromServer()");
         try{
             int count = inStream.readInt();
             if (debug) System.out.printf("Read count %s\n",count);
                 for(int i = 0; i < count; i++){
                     Msg msg = (Msg)inStream.readObject();
-//                    if (debug)
-                        System.out.printf("read %s\n", msg);
+                    if (debug) System.out.printf("read %s\n", msg);
                     Character character = null;
                     try {
                         character = dc.characters.get(msg.id);
@@ -1811,16 +1805,13 @@ public class Level extends BasicGameState {
                         character = addCharacterFromMsg(dc, msg);
                     }
                     if (character == null || msg.id == dc.hero.getCharacterID()) {
-                        System.out.println("Character is null");
                         continue;
                     }
                     character.setHitPoints(msg.hp);
+                    character.weights = msg.dijkstraWeights;
                     if (character.getCharacterID() != dc.hero.getCharacterID()) {
                         character.move(msg.ks);
-//                        character.setWorldCoordinates(msg.wx, msg.wy);
                     }
-
-
                 }
             if (debug) System.out.println();
         }catch(IOException | ClassNotFoundException e){
@@ -1835,7 +1826,7 @@ public class Level extends BasicGameState {
      * @param msg
      */
     private Character addCharacterFromMsg(Main dc,Msg msg){
-        System.out.println("addCharacterFromMsg()");
+        if (debug) System.out.println("addCharacterFromMsg()");
         Character newCharacter = new Character(dc,msg.wx,msg.wy,msg.type,msg.id,this,msg.ai);
         for (Character c : dc.characters) {
             if (newCharacter.getCharacterID() == c.getCharacterID()) {
@@ -1844,8 +1835,7 @@ public class Level extends BasicGameState {
             }
         }
         dc.characters.add(newCharacter);
-//        if (debug)
-            System.out.println("Adding Character: " + msg);
+        if (debug) System.out.println("Adding Character: " + msg);
         return newCharacter;
     }
 

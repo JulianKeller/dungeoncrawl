@@ -15,9 +15,8 @@ public class ClientHandler extends Thread {
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
     public BlockingQueue<Msg> threadQueue;
-    public BlockingQueue<List<Msg>> characterList;
     //    private float[][] weights;
-    private boolean debug = true;
+    private boolean debug = false;
     private boolean exit = false;
     public Boolean send = false;
     int tilesize = 32;

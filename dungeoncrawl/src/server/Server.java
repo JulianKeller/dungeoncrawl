@@ -22,6 +22,7 @@ public class Server extends Thread {
     public static List<Msg> enemies = Collections.synchronizedList(new ArrayList<>());
     public static List<ItemMsg> worldItems = Collections.synchronizedList(new ArrayList<>());
     public static List<Msg> characters = Collections.synchronizedList(new ArrayList<>());
+    private boolean debug = false;
 
     public Server() {
     }
@@ -80,7 +81,7 @@ public class Server extends Thread {
     public void sendMsgListToClients(List<Msg> entities) {
         synchronized (clients) {
             for (ClientHandler c : clients) {
-                System.out.println("sendMsgListToClients() -> queue " + c.getId());
+                if (debug) System.out.println("sendMsgListToClients() -> queue " + c.getId());
                     // put characters
                     synchronized (entities) {
                         for (Msg chars : entities) {
@@ -89,7 +90,7 @@ public class Server extends Thread {
                             }
                             try {
                                 c.threadQueue.put(chars);
-                                System.out.printf("Putting %s into queue\n", chars);
+                                if (debug) System.out.printf("Putting %s into queue\n", chars);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
