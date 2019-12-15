@@ -840,7 +840,7 @@ public class Character extends MovingEntity {
         float wx = this.getWorldCoordinates().getX();
         float wy = this.getWorldCoordinates().getY();
         Msg msg = new Msg(this.id,this.type,wx,wy,hp,this.ai);
-//        msg.ks = keystroke;
+        msg.ks = keystroke;
         return msg;
     }
 

@@ -1264,6 +1264,7 @@ public class Level extends BasicGameState {
         }
 
         String ks = getKeystroke(input, dc);
+        dc.hero.keystroke = ks;
         dc.hero.move(ks);
 
         //positionToServer(dc);  // Get the play
@@ -1815,8 +1816,8 @@ public class Level extends BasicGameState {
                     }
                     character.setHitPoints(msg.hp);
                     if (character.getCharacterID() != dc.hero.getCharacterID()) {
-//                        character.move(msg.ks);
-                        character.setWorldCoordinates(msg.wx, msg.wy);
+                        character.move(msg.ks);
+//                        character.setWorldCoordinates(msg.wx, msg.wy);
                     }
 
 
@@ -2159,18 +2160,6 @@ public class Level extends BasicGameState {
         else if (input.isKeyPressed(Input.KEY_5)) {
             ks = "5";
         }
-//        try{
-//            Msg message = new Msg(dc.serverId,dc.hero.getType(),dc.hero.getWorldCoordinates().getX(),
-//                    dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints(), dc.hero.ai);
-//            message.ks = ks;
-//            outStream.writeObject(message);
-//            if (debug) System.out.printf("send %s\n", message);
-//            outStream.flush();
-//            outStream.reset();
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//        if (debug) System.out.println();
         return ks;
     }
 

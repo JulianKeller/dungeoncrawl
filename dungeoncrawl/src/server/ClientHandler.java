@@ -206,10 +206,11 @@ public class ClientHandler extends Thread {
                     exit = true;
                 }
                 if (debug) System.out.printf("read: %s\n", msg);
-                hero.wx = msg.wx;
-                hero.wy = msg.wy;
-                hero.ks = msg.ks;
-                hero.hp = msg.hp;
+                Msg.saveMsgToCharacter(hero, msg);
+//                hero.wx = msg.wx;
+//                hero.wy = msg.wy;
+//                hero.ks = msg.ks;
+//                hero.hp = msg.hp;
             }
         } catch (IOException | ClassNotFoundException e) {
             if (debug) System.out.println("Exiting Game: failed to read character: " + e);
@@ -217,6 +218,7 @@ public class ClientHandler extends Thread {
         }
         if (debug) System.out.println();
     }
+
 
 
     public void sendCharactersToClient() {
