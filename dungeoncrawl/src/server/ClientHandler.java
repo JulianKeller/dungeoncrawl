@@ -1,5 +1,8 @@
 package server;
 
+import client.Character;
+import client.Main;
+
 import java.net.*;
 import java.io.*;
 import java.util.List;
@@ -67,6 +70,8 @@ public class ClientHandler extends Thread {
                         pauseObject.wait();
                     }
                     sendCharactersToClient("characters");
+
+                    readAIStatusFromClient();
                     synchronized (pauseObject) {
                         pauseObject.wait();
                     }
@@ -119,6 +124,34 @@ public class ClientHandler extends Thread {
             }
         }
 //         if (debug) System.out.println();
+    }
+
+    /**
+     * Read the list of characters from the server
+     * @param dc
+     */
+    private void readEnemiesFromClient(Main dc){
+        if (debug) System.out.println("readEnemiesFromClient()");
+        try{
+            int count = inStream.readInt();
+            if (debug) System.out.printf("Read count %s\n",count);
+            for(int i = 0; i < count; i++){
+                Msg msg = (Msg)inStream.readObject();
+                if (debug) System.out.printf("read %s\n", msg);
+                Msg ai = null;
+                try {
+                    ai = Server.enemies.get(msg.id);
+                    Msg.saveMsgToCharacter(ai, msg);
+                } catch (IndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+            if (debug) System.out.println();
+        }catch(IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
     }
 
 
