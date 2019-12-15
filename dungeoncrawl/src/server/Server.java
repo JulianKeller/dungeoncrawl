@@ -95,7 +95,7 @@ public class Server extends Thread {
                                 e.printStackTrace();
                             }
                         }
-                        System.out.println();
+                        if (debug) System.out.println();
                     }
                 synchronized (c.pauseObject) {
                     c.pauseObject.notifyAll();
