@@ -1,14 +1,16 @@
 ## Current Issues
-[38] - Fix the tank as it runs off the screen
-[42] - Fix the server so it runs fast, convert to threadsafe arrays
+
 
 ## Open Issues ##
 [12] - update floor tiles
 [13] - update wall tiles
-[26] - add in sound
 [29] - order characters on screen so they draw correctly
-[30] - adjust AI so they take each other into account when pathfinding
-[33] - update AI characters to be done on the server
+
+[39] - add AI, boss back into the game
+[40] - fix so that other players effects/shooting animations render on other clients 
+[41] - probably a little broken around players leaving and going 
+[43] - add the boss into the game when all skeletons are dead
+[44] - add a winning state when the boss is defeated
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
@@ -29,11 +31,19 @@
 [23] - make items stay in place when player scrolls on screen
 [24] - Refactor renderMap into client/server components
 [25] - create art for splash screen
+[26] - add in sound
 [27] - refactor main to use a splash screen 
 [28] - write method to be called in enter() on the client to generate all the AI characters
 [31] - implement player AI effects
 [32] - refactor and fix framerate drop
+[33] - update AI characters to be done on the server
 [34] - add invincibility cheat
 [35] - add controls to splash screen
 [36] - add image attribute for boss
 [37] - fix splash screen enter button
+[38] - Fix the tank as it runs off the screen
+[42] - Fix the client/server so characters render on all devices
+
+
+# Wont Do
+[30] - adjust AI so they take each other into account when pathfinding

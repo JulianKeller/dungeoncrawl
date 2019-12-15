@@ -2,16 +2,15 @@ package client;
 
 
 import jig.Vector;
+import server.Msg;
 import server.PathFinding;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.SlickException;
 
-import jig.Vector;
 
 public class Character extends MovingEntity {
     private Main dc;
@@ -39,6 +38,7 @@ public class Character extends MovingEntity {
     private int attackTimer = 0;
     PathFinding find;
     public String next;
+    public String keystroke;
 
 
     /**
@@ -272,10 +272,12 @@ public class Character extends MovingEntity {
      * @param key String representing a keystroke
      */
     public void move(String key) {
-        // move the screen under the character, fixed to a grid
-        if (nearEdge) {
-            moveMapHelper();
-            return;
+        // move the screen under the character, fixed to a grid, only for the hero, not other players
+        if (this.getCharacterID() == dc.hero.getCharacterID()) {
+            if (nearEdge) {
+                moveMapHelper();
+                return;
+            }
         }
 
         // moved the character fixed to the grid
@@ -284,15 +286,12 @@ public class Character extends MovingEntity {
             return;
         }
 
-        /*
         //System.out.println("action = " + action );
         if (key == null || key.equals("")) {
-            //stopAction("walk");
-        	//updateAnimation(null);
+//            stopAction("walk");
+//        	updateAnimation(null);
             return;
         }
-        */
-        
 
         String movement = null;
         switch (key) {
@@ -336,6 +335,7 @@ public class Character extends MovingEntity {
             changeOrigin();     // check if the screen origin needs to change
         }
     }
+
     
     public boolean takeDamage(float amount, String effect, boolean cursed) throws SlickException{
     	boolean killed = super.takeDamage(amount, effect, cursed);
@@ -748,7 +748,7 @@ public class Character extends MovingEntity {
         int ox; // other x, y
         int oy;
         for (Character ch : chars) {
-            if (ch.equals(this)) {
+            if (ch.getCharacterID() == this.getCharacterID()) {
                 continue;
             }
             ox = (int) ch.getTileWorldCoordinates().getX();
@@ -822,7 +822,6 @@ public class Character extends MovingEntity {
         setWorldCoordinates(wx, wy);    // world coordinates
     }
 
-
     /**
      * Updates the characters world position when the screen is scrolling
      */
@@ -833,5 +832,17 @@ public class Character extends MovingEntity {
         setWorldCoordinates(wx, wy);    // world coordinates
     }
 
+    /**
+     * Returns a Msg object containing character information
+     * @return
+     */
+    public Msg toMsg(){
+        float hp = this.getHitPoints();
+        float wx = this.getWorldCoordinates().getX();
+        float wy = this.getWorldCoordinates().getY();
+        Msg msg = new Msg(this.id,this.type,wx,wy,hp,this.ai);
+        msg.ks = keystroke;
+        return msg;
+    }
 
 }
