@@ -334,6 +334,70 @@ public class Character extends MovingEntity {
             changeOrigin();     // check if the screen origin needs to change
         }
     }
+
+    public void moveOtherPlayers(String key) {
+//        keystroke = key;
+        // move the screen under the character, fixed to a grid
+//        if (nearEdge) {
+//            moveMapHelper();
+//            return;
+//        }
+
+        // moved the character fixed to the grid
+        if (!canMove) {
+            moveTranslationHelper(animate.getPosition());
+            return;
+        }
+
+        //System.out.println("action = " + action );
+        if (key == null || key.equals("")) {
+//            stopAction("walk");
+//        	updateAnimation(null);
+            return;
+        }
+
+        String movement = null;
+        switch (key) {
+            case "w":
+                movement = "walk_up";
+                break;
+            case "s":
+                movement = "walk_down";
+                break;
+            case "a":
+                movement = "walk_left";
+                break;
+            case "d":
+                movement = "walk_right";
+                break;
+            case "4":       // speed up
+                doubleMoveSpeed();
+                break;
+            case "5":        // slow down
+                halfMoveSpeed();
+                break;
+        }
+        if (movement != null) {
+            movesLeft = dc.tilesize;
+            setNextTileWorldCoordinates(movement);
+            if (!movement.equals(direction)) {
+                updateAnimation(movement);
+                direction = movement;
+            } else {
+                animate.start();
+            }
+            canMove = false;
+            // if collisions are on
+            if (dc.collisions) {
+                // if no wall collisions and no character collisions, then player can move again
+                if (wallCollision() || characterCollision()) {
+                    canMove = true;
+                    return;
+                }
+            }
+            changeOrigin();     // check if the screen origin needs to change
+        }
+    }
     
     public boolean takeDamage(float amount, String effect, boolean cursed) throws SlickException{
     	boolean killed = super.takeDamage(amount, effect, cursed);
