@@ -18,7 +18,6 @@ public class ClientHandler extends Thread {
     int offset = tilesize/2;
     int doubleOffset = offset/2;
     public final PauseObject pauseObject;
-    private boolean everyOther = true;
 
 
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, int id) {
@@ -38,7 +37,7 @@ public class ClientHandler extends Thread {
             // Write the map onto the client for rendering
             outStream.writeObject(Server.map);
             if (debug) System.out.println("send map " + Server.map.getClass().getSimpleName());
-            outStream.reset();
+            outStream.flush();
 
             // read in type of hero from client
             String type = inStream.readUTF();
@@ -127,21 +126,6 @@ public class ClientHandler extends Thread {
         if (debug) System.out.println();
     }
 
-
-    /**
-     * This function places the string into the Server Queue.
-     *
-     * @param m message to send
-     */
-    private void toServer(Msg m) {
-        try {
-            Server.serverQueue.put(m);
-//            if (debug) System.out.println("Adding to queue: " + m.toString());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
      * Send the list of enemies tot he client
      */
@@ -158,29 +142,6 @@ public class ClientHandler extends Thread {
             e.printStackTrace();
         }
         if (debug) System.out.println();
-    }
-
-
-    /**
-     * This method takes from what the server gives to the client
-     * and writes to the client.
-     */
-    // TODO why are we putting and taking from different queues?
-    private boolean writeToClient() {
-        if (debug) System.out.println("writeToClient() " + this.getId());
-        try {
-            Msg toClient = characterQueue.take();
-            outStream.writeObject(toClient);
-            if (debug) System.out.printf("send %s\n", toClient);
-            outStream.reset();
-//            if (debug) System.out.println("Sent to client "+id+": "+toClient);
-            if (debug) System.out.println();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            exit = true;
-            return false;
-        }
-        return true;
     }
 
 
@@ -216,7 +177,7 @@ public class ClientHandler extends Thread {
             count = Server.characters.size() - 1;
             try {
                 outStream.writeInt(count);
-                outStream.reset();
+                outStream.flush();
                 if (debug) System.out.printf("send %s items\n", count);
                 for (int i = 0; i < count; i++) {
                     Msg toClient = null;
@@ -230,8 +191,9 @@ public class ClientHandler extends Thread {
                     }
                     outStream.writeObject(toClient);
                     if (debug) System.out.printf("%s :send %s\n", this.getId(), toClient);
-                    outStream.reset();
+                    outStream.flush();
                 }
+                outStream.reset();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -248,7 +210,6 @@ public class ClientHandler extends Thread {
         count = Server.enemies.size();
         try {
             outStream.writeInt(count);
-            outStream.reset();
             if (debug) System.out.printf("send %s items\n", count);
             for (int i = 0; i < count; i++) {
                 Msg ai = null;
@@ -258,9 +219,10 @@ public class ClientHandler extends Thread {
                     e.printStackTrace();
                 }
                 outStream.writeObject(ai);
-                if (debug) System.out.printf("%s :send %s\n", this.getId(), ai);
                 outStream.reset();
+                if (debug) System.out.printf("%s :send %s\n", this.getId(), ai);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -274,15 +236,15 @@ public class ClientHandler extends Thread {
             int count = Server.worldItems.size();
             outStream.writeInt(count);
             if (debug) System.out.println("send " + count);
-            outStream.reset();
+            outStream.flush();
             synchronized (Server.worldItems) {
                 for (int i = 0; i < count; i++) {
                     ItemMsg item = Server.worldItems.get(i);
                     outStream.writeObject(item);
                     if (debug) System.out.print("send item\n");
-                    outStream.reset();
                 }
             }
+            outStream.reset();
         } catch (IOException e) {
             e.printStackTrace();
         }

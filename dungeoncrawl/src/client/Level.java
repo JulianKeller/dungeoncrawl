@@ -201,7 +201,7 @@ public class Level extends BasicGameState {
         try {
             type = setSkin();
             outStream.writeUTF(type);
-            outStream.reset();
+            outStream.flush();
             if (debug) System.out.println("send " + type);
         } catch (IOException e) {
             e.printStackTrace();
@@ -1749,7 +1749,7 @@ public class Level extends BasicGameState {
         try {
             Msg msg = dc.hero.toMsg();
             outStream.writeObject(msg);
-            outStream.reset();
+            outStream.flush();
             if (debug) System.out.printf("send: %s\n",msg);
         }catch(IOException e){
             if (debug) System.out.println("failed to send character: " + e);
@@ -2209,15 +2209,16 @@ public class Level extends BasicGameState {
     public void sendEnemyStatusToServer(Main dc) {
         if (debug) System.out.println("sendEnemyStatusToServer()");
         Msg msg;
+        try {
         for (Character ai : dc.enemies) {
             msg = ai.toMsg();
-            try {
-                outStream.writeObject(msg);
-                if (debug) System.out.printf("send: %s\n", msg);
-                outStream.reset();
-            }catch(IOException e){
-                e.printStackTrace();
-            }
+            outStream.writeObject(msg);
+            if (debug) System.out.printf("send: %s\n", msg);
+            outStream.reset();
+        }
+
+        }catch(IOException e){
+            e.printStackTrace();
         }
          if (debug) System.out.println();
     }
