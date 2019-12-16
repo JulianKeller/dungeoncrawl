@@ -41,3 +41,5 @@
 [37] Improve visual hud
 [38] Update tank weapons/attacks
 [39] Fix attack animation looping forever
+[39] Fix attack animation looping forever
+[40] Update server item generation to use client item class

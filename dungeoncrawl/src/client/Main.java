@@ -570,7 +570,7 @@ public class Main extends StateBasedGame {
     public boolean closeRequested(){
         if(!localMode) {
             try {
-                dos.writeObject(new Msg(serverId,"Exit",0,0,0, false));
+                dos.writeObject(new Msg(serverId,"Exit",0,0,0, false, 1));
                 dos.flush();
                 socket.close();
                 dos.close();

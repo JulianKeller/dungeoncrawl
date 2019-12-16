@@ -1,6 +1,9 @@
 package server;
 
 import client.Main;
+import jig.Entity;
+import jig.Vector;
+import client.Item;
 import org.newdawn.slick.SlickException;
 
 import java.util.Collections;
@@ -21,6 +24,8 @@ public class Server extends Thread{
     public static int [][] rotatedMap;
     public static List<Msg> enemies = Collections.synchronizedList(new ArrayList<>());
     public static List<ItemMsg> worldItems = Collections.synchronizedList(new ArrayList<>());
+    
+    private static int currentItemId = 0;
 
     public Server(){
     }
@@ -62,7 +67,7 @@ public class Server extends Thread{
         return rotated;
     }
     public static void plantItem(int numItems, int uniquePotions, int[][] map, int maxcol, int maxrow) throws SlickException {
-        //Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
+        Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
         Random rand = new Random();
         rand.setSeed(System.nanoTime());
         String [] identifiedPotionEffects = new String[5];
@@ -79,8 +84,6 @@ public class Server extends Thread{
             }
 
         }
-        int currentItemID = 0;
-        //int[][] potionAt = new int[game.map.length][game.map.length];
 
 
         while( numItems > 0 ){
@@ -150,160 +153,20 @@ public class Server extends Thread{
             }
             worldItems.add(i);
 
-            currentItemID++;
-
             numItems--;
         }
     }
 
-    public static ItemMsg generateItem(){
-        //set random properties
-        Random rand = new Random();
-        rand.setSeed(System.nanoTime());
-
-        int count = 1;
-
-        //first get the item type
-
-        //currently developed item types, for debugging purposes only
-        //String[] currentTypes = {"Potion", "Sword", "Armor", "Arrow"};
-
-        //rarity: armor, sword/other weapons, potion, arrow
-        //armor: 20%, sword: 30%, potion: 40%, arrow: 50%
-        ItemMsg item = new ItemMsg();
-
-        //arrow: 40%; potion: 30%; weapon: 20%;  armor: 10%
-        int r = rand.nextInt(100);
-        if( r < 10 ){		//10%
-            item.type = "Armor";
-            item.requiredClasses[0] = "knight";
-            item.requiredClasses[1] = "tank";
-        }else if( r < 30 ){ //20%
-            r = rand.nextInt(100);
-            if( r < 20 ){
-                item.type = "Staff";
-                item.requiredClasses[0] = "mage";
-            }else if( r < 50 ){
-                item.type = "Sword";
-                item.requiredClasses[0] = "knight";
-            }else{
-                item.type = "Gloves";
-                item.requiredClasses[0] = "tank";
-            }
-        }else if( r < 50 ){	//30%
-            item.type = "Potion";
-            item.requiredClasses[0] = "knight";
-            item.requiredClasses[1] = "tank";
-            item.requiredClasses[2] = "mage";
-            item.requiredClasses[3] = "archer";
-        }else{				//40%
-            item.type = "Arrow";
-            item.requiredClasses[0] = "archer";
-        }
-
-
-
-
-        //choose materials from the appropriate list
-//        System.out.println("Item type: "+item.type);
-        r = rand.nextInt(100);
-
-        if( item.type.equals("Sword") ){
-            if( r < 20 ){ 			//20%
-                item.material = "Gold";
-            }else if( r < 50 ){ 	//30%
-                item.material = "Iron";
-            }else{ 					//50%
-                item.material = "Wooden";
-            }
-        }else if( item.type.equals("Armor") ){
-            if( r < 30 ){ 			//30%
-                item.material = "Gold";
-            }else{ 					//70%
-                item.material = "Iron";
-            }
-        }else if( item.type.equals("Staff") ){
-            if( r < 20 ){ 			//20%
-                item.material = "Amethyst";
-            }else if( r < 50 ){ 	//30%
-                item.material = "Emerald";
-            }else{ 					//50%
-                item.material = "Ruby";
-            }
-        }else if( item.type.equals("Gloves") ){
-            if( r < 20 ){			//20%
-                item.material = "Yellow";
-            }else if( r < 50 ){ 	//30%
-                item.material = "White";
-            }else{					//50%
-                item.material = "Red";
-            }
-        }else{
-            item.material = "";
-        }
-
-        //choose effects from the appropriate list
-        //chance of effect: 50%
-        r = rand.nextInt(100);
-        if ( r < 50 ){
-            if( item.type.equals("Sword") ){
-                item.effect = Main.SwordEffects[ rand.nextInt(Main.SwordEffects.length) ];
-            }else if( item.type.equals("Armor") ){
-                item.effect = Main.ArmorEffects[ rand.nextInt(Main.ArmorEffects.length) ];
-            }else if( item.type.equals("Gloves") ){
-                item.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
-            }else if( item.type.equals("Arrow") ){
-                item.effect = Main.ArrowEffects[ rand.nextInt(Main.ArrowEffects.length) ];
-            }else{
-                item.effect = "";
-            }
-            //except potions and staffs, which will always have an effect
-        }else if( item.type.equals("Potion") ){
-            item.effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length) ];
-        }else if( item.type.equals("Staff") ){
-            item.effect = Main.StaffEffects[ rand.nextInt(Main.StaffEffects.length) ];
-        }else if( item.type.equals("Gloves") ){
-            item.effect = Main.GloveEffects[ rand.nextInt(Main.GloveEffects.length) ];
-        }else{
-            item.effect = "";
-        }
-
-        if( item.type.equals("Potion") ) {
-            r = rand.nextInt(5);
-            switch (r) {
-                case 0:
-                    //this.image = ResourceManager.getImage(Main.POTION_BLUE);
-                    item.material = "Blue";
-                    break;
-                case 1:
-                    //this.image = ResourceManager.getImage(Main.POTION_ORANGE);
-                    item.material = "Orange";
-                    break;
-                case 2:
-                    //this.image = ResourceManager.getImage(Main.POTION_PINK);
-                    item.material = "Pink";
-                    break;
-                case 3:
-                    //this.image = ResourceManager.getImage(Main.POTION_RED);
-                    item.material = "Red";
-                    break;
-                case 4:
-                    //this.image = ResourceManager.getImage(Main.POTION_YELLOW);
-                    item.material = "Yellow";
-                    break;
-            }
-        }
-        //items have a chance to be cursed (for now?)
-        if( rand.nextInt(100) <= 30 ){
-            item.cursed = true;
-        }else{
-            item.cursed = false;
-        }
-
-        //all items start unidentified
-        item.identified = false;
-        updateWeight(item,count);
-        return item;
+    public static ItemMsg generateItem() throws SlickException{
+    	Item i = new Item( new Vector(0, 0), false, currentItemId, 0, false);
+    	
+        ItemMsg im = new ItemMsg(i.getID(), i.getOID(), i.getWorldCoordinates().getX(), i.getWorldCoordinates().getY(),
+        						i.getType(), i.getEffect(), i.getMaterial(), i.getRequiredClasses(), i.isCursed(),
+        						i.isIdentified(), i.getWeight(), i.count, i.getRequiredLevel());
+        
+        currentItemId++;
+        
+        return im;
     }
 
     public static void updateWeight(ItemMsg i, int count){

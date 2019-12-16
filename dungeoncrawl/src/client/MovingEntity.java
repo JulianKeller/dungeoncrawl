@@ -665,7 +665,8 @@ Reflection:
     	boolean addedToHand = false;
     	//try to add to equipped items first
     	for( int x = 0; x < equipped.length; x++ ){
-    		if( equipped[x] != null && i.equals(equipped[x]) ){
+    		if( equipped[x] != null && i.equals(equipped[x]) && "Potion Arrow".contains(equipped[x].getType()) ){
+    			//only potions and arrows may stack
     			equipped[x].count += i.count;
     			inventoryWeight += i.getWeight();
     			addedToHand = true;
@@ -679,7 +680,7 @@ Reflection:
     	}
     	if( !addedToHand ){
 	    	for( Item itm : inventory ){
-	    		if( itm.equals(i) ){
+	    		if( itm.equals(i) && "Potion Arrow".contains(i.getType())){
 	    			itm.count += i.count;
 	    			inventoryWeight += i.getWeight();
 	    			add = false;
@@ -887,6 +888,10 @@ Reflection:
         if( startingHitPoints == -1 ){
         	startingHitPoints = hitPoints;
         }
+    }
+    
+    public void setStrength(int strength){
+    	this.strength = strength;
     }
 
     public float getStartingHitPoints() {

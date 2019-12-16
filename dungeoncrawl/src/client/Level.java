@@ -67,6 +67,8 @@ public class Level extends BasicGameState {
     private int selectedEquippedItem = 0; //item selected in the hotbar
     
     private int itemsIdentified = 0;
+    
+    private int averagePlayerLevel = 1; //the average level of all players
 
     private class Message{
         protected int timer = messageTimer;
@@ -135,6 +137,15 @@ public class Level extends BasicGameState {
     //music tracks
     private Music currentTrack = null;
     private Music[] tracks = new Music[3];
+    
+    public void updateAveragePlayerLevel(Main dc){
+    	int sum = 0;
+    	for( Character ch : dc.characters ){
+    		sum += ch.getStrength();
+    	}
+    	
+    	averagePlayerLevel = sum/dc.characters.size();
+    }
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) {
@@ -913,7 +924,9 @@ public class Level extends BasicGameState {
                 
                 
                 //draw a string representation of the the selected item
-                g.drawString( items.get((itemy*4)+itemx).toString(), dc.tilesize, 9*dc.tilesize);
+                if( (itemy*4)+itemx < items.size() ){
+                	g.drawString( items.get((itemy*4)+itemx).toString(), dc.tilesize, 9*dc.tilesize);
+                }
                 
                 g.setColor(tmp);
             }
@@ -1193,6 +1206,9 @@ public class Level extends BasicGameState {
         if (paused) {
             return;
         }
+        
+        //update average strength value
+        updateAveragePlayerLevel(dc);
         
         if( input.isKeyPressed(Input.KEY_RBRACKET) ){
         	//change music in 3 seconds
@@ -1692,6 +1708,15 @@ public class Level extends BasicGameState {
 
             Item i = Main.im.getItemAt(aniPos);
             if( i != null && !i.isLocked() ){
+            	//update the item's required level
+            	if( !i.getType().equals("Arrow") && !i.getType().equals("Potion") ){
+            		//the average level +/- 2 so that some items are higher and lower
+            		int level = averagePlayerLevel + rand.nextInt(3) * (-1*rand.nextInt(2));
+            		if( level < 1 ){
+            			level = 1;
+            		}
+            		i.setRequiredLevel(level);
+            	}
             	if( ch.getInventoryWeight() >= ch.getMaxInventoryWeight() ){
             		addMessage("You cannot carry any more.");
             	}else{
@@ -2121,7 +2146,7 @@ public class Level extends BasicGameState {
         }
         try{
             Msg message = new Msg(dc.serverId,dc.hero.getType(),dc.hero.getWorldCoordinates().getX(),
-                    dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints(), dc.hero.ai);
+                    dc.hero.getWorldCoordinates().getY(),dc.hero.getHitPoints(), dc.hero.ai, dc.hero.getStrength());
             message.ks = ks;
             outStream.writeObject(message);
             //System.out.println("wrote message of "+message.getClass().getSimpleName());
@@ -2146,7 +2171,7 @@ public class Level extends BasicGameState {
         for (Character ai : dc.enemies) {
             wx = ai.getWorldCoordinates().getX();
             wy = ai.getWorldCoordinates().getY();
-            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(), ai.ai);
+            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(), ai.ai, 1);
             try {
                 outStream.writeObject(msg);
                 outStream.flush();
@@ -2289,6 +2314,7 @@ read the information about the AI from the server
             b.render(g);
         }
     }
+    
 
     public void updateOtherPlayers(Main dc){
         try {
@@ -2308,6 +2334,8 @@ read the information about the AI from the server
                     }
                     c.move(read.ks);
                     c.setHitPoints(read.hp);
+                    c.setStrength(read.strength);
+                    
                     return;
                 }
 
