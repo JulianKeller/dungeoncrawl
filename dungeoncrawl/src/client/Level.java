@@ -1266,19 +1266,19 @@ public class Level extends BasicGameState {
         dc.hero.move(ks);
 
         // read/send to server every other loop
-        if (everyOther) {
-            sendHeroToServer(dc);
-            readCharactersFromServer(dc);
-
-            sendEnemyStatusToServer(dc);
-            readEnemiesFromServer(dc);
-
-            readWeightsFromServer(dc);
-            everyOther = false;
-        }
-        else {
-            everyOther = true;
-        }
+//        if (everyOther) {
+//            sendHeroToServer(dc);
+//            readCharactersFromServer(dc);
+//
+//            sendEnemyStatusToServer(dc);
+//            readEnemiesFromServer(dc);
+//
+//            readWeightsFromServer(dc);
+//            everyOther = false;
+//        }
+//        else {
+//            everyOther = true;
+//        }
 
 
 

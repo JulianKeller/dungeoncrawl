@@ -54,22 +54,24 @@ public class ClientHandler extends Thread {
             sendItemList();
             sendCharactersToClient();
             while (true) {
-                try {
-                    if (exit) {
-                        break;
-                    }
-                    readHeroFromClient();
-                    sendCharactersToClient();
 
-                    readEnemyStatusFromClient();
-                    sendEnemiesToClient();
-
-                    sendWeightsToClient();
-                } catch (Exception e) {
-                    if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
-                            "and terminating thread.");
-                    break;
-                }
+                if (false) break;
+//                try {
+//                    if (exit) {
+//                        break;
+//                    }
+//                    readHeroFromClient();
+//                    sendCharactersToClient();
+//
+//                    readEnemyStatusFromClient();
+//                    sendEnemiesToClient();
+//
+//                    sendWeightsToClient();
+//                } catch (Exception e) {
+//                    if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
+//                            "and terminating thread.");
+//                    break;
+//                }
             }
             Server.clients.remove(this);
             outStream.close();
