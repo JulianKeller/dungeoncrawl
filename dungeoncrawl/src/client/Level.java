@@ -2334,6 +2334,7 @@ read the information about the AI from the server
                     }
                     c.move(read.ks);
                     c.setHitPoints(read.hp);
+                    c.setStrength(read.strength);
                     
                     return;
                 }

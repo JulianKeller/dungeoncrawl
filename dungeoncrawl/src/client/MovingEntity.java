@@ -889,6 +889,10 @@ Reflection:
         	startingHitPoints = hitPoints;
         }
     }
+    
+    public void setStrength(int strength){
+    	this.strength = strength;
+    }
 
     public float getStartingHitPoints() {
         return startingHitPoints;
