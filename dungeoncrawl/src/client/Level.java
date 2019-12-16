@@ -26,7 +26,7 @@ import jig.ResourceManager;
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-    private boolean debug = false;
+    private boolean debug = true;
     private String type;
 
     private int[][] rotatedMap;
@@ -1528,14 +1528,13 @@ public class Level extends BasicGameState {
         }
         
         // TODO check why this is here twice...
-//        dc.characters.removeIf(b -> b.getHitPoints() <= 0);
+        dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
         // if the hero has no health, then replace it with a new hero character in the same spot
-//        if(dc.hero.getHitPoints() <= 0){
-//            dc.hero = new Character(dc,dc.hero.animate.getX(),dc.hero.animate.getY(),dc.hero.getType(),
-//                    dc.serverId,this,false);
-//            //dc.characters.add(0,dc.hero);
-//        }
+        if(dc.hero.getHitPoints() <= 0){
+            game.enterState(Main.STARTUPSTATE);
+            //dc.characters.add(0,dc.hero);
+        }
 
 
         // cause AI players to move around
@@ -1811,7 +1810,7 @@ public class Level extends BasicGameState {
                     character.weights = msg.dijkstraWeights;
                     if (character.getCharacterID() != dc.hero.getCharacterID()) {
                         character.move(msg.ks);
-//                        character.setWorldCoordinates(msg.wx, msg.wy);
+//                        character.setWorldCoordinates(msg.wx, msg.wy);a
                     }
                 }
             if (debug) System.out.println();

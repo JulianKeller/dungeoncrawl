@@ -38,6 +38,7 @@ public class ClientHandler extends Thread {
     @Override
     public void run() {
         try {
+            //this.join();
             // Write the map onto the client for rendering
             outStream.writeObject(Server.map);
             if (debug) System.out.println("send map " + Server.map.getClass().getSimpleName());
@@ -74,12 +75,12 @@ public class ClientHandler extends Thread {
                     break;
                 }
             }
+            System.out.println("closing conections, terminating thread.");
             Server.clients.remove(this);
             outStream.close();
             inStream.close();
             socket.close();
-            this.join();
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -201,11 +202,14 @@ public class ClientHandler extends Thread {
             synchronized (Server.characters) {
                 Msg hero = Server.characters.get(id);
                 Msg msg = (Msg) inStream.readObject();
-                if (msg.type.equals("Exit")) {
+                if (msg.hp <= 0 || msg.type.equals("Exit")) {
+                    Server.characters.remove(hero);
                     exit = true;
                 }
                 if (debug) System.out.printf("read: %s\n", msg);
-                Msg.saveMsgToCharacter(hero, msg);
+                if(!exit) {
+                    Msg.saveMsgToCharacter(hero, msg);
+                }
 //                hero.wx = msg.wx;
 //                hero.wy = msg.wy;
 //                hero.ks = msg.ks;
