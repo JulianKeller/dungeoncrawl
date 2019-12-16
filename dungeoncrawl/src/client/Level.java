@@ -137,6 +137,15 @@ public class Level extends BasicGameState {
     //music tracks
     private Music currentTrack = null;
     private Music[] tracks = new Music[3];
+    
+    public void updateAveragePlayerLevel(Main dc){
+    	int sum = 0;
+    	for( Character ch : dc.characters ){
+    		sum += ch.getStrength();
+    	}
+    	
+    	averagePlayerLevel = sum/dc.characters.size();
+    }
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) {
@@ -1198,6 +1207,9 @@ public class Level extends BasicGameState {
             return;
         }
         
+        //update average strength value
+        updateAveragePlayerLevel(dc);
+        
         if( input.isKeyPressed(Input.KEY_RBRACKET) ){
         	//change music in 3 seconds
         	currentTrack.stop();
@@ -1696,6 +1708,15 @@ public class Level extends BasicGameState {
 
             Item i = Main.im.getItemAt(aniPos);
             if( i != null && !i.isLocked() ){
+            	//update the item's required level
+            	if( !i.getType().equals("Arrow") && !i.getType().equals("Potion") ){
+            		//the average level +/- 2 so that some items are higher and lower
+            		int level = averagePlayerLevel + rand.nextInt(3) * (-1*rand.nextInt(2));
+            		if( level < 1 ){
+            			level = 1;
+            		}
+            		i.setRequiredLevel(level);
+            	}
             	if( ch.getInventoryWeight() >= ch.getMaxInventoryWeight() ){
             		addMessage("You cannot carry any more.");
             	}else{
@@ -2294,9 +2315,6 @@ read the information about the AI from the server
         }
     }
     
-    private int getAveragePlayerLevel(){
-    	//calculate the average player level
-    }
 
     public void updateOtherPlayers(Main dc){
         try {
