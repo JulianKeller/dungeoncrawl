@@ -1,5 +1,5 @@
 ## Current Issues
-[39] - add AI, boss back into the game
+[39] - add AI back into the game
 
 ## Open Issues ##
 [12] - update floor tiles
