@@ -2220,7 +2220,7 @@ public class Level extends BasicGameState {
             msg = ai.toMsg();
             outStream.writeObject(msg);
             if (debug) System.out.printf("send: %s\n", msg);
-            outStream.reset();
+            // outStream.reset();
         }
 
         }catch(IOException e){

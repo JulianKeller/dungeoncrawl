@@ -136,7 +136,7 @@ public class ClientHandler extends Thread {
                 outStream.writeObject(Server.enemies);
                 if (debug) System.out.printf("send Server.enemies\n");
             }
-            outStream.reset();
+            // outStream.reset();
 //            if (debug) System.out.println("Wrote ArrayList Server.enemies");
         } catch (IOException e) {
             e.printStackTrace();
@@ -193,7 +193,7 @@ public class ClientHandler extends Thread {
                     if (debug) System.out.printf("%s :send %s\n", this.getId(), toClient);
                     outStream.flush();
                 }
-                outStream.reset();
+                // outStream.reset();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -219,7 +219,7 @@ public class ClientHandler extends Thread {
                     e.printStackTrace();
                 }
                 outStream.writeObject(ai);
-                outStream.reset();
+                // outStream.reset();
                 if (debug) System.out.printf("%s :send %s\n", this.getId(), ai);
             }
 
@@ -244,7 +244,7 @@ public class ClientHandler extends Thread {
                     if (debug) System.out.print("send item\n");
                 }
             }
-            outStream.reset();
+            // outStream.reset();
         } catch (IOException e) {
             e.printStackTrace();
         }
