@@ -122,6 +122,7 @@ public class ClientHandler extends Thread {
                     e.printStackTrace();
                 }
             }
+            Server.enemies.removeIf(b -> b.hp <= 0);
         }
         if (debug) System.out.println();
     }
@@ -136,7 +137,7 @@ public class ClientHandler extends Thread {
                 outStream.writeObject(Server.enemies);
                 if (debug) System.out.printf("send Server.enemies\n");
             }
-            // outStream.reset();
+             outStream.reset();
 //            if (debug) System.out.println("Wrote ArrayList Server.enemies");
         } catch (IOException e) {
             e.printStackTrace();
@@ -177,7 +178,7 @@ public class ClientHandler extends Thread {
             count = Server.characters.size() - 1;
             try {
                 outStream.writeInt(count);
-                outStream.flush();
+                outStream.reset();
                 if (debug) System.out.printf("send %s items\n", count);
                 for (int i = 0; i < count; i++) {
                     Msg toClient = null;
@@ -191,7 +192,7 @@ public class ClientHandler extends Thread {
                     }
                     outStream.writeObject(toClient);
                     if (debug) System.out.printf("%s :send %s\n", this.getId(), toClient);
-                    outStream.flush();
+                    outStream.reset();
                 }
                 // outStream.reset();
             } catch (IOException e) {
@@ -219,7 +220,7 @@ public class ClientHandler extends Thread {
                     e.printStackTrace();
                 }
                 outStream.writeObject(ai);
-                // outStream.reset();
+                 outStream.reset();
                 if (debug) System.out.printf("%s :send %s\n", this.getId(), ai);
             }
 
@@ -244,7 +245,7 @@ public class ClientHandler extends Thread {
                     if (debug) System.out.print("send item\n");
                 }
             }
-            // outStream.reset();
+             outStream.reset();
         } catch (IOException e) {
             e.printStackTrace();
         }

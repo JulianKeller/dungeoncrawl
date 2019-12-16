@@ -201,7 +201,7 @@ public class Level extends BasicGameState {
         try {
             type = setSkin();
             outStream.writeUTF(type);
-            outStream.flush();
+            outStream.reset();
             if (debug) System.out.println("send " + type);
         } catch (IOException e) {
             e.printStackTrace();
@@ -1271,6 +1271,9 @@ public class Level extends BasicGameState {
             readCharactersFromServer(dc);
 
             sendEnemyStatusToServer(dc);
+            // check for dead enemies
+            dc.enemies.removeIf(b -> b.getHitPoints() <= 0);
+
             readEnemiesFromServer(dc);
 
             readWeightsFromServer(dc);
@@ -1279,6 +1282,8 @@ public class Level extends BasicGameState {
         else {
             everyOther = true;
         }
+
+
 
 
 
@@ -1748,7 +1753,7 @@ public class Level extends BasicGameState {
         try {
             Msg msg = dc.hero.toMsg();
             outStream.writeObject(msg);
-            outStream.flush();
+            outStream.reset();
             if (debug) System.out.printf("send: %s\n",msg);
         }catch(IOException e){
             if (debug) System.out.println("failed to send character: " + e);
@@ -1953,9 +1958,6 @@ public class Level extends BasicGameState {
             battle(itm, dc, dc.characters);     // friendly fire
             battle(itm, dc, dc.enemies);        // handle battle between AI and character
 
-
-            // TODO add back in later
-//            dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
         }else if( itm.getType().equals("Potion") ){
         	SFXManager.playSound("potion_throw");
@@ -2220,9 +2222,8 @@ public class Level extends BasicGameState {
             msg = ai.toMsg();
             outStream.writeObject(msg);
             if (debug) System.out.printf("send: %s\n", msg);
-            // outStream.reset();
+            outStream.reset();
         }
-
         }catch(IOException e){
             e.printStackTrace();
         }
