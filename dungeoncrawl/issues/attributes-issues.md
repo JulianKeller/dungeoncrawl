@@ -1,5 +1,6 @@
 ## Current Issues
 [46] - send path weights back to the player again using existing methods
+[50] - fix game fps again
 
 ## Open Issues ##
 [29] - order characters on screen so they draw correctly
