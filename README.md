@@ -8,7 +8,8 @@ Dungeon Crawl is a 2D dungeon crawler in which up to four players must crawl the
 - a: move left
 - s: move down
 - d: move right
-
+- ' (apostrophe) - equip armor
+- }: change background song
 - p: pause game
 
 ### Inventory
@@ -17,6 +18,7 @@ Dungeon Crawl is a 2D dungeon crawler in which up to four players must crawl the
 - arrow keys: traverse open item display
 - backslash: drop item
 - shift: unequip item (move from hand to inventory)
+
 
 
 ## Cheats
