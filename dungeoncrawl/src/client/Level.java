@@ -1274,7 +1274,7 @@ public class Level extends BasicGameState {
         sendEnemyStatusToServer(dc);
 
 //        readEnemyStatusFromServer(dc);
-//        readEnemiesFromServer(dc);
+        readEnemiesFromServer(dc);
 
 //
 //        sendEnemyStatusToServer(dc);
@@ -1842,11 +1842,11 @@ public class Level extends BasicGameState {
                 } catch (IndexOutOfBoundsException e) {
                     continue;
                 }
-                if (debug) System.out.printf("read %s %s\n", msg, msg.nextDirection);
+//                if (debug) System.out.printf("read %s %s\n", msg, msg.nextDirection);
                 if (debug) System.out.printf("Read: %s\n", msg);
-                if (ai.canMove) {
-                    ai.setWorldCoordinates(msg.wx, msg.wy);
-                }
+//                if (ai.canMove) {
+//                    ai.setWorldCoordinates(msg.wx, msg.wy);
+//                }
                 ai.setHitPoints(msg.hp);
                 ai.next = msg.nextDirection;
             }
@@ -2198,12 +2198,7 @@ public class Level extends BasicGameState {
     public void sendEnemyStatusToServer(Main dc) {
         if (debug) System.out.println("sendEnemyStatusToServer()");
         Msg msg;
-        float wx;
-        float wy;
         for (Character ai : dc.enemies) {
-//            wx = ai.getWorldCoordinates().getX();
-//            wy = ai.getWorldCoordinates().getY();
-//            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(), ai.ai);
             msg = ai.toMsg();
             try {
                 outStream.writeObject(msg);

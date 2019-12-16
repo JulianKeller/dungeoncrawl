@@ -15,7 +15,8 @@ public class ClientHandler extends Thread {
     private ObjectInputStream inStream;  // the input stream
     private int id;    /// the thread id (based on port number in socket)
     private boolean writeSuccess;
-    public BlockingQueue<Msg> threadQueue;
+    public BlockingQueue<Msg> characterQueue;
+    public BlockingQueue<Msg> enemyQueue;
     //    private float[][] weights;
     private boolean debug = false;
     private boolean exit = false;
@@ -31,7 +32,8 @@ public class ClientHandler extends Thread {
         this.inStream = is;
         this.outStream = os;
         this.id = id;
-        threadQueue = new LinkedBlockingQueue<>();
+        characterQueue = new LinkedBlockingQueue<>();
+        enemyQueue = new LinkedBlockingQueue<>();
         writeSuccess = true;
         pauseObject = new PauseObject();
     }
@@ -57,7 +59,7 @@ public class ClientHandler extends Thread {
 
             sendEnemyList();
             sendItemList();
-            sendCharactersToClient("characters");
+            sendCharactersToClient();
             while (true) {
                 try {
                     if (exit) {
@@ -67,13 +69,13 @@ public class ClientHandler extends Thread {
                     synchronized (pauseObject) {
                         pauseObject.wait();
                     }
-                    sendCharactersToClient("characters");
+                    sendCharactersToClient();
 
                     readEnemyStatusFromClient();
-//                    synchronized (pauseObject) {
-//                        pauseObject.wait();
-//                    }
-//                    sendCharactersToClient("enemies");
+                    synchronized (pauseObject) {
+                        pauseObject.wait();
+                    }
+                    sendEnemiesToClient();
                 } catch (Exception e) {
                     if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
                             "and terminating thread.");
@@ -164,9 +166,6 @@ public class ClientHandler extends Thread {
                     Msg msg = (Msg) inStream.readObject();
                     if (debug) System.out.printf("send " + msg);
                     Msg.saveMsgToCharacter(ai, msg);
-//                    ai.wx = msg.wx;
-//                    ai.wy = msg.wy;
-//                    ai.hp = msg.hp;
                 } catch (ClassNotFoundException | IOException e) {
                     e.printStackTrace();
                 }
@@ -216,7 +215,7 @@ public class ClientHandler extends Thread {
     private boolean writeToClient() {
         if (debug) System.out.println("writeToClient() " + this.getId());
         try {
-            Msg toClient = threadQueue.take();
+            Msg toClient = characterQueue.take();
             outStream.writeObject(toClient);
             if (debug) System.out.printf("send %s\n", toClient);
             outStream.reset();
@@ -250,16 +249,13 @@ public class ClientHandler extends Thread {
     }
 
 
-
-    public void sendCharactersToClient(String type) {
-        int count = 0;
+    /**
+     * Take from the characterQueue and send to the client
+     */
+    public void sendCharactersToClient() {
+        int count;
         if (debug) System.out.println("sendCharactersToClient() " + this.getId());
-        if (type.equals("characters")) {
             count = Server.characters.size() - 1;
-        }
-        else if (type.equals("enemies")) {
-            count = Server.enemies.size();
-        }
             try {
                 outStream.writeInt(count);
                 outStream.reset();
@@ -267,7 +263,7 @@ public class ClientHandler extends Thread {
                 for (int i = 0; i < count; i++) {
                     Msg toClient = null;
                     try {
-                        toClient = threadQueue.take();
+                        toClient = characterQueue.take();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -281,6 +277,35 @@ public class ClientHandler extends Thread {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        if (debug) System.out.println();
+    }
+
+
+    /**
+     * Take from the enemyQueue and send to the client
+     */
+    public void sendEnemiesToClient() {
+        int count;
+        if (debug) System.out.println("sendEnemiesToClient() " + this.getId());
+        count = Server.enemies.size();
+        try {
+            outStream.writeInt(count);
+            outStream.reset();
+            if (debug) System.out.printf("send %s items\n", count);
+            for (int i = 0; i < count; i++) {
+                Msg ai = null;
+                try {
+                    ai = enemyQueue.take();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                outStream.writeObject(ai);
+                if (debug) System.out.printf("%s :send %s\n", this.getId(), ai);
+                outStream.reset();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if (debug) System.out.println();
     }
 

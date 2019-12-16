@@ -58,28 +58,27 @@ public class Server extends Thread {
             }
 
             // update all clients with latest details of other players and enemies
-            sendMsgListToClients(characters);
-//            sendMsgListToClients(enemies);
+            putCharactersInClientQueues();
+            putEnemiesInClientQueues();
         }
     }
 
 
     /**
-     * Put the list of enenties into the queue for the thread to send to it's client
-     * @param entities characters or enemies lists
+     * Put the list of characters into the queue for the thread to send to it's client
      */
-    public void sendMsgListToClients(List<Msg> entities) {
+    public void putCharactersInClientQueues() {
         synchronized (clients) {
             for (ClientHandler c : clients) {
-                if (debug) System.out.println("sendMsgListToClients() -> queue " + c.getId());
+                if (debug) System.out.println("putCharactersinClientQueues() -> queue " + c.getId());
                     // put characters
-                    synchronized (entities) {
-                        for (Msg chars : entities) {
+                    synchronized (characters) {
+                        for (Msg chars : characters) {
                             if (chars.id == c.getClientId()) {
                                 continue;
                             }
                             try {
-                                c.threadQueue.put(chars);
+                                c.characterQueue.put(chars);
                                 if (debug) System.out.printf("Putting %s into queue\n", chars);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
@@ -87,6 +86,33 @@ public class Server extends Thread {
                         }
                         if (debug) System.out.println();
                     }
+                synchronized (c.pauseObject) {
+                    c.pauseObject.notifyAll();
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Put the list of characters into the queue for the thread to send to it's client
+     */
+    public void putEnemiesInClientQueues() {
+        synchronized (clients) {
+            for (ClientHandler c : clients) {
+                if (debug) System.out.println("putEnemiesInClientQueues() -> queue " + c.getId());
+                // put characters
+                synchronized (enemies) {
+                    for (Msg ai : enemies) {
+                        try {
+                            c.enemyQueue.put(ai);
+                            if (debug) System.out.printf("Putting %s into queue\n", ai);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (debug) System.out.println();
+                }
                 synchronized (c.pauseObject) {
                     c.pauseObject.notifyAll();
                 }
