@@ -585,7 +585,6 @@ public class Level extends BasicGameState {
         renderEquippedItems(dc, g);
 
         if (dc.showPath) {
-//            renderShortestPath(dc, g);
             renderPathWeights(dc, g);
         }
         
@@ -1280,11 +1279,10 @@ public class Level extends BasicGameState {
         sendHeroToServer(dc);
         readCharactersFromServer(dc);
 
-
         sendEnemyStatusToServer(dc);
         readEnemiesFromServer(dc);
 
-//        readWeightsFromServer(dc);
+        readWeightsFromServer(dc);
 
 
 
@@ -2234,75 +2232,14 @@ public class Level extends BasicGameState {
     private void readWeightsFromServer(Main dc) {
         if (debug) System.out.println("readWeightsFromServer()");
         try {
-            Msg msg = (Msg) inStream.readObject();
-            if (debug) System.out.printf("Read: %s\n",msg);
-            dc.hero.weights = msg.dijkstraWeights;
+            float[][] weight = (float[][]) inStream.readObject();
+            if (debug) System.out.printf("Read weights: %s\n", weight);
+            dc.hero.weights = weight;
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
         if (debug) System.out.println();
     }
-
-
-    /**
-      * Update the players position on the server.
-      */
-//    public void positionToServer(Main dc){
-//        float wx = dc.hero.getWorldCoordinates().getX();
-//        float wy = dc.hero.getWorldCoordinates().getY();
-//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-//        getEffectsForMsg(dc, toServer);
-//        try {
-//            outStream.writeObject(toServer);
-//            outStream.flush();
-//            outStream.reset();
-////            if (debug) System.out.println("writing "+ toServer.toString());
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//    }
-//    public void positionToServer(Main dc){
-//        float wx = dc.hero.getWorldCoordinates().getX();
-//        float wy = dc.hero.getWorldCoordinates().getY();
-//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-//        getEffectsForMsg(dc, toServer);
-//        try {
-//            outStream.writeObject(toServer);
-//            outStream.flush();
-//            outStream.reset();
-////            if (debug) System.out.println("writing "+ toServer.toString());
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//    }
-//    public void positionToServer(Main dc){
-//        float wx = dc.hero.getWorldCoordinates().getX();
-//        float wy = dc.hero.getWorldCoordinates().getY();
-//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-//        getEffectsForMsg(dc, toServer);
-//        try {
-//            outStream.writeObject(toServer);
-//            outStream.flush();
-//            outStream.reset();
-////            if (debug) System.out.println("writing "+ toServer.toString());
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//    }
-//    public void positionToServer(Main dc){
-//        float wx = dc.hero.getWorldCoordinates().getX();
-//        float wy = dc.hero.getWorldCoordinates().getY();
-//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-//        getEffectsForMsg(dc, toServer);
-//        try {
-//            outStream.writeObject(toServer);
-//            outStream.flush();
-//            outStream.reset();
-////            if (debug) System.out.println("writing "+ toServer.toString());
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//    }
 
 
     /**
