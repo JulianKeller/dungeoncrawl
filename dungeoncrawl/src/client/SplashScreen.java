@@ -88,7 +88,7 @@ public class SplashScreen extends BasicGameState {
         }
         if (input.isKeyPressed(Input.KEY_ENTER)) {
         	SFXManager.playSound("enter_level");
-            connectToSever(dc, game);
+            connectToServer(dc, game);
         }
 
         if (errorTimer >= 0) {
@@ -347,7 +347,7 @@ public class SplashScreen extends BasicGameState {
      *
 
      */
-    private void connectToSever(Main dc,StateBasedGame game) {
+    private void connectToServer(Main dc,StateBasedGame game) {
         // Setting up the connection to the server
         Socket socket = null;
         ObjectOutputStream dos = null;
