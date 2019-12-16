@@ -72,6 +72,7 @@ public class ClientHandler extends Thread {
                         pauseObject.wait();
                     }
                     sendEnemiesToClient();
+                    sendWeightsToClient();
                 } catch (Exception e) {
                     if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
                             "and terminating thread.");
@@ -103,9 +104,14 @@ public class ClientHandler extends Thread {
     /*
     Send weights from dijkstra's to the client
      */
-    private void sendWeightsToClient(Msg msg) {
-        toServer(msg);
-        writeToClient();
+    private void sendWeightsToClient() {
+        Msg hero = Server.characters.get(id);
+        try {
+            outStream.writeObject(hero.dijkstraWeights);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
