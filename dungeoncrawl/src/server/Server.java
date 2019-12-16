@@ -15,50 +15,119 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
-public class Server extends Thread{
+public class Server extends Thread {
     // Static Objects for each thread.
     public static BlockingQueue<Msg> serverQueue = new LinkedBlockingQueue<>();
-//    public static List<ClientQueue> clientQueues = Collections.synchronizedList(new ArrayList<>());
     public static List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
     public static int [][] map;
     public static int [][] rotatedMap;
     public static List<Msg> enemies = Collections.synchronizedList(new ArrayList<>());
     public static List<ItemMsg> worldItems = Collections.synchronizedList(new ArrayList<>());
-    
+    public static List<Msg> characters = Collections.synchronizedList(new ArrayList<>());
+    private boolean debug = false;
     private static int currentItemId = 0;
 
-    public Server(){
+    public Server() {
     }
 
     @Override
     public void run() {
-        while(true){
+        while (true) {
 
-            // TODO need to re-architect so we can read from all clients
-            //  then I can compute dijkstra for each player
-            //  then determine the next moves for all AI
-            //  then send the AI data back to the AI
+            // calculate dijkstra's weights for each active player
+            synchronized (characters) {
+                for (Msg c : characters) {
+                    AI.getDijkstraWeights(c);       // updates clients weights and paths
+                    if (debug) System.out.println("Ran Dijkstra on player: " + c.id);
+                }
+            }
 
-            sendToClients();
+            // for each enemy find the closest player to them,
+            // use closestPlayer.dijkstraWeights to determine path to player
+            synchronized (enemies) {
+                float closest = 10000;
+                for (Msg ai : enemies) {
+                    float distance = 0;
+                    synchronized (characters) {  // TODO change to list of players
+                        for (Msg hero : characters) {
+                            distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
+                            if (distance < closest) {
+                                AI.updatePosition(ai, hero);    // then ai.get next direction
+                            }
+                        }
+                    }
+                    if (debug) System.out.printf("AI %s next direction: %s\n", ai.id, ai.nextDirection);
+                }
+            }
+
+            // update all clients with latest details of other players and enemies
+            putCharactersInClientQueues();
+            putEnemiesInClientQueues();
         }
     }
 
-    public void sendToClients(){
-        try {
-            Msg playerInfo = serverQueue.take();
-            for(ClientHandler c : clients)
-                c.threadQueue.put(playerInfo);
-            } catch(InterruptedException e){
-                e.printStackTrace();
+
+    /**
+     * Put the list of characters into the queue for the thread to send to it's client
+     */
+    public void putCharactersInClientQueues() {
+        synchronized (clients) {
+            for (ClientHandler c : clients) {
+                if (debug) System.out.println("putCharactersinClientQueues() -> queue " + c.getId());
+                    // put characters
+                    synchronized (characters) {
+                        for (Msg chars : characters) {
+                            if (chars.id == c.getClientId()) {
+                                continue;
+                            }
+                            try {
+                                c.characterQueue.put(chars);
+                                if (debug) System.out.printf("Putting %s into queue\n", chars);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (debug) System.out.println();
+                    }
+                synchronized (c.pauseObject) {
+                    c.pauseObject.notifyAll();
+                }
             }
+        }
     }
 
 
+    /**
+     * Put the list of characters into the queue for the thread to send to it's client
+     */
+    public void putEnemiesInClientQueues() {
+        synchronized (clients) {
+            for (ClientHandler c : clients) {
+                if (debug) System.out.println("putEnemiesInClientQueues() -> queue " + c.getId());
+                // put characters
+                synchronized (enemies) {
+                    for (Msg ai : enemies) {
+                        try {
+                            c.enemyQueue.put(ai);
+                            if (debug) System.out.printf("Putting %s into queue\n", ai);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (debug) System.out.println();
+                }
+                synchronized (c.pauseObject) {
+                    c.pauseObject.notifyAll();
+                }
+            }
+        }
+    }
 
-    public static int [][] rotateMap(int [][] map){
-        int [][] rotated = new int[map[0].length][map.length];
-        for( int i = 0; i < map.length; i++ ){
-            for( int j = 0; j < map[i].length; j++ ){
+
+    public static int[][] rotateMap(int[][] map) {
+        int[][] rotated = new int[map[0].length][map.length];
+        for (int i = 0; i < map.length; i++) {
+            for (int j = 0; j < map[i].length; j++) {
                 //g.drawString(""+dc.map[i][j], j*dc.tilesize, i*dc.tilesize);
                 //i is y, j is x
                 rotated[j][i] = map[i][j];
@@ -66,19 +135,20 @@ public class Server extends Thread{
         }
         return rotated;
     }
+
     public static void plantItem(int numItems, int uniquePotions, int[][] map, int maxcol, int maxrow) throws SlickException {
         Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
         Random rand = new Random();
         rand.setSeed(System.nanoTime());
-        String [] identifiedPotionEffects = new String[5];
-        for( int i = 0; i < uniquePotions; i++ ){
-            String effect = Main.PotionEffects[ rand.nextInt(Main.PotionEffects.length)];
-            for( int j = 0; j < identifiedPotionEffects.length; j++ ){
-                if( identifiedPotionEffects[j] != null && identifiedPotionEffects[j].equals(effect) ){
+        String[] identifiedPotionEffects = new String[5];
+        for (int i = 0; i < uniquePotions; i++) {
+            String effect = Main.PotionEffects[rand.nextInt(Main.PotionEffects.length)];
+            for (int j = 0; j < identifiedPotionEffects.length; j++) {
+                if (identifiedPotionEffects[j] != null && identifiedPotionEffects[j].equals(effect)) {
                     i--;
                     break;
                 }
-                if( j == identifiedPotionEffects.length-1 ){
+                if (j == identifiedPotionEffects.length - 1) {
                     identifiedPotionEffects[i] = effect;
                 }
             }
@@ -129,8 +199,8 @@ public class Server extends Thread{
 
             //check if the item is a potion and set its effect
             //0: blue, 1: orange, 2: pink, 3: red, 4: yellow
-            if( i.type.equals("Potion") ){
-                if( i.material.equals("Blue") ){
+            if (i.type.equals("Potion")) {
+                if (i.material.equals("Blue")) {
                     //use the stored effect
                     i.effect=identifiedPotionEffects[0];
                 }else if( i.material.equals("Orange")){
@@ -204,8 +274,9 @@ public class Server extends Thread{
         }
     }
 
-    public static void main(String [] args){
-
+    public static void main(String[] args) {
+        int currentPlayerId = 0;
+        int maxPlayers = 4;
         try {
             // Create a new Socket for the server
             ServerSocket ss = new ServerSocket(5000);
@@ -230,16 +301,19 @@ public class Server extends Thread{
             server.start();
             // This listens for new connections.
             while (true) {
+                if (currentPlayerId >= maxPlayers) {     // limit the game to 4 players
+                    continue;
+                }
                 Socket s = ss.accept();
                 System.out.println("A new client has connected " + s);
                 ObjectOutputStream os = new ObjectOutputStream(s.getOutputStream());
                 ObjectInputStream is = new ObjectInputStream(s.getInputStream());
                 // This is the client handler thread.
                 System.out.println("Creating new thread for this client...");
-                ClientHandler t = new ClientHandler(s, is, os, new LinkedBlockingQueue<>());
+                ClientHandler t = new ClientHandler(s, is, os, currentPlayerId);
                 clients.add(t);
                 t.start();
-
+                currentPlayerId++;
             }
         }catch(IOException e){
             e.printStackTrace();

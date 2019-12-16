@@ -1,11 +1,13 @@
 package server;
 
+import jig.Vector;
+
 import java.util.*;
 
 // an implementation of Dijkstra's algorithm
 public class PathFinding {
     public float[][] distance;
-    private int[][][] path;
+    public int[][][] path;
     private boolean[][] visited;
     private ArrayList<Vertex> q;
     private int y;
@@ -42,6 +44,15 @@ public class PathFinding {
         }
     }
 
+    // run dijkstra starting at the hero's position and set the path to the hero Msg object
+    public void dijkstra(Msg hero) {
+        Vector heroTile = AI.getTileWorldCoordinates(hero.wx, hero.wy);
+        int startX = (int) heroTile.getX();
+        int startY = (int) heroTile.getY();
+        dijkstra(startX, startY);
+        hero.path = path;
+    }
+
     /**
      * Finds the shortest path after dijkstra's has been run between the starting and target points
      *
@@ -51,7 +62,7 @@ public class PathFinding {
      * @param targetY y ending tile coordinates
      * @return the shortest path between start and end
      */
-    public ArrayList<int[]> findShortestPath(int startX, int startY, int targetX, int targetY) {
+    public static ArrayList<int[]> findShortestPath(int[][][] path, int startX, int startY, int targetX, int targetY) {
         Stack<int[]> stack = new Stack<>();
         ArrayList<int[]> shortest = new ArrayList<>();
         int prevx, prevy;

@@ -3,7 +3,6 @@
 [19] Update character images based on weapon material
 [30] Add animations for thrown items breaking
 [31] Scale thrown items to give the appearance of arc
-[40] Update server item generation to use client item class
 
 ##Resolved Issues##
 [1] Create database schema to hold items and player inventories

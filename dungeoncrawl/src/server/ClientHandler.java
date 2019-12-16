@@ -8,74 +8,95 @@ import java.util.concurrent.*;
 // TODO investigate why reading and writing different position values is not working
 //  it seems the client is not getting the updated value, but the server is sending it
 public class ClientHandler extends Thread {
-    private Socket socket;   // Socket of client and server
-    private ObjectOutputStream outStream;  // the output stream
-    private ObjectInputStream inStream;  // the input stream
-    private int id;    /// the thread id (based on port number in socket)
+    private Socket socket;      // Socket of client and server
+    private ObjectOutputStream outStream;   // the output stream
+    private ObjectInputStream inStream;     // the input stream
+    private int id;             // the thread id (based on port number in socket)
     private boolean writeSuccess;
-    public BlockingQueue<Msg> threadQueue;
-    private float[][] weights;
-    public Msg hero;
-    public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os,
-                         BlockingQueue<Msg> queue){
+    public BlockingQueue<Msg> characterQueue;
+    public BlockingQueue<Msg> enemyQueue;
+    private boolean debug = false;
+    private boolean exit = false;
+    int tilesize = 32;
+    int offset = tilesize/2;
+    int doubleOffset = offset/2;
+    public final PauseObject pauseObject;
+
+
+    public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, int id) {
         socket = s;
         this.inStream = is;
         this.outStream = os;
-        id = s.getPort();
-        threadQueue = queue;
+        this.id = id;
+        characterQueue = new LinkedBlockingQueue<>();
+        enemyQueue = new LinkedBlockingQueue<>();
         writeSuccess = true;
+        pauseObject = new PauseObject();
     }
 
     @Override
-    public void run(){
-        boolean init = true;
-        try{
+    public void run() {
+        try {
             // Write the map onto the client for rendering
             outStream.writeObject(Server.map);
-            System.out.println("Writing map "+ Server.map.getClass().getSimpleName());
-            outStream.flush();
-            outStream.writeInt(id);
-            System.out.println("Writing id "+ id);
-            outStream.flush();
+            if (debug) System.out.println("send map " + Server.map.getClass().getSimpleName());
+            outStream.reset();
+
+            // read in type of hero from client
+            String type = inStream.readUTF();
+            if (debug) System.out.println("read: " + type);
+            // spawn the hero
+            // TODO update spawning to be dynamic
+            float wx = (tilesize * 20) - offset;
+            float wy = (tilesize * 18) - tilesize - doubleOffset;
+            Msg hero = new Msg(id, type, wx, wy, 100, false, 1);
+            sendHeroToClient(hero);
+            Server.characters.add(hero);
+
             sendEnemyList();
             sendItemList();
-            while(true) {
+            sendCharactersToClient();
+            while (true) {
                 try {
-                    // Receive coordinate message from the client about the Hero
-                    Msg message = (Msg) inStream.readObject();
-                    if (init) {
-                        hero = message;
-                        init = false;
-                    }
-
-//                    System.out.println("reading " + message.toString());
-//                    System.out.println("Client Handler "+id+": "+message);
-                    toServer(message);
-                    writeSuccess = writeToClient();
-                    if (!writeSuccess || message.type.equals("Exit"))
+                    if (exit) {
                         break;
+                    }
+                    readHeroFromClient();
+                    synchronized (pauseObject) {
+                        pauseObject.wait();
+                    }
+                    sendCharactersToClient();
 
-                    // Update the AI Positions
-                    readAIStatusFromClient();
-//                    weights = AI.updatePosition(message);      // takes the hero's x, y coordinates
-//                    message.dijkstraWeights = weights;
-                    sendAIStatusToClient();
-//                    sendWeightsToClient(message);
-
-                } catch(SocketException | ClassNotFoundException e){
-                    System.out.println("Client "+id+" closed unexpectedly.\nClosing connections " +
+                    readEnemyStatusFromClient();
+                    synchronized (pauseObject) {
+                        pauseObject.wait();
+                    }
+                    sendEnemiesToClient();
+                } catch (Exception e) {
+                    if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
                             "and terminating thread.");
                     break;
                 }
             }
-//            Server.clientQueues.remove(threadQueue);
             Server.clients.remove(this);
             outStream.close();
             inStream.close();
             socket.close();
-        } catch(IOException e){
+            this.join();
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     * send the hero to the client on enter
+     * @param hero
+     */
+    private void sendHeroToClient(Msg hero) throws IOException {
+        if (debug) System.out.println("sendHeroToClient() " + this.getId());
+        outStream.writeObject(hero);
+        if (debug) System.out.printf("send: %s\n\n", hero);
     }
 
 
@@ -88,65 +109,56 @@ public class ClientHandler extends Thread {
     }
 
 
-    /**
-     * update the client with the position of the ai
-     */
-    public void sendAIStatusToClient() {
-//        System.out.println("sendAIStatusToClient()");
-        synchronized (Server.enemies) {
-            for (Msg ai : Server.enemies) {
-                toServer(ai);
-                writeToClient();
-            }
-        }
-        // System.out.println();
-    }
-
-
     /*
     read the information about the AI from the server
      */
-    private void readAIStatusFromClient() {
-//        System.out.println("readAIStatusFromClient()");
+    private void readEnemyStatusFromClient() {
+        if (debug) System.out.println("readEnemyStatusFromClient() " + this.getId());
         synchronized (Server.enemies) {
-        for (Msg ai : Server.enemies) {
-            try {
-                Msg msg = (Msg) inStream.readObject();
-//                System.out.println("reading " + msg.toString());
-                ai.wx = msg.wx;
-                ai.wy = msg.wy;
-                ai.hp = msg.hp;
-            } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace();
+            for (Msg ai : Server.enemies) {
+                try {
+                    Msg msg = (Msg) inStream.readObject();
+                    if (debug) System.out.printf("send " + msg);
+                    Msg.saveMsgToCharacter(ai, msg);
+                } catch (ClassNotFoundException | IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        }
-//        // System.out.println();
+        if (debug) System.out.println();
     }
+
 
     /**
      * This function places the string into the Server Queue.
+     *
      * @param m message to send
      */
-    private void toServer(Msg m){
+    private void toServer(Msg m) {
         try {
             Server.serverQueue.put(m);
-//            System.out.println("Adding to queue: " + m.toString());
-        } catch (InterruptedException e){
+//            if (debug) System.out.println("Adding to queue: " + m.toString());
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    private void sendEnemyList(){
+    /**
+     * Send the list of enemies tot he client
+     */
+    private void sendEnemyList() {
+        if (debug) System.out.println("sendEnemyList() " + this.getId());
         try {
             synchronized (Server.enemies) {
                 outStream.writeObject(Server.enemies);
+                if (debug) System.out.printf("send Server.enemies\n");
             }
             outStream.reset();
-//            System.out.println("Wrote ArrayList Server.enemies");
-        }catch(IOException e){
+//            if (debug) System.out.println("Wrote ArrayList Server.enemies");
+        } catch (IOException e) {
             e.printStackTrace();
         }
+        if (debug) System.out.println();
     }
 
 
@@ -156,39 +168,140 @@ public class ClientHandler extends Thread {
      */
     // TODO why are we putting and taking from different queues?
     private boolean writeToClient() {
+        if (debug) System.out.println("writeToClient() " + this.getId());
         try {
-            Msg toClient = threadQueue.take();
+            Msg toClient = characterQueue.take();
             outStream.writeObject(toClient);
-//            System.out.println("writing " + toClient.toString());
+            if (debug) System.out.printf("send %s\n", toClient);
             outStream.reset();
-//            System.out.println("Sent to client "+id+": "+toClient);
+//            if (debug) System.out.println("Sent to client "+id+": "+toClient);
+            if (debug) System.out.println();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            exit = true;
             return false;
         }
         return true;
     }
 
-    public void sendItemList(){
-        try{
+
+    /*
+    Reads the hero details from the client
+     */
+    public void readHeroFromClient() {
+        if (debug) System.out.println("readCharactersFromClient() " + this.getId());
+        try {
+            synchronized (Server.characters) {
+                Msg hero = Server.characters.get(id);
+                Msg msg = (Msg) inStream.readObject();
+                if (msg.type.equals("Exit")) {
+                    exit = true;
+                }
+                if (debug) System.out.printf("read: %s\n", msg);
+                Msg.saveMsgToCharacter(hero, msg);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            if (debug) System.out.println("Exiting Game: failed to read character: " + e);
+            exit = true;
+        }
+        if (debug) System.out.println();
+    }
+
+
+    /**
+     * Take from the characterQueue and send to the client
+     */
+    public void sendCharactersToClient() {
+        int count;
+        if (debug) System.out.println("sendCharactersToClient() " + this.getId());
+            count = Server.characters.size() - 1;
+            try {
+                outStream.writeInt(count);
+                outStream.reset();
+                if (debug) System.out.printf("send %s items\n", count);
+                for (int i = 0; i < count; i++) {
+                    Msg toClient = null;
+                    try {
+                        toClient = characterQueue.take();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (toClient != null && toClient.id == id) {
+                        continue;
+                    }
+                    outStream.writeObject(toClient);
+                    if (debug) System.out.printf("%s :send %s\n", this.getId(), toClient);
+                    outStream.reset();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        if (debug) System.out.println();
+    }
+
+
+    /**
+     * Take from the enemyQueue and send to the client
+     */
+    public void sendEnemiesToClient() {
+        int count;
+        if (debug) System.out.println("sendEnemiesToClient() " + this.getId());
+        count = Server.enemies.size();
+        try {
+            outStream.writeInt(count);
+            outStream.reset();
+            if (debug) System.out.printf("send %s items\n", count);
+            for (int i = 0; i < count; i++) {
+                Msg ai = null;
+                try {
+                    ai = enemyQueue.take();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                outStream.writeObject(ai);
+                if (debug) System.out.printf("%s :send %s\n", this.getId(), ai);
+                outStream.reset();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (debug) System.out.println();
+    }
+
+    
+    public void sendItemList() {
+        if (debug) System.out.println("sendItemList() " + this.getId());
+        try {
             int count = Server.worldItems.size();
             outStream.writeInt(count);
-//            System.out.println("writing " + toClient.toString());
+            if (debug) System.out.println("send " + count);
             outStream.reset();
-
             synchronized (Server.worldItems) {
                 for (int i = 0; i < count; i++) {
                     ItemMsg item = Server.worldItems.get(i);
                     outStream.writeObject(item);
+                    if (debug) System.out.print("send item\n");
                     outStream.reset();
                 }
             }
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
+        if (debug) System.out.println();
     }
-    public int getClientId(){
+
+    public int getClientId() {
         return id;
+    }
+
+
+    /*
+    Object just used for waiting on the server thread, very important
+     */
+    public class PauseObject {
+        /*
+        !! Do not remove !!
+         */
     }
 
 }

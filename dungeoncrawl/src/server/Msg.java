@@ -21,6 +21,9 @@ public class Msg implements Serializable {
     public boolean reflecting = false;
     public boolean mighty = false;
     public int strength;
+    public int[][][] path;
+    public boolean canMove = true;
+    public String action;
 
     public Msg(){
         this.id = 0;
@@ -32,6 +35,7 @@ public class Msg implements Serializable {
         this.strength = 1;
         this.ai = false;
     }
+    
     public Msg(int id, String type, float wx, float wy, float hp, boolean ai, int strength){
         this.id = id;
         this.type = type;
@@ -43,6 +47,37 @@ public class Msg implements Serializable {
         this.strength = strength;
 
     }
+
+
+    /**
+     *
+     * @param msg from the client
+     * @param character character on server to save msg to
+     */
+    public static void saveMsgToCharacter(Msg character, Msg msg) {
+        character.id = msg.id;
+        character.type = msg.type;
+        character.wx = msg.wx;
+        character.wy = msg.wy;
+        character.tilex = msg.tilex;
+        character.tiley = msg.tiley;
+        character.hp = msg.hp;
+        character.ks = msg.ks;
+        character.ai = msg.ai;
+        character.dijkstraWeights = msg.dijkstraWeights;
+        character.nextDirection = msg.nextDirection;
+        character.invisible = msg.invisible;
+        character.stinky = msg.stinky;
+        character.thorny = msg.thorny;
+        character.frightening = msg.frightening;
+        character.reflecting = msg.reflecting;
+        character.mighty = msg.mighty;
+        character.path = msg.path;
+        character.canMove = msg.canMove;
+        character.action = msg.action;
+        character.strength = msg.strength;
+    }
+    
     @Override
     public String toString(){
         return("Id = "+id+" type = "+type+" wx = "+wx+" wy = "+wy+" hp = "+hp+" strength= "+strength);
