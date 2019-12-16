@@ -1271,7 +1271,8 @@ public class Level extends BasicGameState {
         readCharactersFromServer(dc);
 
 
-//        sendEnemyStatusToServer(dc);
+        sendEnemyStatusToServer(dc);
+
 //        readEnemyStatusFromServer(dc);
 //        readEnemiesFromServer(dc);
 
@@ -2200,13 +2201,13 @@ public class Level extends BasicGameState {
         float wx;
         float wy;
         for (Character ai : dc.enemies) {
-            wx = ai.getWorldCoordinates().getX();
-            wy = ai.getWorldCoordinates().getY();
-            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(), ai.ai);
+//            wx = ai.getWorldCoordinates().getX();
+//            wy = ai.getWorldCoordinates().getY();
+//            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(), ai.ai);
+            msg = ai.toMsg();
             try {
                 outStream.writeObject(msg);
                 if (debug) System.out.printf("send: %s\n", msg);
-                outStream.flush();
                 outStream.reset();
             }catch(IOException e){
                 e.printStackTrace();

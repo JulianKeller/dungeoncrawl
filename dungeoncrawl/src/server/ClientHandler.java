@@ -1,11 +1,9 @@
 package server;
 
-import client.Character;
 import client.Main;
 
 import java.net.*;
 import java.io.*;
-import java.util.List;
 import java.util.concurrent.*;
 
 
@@ -71,7 +69,7 @@ public class ClientHandler extends Thread {
                     }
                     sendCharactersToClient("characters");
 
-//                    readAIStatusFromClient();
+                    readEnemyStatusFromClient();
 //                    synchronized (pauseObject) {
 //                        pauseObject.wait();
 //                    }
@@ -158,16 +156,17 @@ public class ClientHandler extends Thread {
     /*
     read the information about the AI from the server
      */
-    private void readAIStatusFromClient() {
-        if (debug) System.out.println("readAIStatusFromClient() " + this.getId());
+    private void readEnemyStatusFromClient() {
+        if (debug) System.out.println("readEnemyStatusFromClient() " + this.getId());
         synchronized (Server.enemies) {
             for (Msg ai : Server.enemies) {
                 try {
                     Msg msg = (Msg) inStream.readObject();
                     if (debug) System.out.printf("send " + msg);
-                    ai.wx = msg.wx;
-                    ai.wy = msg.wy;
-                    ai.hp = msg.hp;
+                    Msg.saveMsgToCharacter(ai, msg);
+//                    ai.wx = msg.wx;
+//                    ai.wy = msg.wy;
+//                    ai.hp = msg.hp;
                 } catch (ClassNotFoundException | IOException e) {
                     e.printStackTrace();
                 }
