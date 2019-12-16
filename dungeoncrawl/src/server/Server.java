@@ -32,7 +32,7 @@ public class Server extends Thread {
         while (true) {
 
             // calculate dijkstra's weights for each active player
-            synchronized (clients) {
+            synchronized (characters) {
                 for (Msg c : characters) {
                     AI.getDijkstraWeights(c);       // updates clients weights and paths
                     if (debug) System.out.println("Ran Dijkstra on player: " + c.id);
@@ -59,7 +59,7 @@ public class Server extends Thread {
 
             // update all clients with latest details of other players and enemies
             sendMsgListToClients(characters);
-            sendMsgListToClients(enemies);
+//            sendMsgListToClients(enemies);
         }
     }
 
