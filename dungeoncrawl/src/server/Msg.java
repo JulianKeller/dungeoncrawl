@@ -21,6 +21,8 @@ public class Msg implements Serializable {
     public boolean reflecting = false;
     public boolean mighty = false;
     public int[][][] path;
+    public boolean canMove = true;
+    public String action;
 
     public Msg(){
         this.id = 0;
@@ -68,6 +70,8 @@ public class Msg implements Serializable {
         character.reflecting = msg.reflecting;
         character.mighty = msg.mighty;
         character.path = msg.path;
+        character.canMove = msg.canMove;
+        character.action = msg.action;
     }
     
     @Override

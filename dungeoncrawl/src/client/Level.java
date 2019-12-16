@@ -282,12 +282,6 @@ public class Level extends BasicGameState {
         try {
             int count = inStream.readInt();
             if (debug) System.out.printf("Reading item count: %s\n",count);
-//            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
-
-//            List<ItemMsg> fromServer = Collections.synchronizedList(new ArrayList<>());
-
-            //if (debug) System.out.println("Read type: "+fromServer.getClass().getSimpleName());
-//            for(ItemMsg i : fromServer) {
             for (int j = 0; j < count; j++) {
                 try {
                     ItemMsg i = (ItemMsg) inStream.readObject();
@@ -320,13 +314,29 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
         for (Msg e : enemyList) {
-            float x = e.wx;
-            float y = e.wy;
+            // convert tile coords to world coords so ai always spawn at same place for all players
+            Vector wc = convertTileToWorldCoordinates(e.tilex, e.tiley);
+            float x = (int) wc.getX();
+            float y = (int) wc.getY();
+            if (debug) System.out.printf("placing skeleton at: %s, %s\n", x, y);
             int eid = e.id;
-            dc.enemies.add(new Character(dc, x, y, e.type, eid, this, true));
+            Character ai = new Character(dc, x, y, e.type, eid, this, true);
+            ai.setHitPoints(e.hp);
+            dc.enemies.add(ai);
+
 //            if (debug) System.out.println("Created AI " + e.toString());
         }
     }
+
+    /*
+    Convert tile coordinates back to world coordinates
+     */
+    public Vector convertTileToWorldCoordinates(float tilex, float tiley) {
+        float x = ((tilex + 1) * tilesize) - offset;
+        float y = (tiley * tilesize) - doubleOffset;
+        return new Vector(x, y);
+    }
+
     private void setItemImage(Item i) throws SlickException{
         //get an image based on item type
         Image image = null;
@@ -1813,6 +1823,12 @@ public class Level extends BasicGameState {
                         character.move(msg.ks);
 //                        character.setWorldCoordinates(msg.wx, msg.wy);
                     }
+                    if (character.canMove) {
+                        Vector wc = convertTileToWorldCoordinates(msg.tilex, msg.tiley);
+                        float x = (int) wc.getX();
+                        float y = (int) wc.getY();
+                        character.setWorldCoordinates(x, y);
+                    }
                 }
             if (debug) System.out.println();
         }catch(IOException | ClassNotFoundException e){
@@ -1839,9 +1855,14 @@ public class Level extends BasicGameState {
                 }
 //                if (debug) System.out.printf("read %s %s\n", msg, msg.nextDirection);
                 if (debug) System.out.printf("Read: %s\n", msg);
-//                if (ai.canMove) {
-//                    ai.setWorldCoordinates(msg.wx, msg.wy);
-//                }
+
+                // sync up all AI positions based on tile coordinates
+                if (ai.canMove) {
+                    Vector wc = convertTileToWorldCoordinates(msg.tilex, msg.tiley);
+                    float x = (int) wc.getX();
+                    float y = (int) wc.getY();
+                    ai.setWorldCoordinates(x, y);
+                }
                 ai.setHitPoints(msg.hp);
                 ai.next = msg.nextDirection;
             }

@@ -841,7 +841,25 @@ public class Character extends MovingEntity {
         float wx = this.getWorldCoordinates().getX();
         float wy = this.getWorldCoordinates().getY();
         Msg msg = new Msg(this.id,this.type,wx,wy,hp,this.ai);
-        msg.ks = keystroke;
+        msg.id = this.id;
+        msg.type = this.type;
+        msg.tilex = (int) this.getTileWorldCoordinates().getX();
+        msg.tiley = (int) this.getTileWorldCoordinates().getY();
+        msg.ks = this.keystroke;
+        msg.ai = this.ai;
+        msg.dijkstraWeights = this.weights;
+//        msg.nextDirection = this.nextDirection;
+        msg.invisible = this.isInvisible();
+        msg.stinky = this.isStinky();
+        msg.thorny = this.isThorny();
+        msg.frightening = this.isFrightening();
+        msg.reflecting = this.isReflecting();
+        msg.mighty = this.isMighty();
+//        msg.path = this.path;
+        msg.canMove = this.canMove;
+        msg.action = this.action;
+
+
         return msg;
     }
 

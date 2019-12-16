@@ -9,9 +9,7 @@ import java.util.Random;
 This class spawns AI players and items locations, these can be sent to the client and then rendered
  */
 public class AI {
-
-// TODO copy over the getTileCoordinates method
-
+    private boolean debug = false;
 
     /**
      * run dijkstra's algorithm and gets the next direction the AI should move
@@ -171,6 +169,9 @@ public class AI {
             float wx = (tilesize * row) - offset;
             float wy = (tilesize * col) - tilesize - doubleOffset;
             Msg message = new Msg(id, "skeleton_basic",wx,wy,150, true);   // "x y id"
+//            if (debug) System.out.printf("placing skeleton at: %s, %s\n", wx, wy);
+            message.tilex = row;
+            message.tiley = col;
             enemies.add(message);
             count--;
             id++;
