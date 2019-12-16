@@ -28,6 +28,7 @@ public class Level extends BasicGameState {
     private Random rand;
     private boolean debug = false;
     private String type;
+    private boolean everyOther = true;
 
     private int[][] rotatedMap;
 
@@ -206,20 +207,9 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
 
-//        // read the hero's starting position
-//        String coord = wx + " " + wy;
-//        int id = 0;
-//        String type = setSkin();
-//        try {
-//            id = inStream.readInt();
-//            if (debug) System.out.printf("Reading hero's id: %s\n",id);
-//            dc.serverId = id;
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
+
 
         readHeroFromServer(dc);
-//        dc.characters.add(dc.hero);
         receiveEnemyList(dc);
         receiveItemList();
         readCharactersFromServer(dc);
@@ -1276,13 +1266,20 @@ public class Level extends BasicGameState {
         dc.hero.keystroke = ks;
         dc.hero.move(ks);
 
-        sendHeroToServer(dc);
-        readCharactersFromServer(dc);
+        // read/send to server every other loop
+        if (everyOther) {
+            sendHeroToServer(dc);
+            readCharactersFromServer(dc);
 
-        sendEnemyStatusToServer(dc);
-        readEnemiesFromServer(dc);
+            sendEnemyStatusToServer(dc);
+            readEnemiesFromServer(dc);
 
-        readWeightsFromServer(dc);
+            readWeightsFromServer(dc);
+            everyOther = false;
+        }
+        else {
+            everyOther = true;
+        }
 
 
 

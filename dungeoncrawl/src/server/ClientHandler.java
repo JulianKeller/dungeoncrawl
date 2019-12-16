@@ -4,9 +4,6 @@ import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
 
-
-// TODO investigate why reading and writing different position values is not working
-//  it seems the client is not getting the updated value, but the server is sending it
 public class ClientHandler extends Thread {
     private Socket socket;      // Socket of client and server
     private ObjectOutputStream outStream;   // the output stream
@@ -21,6 +18,7 @@ public class ClientHandler extends Thread {
     int offset = tilesize/2;
     int doubleOffset = offset/2;
     public final PauseObject pauseObject;
+    private boolean everyOther = true;
 
 
     public ClientHandler(Socket s, ObjectInputStream is, ObjectOutputStream os, int id) {
@@ -62,16 +60,11 @@ public class ClientHandler extends Thread {
                         break;
                     }
                     readHeroFromClient();
-                    synchronized (pauseObject) {
-                        pauseObject.wait();
-                    }
                     sendCharactersToClient();
 
                     readEnemyStatusFromClient();
-                    synchronized (pauseObject) {
-                        pauseObject.wait();
-                    }
                     sendEnemiesToClient();
+
                     sendWeightsToClient();
                 } catch (Exception e) {
                     if (debug) System.out.println("Client " + id + " closed unexpectedly.\nClosing connections " +
