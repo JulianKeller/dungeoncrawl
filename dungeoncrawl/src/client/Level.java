@@ -915,7 +915,9 @@ public class Level extends BasicGameState {
                 
                 
                 //draw a string representation of the the selected item
-                g.drawString( items.get((itemy*4)+itemx).toString(), dc.tilesize, 9*dc.tilesize);
+                if( (itemy*4)+itemx < items.size() ){
+                	g.drawString( items.get((itemy*4)+itemx).toString(), dc.tilesize, 9*dc.tilesize);
+                }
                 
                 g.setColor(tmp);
             }
@@ -2291,6 +2293,10 @@ read the information about the AI from the server
             b.render(g);
         }
     }
+    
+    private int getAveragePlayerLevel(){
+    	//calculate the average player level
+    }
 
     public void updateOtherPlayers(Main dc){
         try {
@@ -2310,6 +2316,7 @@ read the information about the AI from the server
                     }
                     c.move(read.ks);
                     c.setHitPoints(read.hp);
+                    
                     return;
                 }
 
