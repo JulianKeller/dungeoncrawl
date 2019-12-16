@@ -711,7 +711,6 @@ public class Level extends BasicGameState {
      * @param g
      */
     private void renderPathWeights(Main dc, Graphics g) {
-        System.out.println("Rendering path weights");
         boolean scaled = false;
         boolean coords = false;
         if (dc.hero.weights != null) {

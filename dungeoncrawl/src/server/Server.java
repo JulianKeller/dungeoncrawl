@@ -14,7 +14,6 @@ import java.util.concurrent.*;
 
 public class Server extends Thread {
     // Static Objects for each thread.
-    public static BlockingQueue<Msg> serverQueue = new LinkedBlockingQueue<>();
     public static List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
     public static int[][] map;
     public static int[][] rotatedMap;
@@ -22,8 +21,6 @@ public class Server extends Thread {
     public static List<ItemMsg> worldItems = Collections.synchronizedList(new ArrayList<>());
     public static List<Msg> characters = Collections.synchronizedList(new ArrayList<>());
     private boolean debug = false;
-    private int timer = 0;
-    private boolean everyOther = true;
 
     public Server() {
     }
@@ -31,17 +28,12 @@ public class Server extends Thread {
     @Override
     public void run() {
 
-
         while (true) {
-
-            if (everyOther) {
-//            try {
-//                System.out.println("Sleeping");
-//                sleep(3);
-//
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            try {
+                sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
                 // calculate dijkstra's weights for each active player
                 synchronized (characters) {
@@ -72,12 +64,7 @@ public class Server extends Thread {
                 // update all clients with latest details of other players and enemies
                 putCharactersInClientQueues();
                 putEnemiesInClientQueues();
-                everyOther = false;
             }
-            else {
-                everyOther = true;
-            }
-        }
     }
 
 
@@ -103,9 +90,6 @@ public class Server extends Thread {
                         }
                         if (debug) System.out.println();
                     }
-//                synchronized (c.pauseObject) {
-//                    c.pauseObject.notifyAll();
-//                }
             }
         }
     }
