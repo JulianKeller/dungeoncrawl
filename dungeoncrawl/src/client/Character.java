@@ -365,6 +365,9 @@ public class Character extends MovingEntity {
      * @throws SlickException 
      */
     public void moveAI(int delta) throws SlickException {
+        if (getHitPoints() <=0) {
+            return;
+        }
         String currentDirection = direction;
 
         // moved the character fixed to the grid
@@ -748,6 +751,9 @@ public class Character extends MovingEntity {
         int ox; // other x, y
         int oy;
         for (Character ch : chars) {
+            if (ch.getHitPoints() <= 0) {
+                continue;
+            }
             if (ch.getCharacterID() == this.getCharacterID()) {
                 continue;
             }

@@ -1272,7 +1272,7 @@ public class Level extends BasicGameState {
 
             sendEnemyStatusToServer(dc);
             // check for dead enemies
-            dc.enemies.removeIf(b -> b.getHitPoints() <= 0);
+//            dc.enemies.removeIf(b -> b.getHitPoints() <= 0);
 
             readEnemiesFromServer(dc);
 
@@ -2018,6 +2018,9 @@ public class Level extends BasicGameState {
 
     private void battle(Item itm, Main dc, ArrayList<Character> entities) throws SlickException {
         for( Character c : entities){
+            if (c.getHitPoints() <=0) {
+                continue;
+            }
             if( c.ai ){
                 //if the ai character is within one tilesize of the player
                 //in the given direction

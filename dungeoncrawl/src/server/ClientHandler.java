@@ -122,7 +122,7 @@ public class ClientHandler extends Thread {
                     e.printStackTrace();
                 }
             }
-            Server.enemies.removeIf(b -> b.hp <= 0);
+//            Server.enemies.removeIf(b -> b.hp <= 0);
         }
         if (debug) System.out.println();
     }
