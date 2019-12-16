@@ -63,7 +63,7 @@ public class Server extends Thread {
 
                 // update all clients with latest details of other players and enemies
                 putCharactersInClientQueues();
-                putEnemiesInClientQueues();
+//                putEnemiesInClientQueues();
             }
     }
 
