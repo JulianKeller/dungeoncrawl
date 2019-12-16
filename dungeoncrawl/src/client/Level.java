@@ -28,6 +28,7 @@ public class Level extends BasicGameState {
     private Random rand;
     private boolean debug = false;
     private String type;
+    private boolean everyOther = true;
 
     private int[][] rotatedMap;
 
@@ -200,26 +201,15 @@ public class Level extends BasicGameState {
         try {
             type = setSkin();
             outStream.writeUTF(type);
-            outStream.reset();
+            outStream.flush();
             if (debug) System.out.println("send " + type);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-//        // read the hero's starting position
-//        String coord = wx + " " + wy;
-//        int id = 0;
-//        String type = setSkin();
-//        try {
-//            id = inStream.readInt();
-//            if (debug) System.out.printf("Reading hero's id: %s\n",id);
-//            dc.serverId = id;
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
+
 
         readHeroFromServer(dc);
-//        dc.characters.add(dc.hero);
         receiveEnemyList(dc);
         receiveItemList();
         readCharactersFromServer(dc);
@@ -721,7 +711,6 @@ public class Level extends BasicGameState {
      * @param g
      */
     private void renderPathWeights(Main dc, Graphics g) {
-        System.out.println("Rendering path weights");
         boolean scaled = false;
         boolean coords = false;
         if (dc.hero.weights != null) {
@@ -1276,13 +1265,20 @@ public class Level extends BasicGameState {
         dc.hero.keystroke = ks;
         dc.hero.move(ks);
 
-        sendHeroToServer(dc);
-        readCharactersFromServer(dc);
+        // read/send to server every other loop
+        if (everyOther) {
+            sendHeroToServer(dc);
+            readCharactersFromServer(dc);
 
-        sendEnemyStatusToServer(dc);
-        readEnemiesFromServer(dc);
+            sendEnemyStatusToServer(dc);
+            readEnemiesFromServer(dc);
 
-        readWeightsFromServer(dc);
+            readWeightsFromServer(dc);
+            everyOther = false;
+        }
+        else {
+            everyOther = true;
+        }
 
 
 
@@ -1752,7 +1748,7 @@ public class Level extends BasicGameState {
         try {
             Msg msg = dc.hero.toMsg();
             outStream.writeObject(msg);
-            outStream.reset();
+            outStream.flush();
             if (debug) System.out.printf("send: %s\n",msg);
         }catch(IOException e){
             if (debug) System.out.println("failed to send character: " + e);
@@ -2219,15 +2215,16 @@ public class Level extends BasicGameState {
     public void sendEnemyStatusToServer(Main dc) {
         if (debug) System.out.println("sendEnemyStatusToServer()");
         Msg msg;
+        try {
         for (Character ai : dc.enemies) {
             msg = ai.toMsg();
-            try {
-                outStream.writeObject(msg);
-                if (debug) System.out.printf("send: %s\n", msg);
-                outStream.reset();
-            }catch(IOException e){
-                e.printStackTrace();
-            }
+            outStream.writeObject(msg);
+            if (debug) System.out.printf("send: %s\n", msg);
+            outStream.reset();
+        }
+
+        }catch(IOException e){
+            e.printStackTrace();
         }
          if (debug) System.out.println();
     }

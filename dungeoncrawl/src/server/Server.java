@@ -14,7 +14,6 @@ import java.util.concurrent.*;
 
 public class Server extends Thread {
     // Static Objects for each thread.
-    public static BlockingQueue<Msg> serverQueue = new LinkedBlockingQueue<>();
     public static List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
     public static int[][] map;
     public static int[][] rotatedMap;
@@ -28,38 +27,44 @@ public class Server extends Thread {
 
     @Override
     public void run() {
-        while (true) {
 
-            // calculate dijkstra's weights for each active player
-            synchronized (characters) {
-                for (Msg c : characters) {
-                    AI.getDijkstraWeights(c);       // updates clients weights and paths
-                    if (debug) System.out.println("Ran Dijkstra on player: " + c.id);
-                }
+        while (true) {
+            try {
+                sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
 
-            // for each enemy find the closest player to them,
-            // use closestPlayer.dijkstraWeights to determine path to player
-            synchronized (enemies) {
-                float closest = 10000;
-                for (Msg ai : enemies) {
-                    float distance = 0;
-                    synchronized (characters) {  // TODO change to list of players
-                        for (Msg hero : characters) {
-                            distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
-                            if (distance < closest) {
-                                AI.updatePosition(ai, hero);    // then ai.get next direction
+                // calculate dijkstra's weights for each active player
+                synchronized (characters) {
+                    for (Msg c : characters) {
+                        AI.getDijkstraWeights(c);       // updates clients weights and paths
+                        if (debug) System.out.println("Ran Dijkstra on player: " + c.id);
+                    }
+                }
+
+                // for each enemy find the closest player to them,
+                // use closestPlayer.dijkstraWeights to determine path to player
+                synchronized (enemies) {
+                    float closest = 10000;
+                    for (Msg ai : enemies) {
+                        float distance = 0;
+                        synchronized (characters) {  // TODO change to list of players
+                            for (Msg hero : characters) {
+                                distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
+                                if (distance < closest) {
+                                    AI.updatePosition(ai, hero);    // then ai.get next direction
+                                }
                             }
                         }
+                        if (debug) System.out.printf("AI %s next direction: %s\n", ai.id, ai.nextDirection);
                     }
-                    if (debug) System.out.printf("AI %s next direction: %s\n", ai.id, ai.nextDirection);
                 }
-            }
 
-            // update all clients with latest details of other players and enemies
-            putCharactersInClientQueues();
-            putEnemiesInClientQueues();
-        }
+                // update all clients with latest details of other players and enemies
+                putCharactersInClientQueues();
+                putEnemiesInClientQueues();
+            }
     }
 
 
@@ -85,9 +90,6 @@ public class Server extends Thread {
                         }
                         if (debug) System.out.println();
                     }
-                synchronized (c.pauseObject) {
-                    c.pauseObject.notifyAll();
-                }
             }
         }
     }
