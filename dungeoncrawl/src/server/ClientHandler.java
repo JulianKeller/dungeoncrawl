@@ -1,7 +1,5 @@
 package server;
 
-import client.Main;
-
 import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
@@ -10,17 +8,15 @@ import java.util.concurrent.*;
 // TODO investigate why reading and writing different position values is not working
 //  it seems the client is not getting the updated value, but the server is sending it
 public class ClientHandler extends Thread {
-    private Socket socket;   // Socket of client and server
-    private ObjectOutputStream outStream;  // the output stream
-    private ObjectInputStream inStream;  // the input stream
-    private int id;    /// the thread id (based on port number in socket)
+    private Socket socket;      // Socket of client and server
+    private ObjectOutputStream outStream;   // the output stream
+    private ObjectInputStream inStream;     // the input stream
+    private int id;             // the thread id (based on port number in socket)
     private boolean writeSuccess;
     public BlockingQueue<Msg> characterQueue;
     public BlockingQueue<Msg> enemyQueue;
-    //    private float[][] weights;
     private boolean debug = false;
     private boolean exit = false;
-    public Boolean send = false;
     int tilesize = 32;
     int offset = tilesize/2;
     int doubleOffset = offset/2;
@@ -92,6 +88,7 @@ public class ClientHandler extends Thread {
         }
     }
 
+
     /**
      * send the hero to the client on enter
      * @param hero
@@ -109,49 +106,6 @@ public class ClientHandler extends Thread {
     private void sendWeightsToClient(Msg msg) {
         toServer(msg);
         writeToClient();
-    }
-
-
-    /**
-     * update the client with the position of the ai
-     */
-    public void sendAIStatusToClient() {
-//        if (debug) System.out.println("sendAIStatusToClient()");
-        synchronized (Server.enemies) {
-            for (Msg ai : Server.enemies) {
-                toServer(ai);
-                writeToClient();
-            }
-        }
-//         if (debug) System.out.println();
-    }
-
-    /**
-     * Read the list of characters from the server
-     * @param dc
-     */
-    private void readEnemiesFromClient(Main dc){
-        if (debug) System.out.println("readEnemiesFromClient()");
-        try{
-            int count = inStream.readInt();
-            if (debug) System.out.printf("Read count %s\n",count);
-            for(int i = 0; i < count; i++){
-                Msg msg = (Msg)inStream.readObject();
-                if (debug) System.out.printf("read %s\n", msg);
-                Msg ai = null;
-                try {
-                    ai = Server.enemies.get(msg.id);
-                    Msg.saveMsgToCharacter(ai, msg);
-                } catch (IndexOutOfBoundsException e) {
-                    e.printStackTrace();
-                }
-
-
-            }
-            if (debug) System.out.println();
-        }catch(IOException | ClassNotFoundException e){
-            e.printStackTrace();
-        }
     }
 
 
@@ -173,6 +127,7 @@ public class ClientHandler extends Thread {
         }
         if (debug) System.out.println();
     }
+
 
     /**
      * This function places the string into the Server Queue.
@@ -229,6 +184,10 @@ public class ClientHandler extends Thread {
         return true;
     }
 
+
+    /*
+    Reads the hero details from the client
+     */
     public void readHeroFromClient() {
         if (debug) System.out.println("readCharactersFromClient() " + this.getId());
         try {
@@ -336,7 +295,13 @@ public class ClientHandler extends Thread {
     }
 
 
+    /*
+    Object just used for waiting on the server thread, very important
+     */
     public class PauseObject {
+        /*
+        !! Do not remove !!
+         */
     }
 
 }

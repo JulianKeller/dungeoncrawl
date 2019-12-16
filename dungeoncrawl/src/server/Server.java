@@ -15,7 +15,6 @@ import java.util.concurrent.*;
 public class Server extends Thread {
     // Static Objects for each thread.
     public static BlockingQueue<Msg> serverQueue = new LinkedBlockingQueue<>();
-    //    public static List<ClientQueue> clientQueues = Collections.synchronizedList(new ArrayList<>());
     public static List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
     public static int[][] map;
     public static int[][] rotatedMap;
@@ -119,17 +118,6 @@ public class Server extends Thread {
             }
         }
     }
-
-
-//    public void sendToClients() {
-//        try {
-//            Msg playerInfo = serverQueue.take();
-//            for (ClientHandler c : clients)
-//                c.threadQueue.put(playerInfo);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
 
     public static int[][] rotateMap(int[][] map) {
