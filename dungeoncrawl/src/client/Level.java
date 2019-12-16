@@ -1267,8 +1267,8 @@ public class Level extends BasicGameState {
 
         // read/send to server every other loop
 //        if (everyOther) {
-//            sendHeroToServer(dc);
-//            readCharactersFromServer(dc);
+            sendHeroToServer(dc);
+            readCharactersFromServer(dc);
 //
 //            sendEnemyStatusToServer(dc);
 //            readEnemiesFromServer(dc);
