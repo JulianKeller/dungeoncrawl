@@ -4,8 +4,6 @@
 [29] - order characters on screen so they draw correctly
 [41] - probably a little broken around players leaving and going 
 
-[48] - update controls
-
 ## Resolved Issues ##
 [1] - Draw 4 game characters
 [2] - Draw Potions
@@ -42,6 +40,7 @@
 [45] - update player HP 
 [46] - send path weights back to the player again using existing methods
 [47] - remove pause from game
+[48] - update controls
 
 
 # Wont Do
