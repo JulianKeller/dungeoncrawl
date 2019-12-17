@@ -33,42 +33,36 @@ public class Server extends Thread {
     public void run() {
 
         while (true) {
-            try {
-                sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            // calculate dijkstra's weights for each active player
+            synchronized (characters) {
+                for (Msg c : characters) {
+                    AI.getDijkstraWeights(c);       // updates clients weights and pathsw
+                    if (debug) System.out.println("Ran Dijkstra on player: " + c.id);
+                }
             }
 
-                // calculate dijkstra's weights for each active player
-                synchronized (characters) {
-                    for (Msg c : characters) {
-                        AI.getDijkstraWeights(c);       // updates clients weights and pathsw
-                        if (debug) System.out.println("Ran Dijkstra on player: " + c.id);
-                    }
-                }
-
-                // for each enemy find the closest player to them,
-                // use closestPlayer.dijkstraWeights to determine path to player
-                synchronized (enemies) {
-                    float closest = 10000;
-                    for (Msg ai : enemies) {
-                        float distance = 0;
-                        synchronized (characters) {  // TODO change to list of players
-                            for (Msg hero : characters) {
-                                distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
-                                if (distance < closest) {
-                                    AI.updatePosition(ai, hero);    // then ai.get next direction
-                                }
+            // for each enemy find the closest player to them,
+            // use closestPlayer.dijkstraWeights to determine path to player
+            synchronized (enemies) {
+                float closest = 10000;
+                for (Msg ai : enemies) {
+                    float distance = 0;
+                    synchronized (characters) {  // TODO change to list of players
+                        for (Msg hero : characters) {
+                            distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
+                            if (distance < closest) {
+                                AI.updatePosition(ai, hero);    // then ai.get next direction
                             }
                         }
-                        if (debug) System.out.printf("AI %s next direction: %s\n", ai.id, ai.nextDirection);
                     }
+                    if (debug) System.out.printf("AI %s next direction: %s\n", ai.id, ai.nextDirection);
                 }
-
-                // update all clients with latest details of other players and enemies
-                putCharactersInClientQueues();
-                putEnemiesInClientQueues();
             }
+
+            // update all clients with latest details of other players and enemies
+            putCharactersInClientQueues();
+            putEnemiesInClientQueues();
+        }
     }
 
 
@@ -123,6 +117,20 @@ public class Server extends Thread {
                 }
             }
         }
+    }
+
+    /*
+    Returns true if all enemies are died
+     */
+    public boolean allEnemiesDead() {
+        synchronized (enemies) {
+            for (Msg ai : enemies) {
+                if (ai.hp > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 
@@ -231,13 +239,13 @@ public class Server extends Thread {
 
     public static ItemMsg generateItem() throws SlickException{
     	Item i = new Item( new Vector(0, 0), false, currentItemId, 0, false);
-    	
+
         ItemMsg im = new ItemMsg(i.getID(), i.getOID(), i.getWorldCoordinates().getX(), i.getWorldCoordinates().getY(),
         						i.getType(), i.getEffect(), i.getMaterial(), i.getRequiredClasses(), i.isCursed(),
         						i.isIdentified(), i.getWeight(), i.count, i.getRequiredLevel());
-        
+
         currentItemId++;
-        
+
         return im;
     }
 
