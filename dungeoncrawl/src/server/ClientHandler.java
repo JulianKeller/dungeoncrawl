@@ -89,8 +89,8 @@ public class ClientHandler extends Thread {
         int tilesize = 32;
         int offset = tilesize/2;
         int doubleOffset = offset/2;
-        int maxcol =  map.length - 41;
-        int maxrow = map[0].length - 24;
+        int maxcol =  20;
+        int maxrow = 20;
         Random rand = new Random();
         int row = 0;
         int col = 0;
