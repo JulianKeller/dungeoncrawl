@@ -26,9 +26,9 @@ public class Cheats {
         else if (input.isKeyPressed(Input.KEY_2)) {
 //            dc.enterState(Main.STARTUPSTATE);     // TODO
         }
-        else if (input.isKeyPressed(Input.KEY_3)) {
-            dc.enterState(Main.STARTUPSTATE);
-        }
+//        else if (input.isKeyPressed(Input.KEY_3)) {
+//            dc.enterState(Main.STARTUPSTATE);
+//        }
         // 4 and 5 are used to increase speed
 //        else if (input.isKeyPressed(Input.KEY_4)) {
 //              RESERVED
@@ -42,6 +42,12 @@ public class Cheats {
         }
         else if (input.isKeyPressed(Input.KEY_7)) {
             dc.invincible = !dc.invincible;
+        }
+        else if (input.isKeyPressed(Input.KEY_8)) {
+            for (Character ai : dc.enemies) {
+                ai.setHitPoints(0);
+                ai.updateAnimation("die");
+            }
         }
         else if (input.isKeyPressed(Input.KEY_C)) {     // disable collisions with walls
             dc.collisions = !dc.collisions;

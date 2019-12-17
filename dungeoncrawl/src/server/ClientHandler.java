@@ -1,7 +1,11 @@
 package server;
 
+import client.Character;
+import client.Main;
+
 import java.net.*;
 import java.io.*;
+import java.util.Random;
 import java.util.concurrent.*;
 
 public class ClientHandler extends Thread {
@@ -43,10 +47,7 @@ public class ClientHandler extends Thread {
             String type = inStream.readUTF();
             if (debug) System.out.println("read: " + type);
             // spawn the hero
-            // TODO update spawning to be dynamic
-            float wx = (tilesize * 20) - offset;
-            float wy = (tilesize * 18) - tilesize - doubleOffset;
-            Msg hero = new Msg(id, type, wx, wy, 100, false, 1);
+            Msg hero = spawnHero(type,Server.map);
             sendHeroToClient(hero);
             Server.characters.add(hero);
 
@@ -81,7 +82,24 @@ public class ClientHandler extends Thread {
         }
     }
 
+    private Msg spawnHero(String type, int [][]map){
+        int tilesize = 32;
+        int offset = tilesize/2;
+        int doubleOffset = offset/2;
+        int maxcol =  20;
+        int maxrow = 20;
+        Random rand = new Random();
+        int row = 0;
+        int col = 0;
+        do {
+            col = rand.nextInt(maxcol);
+            row = rand.nextInt(maxrow);
+        }while(row < 2 || col < 2 || map[row][col] == 1);
+        float wx = (tilesize * row) - offset;
+        float wy = (tilesize * col) - tilesize - doubleOffset;
 
+        return new Msg(this.id,type,wx,wy,100,false,1);
+    }
     /**
      * send the hero to the client on enter
      * @param hero
@@ -136,7 +154,7 @@ public class ClientHandler extends Thread {
                 outStream.writeObject(Server.enemies);
                 if (debug) System.out.printf("send Server.enemies\n");
             }
-            outStream.reset();
+             outStream.reset();
 //            if (debug) System.out.println("Wrote ArrayList Server.enemies");
         } catch (IOException e) {
             e.printStackTrace();
@@ -177,7 +195,7 @@ public class ClientHandler extends Thread {
             count = Server.characters.size() - 1;
             try {
                 outStream.writeInt(count);
-                outStream.flush();
+                outStream.reset();
                 if (debug) System.out.printf("send %s items\n", count);
                 for (int i = 0; i < count; i++) {
                     Msg toClient = null;
@@ -191,9 +209,9 @@ public class ClientHandler extends Thread {
                     }
                     outStream.writeObject(toClient);
                     if (debug) System.out.printf("%s :send %s\n", this.getId(), toClient);
-                    outStream.flush();
+                    outStream.reset();
                 }
-                outStream.reset();
+                // outStream.reset();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -244,7 +262,7 @@ public class ClientHandler extends Thread {
                     if (debug) System.out.print("send item\n");
                 }
             }
-            outStream.reset();
+             outStream.reset();
         } catch (IOException e) {
             e.printStackTrace();
         }
