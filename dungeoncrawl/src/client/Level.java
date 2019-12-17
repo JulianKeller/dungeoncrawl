@@ -1217,7 +1217,7 @@ public class Level extends BasicGameState {
         Input input = container.getInput();
         Main dc = (Main) game;
         Cheats.enableCheats(dc, input);
-        pause(input);
+        if (debug) pause(input);
         if (paused) {
             return;
         }
