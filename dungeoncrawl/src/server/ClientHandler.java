@@ -12,7 +12,7 @@ public class ClientHandler extends Thread {
     private boolean writeSuccess;
     public BlockingQueue<Msg> characterQueue;
     public BlockingQueue<Msg> enemyQueue;
-    private boolean debug = true;
+    private boolean debug = false;
     private boolean exit = false;
     int tilesize = 32;
     int offset = tilesize/2;
@@ -116,17 +116,12 @@ public class ClientHandler extends Thread {
             for (Msg ai : Server.enemies) {
                 try {
                     Msg msg = (Msg) inStream.readObject();
-                    if (msg.type.equals("skeleton_boss")) {
-                        System.out.println("sending up the boss");
-                    }
-
                     if (debug) System.out.printf("send " + msg);
                     Msg.saveMsgToCharacter(ai, msg);
                 } catch (ClassNotFoundException | IOException e) {
                     e.printStackTrace();
                 }
             }
-//            Server.enemies.removeIf(b -> b.hp <= 0);
         }
         if (debug) System.out.println();
     }

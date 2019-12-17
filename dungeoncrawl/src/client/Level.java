@@ -27,7 +27,7 @@ import server.Server;
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-    private boolean debug = true;
+    private boolean debug = false;
     private String type;
     private boolean everyOther = true;
 

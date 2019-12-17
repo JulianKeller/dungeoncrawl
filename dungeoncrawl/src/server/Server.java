@@ -22,7 +22,6 @@ public class Server extends Thread {
     public static List<ItemMsg> worldItems = Collections.synchronizedList(new ArrayList<>());
     public static List<Msg> characters = Collections.synchronizedList(new ArrayList<>());
     private boolean debug = false;
-    private boolean boss = false;
 
     public Server() {
     }
