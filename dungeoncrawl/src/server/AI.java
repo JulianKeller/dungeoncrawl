@@ -168,7 +168,7 @@ public class AI {
             }
             float wx = (tilesize * row) - offset;
             float wy = (tilesize * col) - tilesize - doubleOffset;
-            Msg message = new Msg(id, "skeleton_basic",wx,wy,1, true);   // "x y id"
+            Msg message = new Msg(id, "skeleton_basic",wx,wy,150, true);   // "x y id"
 //            if (debug) System.out.printf("placing skeleton at: %s, %s\n", wx, wy);
             message.tilex = row;
             message.tiley = col;

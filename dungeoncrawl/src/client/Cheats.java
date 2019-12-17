@@ -43,6 +43,11 @@ public class Cheats {
         else if (input.isKeyPressed(Input.KEY_7)) {
             dc.invincible = !dc.invincible;
         }
+        else if (input.isKeyPressed(Input.KEY_8)) {
+            for (Character ai : dc.enemies) {
+                ai.setHitPoints(0);
+            }
+        }
         else if (input.isKeyPressed(Input.KEY_C)) {     // disable collisions with walls
             dc.collisions = !dc.collisions;
         }
