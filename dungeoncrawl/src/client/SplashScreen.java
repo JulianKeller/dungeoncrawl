@@ -213,7 +213,7 @@ public class SplashScreen extends BasicGameState {
         int left = 150;
         int indent = 200;
         g.setColor(new Color(0, 0, 0, .5f));
-        g.fillRect( left - 20, shift - 20, 385, 260);
+        g.fillRect( left - 20, shift - 20, 385, 275);
         g.setColor(new Color(255, 255, 255, 1f));
         g.drawString("Move: w, a, s, d", left, shift);
         g.drawString("Pause: p", left, shift + 25);
@@ -223,7 +223,8 @@ public class SplashScreen extends BasicGameState {
         g.drawString("Display Codex: o", left, shift + 125);
         g.drawString("drop item: backslash", left, shift + 150);
         g.drawString("unequip item: shift", left, shift + 175);
-        g.drawString("attack: space/enter", left, shift + 200);
+        g.drawString("equip item: enter", left, shift + 200);
+        g.drawString("attack: enter", left, shift + 225);
         g.setColor(tmp);
     }
 
