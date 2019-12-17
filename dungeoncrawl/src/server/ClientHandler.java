@@ -92,8 +92,12 @@ public class ClientHandler extends Thread {
         int maxcol =  map.length - 41;
         int maxrow = map[0].length - 24;
         Random rand = new Random();
-        int col = rand.nextInt(maxcol);
-        int row = rand.nextInt(maxrow);
+        int row = 0;
+        int col = 0;
+        do {
+            col = rand.nextInt(maxcol);
+            row = rand.nextInt(maxrow);
+        }while(map[row][col] == 1);
         while(row < 2 || col < 2 || map[col][row] == 1){
             col = rand.nextInt(maxcol) - 1;
             row = rand.nextInt(maxrow) - 1;
