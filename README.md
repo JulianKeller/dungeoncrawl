@@ -20,12 +20,12 @@ Dungeon Crawl is a 2D dungeon crawler in which up to four players must crawl the
 - shift: unequip item (move from hand to inventory)
 
 
-
 ## Cheats
 - 1: level 1
 - 3: startup state
 - 4: increase speed
 - 5: decrease speed
+- 6: show Dijkstra's algorithm weights 
 - c: no collisions with walls
 - Left Alt: apply a status effect
    - valid effect names are capitalized (e.g. "Healing")
@@ -47,11 +47,11 @@ Dungeon Crawl is a 2D dungeon crawler in which up to four players must crawl the
 -  8: Music and Sound Effects
 -  9: Boss Room
 - 10: Dungeon Maps
+- 11: Effective Enemy AI Completed with Dijkstra's algorithm (note: AI could be tuned to be smarter)
+- 12: Boss
 
 ## Low Bar features partially completed
-- 1: Networking
-- 2: Effective Enemy AI
-- 3: Boss
+- 13: Networking - The networking works, but is just a little slower than we would like.
 
 ## Low Bar features not completed
 
@@ -61,14 +61,14 @@ Dungeon Crawl is a 2D dungeon crawler in which up to four players must crawl the
 ## Credits
 
 <b>Networking</b><br>
-&nbsp;&nbsp;Tyler Higgins
+&nbsp;&nbsp;Tyler Higgins<br>
 &nbsp;&nbsp;Julian Keller
 	
 <b>Items and Inventory</b><br>
 &nbsp;&nbsp;Jacob Pugsley
 	
 <b>Graphics</b><br>
-&nbsp;&nbsp;Julian Keller - Sprites and items<br>
+&nbsp;&nbsp;Julian Keller - Sprites, items, map tiles<br>
 &nbsp;&nbsp;Jacob Pugsley - Status Effects
 	
 <b>AI Characters</b><br>
