@@ -29,6 +29,7 @@ public class Level extends BasicGameState {
     private boolean debug = false;
     private String type;
     private boolean everyOther = true;
+    private boolean initBoss = true;
 
     private int[][] rotatedMap;
 
@@ -1857,8 +1858,8 @@ public class Level extends BasicGameState {
                 } catch (IndexOutOfBoundsException e) {
                     continue;
                 }
-//                if (debug) System.out.printf("read %s %s\n", msg, msg.nextDirection);
-                if (debug) System.out.printf("Read: %s\n", msg);
+//                if (debug)
+                    System.out.printf("Read: %s\n", msg);
 
                 // sync up all AI positions based on tile coordinates
                 if (ai.canMove) {
@@ -1869,8 +1870,22 @@ public class Level extends BasicGameState {
                 }
                 ai.setHitPoints(msg.hp);
                 ai.next = msg.nextDirection;
+
+                if (msg.type.equals("skeleton_boss")) {
+                    System.out.println("getting up the boss");
+                }
+
+                if ( initBoss && msg.type.equals("skeleton_boss")) {
+                    System.out.println("Setting up the boss");
+                    ai.setType(msg.type);
+                    ai.animate.getSpritesheet();
+                    initBoss = false;
+                }
+
+
             }
             if (debug) System.out.println();
+            System.out.println();
         }catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }

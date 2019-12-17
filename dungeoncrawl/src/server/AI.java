@@ -190,4 +190,34 @@ public class AI {
         enemies.add(message);
         return enemies;
     }
+
+    /*
+Id should be the size of Server.enemies + 1
+ */
+    public static Vector spawnBoss(int[][] map) {
+        int tilesize = 32;
+        int offset = tilesize/2;
+        int doubleOffset = offset/2;
+        int maxcol =  40;
+        int maxrow = 23;
+        Random rand = new Random();
+        int col = rand.nextInt(maxcol);
+        int row = rand.nextInt(maxrow);
+        while(row < 2 || col < 2 || map[col][row] == 1){
+            col = rand.nextInt(maxcol) - 1;
+            row = rand.nextInt(maxrow) - 1;
+        }
+
+        row = 5;
+        col = 5;
+
+        float wx = (tilesize * row) - offset;
+        float wy = (tilesize * col) - tilesize - doubleOffset;
+        Server.enemies.set(Server.enemies.size()-1, new Msg(Server.enemies.size(), "skeleton_boss", wx, wy, 250, true));
+        System.out.println(Server.enemies.get(0));
+//        Server.enemies.add(message);
+        System.out.printf("Spawning Boss at: %s, %s\n", row, col);
+
+        return new Vector(row, col);
+    }
 }

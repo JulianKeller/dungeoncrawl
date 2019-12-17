@@ -116,6 +116,10 @@ public class ClientHandler extends Thread {
             for (Msg ai : Server.enemies) {
                 try {
                     Msg msg = (Msg) inStream.readObject();
+                    if (msg.type.equals("skeleton_boss")) {
+                        System.out.println("sending up the boss");
+                    }
+
                     if (debug) System.out.printf("send " + msg);
                     Msg.saveMsgToCharacter(ai, msg);
                 } catch (ClassNotFoundException | IOException e) {
@@ -220,7 +224,7 @@ public class ClientHandler extends Thread {
                     e.printStackTrace();
                 }
                 outStream.writeObject(ai);
-                 outStream.reset();
+                outStream.reset();
                 if (debug) System.out.printf("%s :send %s\n", this.getId(), ai);
             }
 

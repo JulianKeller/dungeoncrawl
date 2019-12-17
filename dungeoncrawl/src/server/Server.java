@@ -1,6 +1,7 @@
 package server;
 
 import client.Main;
+import jig.Vector;
 import org.newdawn.slick.SlickException;
 
 import java.util.Collections;
@@ -21,6 +22,7 @@ public class Server extends Thread {
     public static List<ItemMsg> worldItems = Collections.synchronizedList(new ArrayList<>());
     public static List<Msg> characters = Collections.synchronizedList(new ArrayList<>());
     private boolean debug = false;
+    private boolean boss = false;
 
     public Server() {
     }
@@ -33,6 +35,15 @@ public class Server extends Thread {
                 sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+
+            // add the boss to the game
+            if (allEnemiesDead() && !boss) {
+                Vector position;
+                synchronized (enemies) {
+                    position = AI.spawnBoss(map);
+                }
+                boss = true;
             }
 
                 // calculate dijkstra's weights for each active player
@@ -107,7 +118,8 @@ public class Server extends Thread {
                     for (Msg ai : enemies) {
                         try {
                             c.enemyQueue.put(ai);
-                            if (debug) System.out.printf("Putting %s into queue\n", ai);
+//                            if (debug)
+                                System.out.printf("Putting %s into queue\n", ai);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -119,6 +131,20 @@ public class Server extends Thread {
                 }
             }
         }
+    }
+
+    /*
+    Returns true if all enemies are died
+     */
+    public boolean allEnemiesDead() {
+        synchronized (enemies) {
+            for (Msg ai : enemies) {
+                if (ai.hp > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 
