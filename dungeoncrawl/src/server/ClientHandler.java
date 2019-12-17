@@ -47,9 +47,6 @@ public class ClientHandler extends Thread {
             String type = inStream.readUTF();
             if (debug) System.out.println("read: " + type);
             // spawn the hero
-            // TODO update spawning to be dynamic
-            float wx = (tilesize * 20) - offset;
-            float wy = (tilesize * 18) - tilesize - doubleOffset;
             Msg hero = spawnHero(type,Server.map);
             sendHeroToClient(hero);
             Server.characters.add(hero);
