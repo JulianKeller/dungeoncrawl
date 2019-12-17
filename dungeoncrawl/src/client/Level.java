@@ -1049,7 +1049,12 @@ public class Level extends BasicGameState {
     private void renderEnemies(Main dc, Graphics g) {
         for (Character ai : dc.enemies) {
             if (ai.getHitPoints() <= 0) {
-                continue;
+                if (ai.deathTimer <= 0) {
+                    continue;
+                }
+                else {
+                    ai.deathTimer--;
+                }
             }
             Vector sc = world2screenCoordinates(dc, ai.getWorldCoordinates());
             ai.animate.setPosition(sc);
@@ -2045,6 +2050,7 @@ public class Level extends BasicGameState {
                         if( c.takeDamage(damage, "",false) ){
                             //returns true if the enemy died
                             c.updateAnimation("die");
+                            System.out.println("died");
 
                             //c.vfx = null;
 
@@ -2080,6 +2086,7 @@ public class Level extends BasicGameState {
                     if( c.takeDamage(damage, itm.getEffect(),false) ){
                         //returns true if the enemy died
                         c.updateAnimation("die");
+                        System.out.println("died");
 
                         //destroy the character's vfx object
                         //c.vfx = null;

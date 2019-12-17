@@ -46,6 +46,7 @@ public class Cheats {
         else if (input.isKeyPressed(Input.KEY_8)) {
             for (Character ai : dc.enemies) {
                 ai.setHitPoints(0);
+                ai.updateAnimation("die");
             }
         }
         else if (input.isKeyPressed(Input.KEY_C)) {     // disable collisions with walls

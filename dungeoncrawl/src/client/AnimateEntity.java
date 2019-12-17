@@ -121,6 +121,7 @@ public class AnimateEntity extends Entity {
         int startx = 0;
         int endx = 0;
         int spritesize = 64;
+        boolean autoUpdate = true;
         switch (action) {
             case "spell_up": {
                 row = 0;
@@ -253,7 +254,7 @@ public class AnimateEntity extends Entity {
             removeAnimation(animation);
             animation = null;
         }
-        animation = new Animation(ResourceManager.getSpriteSheet(spritesheet, spritesize, spritesize), startx, row, endx, row, true, speed, true);
+        animation = new Animation(ResourceManager.getSpriteSheet(spritesheet, spritesize, spritesize), startx, row, endx, row, true, speed, autoUpdate);
         addAnimation(animation);
         return animation;
     }

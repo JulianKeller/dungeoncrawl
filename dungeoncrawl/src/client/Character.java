@@ -39,6 +39,7 @@ public class Character extends MovingEntity {
     PathFinding find;
     public String next;
     public String keystroke;
+    public int deathTimer = 10;
 
 
     /**
