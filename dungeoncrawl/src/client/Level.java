@@ -138,8 +138,10 @@ public class Level extends BasicGameState {
     	for( Character ch : dc.characters ){
     		sum += ch.getStrength();
     	}
-
-    	averagePlayerLevel = sum/dc.characters.size();
+    	if(dc.characters.size() >0)
+    	    averagePlayerLevel = sum/dc.characters.size();
+    	else
+    	    averagePlayerLevel = sum;
     }
 
     @Override
@@ -1217,7 +1219,7 @@ public class Level extends BasicGameState {
         Input input = container.getInput();
         Main dc = (Main) game;
         Cheats.enableCheats(dc, input);
-        pause(input);
+        if (debug) pause(input);
         if (paused) {
             return;
         }
