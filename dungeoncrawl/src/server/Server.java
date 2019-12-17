@@ -31,51 +31,36 @@ public class Server extends Thread {
     public void run() {
 
         while (true) {
-            try {
-                sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            // calculate dijkstra's weights for each active player
+            synchronized (characters) {
+                for (Msg c : characters) {
+                    AI.getDijkstraWeights(c);       // updates clients weights and paths
+                    if (debug) System.out.println("Ran Dijkstra on player: " + c.id);
+                }
             }
 
-            // add the boss to the game
-            if (allEnemiesDead() && !boss) {
-                Vector position;
-                synchronized (enemies) {
-                    position = AI.spawnBoss(map);
-                }
-                boss = true;
-            }
-
-                // calculate dijkstra's weights for each active player
-                synchronized (characters) {
-                    for (Msg c : characters) {
-                        AI.getDijkstraWeights(c);       // updates clients weights and paths
-                        if (debug) System.out.println("Ran Dijkstra on player: " + c.id);
-                    }
-                }
-
-                // for each enemy find the closest player to them,
-                // use closestPlayer.dijkstraWeights to determine path to player
-                synchronized (enemies) {
-                    float closest = 10000;
-                    for (Msg ai : enemies) {
-                        float distance = 0;
-                        synchronized (characters) {  // TODO change to list of players
-                            for (Msg hero : characters) {
-                                distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
-                                if (distance < closest) {
-                                    AI.updatePosition(ai, hero);    // then ai.get next direction
-                                }
+            // for each enemy find the closest player to them,
+            // use closestPlayer.dijkstraWeights to determine path to player
+            synchronized (enemies) {
+                float closest = 10000;
+                for (Msg ai : enemies) {
+                    float distance = 0;
+                    synchronized (characters) {  // TODO change to list of players
+                        for (Msg hero : characters) {
+                            distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
+                            if (distance < closest) {
+                                AI.updatePosition(ai, hero);    // then ai.get next direction
                             }
                         }
-                        if (debug) System.out.printf("AI %s next direction: %s\n", ai.id, ai.nextDirection);
                     }
+                    if (debug) System.out.printf("AI %s next direction: %s\n", ai.id, ai.nextDirection);
                 }
-
-                // update all clients with latest details of other players and enemies
-                putCharactersInClientQueues();
-                putEnemiesInClientQueues();
             }
+
+            // update all clients with latest details of other players and enemies
+            putCharactersInClientQueues();
+            putEnemiesInClientQueues();
+        }
     }
 
 
@@ -118,8 +103,7 @@ public class Server extends Thread {
                     for (Msg ai : enemies) {
                         try {
                             c.enemyQueue.put(ai);
-//                            if (debug)
-                                System.out.printf("Putting %s into queue\n", ai);
+                            if (debug) System.out.printf("Putting %s into queue\n", ai);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

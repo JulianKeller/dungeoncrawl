@@ -12,7 +12,7 @@ public class ClientHandler extends Thread {
     private boolean writeSuccess;
     public BlockingQueue<Msg> characterQueue;
     public BlockingQueue<Msg> enemyQueue;
-    private boolean debug = false;
+    private boolean debug = true;
     private boolean exit = false;
     int tilesize = 32;
     int offset = tilesize/2;

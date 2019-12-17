@@ -21,15 +21,15 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import client.MovingEntity.Effect;
 import jig.ResourceManager;
+import server.Server;
 
 
 public class Level extends BasicGameState {
     private Boolean paused;
     private Random rand;
-    private boolean debug = false;
+    private boolean debug = true;
     private String type;
     private boolean everyOther = true;
-    private boolean initBoss = true;
 
     private int[][] rotatedMap;
 
@@ -1183,6 +1183,11 @@ public class Level extends BasicGameState {
             return;
         }
 
+//        // spawn boss when all enemies are dead
+        if (allEnemiesDead(dc)) {
+            dc.boss = true;
+        }
+
         // first time through add hero to client, doing it here for random bug reasons
         if (first) {
             dc.characters.add(dc.hero);
@@ -1858,7 +1863,7 @@ public class Level extends BasicGameState {
                 } catch (IndexOutOfBoundsException e) {
                     continue;
                 }
-//                if (debug)
+                if (debug)
                     System.out.printf("Read: %s\n", msg);
 
                 // sync up all AI positions based on tile coordinates
@@ -1870,22 +1875,10 @@ public class Level extends BasicGameState {
                 }
                 ai.setHitPoints(msg.hp);
                 ai.next = msg.nextDirection;
-
-                if (msg.type.equals("skeleton_boss")) {
-                    System.out.println("getting up the boss");
-                }
-
-                if ( initBoss && msg.type.equals("skeleton_boss")) {
-                    System.out.println("Setting up the boss");
-                    ai.setType(msg.type);
-                    ai.animate.getSpritesheet();
-                    initBoss = false;
-                }
-
+                ai.setType(msg.type);
 
             }
             if (debug) System.out.println();
-            System.out.println();
         }catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
@@ -2391,6 +2384,58 @@ public class Level extends BasicGameState {
         float sx = wc.getX() - dc.hero.pixelX;
         float sy = wc.getY() - dc.hero.pixelY;
         return new Vector(sx, sy);
+    }
+
+
+    /*
+    */
+    public static void spawnBoss(Main dc) {
+        int tilesize = 32;
+        int offset = tilesize/2;
+        int doubleOffset = offset/2;
+        int maxcol =  40;
+        int maxrow = 23;
+        Random rand = new Random();
+        int col = rand.nextInt(maxcol);
+        int row = rand.nextInt(maxrow);
+        for (int i = 10; i < maxrow; i++) {
+            for (int j = 10; j < maxcol; j++) {
+                if (dc.map[i][j] == 0) {
+                    row = i;
+                    col = j;
+                    break;
+                }
+            }
+        }
+
+//        row = 5;
+//        col = 5;
+
+        float wx = (tilesize * row) - offset;
+        float wy = (tilesize * col) - tilesize - doubleOffset;
+        Character boss = dc.enemies.get(0);
+        boss.setType("skeleton_boss");
+        boss.setHitPoints(200);
+        boss.setAttackDamage(4);
+        boss.setWorldCoordinates(wx, wy);
+//        Server.enemies.add(message);
+        System.out.printf("Spawning Boss at: %s, %s\n", row, col);
+    }
+
+
+    /*
+    Returns true if all enemies are died
+     */
+    public boolean allEnemiesDead(Main dc) {
+        for (Character ai : dc.enemies) {
+            if (ai.getType().equals("skeleton_boss")) {
+                continue;
+            }
+            if (ai.getHitPoints() > 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
 

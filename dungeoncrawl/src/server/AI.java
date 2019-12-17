@@ -151,6 +151,7 @@ public class AI {
      * The result is saved to an arraylist of strings which is then returned
      */
     public static ArrayList<Msg> spawnEnemies(int[][] map, int count) {
+        Msg message;
         int id = 0;
         int tilesize = 32;
         int offset = tilesize/2;
@@ -168,7 +169,12 @@ public class AI {
             }
             float wx = (tilesize * row) - offset;
             float wy = (tilesize * col) - tilesize - doubleOffset;
-            Msg message = new Msg(id, "skeleton_basic",wx,wy,150, true);   // "x y id"
+            if (count == 1) {
+                message = new Msg(id, "skeleton_boss",wx,wy,250, true);   // "x y id"
+            }
+            else {
+                message = new Msg(id, "skeleton_basic", wx, wy, 150, true);   // "x y id"
+            }
 //            if (debug) System.out.printf("placing skeleton at: %s, %s\n", wx, wy);
             message.tilex = row;
             message.tiley = col;
@@ -194,7 +200,7 @@ public class AI {
     /*
 Id should be the size of Server.enemies + 1
  */
-    public static Vector spawnBoss(int[][] map) {
+    public static void spawnBoss(int[][] map) {
         int tilesize = 32;
         int offset = tilesize/2;
         int doubleOffset = offset/2;
@@ -210,14 +216,9 @@ Id should be the size of Server.enemies + 1
 
         row = 5;
         col = 5;
-
         float wx = (tilesize * row) - offset;
         float wy = (tilesize * col) - tilesize - doubleOffset;
-        Server.enemies.set(Server.enemies.size()-1, new Msg(Server.enemies.size(), "skeleton_boss", wx, wy, 250, true));
-        System.out.println(Server.enemies.get(0));
-//        Server.enemies.add(message);
+        Server.enemies.add(new Msg(Server.enemies.size(), "skeleton_boss", wx, wy, 250, true));
         System.out.printf("Spawning Boss at: %s, %s\n", row, col);
-
-        return new Vector(row, col);
     }
 }

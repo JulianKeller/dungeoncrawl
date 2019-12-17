@@ -366,6 +366,7 @@ public class Character extends MovingEntity {
      * @throws SlickException 
      */
     public void moveAI(int delta) throws SlickException {
+//        if (getHitPoints() <=0 || (!dc.boss && getType().equals("skeleton_boss"))) {
         if (getHitPoints() <=0) {
             return;
         }
@@ -444,13 +445,6 @@ public class Character extends MovingEntity {
                     }
                 }
             }
-            /*
-            find = new PathFinding(dc, getTileWorldCoordinates(), heroWC);
-            int startX = (int) getTileWorldCoordinates().getX();
-            int startY = (int) getTileWorldCoordinates().getY();
-            shortest = find.dijkstra(dc, startX, startY);
-            next = getNextDirection(dc);
-            */
         }
 
         // load arrows for dijkstra's debugging
@@ -752,7 +746,7 @@ public class Character extends MovingEntity {
         int ox; // other x, y
         int oy;
         for (Character ch : chars) {
-            if (ch.getHitPoints() <= 0) {
+            if (getHitPoints() <=0) {
                 continue;
             }
             if (ch.getCharacterID() == this.getCharacterID()) {

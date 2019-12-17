@@ -252,9 +252,9 @@ public class Main extends StateBasedGame {
     ArrayList<BaseMap> maptiles;
     boolean collisions;
     boolean invincible;
+    boolean boss = false;
     ArrayList<DisplayItem> testItems;
     Character hero;
-    Character boss;
     public ArrayList<Character> characters;
     ArrayList<Character> enemies;
 
