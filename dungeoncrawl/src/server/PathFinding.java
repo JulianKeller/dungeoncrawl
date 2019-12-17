@@ -1,5 +1,7 @@
 package server;
 
+import jig.Vector;
+
 import java.util.*;
 
 // an implementation of Dijkstra's algorithm
@@ -40,6 +42,15 @@ public class PathFinding {
             relax(map, current, left);
             relax(map, current, right);
         }
+    }
+
+    // run dijkstra starting at the hero's position and set the path to the hero Msg object
+    public void dijkstra(Msg hero) {
+        Vector heroTile = AI.getTileWorldCoordinates(hero.wx, hero.wy);
+        int startX = (int) heroTile.getX();
+        int startY = (int) heroTile.getY();
+        dijkstra(startX, startY);
+        hero.path = path;
     }
 
     /**

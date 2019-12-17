@@ -1,16 +1,19 @@
 ## Current Issues
-
+[46] - send path weights back to the player again using existing methods
+[50] - fix game fps again
 
 ## Open Issues ##
-[12] - update floor tiles
-[13] - update wall tiles
 [29] - order characters on screen so they draw correctly
-
-[39] - add AI, boss back into the game
 [40] - fix so that other players effects/shooting animations render on other clients 
 [41] - probably a little broken around players leaving and going 
 [43] - add the boss into the game when all skeletons are dead
 [44] - add a winning state when the boss is defeated
+[47] - remove pause from game
+[48] - update controls
+[49] - disable speed cheat
+
+
+
         
 ## Resolved Issues ##
 [1] - Draw 4 game characters
@@ -42,8 +45,11 @@
 [36] - add image attribute for boss
 [37] - fix splash screen enter button
 [38] - Fix the tank as it runs off the screen
+[39] - add AI back into the game
 [42] - Fix the client/server so characters render on all devices
-
+[45] - update player HP 
 
 # Wont Do
+[12] - update floor tiles
+[13] - update wall tiles
 [30] - adjust AI so they take each other into account when pathfinding

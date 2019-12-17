@@ -252,9 +252,9 @@ public class Main extends StateBasedGame {
     ArrayList<BaseMap> maptiles;
     boolean collisions;
     boolean invincible;
+    boolean boss = false;
     ArrayList<DisplayItem> testItems;
     Character hero;
-    Character boss;
     public ArrayList<Character> characters;
     ArrayList<Character> enemies;
 
@@ -276,7 +276,7 @@ public class Main extends StateBasedGame {
     public static final String[] StaffEffects = {"Healing", "Lightning", "Flame", "Ice"};
     public static final String[] ArmorEffects = {"Stench", "Iron Skin", "Thorns", "Swiftness"};
     public static final String[] SwordEffects = {"Fright", "Might", "Flame", "Ice"};
-    public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection"};
+    public static final String[] GloveEffects = {"Swiftness", "Regeneration", "Reflection", ""};
     
     
 
@@ -570,7 +570,7 @@ public class Main extends StateBasedGame {
     public boolean closeRequested(){
         if(!localMode) {
             try {
-                dos.writeObject(new Msg(serverId,"Exit",0,0,0, false));
+                dos.writeObject(new Msg(serverId,"Exit",0,0,0, false, 1));
                 dos.flush();
                 socket.close();
                 dos.close();

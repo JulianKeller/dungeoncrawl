@@ -42,7 +42,10 @@ public class MovingEntity extends Entity {
     private ArrayList<Item> inventory;
     private ArrayList<Item> codex; //list of identified items
     private Item [] equipped;
-    private ArrayList<String> cursedItemTypes; //list of cursed item types the player is using/wearing
+
+    private ArrayList<Item> cursedItems = new ArrayList<Item>();
+    
+    
     private Vector position;
     private Vector tileWorldCoordinates;
     private Vector nextTileWorldCoordinates;
@@ -98,7 +101,7 @@ public class MovingEntity extends Entity {
         strength = 1;
         this.pid = pid;
         inventory = new ArrayList<Item>(10);
-        cursedItemTypes = new ArrayList<String>();
+
         equipped = new Item[4];
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
@@ -135,7 +138,7 @@ public class MovingEntity extends Entity {
         strength = 1;
         this.pid = pid;
         inventory = new ArrayList<Item>(10);
-        cursedItemTypes = new ArrayList<String>();
+
         equipped = new Item[5];
         Arrays.fill(equipped, null);
         position = new Vector(0,0);
@@ -307,7 +310,9 @@ public class MovingEntity extends Entity {
     			removedEffects.add(e.name);
     			//set special exit properties
     			//  for certain effects
-    			if( e.name.equals("Swiftness") || e.name.equals("Ice") ){	
+    			if( e.name.equals("Swiftness") ){	
+    				effectsToAdd.add("Swiftness");
+    			}else if( e.name.equals("Ice") ){
     				//reset to initial movement speed
     				movementSpeed = initialMovementSpeed;
     			}else if( e.name.equals("Iron Skin") ){
@@ -512,9 +517,9 @@ Reflection:
     			int r = rand.nextInt(100);
     			if( r < 50 ){
     				if( !e.cursed ){
-    					hitPoints += 3;
+    					hitPoints += 0.02f;
     				}else{
-    					hitPoints += 3*curseModifier;
+    					hitPoints += 0.02f*curseModifier;
     				}
     			}
     			if( hitPoints > startingHitPoints ){
@@ -660,7 +665,8 @@ Reflection:
     	boolean addedToHand = false;
     	//try to add to equipped items first
     	for( int x = 0; x < equipped.length; x++ ){
-    		if( equipped[x] != null && i.equals(equipped[x]) ){
+    		if( equipped[x] != null && i.equals(equipped[x]) && "Potion Arrow".contains(equipped[x].getType()) ){
+    			//only potions and arrows may stack
     			equipped[x].count += i.count;
     			inventoryWeight += i.getWeight();
     			addedToHand = true;
@@ -674,7 +680,7 @@ Reflection:
     	}
     	if( !addedToHand ){
 	    	for( Item itm : inventory ){
-	    		if( itm.equals(i) ){
+	    		if( itm.equals(i) && "Potion Arrow".contains(i.getType())){
 	    			itm.count += i.count;
 	    			inventoryWeight += i.getWeight();
 	    			add = false;
@@ -883,6 +889,10 @@ Reflection:
         	startingHitPoints = hitPoints;
         }
     }
+    
+    public void setStrength(int strength){
+    	this.strength = strength;
+    }
 
     public float getStartingHitPoints() {
         return startingHitPoints;
@@ -1001,9 +1011,10 @@ Reflection:
     public Item[] getEquipped(){
     	return equipped;
     }
-    public ArrayList<String> getCursedItemTypes(){
-    	return cursedItemTypes;
+    public ArrayList<Item> getCursedItems(){
+    	return cursedItems;
     }
+
 
     public void setPosition(Vector p){
         position = p;
@@ -1013,8 +1024,8 @@ Reflection:
         return position;
     }
     
-    public void addCursedItemType(String type){
-    	cursedItemTypes.add(type);
+    public void addCursedItem(Item i){
+    	cursedItems.add(i);
     }
 
     /**

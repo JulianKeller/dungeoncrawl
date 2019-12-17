@@ -21,6 +21,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import client.MovingEntity.Effect;
 import jig.ResourceManager;
+import server.Server;
 
 
 public class Level extends BasicGameState {
@@ -28,6 +29,7 @@ public class Level extends BasicGameState {
     private Random rand;
     private boolean debug = true;
     private String type;
+    private boolean everyOther = true;
 
     private int[][] rotatedMap;
 
@@ -61,6 +63,8 @@ public class Level extends BasicGameState {
     private int selectedEquippedItem = 0; //item selected in the hotbar
     
     private int itemsIdentified = 0;
+
+    private int averagePlayerLevel = 1; //the average level of all players
 
     private class Message{
         protected int timer = messageTimer;
@@ -106,13 +110,13 @@ public class Level extends BasicGameState {
 
     private class ThrownItem{
         Item itm;
-        Vector direction;
         Vector finalLocation;
         Vector step;
 
-        public ThrownItem(Item itm, Vector direction, Vector finalLocation, Vector step){
+        ArrayList<Integer> hitEnemyIds = new ArrayList<Integer>();
+
+        public ThrownItem(Item itm, Vector finalLocation, Vector step){
             this.itm = itm;
-            this.direction = direction;
             this.finalLocation = finalLocation;
             this.step = step;
         }
@@ -128,6 +132,15 @@ public class Level extends BasicGameState {
     //music tracks
     private Music currentTrack = null;
     private Music[] tracks = new Music[3];
+
+    public void updateAveragePlayerLevel(Main dc){
+    	int sum = 0;
+    	for( Character ch : dc.characters ){
+    		sum += ch.getStrength();
+    	}
+
+    	averagePlayerLevel = sum/dc.characters.size();
+    }
 
     @Override
     public void enter(GameContainer container, StateBasedGame game) {
@@ -206,20 +219,9 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
 
-//        // read the hero's starting position
-//        String coord = wx + " " + wy;
-//        int id = 0;
-//        String type = setSkin();
-//        try {
-//            id = inStream.readInt();
-//            if (debug) System.out.printf("Reading hero's id: %s\n",id);
-//            dc.serverId = id;
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
+
 
         readHeroFromServer(dc);
-//        dc.characters.add(dc.hero);
         receiveEnemyList(dc);
         receiveItemList();
         readCharactersFromServer(dc);
@@ -282,12 +284,6 @@ public class Level extends BasicGameState {
         try {
             int count = inStream.readInt();
             if (debug) System.out.printf("Reading item count: %s\n",count);
-//            ArrayList<ItemMsg> fromServer = (ArrayList)inStream.readObject();
-
-//            List<ItemMsg> fromServer = Collections.synchronizedList(new ArrayList<>());
-
-            //if (debug) System.out.println("Read type: "+fromServer.getClass().getSimpleName());
-//            for(ItemMsg i : fromServer) {
             for (int j = 0; j < count; j++) {
                 try {
                     ItemMsg i = (ItemMsg) inStream.readObject();
@@ -320,13 +316,29 @@ public class Level extends BasicGameState {
             e.printStackTrace();
         }
         for (Msg e : enemyList) {
-            float x = e.wx;
-            float y = e.wy;
+            // convert tile coords to world coords so ai always spawn at same place for all players
+            Vector wc = convertTileToWorldCoordinates(e.tilex, e.tiley);
+            float x = (int) wc.getX();
+            float y = (int) wc.getY();
+            if (debug) System.out.printf("placing skeleton at: %s, %s\n", x, y);
             int eid = e.id;
-            dc.enemies.add(new Character(dc, x, y, e.type, eid, this, true));
+            Character ai = new Character(dc, x, y, e.type, eid, this, true);
+            ai.setHitPoints(e.hp);
+            dc.enemies.add(ai);
+
 //            if (debug) System.out.println("Created AI " + e.toString());
         }
     }
+
+    /*
+    Convert tile coordinates back to world coordinates
+     */
+    public Vector convertTileToWorldCoordinates(float tilex, float tiley) {
+        float x = ((tilex + 1) * tilesize) - offset;
+        float y = (tiley * tilesize) - doubleOffset;
+        return new Vector(x, y);
+    }
+
     private void setItemImage(Item i) throws SlickException{
         //get an image based on item type
         Image image = null;
@@ -523,6 +535,31 @@ public class Level extends BasicGameState {
         return image;
     }
 
+    public boolean canRemoveCursed(Main dc, Item i) throws SlickException{
+    	if( i == null ){
+    		throw new SlickException("Null item.");
+    	}
+    	//check if the cursed item list contains an item of the same type
+    	ArrayList<Item> cursedItems = dc.hero.getCursedItems();
+    	boolean containsType = false;
+    	for( Item itm : cursedItems ){
+    		if( itm.getType().equals(i.getType()) ){
+    			containsType = true;
+    			break;
+    		}
+    	}
+
+    	if( !containsType ){
+    		return true;
+    	}
+
+    	//check if the item is in the cursedItem list
+    	if( cursedItems.contains(i) ){
+    		return true;
+    	}
+    	return false;
+    }
+
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
@@ -575,7 +612,7 @@ public class Level extends BasicGameState {
         renderEquippedItems(dc, g);
 
         if (dc.showPath) {
-            renderShortestPath(dc, g);
+            renderPathWeights(dc, g);
         }
         
         int baseWidth = 256;
@@ -894,7 +931,9 @@ public class Level extends BasicGameState {
                 
                 
                 //draw a string representation of the the selected item
-                g.drawString( items.get((itemy*4)+itemx).toString(), dc.tilesize, 9*dc.tilesize);
+                if( (itemy*4)+itemx < items.size() ){
+                	g.drawString( items.get((itemy*4)+itemx).toString(), dc.tilesize, 9*dc.tilesize);
+                }
                 
                 g.setColor(tmp);
             }
@@ -1049,7 +1088,12 @@ public class Level extends BasicGameState {
     private void renderEnemies(Main dc, Graphics g) {
         for (Character ai : dc.enemies) {
             if (ai.getHitPoints() <= 0) {
-                continue;
+                if (ai.deathTimer <= 0) {
+                    continue;
+                }
+                else {
+                    ai.deathTimer--;
+                }
             }
             Vector sc = world2screenCoordinates(dc, ai.getWorldCoordinates());
             ai.animate.setPosition(sc);
@@ -1166,6 +1210,7 @@ public class Level extends BasicGameState {
     
 
     private int songChangeTimer = 3000;
+    private int attackAnimationTimer = -1;
     boolean first = true;
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
@@ -1177,6 +1222,11 @@ public class Level extends BasicGameState {
             return;
         }
 
+//        // spawn boss when all enemies are dead
+        if (allEnemiesDead(dc)) {
+            dc.boss = true;
+        }
+
         // first time through add hero to client, doing it here for random bug reasons
         if (first) {
             dc.characters.add(dc.hero);
@@ -1185,6 +1235,9 @@ public class Level extends BasicGameState {
 
         if (debug) printCharactersInList(dc.characters);
         
+        //update average strength value
+        updateAveragePlayerLevel(dc);
+
         if( input.isKeyPressed(Input.KEY_RBRACKET) ){
         	//change music in 3 seconds
         	currentTrack.stop();
@@ -1203,7 +1256,15 @@ public class Level extends BasicGameState {
         	}
         }
         
-        
+        if( attackAnimationTimer > 0 ){
+        	attackAnimationTimer -= delta;
+        }else{
+	        //stop all attack animations
+	        if( dc.hero.getAction() != null && !dc.hero.getAction().contains("walk") ){
+	        	dc.hero.updateAnimation(null);
+	        }
+        }
+
         //decrease attack timer
         if( attackCooldown > 0 ){
         	attackCooldown -= delta;
@@ -1265,12 +1326,20 @@ public class Level extends BasicGameState {
         dc.hero.keystroke = ks;
         dc.hero.move(ks);
 
-        sendHeroToServer(dc);
-        readCharactersFromServer(dc);
-//
-//        sendEnemyStatusToServer(dc);
-//        readEnemyStatusFromServer(dc);
-//        readWeightsFromServer(dc);
+        // read/send to server every other loop
+        if (everyOther) {
+            sendHeroToServer(dc);
+            readCharactersFromServer(dc);
+
+            sendEnemyStatusToServer(dc);
+            readEnemiesFromServer(dc);
+
+            readWeightsFromServer(dc);
+            everyOther = false;
+        }
+        else {
+            everyOther = true;
+        }
 
 
 
@@ -1366,9 +1435,20 @@ public class Level extends BasicGameState {
                 selectedEquippedItem++;
             }else if( input.isKeyPressed(Input.KEY_ENTER) ){
                 //attack with item
-                //if (debug) System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
-            	
             	Item itm = dc.hero.getEquipped()[selectedEquippedItem];
+
+            	//these items cannot be used to attack
+            	if( itm != null && itm.getType().equals("Armor") ){
+            		return;
+            	}
+
+            	//if a cursed item of the same type is held, cannot switch
+            	if( itm != null && !canRemoveCursed(dc, itm) ){
+            		addMessage("You cannot remove your cursed " + itm.getType().toLowerCase());
+            		return;
+            	}
+                //if (debug) System.out.println("Attacking with " + dc.hero.getEquipped()[selectedEquippedItem].getType() );
+
             	if( attackCooldown <= 0 ){
 	            	if( itm == null || canUse(itm, dc.hero) ){
 	            		attack(itm, dc);
@@ -1379,6 +1459,7 @@ public class Level extends BasicGameState {
 		            		itemsIdentified++;
 		            		if( itm.isCursed() ){
 		            			SFXManager.playSound("curse");
+		            			dc.hero.addCursedItem(itm);
 		            		}else{
 		            			SFXManager.playSound("identify");
 		            		}
@@ -1400,6 +1481,7 @@ public class Level extends BasicGameState {
                             dc.hero.getType().toLowerCase().contains("tank") ){
                         attack(null, dc);
                     }else if( canUse(itm, dc.hero) ){
+                    	itm.isEquipped = true;
                         attack(dc.hero.getEquipped()[selectedEquippedItem], dc);
                     }
 
@@ -1416,10 +1498,27 @@ public class Level extends BasicGameState {
                 Item i = dc.hero.getEquipped()[selectedEquippedItem];
                 if( i != null ){
                 	
+                	//these items cannot be used on self
+                	if( i.getType().equals("Sword") || i.getType().equals("Gloves") || i.getType().equals("Staff") || i.getType().equals("Arrow")){
+                		return;
+                	}
+
+                	//if a cursed item of the same type is held, cannot switch
+                	if( !canRemoveCursed(dc, i) ){
+                		addMessage("You cannot remove your cursed " + i.getType().toLowerCase());
+                		return;
+                	}
+
                 	if( !i.isIdentified() ){
                 		i.identify();
                 		addMessage("It is " + i.toString());
                 		itemsIdentified++;
+                		if( i.isCursed() ){
+                			SFXManager.playSound("cursed");
+                			dc.hero.addCursedItem(i);
+                		}else{
+                			SFXManager.playSound("identify");
+                		}
                 	}
 	                if( canUse(i, dc.hero) ){
 		                String x = "";
@@ -1444,7 +1543,8 @@ public class Level extends BasicGameState {
 		
 		                //remove the item from hands
 		                dc.hero.unequipItem(selectedEquippedItem);
-		
+		                i.isEquipped = true;
+
 		                //only remove the item from the inventory if it is a potion/consumable
 		                //armor should remain in the player's inventory
 		                if( i.getType().equals("Potion") ){
@@ -1527,8 +1627,9 @@ public class Level extends BasicGameState {
         	}
         }
         
-        // TODO check why this is here twice...
+
         dc.characters.removeIf(b -> b.getHitPoints() <= 0);
+
 
         // if the hero has no health, then replace it with a new hero character in the same spot
         if(dc.hero.getHitPoints() <= 0){
@@ -1544,6 +1645,8 @@ public class Level extends BasicGameState {
             }
         }
 
+        //ArrayList<Integer> hitEnemyIds = new ArrayList<Integer>();
+
         //advance any thrown items along their path
         ArrayList<ThrownItem> reachedDestination = new ArrayList<ThrownItem>();
         for( ThrownItem ti : thrownItems ){
@@ -1551,34 +1654,29 @@ public class Level extends BasicGameState {
             //check if a thrown item went off the screen
             if( ti.itm.getWorldCoordinates().getX() < 0 + dc.hero.getOrigin().getX() || ti.itm.getWorldCoordinates().getX() > dc.hero.getOrigin().getX() + (dc.ScreenWidth/dc.tilesize)){
                 reachedDestination.add(ti);
-                addMessage("thrown " + ti.itm.getType() + " went off screen");
+                //addMessage("thrown " + ti.itm.getType() + " went off screen");
             }else if( ti.itm.getWorldCoordinates().getY() < 0 + dc.hero.getOrigin().getY() || ti.itm.getWorldCoordinates().getY() > dc.hero.getOrigin().getY() + (dc.ScreenHeight/dc.tilesize)){
                 reachedDestination.add(ti);
-                addMessage("thrown " + ti.itm.getType() + " went off screen");
+                //addMessage("thrown " + ti.itm.getType() + " went off screen");
             }
             if( throwItem(ti, dc) ){
                 reachedDestination.add(ti);
-                addMessage("thrown " + ti.itm.getType() + " reached destination");
+                //addMessage("thrown " + ti.itm.getType() + " reached destination");
             }
 
+
             //check if a thrown item hit a character
-            //merge the character and enemy lists
-            ArrayList<Character> targets = new ArrayList<Character>();
-            targets.addAll(dc.characters);
-            targets.addAll(dc.enemies);
-            for( Character ch : targets ){
+            for( Character ch : enemiesJoinCharacters(dc) ){
 
                 if( ch.getPid() == dc.hero.getPid() ){
                     continue;
                 }
+                if( ti.hitEnemyIds.contains(ch.getPid())){
+                	continue;
+                }
 
-                //Vector chwc = new Vector( ch.getTileWorldCoordinates().getX()/dc.tilesize, ch.getTileWorldCoordinates().getY()/dc.tilesize);
-                float x = ch.getTileWorldCoordinates().getX();
-                float y = ch.getTileWorldCoordinates().getY();
-                Vector chwc = new Vector((int)x, (int)y);
-                //if (debug) System.out.println(chwc.toString());
-
-                if( Math.abs(chwc.getX() - ti.itm.getWorldCoordinates().getX()) < 1.5 && Math.abs(chwc.getY() - ti.itm.getWorldCoordinates().getY()) < 1.5 ){
+                if( distanceBetweenVectors(ch.getTileWorldCoordinates(), ti.itm.getWorldCoordinates()) < 1 ){
+                	ti.hitEnemyIds.add(ch.getPid());
                     //addMessage("thrown " + ti.itm.getType() + " hit enemy");
 
                     //potions do no damage but cause status effects on the target
@@ -1604,7 +1702,7 @@ public class Level extends BasicGameState {
                                 //ch.vfx = null;
                             }
 
-                            m = "Hit enemy for " + (int) (10*damagePercent) + " damage.";
+                            m = "Hit enemy for " + (int) Math.ceil(10*damagePercent) + " damage.";
                             if( damagePercent >= 0.8 ){
                                 m = m + " Critical hit!";
                             }
@@ -1649,6 +1747,15 @@ public class Level extends BasicGameState {
 
             Item i = Main.im.getItemAt(aniPos);
             if( i != null && !i.isLocked() ){
+            	//update the item's required level
+            	if( !i.getType().equals("Arrow") && !i.getType().equals("Potion") ){
+            		//the average level +/- 2 so that some items are higher and lower
+            		int level = averagePlayerLevel + rand.nextInt(3) * (-1*rand.nextInt(2));
+            		if( level < 1 ){
+            			level = 1;
+            		}
+            		i.setRequiredLevel(level);
+            	}
             	if( ch.getInventoryWeight() >= ch.getMaxInventoryWeight() ){
             		addMessage("You cannot carry any more.");
             	}else{
@@ -1764,11 +1871,7 @@ public class Level extends BasicGameState {
         }
         if (msg != null) {
             dc.hero = new Character(dc, msg.wx, msg.wy, msg.type, msg.id, this, false);
-//            dc.characters.add(dc.hero);
-//            printCharactersInList(dc.characters);
         }
-
-
         if (debug) System.out.printf("read %s\n", msg);
     }
 
@@ -1812,7 +1915,51 @@ public class Level extends BasicGameState {
                         character.move(msg.ks);
 //                        character.setWorldCoordinates(msg.wx, msg.wy);a
                     }
+                    if (character.canMove) {
+                        Vector wc = convertTileToWorldCoordinates(msg.tilex, msg.tiley);
+                        float x = (int) wc.getX();
+                        float y = (int) wc.getY();
+                        character.setWorldCoordinates(x, y);
+                    }
                 }
+            if (debug) System.out.println();
+        }catch(IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+
+
+    /*
+    read the information about the AI from the server
+     */
+    private void readEnemiesFromServer(Main dc){
+        if (debug) System.out.println("readEnemiesFromServer()");
+        try{
+            int count = inStream.readInt();
+            if (debug) System.out.printf("Read count %s\n",count);
+            for(int i = 0; i < count; i++){
+                Msg msg = (Msg)inStream.readObject();
+                Character ai = null;
+                try {
+                    ai = dc.enemies.get(msg.id);
+                } catch (IndexOutOfBoundsException e) {
+                    continue;
+                }
+                if (debug)
+                    System.out.printf("Read: %s\n", msg);
+
+                // sync up all AI positions based on tile coordinates
+                if (ai.canMove) {
+                    Vector wc = convertTileToWorldCoordinates(msg.tilex, msg.tiley);
+                    float x = (int) wc.getX();
+                    float y = (int) wc.getY();
+                    ai.setWorldCoordinates(x, y);
+                }
+                ai.setHitPoints(msg.hp);
+                ai.next = msg.nextDirection;
+                ai.setType(msg.type);
+
+            }
             if (debug) System.out.println();
         }catch(IOException | ClassNotFoundException e){
             e.printStackTrace();
@@ -1866,6 +2013,18 @@ public class Level extends BasicGameState {
     	}
     }
 
+
+    private float distanceBetweenVectors(Vector a, Vector b){
+    	return Math.abs(a.getX() - b.getX() + a.getY() - b.getY());
+    }
+
+    private ArrayList<Character> enemiesJoinCharacters(Main dc){
+    	ArrayList<Character> targets = new ArrayList<Character>();
+    	targets.addAll(dc.characters);
+    	targets.addAll(dc.enemies);
+    	return targets;
+    }
+
     private void attack(Item itm, Main dc) throws SlickException{
         //attack with the given item
     	String direction = dc.hero.direction.split("_")[1];
@@ -1890,81 +2049,47 @@ public class Level extends BasicGameState {
         		SFXManager.playSound("sword_swing");
         	}else if( itm.getType().equals("Gloves") ){
         		SFXManager.playSound("tank_punch");
+
+        		//add the glove effect to the tank
+        		if( !itm.getEffect().equals("") ){
+        			dc.hero.addEffect(itm.getEffect(), itm.isCursed());
+        		}
         	}
             rand.setSeed(System.nanoTime());
             int r = rand.nextInt(100);
             if( r < 50 ){
                 //slash
                 dc.hero.updateAnimation("slash_" + dc.hero.direction.split("_")[1]);
-                //addMessage("Slashed " + dir );
             }else{
                 //jab
                 dc.hero.updateAnimation("jab_" + dc.hero.direction.split("_")[1] );
-                //addMessage("Jabbed " + dir );
             }
 
-            for( Character c : dc.characters ){
-                if( c.ai ){
-                    //if the ai character is within one tilesize of the player
-                    //in the given direction
-                    Vector aipos = c.getWorldCoordinates();
-                    Vector plpos = dc.hero.getWorldCoordinates();
+            for( Character c : enemiesJoinCharacters(dc) ){
 
-                    double x = Math.pow(aipos.getX()-plpos.getX(), 2);
-                    double y = Math.pow(aipos.getY()-plpos.getY(), 2);
-                    float distance = (float) Math.sqrt(x + y);
+            	if( c.getPid() == dc.hero.getPid() ){
+            		continue;
+            	}
 
-                    if(  distance <= (dc.tilesize*1.5) ){
-                        //roll damage amount
-                        rand.setSeed(System.nanoTime());
-                        float percentOfMaxDamage = rand.nextInt(100)/(float) 100;
+                Vector target = c.getTileWorldCoordinates();
+                Vector plpos = dc.hero.getTileWorldCoordinates();
 
-                        float damage = 0;
-                        if( itm == null ){
-                        	//max damage: 10
-                        	damage = 10 * percentOfMaxDamage;
-                            
-                        	//copy this block here instead of doing a bunch of null checks
-                        	if( c.takeDamage(damage, "",false) ){
-                                //returns true if the enemy died
-                                c.updateAnimation("die");
-                                
-                                //c.vfx = null;
 
-                            }
+                if( distanceBetweenVectors(target, plpos) < 1.5 ){
+                    //roll damage amount
+                    rand.setSeed(System.nanoTime());
+                    float percentOfMaxDamage = rand.nextInt(100)/(float) 100;
 
-                            if( percentOfMaxDamage == 0 ){
-                                addMessage("Missed.");
-                            }else{
-                                String m = "Hit enemy for " + (int) damage + " damage.";
-                                if( percentOfMaxDamage >= 0.8 ){
-                                    m = m + " Critical hit!";
-                                }
-                                addMessage(m);
-                            }
-                            return;
-                        }else if( itm.getMaterial().equals("Wooden") ){
-                            //max damage: 30
-                            damage = 30 * percentOfMaxDamage;
-                        }else if( itm.getMaterial().equals("Iron") ){
-                            //max damage: 60
-                            damage = 60 * percentOfMaxDamage;
-                        }else if( itm.getMaterial().equals("Gold") ){
-                            //max damage: 100
-                            damage = 100 * percentOfMaxDamage;
-                        }
+                    float damage = 0;
+                    if( itm == null ){
+                    	//max damage: 10
+                    	damage = (float) Math.ceil(10 * percentOfMaxDamage);
 
-                        //pass damage and effect to enemy
-                        
-                        if( itm.getEffect().equals("Might") ){
-                        	damage *= 2;
-                        }
-
-                        if( c.takeDamage(damage, itm.getEffect(),false) ){
+                    	//copy this block here instead of doing a bunch of null checks
+                    	if( c.takeDamage(damage, "",false) ){
                             //returns true if the enemy died
                             c.updateAnimation("die");
-                            
-                            //destroy the character's vfx object
+
                             //c.vfx = null;
 
                         }
@@ -1978,25 +2103,71 @@ public class Level extends BasicGameState {
                             }
                             addMessage(m);
                         }
+                        attackAnimationTimer = 500;
+                        return;
+                    }else if( itm.getMaterial().equals("Wooden") ){
+                        //max damage: 30
+                        damage = 30 * percentOfMaxDamage;
+                    }else if( itm.getMaterial().equals("Iron") ){
+                        //max damage: 60
+                        damage = 60 * percentOfMaxDamage;
+                    }else if( itm.getMaterial().equals("Gold") ){
+                        //max damage: 100
+                        damage = 100 * percentOfMaxDamage;
+                    }else if( itm.getMaterial().equals("Red") ){
+                    	//max damage 20
+                    	damage = 20 * percentOfMaxDamage;
+                    }else if( itm.getMaterial().equals("White") ){
+                    	//max damage 50
+                    	damage = 50 * percentOfMaxDamage;
+                    }else if( itm.getMaterial().equals("Yellow") ){
+                    	//max damage 90
+                    	damage = 90 * percentOfMaxDamage;
+                    }
 
-                        //reveal the effect to the character
-                        // if it is not known
-                        if( !itm.isIdentified() ){
-                            addMessage("It is " + itm.toString() );
-                            itm.identify();
-                            itemsIdentified++;
+                    //pass damage and effect to enemy
+                    if( itm.getEffect().equals("Might") ){
+                    	damage *= 2;
+                    }
+
+                    boolean killed = false;
+                    //gloves status effects and might/fright should not be imparted on enemies
+                    if( itm.getType().equals("Gloves") || itm.getEffect().equals("Might") || itm.getEffect().equals("Fright")){
+                    	killed = c.takeDamage(damage, "", false);
+                    }else{
+                    	killed = c.takeDamage(damage, itm.getEffect(), itm.isCursed());
+                    }
+
+                    if( killed ){
+                    	c.updateAnimation("die");
+                    }
+
+                    if( percentOfMaxDamage == 0 ){
+                        addMessage("Missed.");
+                    }else{
+                        String m = "Hit enemy for " + (int) damage + " damage.";
+                        if( percentOfMaxDamage >= 0.8 ){
+                            m = m + " Critical hit!";
                         }
+                        addMessage(m);
+                    }
+
+                    //reveal the effect to the character
+                    // if it is not known
+                    if( !itm.isIdentified() ){
+                        addMessage("It is " + itm.toString() );
+                        itm.identify();
+                        itemsIdentified++;
                     }
                 }
-            }
 
-            // TODO add back in later
-//            dc.characters.removeIf(b -> b.getHitPoints() <= 0);
+            }
+            dc.characters.removeIf(b -> b.getHitPoints() <= 0);
 
         }else if( itm.getType().equals("Potion") ){
         	SFXManager.playSound("potion_throw");
         	addThrownItem(dc, itm, itm.getImage(), directionVector, directionVector.scale(5), directionVector.scale(0.1f));
-        	
+
             if( itm.count == 1 ){
             	dc.hero.unequipItem(selectedEquippedItem);
             }
@@ -2017,27 +2188,31 @@ public class Level extends BasicGameState {
         	}else{
         		throw new SlickException("Invalid staff material '" + itm.getMaterial() + "'.");
         	}
-        	
-        	
+
+
         	if( dc.hero.getMana() < manaCost ){
         		addMessage("You don't have enough mana to use this.");
         		return;
         	}
-        	
+
+        	dc.hero.updateAnimation("spell_" + direction);
+
         	Image spellImage = getSpellImage(itm.getMaterial());
-        	
+
         	addThrownItem(dc, itm, spellImage, directionVector, directionVector.scale(10000), directionVector.scale(0.2f));
-        	
+
         	//decrease mana
         	dc.hero.setMana(dc.hero.getMana() - manaCost);
-        	
+
         }else if( itm.getType().equals("Arrow") ){
             //Item(Vector wc, boolean locked, int id, int oid, String effect, String type, String material, boolean cursed, boolean identified, Image image)
 
         	if (debug) System.out.println("throwing arrow " + dc.hero.direction.split("_")[1] );
-        	
+
+        	dc.hero.updateAnimation("shoot_" + direction);
         	SFXManager.playSound("shoot_arrow");
-        	
+
+
         	Image image = getArrowImage(itm.getEffect(), dc.hero.direction.split("_")[1]);
 
         	addThrownItem(dc, itm, image, directionVector, directionVector.scale(10000), directionVector.scale(0.3f));
@@ -2047,6 +2222,10 @@ public class Level extends BasicGameState {
             }
             dc.hero.discardItem(itm, true);
         }
+
+
+        //start attack animation timer
+        attackAnimationTimer = 500;
     }
     
     private void addThrownItem(Main dc, Item emitter, Image image, Vector direction, Vector destination, Vector step) throws SlickException{
@@ -2061,7 +2240,7 @@ public class Level extends BasicGameState {
         Main.im.addToWorldItems(emissive);
         
         //create the thrown item
-        thrownItems.add(new ThrownItem(emissive, direction, destination, step));
+        thrownItems.add(new ThrownItem(emissive, destination, step));
     }
     
     
@@ -2161,44 +2340,19 @@ public class Level extends BasicGameState {
     public void sendEnemyStatusToServer(Main dc) {
         if (debug) System.out.println("sendEnemyStatusToServer()");
         Msg msg;
-        float wx;
-        float wy;
+        try {
         for (Character ai : dc.enemies) {
-            wx = ai.getWorldCoordinates().getX();
-            wy = ai.getWorldCoordinates().getY();
-            msg = new Msg(ai.getCharacterID(), ai.getType(), wx, wy, ai.getHitPoints(), ai.ai);
-            try {
-                outStream.writeObject(msg);
-                if (debug) System.out.printf("send: %s\n", msg);
-                outStream.flush();
-                outStream.reset();
-            }catch(IOException e){
-                e.printStackTrace();
-            }
+            msg = ai.toMsg();
+            outStream.writeObject(msg);
+            if (debug) System.out.printf("send: %s\n", msg);
+            outStream.reset();
+        }
+        }catch(IOException e){
+            e.printStackTrace();
         }
          if (debug) System.out.println();
     }
 
-    /*
-    read the information about the AI from the server
-     */
-    private void readEnemyStatusFromServer(Main dc) {
-        if (debug) System.out.println("readEnemyStatusFromServer()");
-        for (Character ai : dc.enemies) {
-            try {
-                Msg msg = (Msg) inStream.readObject();
-                if (debug) System.out.printf("Read: %s\n", msg);
-                if (ai.canMove) {
-                    ai.setWorldCoordinates(msg.wx, msg.wy);
-                }
-                ai.setHitPoints(msg.hp);
-                ai.next = msg.nextDirection;
-            } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace();
-            }
-        }
-         if (debug) System.out.println();
-    }
 
     /*
     Read the weights from dijkstra from the server
@@ -2206,75 +2360,14 @@ public class Level extends BasicGameState {
     private void readWeightsFromServer(Main dc) {
         if (debug) System.out.println("readWeightsFromServer()");
         try {
-            Msg msg = (Msg) inStream.readObject();
-            if (debug) System.out.printf("Read: %s\n",msg);
-            dc.hero.weights = msg.dijkstraWeights;
+            float[][] weight = (float[][]) inStream.readObject();
+            if (debug) System.out.printf("Read weights: %s\n", weight);
+            dc.hero.weights = weight;
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
         if (debug) System.out.println();
     }
-
-
-    /**
-      * Update the players position on the server.
-      */
-//    public void positionToServer(Main dc){
-//        float wx = dc.hero.getWorldCoordinates().getX();
-//        float wy = dc.hero.getWorldCoordinates().getY();
-//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-//        getEffectsForMsg(dc, toServer);
-//        try {
-//            outStream.writeObject(toServer);
-//            outStream.flush();
-//            outStream.reset();
-////            if (debug) System.out.println("writing "+ toServer.toString());
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//    }
-//    public void positionToServer(Main dc){
-//        float wx = dc.hero.getWorldCoordinates().getX();
-//        float wy = dc.hero.getWorldCoordinates().getY();
-//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-//        getEffectsForMsg(dc, toServer);
-//        try {
-//            outStream.writeObject(toServer);
-//            outStream.flush();
-//            outStream.reset();
-////            if (debug) System.out.println("writing "+ toServer.toString());
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//    }
-//    public void positionToServer(Main dc){
-//        float wx = dc.hero.getWorldCoordinates().getX();
-//        float wy = dc.hero.getWorldCoordinates().getY();
-//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-//        getEffectsForMsg(dc, toServer);
-//        try {
-//            outStream.writeObject(toServer);
-//            outStream.flush();
-//            outStream.reset();
-////            if (debug) System.out.println("writing "+ toServer.toString());
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//    }
-//    public void positionToServer(Main dc){
-//        float wx = dc.hero.getWorldCoordinates().getX();
-//        float wy = dc.hero.getWorldCoordinates().getY();
-//        Msg toServer = new Msg(dc.serverId,dc.hero.getType(),wx,wy,dc.hero.getHitPoints());
-//        getEffectsForMsg(dc, toServer);
-//        try {
-//            outStream.writeObject(toServer);
-//            outStream.flush();
-//            outStream.reset();
-////            if (debug) System.out.println("writing "+ toServer.toString());
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-//    }
 
 
     /**
@@ -2396,6 +2489,58 @@ public class Level extends BasicGameState {
         float sx = wc.getX() - dc.hero.pixelX;
         float sy = wc.getY() - dc.hero.pixelY;
         return new Vector(sx, sy);
+    }
+
+
+    /*
+    */
+    public static void spawnBoss(Main dc) {
+        int tilesize = 32;
+        int offset = tilesize/2;
+        int doubleOffset = offset/2;
+        int maxcol =  40;
+        int maxrow = 23;
+        Random rand = new Random();
+        int col = rand.nextInt(maxcol);
+        int row = rand.nextInt(maxrow);
+        for (int i = 10; i < maxrow; i++) {
+            for (int j = 10; j < maxcol; j++) {
+                if (dc.map[i][j] == 0) {
+                    row = i;
+                    col = j;
+                    break;
+                }
+            }
+        }
+
+//        row = 5;
+//        col = 5;
+
+        float wx = (tilesize * row) - offset;
+        float wy = (tilesize * col) - tilesize - doubleOffset;
+        Character boss = dc.enemies.get(0);
+        boss.setType("skeleton_boss");
+        boss.setHitPoints(200);
+        boss.setAttackDamage(4);
+        boss.setWorldCoordinates(wx, wy);
+//        Server.enemies.add(message);
+        System.out.printf("Spawning Boss at: %s, %s\n", row, col);
+    }
+
+
+    /*
+    Returns true if all enemies are died
+     */
+    public boolean allEnemiesDead(Main dc) {
+        for (Character ai : dc.enemies) {
+            if (ai.getType().equals("skeleton_boss")) {
+                continue;
+            }
+            if (ai.getHitPoints() > 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
 

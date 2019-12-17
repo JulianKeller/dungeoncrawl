@@ -124,7 +124,7 @@ public class ItemManager {
 			Vector wc = new Vector( row, col );
 			
 			//create a random item at the given position
-			Item i = new Item(wc, false, currentItemID, 0);
+			Item i = new Item(wc, false, currentItemID, 0, true);
 			
 			if( i.getType().equals("Potion") || i.getType().equals("Arrow") ){
 				i.setRequiredLevel(0);

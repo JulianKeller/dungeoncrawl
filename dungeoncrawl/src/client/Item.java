@@ -33,7 +33,9 @@ public class Item extends StationaryObject{
 	//private String requiredClasses = "";
 	private String[] requiredClasses = {"", "", "", ""};
 	
-	public Item(Vector wc, boolean locked, int id, int oid) throws SlickException{
+	
+	
+	public Item(Vector wc, boolean locked, int id, int oid, boolean loadImage ) throws SlickException{
 		super(wc, locked); //superconstructor
 		//set random properties
 		rand = new Random();
@@ -151,92 +153,110 @@ public class Item extends StationaryObject{
 		}
 		
 		//items have a chance to be cursed (for now?)
-		if( rand.nextInt(100) <= 30 ){
-			cursed = true;
-		}else{
+		if( type.equals("Potion") || type.equals("Arrow") ){
 			cursed = false;
+		}else{
+			if( rand.nextInt(100) <= 30 ){
+				cursed = true;
+			}else{
+				cursed = false;
+			}
 		}
 		
-		//all items start unidentified
-		identified = false;
+		//all items except arrows start unidentified
+		if( type.equals("Arrow") ){
+			identified = true;
+		}else{
+			identified = false;
+		}
 		
-
-		//get an image based on item type
 		if( type.equals("Potion") ){
 			r = rand.nextInt(5);
 			switch( r ){
 			case 0:
-				this.image = ResourceManager.getImage(Main.POTION_BLUE);
 				material = "Blue";
 				break;
 			case 1:
-				this.image = ResourceManager.getImage(Main.POTION_ORANGE);
 				material = "Orange";
 				break;
 			case 2:
-				this.image = ResourceManager.getImage(Main.POTION_PINK);
 				material = "Pink";
 				break;
 			case 3:
-				this.image = ResourceManager.getImage(Main.POTION_RED);
 				material = "Red";
 				break;
 			case 4:
-				this.image = ResourceManager.getImage(Main.POTION_YELLOW);
 				material = "Yellow";
 				break;
 			}
-		}else if( type.equals("Sword") ){
-			//wood, iron, gold
-			if( material.equals("Wooden") ){
-				image = ResourceManager.getImage(Main.SWORD_WOOD);
-			}else if( material.equals("Iron") ){
-				image = ResourceManager.getImage(Main.SWORD_IRON);
-			}else if( material.equals("Gold") ){
-				image = ResourceManager.getImage(Main.SWORD_GOLD);
-			}else{
-				throw new SlickException("Invalid sword material '" + material + "'.");
-			}
-		}else if( type.equals("Armor") ){
-			//iron, gold
-			if( material.equals("Iron") ){
-				image = ResourceManager.getImage(Main.ARMOR_IRON);
-			}else if( material.equals("Gold") ){
-				image = ResourceManager.getImage(Main.ARMOR_GOLD);
-			}else{
-				throw new SlickException("Invalid armor material '" + material + "'.");
-			}
-		}else if( type.equals("Arrow") ){
-			if( effect.equals("Flame") ){
-				image = ResourceManager.getImage(Main.ARROW_FLAME);
-			}else if( effect.equals("Poison") ){
-				image = ResourceManager.getImage(Main.ARROW_POISON);
-			}else if( effect.equals("Ice") ){
-				image = ResourceManager.getImage(Main.ARROW_ICE);
-			}else if( effect.equals("") ){
-				image = ResourceManager.getImage(Main.ARROW_NORMAL);
-			}else{
-				throw new SlickException("Invalid arrow effect '" + effect + "'.");
-			}
-		}else if( type.equals("Gloves") ){
-			if( material.equals("Red") ){
-				image = ResourceManager.getImage(Main.GLOVES_RED);
-			}else if( material.equals("White") ){
-				image = ResourceManager.getImage(Main.GLOVES_WHITE);
-			}else if( material.equals("Yellow") ){
-				image = ResourceManager.getImage(Main.GLOVES_YELLOW);
-			}else{
-				throw new SlickException("Invalid glove material '" + material + "'.");
-			}
-		}else if( type.equals("Staff") ){
-			if( material.equals("Ruby") ){
-				image = ResourceManager.getImage(Main.STAFF_RUBY);
-			}else if( material.equals("Emerald") ){
-				image = ResourceManager.getImage(Main.STAFF_EMERALD);
-			}else if( material.equals("Amethyst") ){
-				image = ResourceManager.getImage(Main.STAFF_AMETHYST);
-			}else{
-				throw new SlickException("Invalid staff material '" + material + "'.");
+		}
+
+		//get an image based on item type
+		if( loadImage ){
+			if( type.equals("Potion") ){
+				if( material.equals("Blue") ){
+					image = ResourceManager.getImage(Main.POTION_BLUE);
+				}else if( material.equals("Orange") ){
+					image = ResourceManager.getImage(Main.POTION_ORANGE);
+				}else if( material.equals("Pink") ){
+					image = ResourceManager.getImage(Main.POTION_PINK);
+				}else if( material.equals("Red") ){
+					image = ResourceManager.getImage(Main.POTION_RED);
+				}else if( material.equals("Yellow") ){
+					image = ResourceManager.getImage(Main.POTION_YELLOW);
+				}
+			}else if( type.equals("Sword") ){
+				//wood, iron, gold
+				if( material.equals("Wooden") ){
+					image = ResourceManager.getImage(Main.SWORD_WOOD);
+				}else if( material.equals("Iron") ){
+					image = ResourceManager.getImage(Main.SWORD_IRON);
+				}else if( material.equals("Gold") ){
+					image = ResourceManager.getImage(Main.SWORD_GOLD);
+				}else{
+					throw new SlickException("Invalid sword material '" + material + "'.");
+				}
+			}else if( type.equals("Armor") ){
+				//iron, gold
+				if( material.equals("Iron") ){
+					image = ResourceManager.getImage(Main.ARMOR_IRON);
+				}else if( material.equals("Gold") ){
+					image = ResourceManager.getImage(Main.ARMOR_GOLD);
+				}else{
+					throw new SlickException("Invalid armor material '" + material + "'.");
+				}
+			}else if( type.equals("Arrow") ){
+				if( effect.equals("Flame") ){
+					image = ResourceManager.getImage(Main.ARROW_FLAME);
+				}else if( effect.equals("Poison") ){
+					image = ResourceManager.getImage(Main.ARROW_POISON);
+				}else if( effect.equals("Ice") ){
+					image = ResourceManager.getImage(Main.ARROW_ICE);
+				}else if( effect.equals("") ){
+					image = ResourceManager.getImage(Main.ARROW_NORMAL);
+				}else{
+					throw new SlickException("Invalid arrow effect '" + effect + "'.");
+				}
+			}else if( type.equals("Gloves") ){
+				if( material.equals("Red") ){
+					image = ResourceManager.getImage(Main.GLOVES_RED);
+				}else if( material.equals("White") ){
+					image = ResourceManager.getImage(Main.GLOVES_WHITE);
+				}else if( material.equals("Yellow") ){
+					image = ResourceManager.getImage(Main.GLOVES_YELLOW);
+				}else{
+					throw new SlickException("Invalid glove material '" + material + "'.");
+				}
+			}else if( type.equals("Staff") ){
+				if( material.equals("Ruby") ){
+					image = ResourceManager.getImage(Main.STAFF_RUBY);
+				}else if( material.equals("Emerald") ){
+					image = ResourceManager.getImage(Main.STAFF_EMERALD);
+				}else if( material.equals("Amethyst") ){
+					image = ResourceManager.getImage(Main.STAFF_AMETHYST);
+				}else{
+					throw new SlickException("Invalid staff material '" + material + "'.");
+				}
 			}
 		}
 		

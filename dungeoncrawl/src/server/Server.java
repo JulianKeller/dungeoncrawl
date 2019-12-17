@@ -1,6 +1,9 @@
 package server;
 
 import client.Main;
+import jig.Entity;
+import jig.Vector;
+import client.Item;
 import org.newdawn.slick.SlickException;
 
 import java.util.Collections;
@@ -14,82 +17,70 @@ import java.util.concurrent.*;
 
 public class Server extends Thread {
     // Static Objects for each thread.
-    public static BlockingQueue<Msg> serverQueue = new LinkedBlockingQueue<>();
-    //    public static List<ClientQueue> clientQueues = Collections.synchronizedList(new ArrayList<>());
     public static List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
-    public static int[][] map;
-    public static int[][] rotatedMap;
+    public static int [][] map;
+    public static int [][] rotatedMap;
     public static List<Msg> enemies = Collections.synchronizedList(new ArrayList<>());
     public static List<ItemMsg> worldItems = Collections.synchronizedList(new ArrayList<>());
     public static List<Msg> characters = Collections.synchronizedList(new ArrayList<>());
     private boolean debug = false;
+    private static int currentItemId = 0;
 
     public Server() {
     }
 
     @Override
     public void run() {
+
         while (true) {
-
-            // TODO use Tylers player list when it is ready instead of the clients list
             // calculate dijkstra's weights for each active player
-//            synchronized (clients) {
-//                for (ClientHandler c : clients) {
-//                    // TODO set this to the pl
-//                    // AI.getDijkstraWeights(client);       // updates clients weights and paths
-//
-//                }
-//            }
+            synchronized (characters) {
+                for (Msg c : characters) {
+                    AI.getDijkstraWeights(c);       // updates clients weights and pathsw
+                    if (debug) System.out.println("Ran Dijkstra on player: " + c.id);
+                }
+            }
 
-            // TODO, may not need to run every time
             // for each enemy find the closest player to them,
             // use closestPlayer.dijkstraWeights to determine path to player
-//            synchronized (enemies) {
-//                float closest = 10000;
-//                for (Msg ai : enemies) {
-//                    Msg closestHero = null;
-//                    float distance = 0;
-//                    synchronized (clients) {  // TODO change to list of players
-//                        distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
-//                        if (distance < closest) {
-//                            // then ai.get next direction
-//                            AI.updatePosition(ai, hero);
-//                        }
-//                    }
-//                }
-//            }
+            synchronized (enemies) {
+                float closest = 10000;
+                for (Msg ai : enemies) {
+                    float distance = 0;
+                    synchronized (characters) {  // TODO change to list of players
+                        for (Msg hero : characters) {
+                            distance = (Math.abs(ai.wx - hero.wx) + Math.abs(ai.wy - hero.wy));
+                            if (distance < closest) {
+                                AI.updatePosition(ai, hero);    // then ai.get next direction
+                            }
+                        }
+                    }
+                    if (debug) System.out.printf("AI %s next direction: %s\n", ai.id, ai.nextDirection);
+                }
+            }
 
-
-
-
-            // TODO
-            //  if all clients have sent back updates, then update the clients
-//            sendToClients();        // put updates in client queues
-
-            sendMsgListToClients(characters);
-//            sendMsgListToClients(enemies);
-
-
+            // update all clients with latest details of other players and enemies
+            putCharactersInClientQueues();
+            putEnemiesInClientQueues();
         }
     }
 
 
     /**
-     * Put the list of enenties into the queue for the thread to send to it's client
-     * @param entities characters or enemies lists
+     * Put the list of characters into the queue for the thread to send to it's client
      */
-    public void sendMsgListToClients(List<Msg> entities) {
+    public void putCharactersInClientQueues() {
         synchronized (clients) {
             for (ClientHandler c : clients) {
-                if (debug) System.out.println("sendMsgListToClients() -> queue " + c.getId());
+                if (debug) System.out.println("putCharactersinClientQueues() -> queue " + c.getId());
                     // put characters
-                    synchronized (entities) {
-                        for (Msg chars : entities) {
+                    synchronized (characters) {
+                        for (Msg chars : characters) {
                             if (chars.id == c.getClientId()) {
                                 continue;
                             }
                             try {
-                                c.threadQueue.put(chars);
+                                c.characterQueue.put(chars);
                                 if (debug) System.out.printf("Putting %s into queue\n", chars);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
@@ -97,6 +88,30 @@ public class Server extends Thread {
                         }
                         if (debug) System.out.println();
                     }
+            }
+        }
+    }
+
+
+    /**
+     * Put the list of characters into the queue for the thread to send to it's client
+     */
+    public void putEnemiesInClientQueues() {
+        synchronized (clients) {
+            for (ClientHandler c : clients) {
+                if (debug) System.out.println("putEnemiesInClientQueues() -> queue " + c.getId());
+                // put characters
+                synchronized (enemies) {
+                    for (Msg ai : enemies) {
+                        try {
+                            c.enemyQueue.put(ai);
+                            if (debug) System.out.printf("Putting %s into queue\n", ai);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (debug) System.out.println();
+                }
                 synchronized (c.pauseObject) {
                     c.pauseObject.notifyAll();
                 }
@@ -104,16 +119,19 @@ public class Server extends Thread {
         }
     }
 
-
-//    public void sendToClients() {
-//        try {
-//            Msg playerInfo = serverQueue.take();
-//            for (ClientHandler c : clients)
-//                c.threadQueue.put(playerInfo);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    /*
+    Returns true if all enemies are died
+     */
+    public boolean allEnemiesDead() {
+        synchronized (enemies) {
+            for (Msg ai : enemies) {
+                if (ai.hp > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
 
     public static int[][] rotateMap(int[][] map) {
@@ -129,7 +147,7 @@ public class Server extends Thread {
     }
 
     public static void plantItem(int numItems, int uniquePotions, int[][] map, int maxcol, int maxrow) throws SlickException {
-        //Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
+        Entity.setCoarseGrainedCollisionBoundary(Entity.AABB);
         Random rand = new Random();
         rand.setSeed(System.nanoTime());
         String[] identifiedPotionEffects = new String[5];
@@ -146,16 +164,14 @@ public class Server extends Thread {
             }
 
         }
-        int currentItemID = 0;
-        //int[][] potionAt = new int[game.map.length][game.map.length];
 
 
-        while (numItems > 0) {
+        while( numItems > 0 ){
 
             int col = rand.nextInt(maxcol);
             int row = rand.nextInt(maxrow);
             //Vector wc = new Vector( rand.nextInt(maxx), rand.nextInt(maxy) );
-            while (map[row][col] == 1) {
+            while( map[row][col] == 1 ){
                 col = rand.nextInt(maxcol);
                 row = rand.nextInt(maxrow);
             }
@@ -168,8 +184,8 @@ public class Server extends Thread {
             i.wy = col;
 //            System.out.println("i Material: "+i.material);
 
-            if (i.type.equals("Potion") || i.type.equals("Arrow")) {
-                i.requiredLevel = 0;
+            if( i.type.equals("Potion") || i.type.equals("Arrow") ){
+                i.requiredLevel=0;
             }
 //            else{
 //                //set the item's required level to the average level of the team
@@ -196,211 +212,73 @@ public class Server extends Thread {
             if (i.type.equals("Potion")) {
                 if (i.material.equals("Blue")) {
                     //use the stored effect
-                    i.effect = identifiedPotionEffects[0];
-                } else if (i.material.equals("Orange")) {
+                    i.effect=identifiedPotionEffects[0];
+                }else if( i.material.equals("Orange")){
                     //use the stored effect
-                    i.effect = identifiedPotionEffects[1];
-                } else if (i.material.equals("Pink")) {
+                    i.effect=identifiedPotionEffects[1];
+                }else if( i.material.equals("Pink")){
                     //use the stored effect
-                    i.effect = identifiedPotionEffects[2];
-                } else if (i.material.equals("Red")) {
+                    i.effect=identifiedPotionEffects[2];
+                }else if( i.material.equals("Red")){
                     //use the stored effect
-                    i.effect = identifiedPotionEffects[3];
-                } else if (i.material.equals("Yellow")) {
+                    i.effect=identifiedPotionEffects[3];
+                }else if( i.material.equals("Yellow") ){
                     //use the stored effect
-                    i.effect = identifiedPotionEffects[4];
-                } else {
+                    i.effect=identifiedPotionEffects[4];
+                }else{
                     //this would suggest that the list of potion colors in this class
                     //  is incomplete
-                    throw new SlickException("Error: invalid potion color " + i.material);
+                    throw new SlickException("Error: invalid potion color "+i.material);
                 }
             }
             worldItems.add(i);
-
-            currentItemID++;
 
             numItems--;
         }
     }
 
-    public static ItemMsg generateItem() {
-        //set random properties
-        Random rand = new Random();
-        rand.setSeed(System.nanoTime());
+    public static ItemMsg generateItem() throws SlickException{
+    	Item i = new Item( new Vector(0, 0), false, currentItemId, 0, false);
 
-        int count = 1;
+        ItemMsg im = new ItemMsg(i.getID(), i.getOID(), i.getWorldCoordinates().getX(), i.getWorldCoordinates().getY(),
+        						i.getType(), i.getEffect(), i.getMaterial(), i.getRequiredClasses(), i.isCursed(),
+        						i.isIdentified(), i.getWeight(), i.count, i.getRequiredLevel());
 
-        //first get the item type
+        currentItemId++;
 
-        //currently developed item types, for debugging purposes only
-        //String[] currentTypes = {"Potion", "Sword", "Armor", "Arrow"};
-
-        //rarity: armor, sword/other weapons, potion, arrow
-        //armor: 20%, sword: 30%, potion: 40%, arrow: 50%
-        ItemMsg item = new ItemMsg();
-
-        //arrow: 40%; potion: 30%; weapon: 20%;  armor: 10%
-        int r = rand.nextInt(100);
-        if (r < 10) {        //10%
-            item.type = "Armor";
-            item.requiredClasses[0] = "knight";
-            item.requiredClasses[1] = "tank";
-        } else if (r < 30) { //20%
-            r = rand.nextInt(100);
-            if (r < 20) {
-                item.type = "Staff";
-                item.requiredClasses[0] = "mage";
-            } else if (r < 50) {
-                item.type = "Sword";
-                item.requiredClasses[0] = "knight";
-            } else {
-                item.type = "Gloves";
-                item.requiredClasses[0] = "tank";
-            }
-        } else if (r < 50) {    //30%
-            item.type = "Potion";
-            item.requiredClasses[0] = "knight";
-            item.requiredClasses[1] = "tank";
-            item.requiredClasses[2] = "mage";
-            item.requiredClasses[3] = "archer";
-        } else {                //40%
-            item.type = "Arrow";
-            item.requiredClasses[0] = "archer";
-        }
-
-
-        //choose materials from the appropriate list
-//        System.out.println("Item type: "+item.type);
-        r = rand.nextInt(100);
-
-        if (item.type.equals("Sword")) {
-            if (r < 20) {            //20%
-                item.material = "Gold";
-            } else if (r < 50) {    //30%
-                item.material = "Iron";
-            } else {                    //50%
-                item.material = "Wooden";
-            }
-        } else if (item.type.equals("Armor")) {
-            if (r < 30) {            //30%
-                item.material = "Gold";
-            } else {                    //70%
-                item.material = "Iron";
-            }
-        } else if (item.type.equals("Staff")) {
-            if (r < 20) {            //20%
-                item.material = "Amethyst";
-            } else if (r < 50) {    //30%
-                item.material = "Emerald";
-            } else {                    //50%
-                item.material = "Ruby";
-            }
-        } else if (item.type.equals("Gloves")) {
-            if (r < 20) {            //20%
-                item.material = "Yellow";
-            } else if (r < 50) {    //30%
-                item.material = "White";
-            } else {                    //50%
-                item.material = "Red";
-            }
-        } else {
-            item.material = "";
-        }
-
-        //choose effects from the appropriate list
-        //chance of effect: 50%
-        r = rand.nextInt(100);
-        if (r < 50) {
-            if (item.type.equals("Sword")) {
-                item.effect = Main.SwordEffects[rand.nextInt(Main.SwordEffects.length)];
-            } else if (item.type.equals("Armor")) {
-                item.effect = Main.ArmorEffects[rand.nextInt(Main.ArmorEffects.length)];
-            } else if (item.type.equals("Gloves")) {
-                item.effect = Main.GloveEffects[rand.nextInt(Main.GloveEffects.length)];
-            } else if (item.type.equals("Arrow")) {
-                item.effect = Main.ArrowEffects[rand.nextInt(Main.ArrowEffects.length)];
-            } else {
-                item.effect = "";
-            }
-            //except potions and staffs, which will always have an effect
-        } else if (item.type.equals("Potion")) {
-            item.effect = Main.PotionEffects[rand.nextInt(Main.PotionEffects.length)];
-        } else if (item.type.equals("Staff")) {
-            item.effect = Main.StaffEffects[rand.nextInt(Main.StaffEffects.length)];
-        } else if (item.type.equals("Gloves")) {
-            item.effect = Main.GloveEffects[rand.nextInt(Main.GloveEffects.length)];
-        } else {
-            item.effect = "";
-        }
-
-        if (item.type.equals("Potion")) {
-            r = rand.nextInt(5);
-            switch (r) {
-                case 0:
-                    //this.image = ResourceManager.getImage(Main.POTION_BLUE);
-                    item.material = "Blue";
-                    break;
-                case 1:
-                    //this.image = ResourceManager.getImage(Main.POTION_ORANGE);
-                    item.material = "Orange";
-                    break;
-                case 2:
-                    //this.image = ResourceManager.getImage(Main.POTION_PINK);
-                    item.material = "Pink";
-                    break;
-                case 3:
-                    //this.image = ResourceManager.getImage(Main.POTION_RED);
-                    item.material = "Red";
-                    break;
-                case 4:
-                    //this.image = ResourceManager.getImage(Main.POTION_YELLOW);
-                    item.material = "Yellow";
-                    break;
-            }
-        }
-        //items have a chance to be cursed (for now?)
-        if (rand.nextInt(100) <= 30) {
-            item.cursed = true;
-        } else {
-            item.cursed = false;
-        }
-
-        //all items start unidentified
-        item.identified = false;
-        updateWeight(item, count);
-        return item;
+        return im;
     }
 
-    public static void updateWeight(ItemMsg i, int count) {
+    public static void updateWeight(ItemMsg i, int count){
         //set weight based on type and material
-        if (i.type.equals("Armor")) {
-            if (i.material.equals("Leather")) {
+        if( i.type.equals("Armor") ){
+            if( i.material.equals("Leather") ){
                 i.weight = 40;
-            } else if (i.material.equals("Iron")) {
+            }else if( i.material.equals("Iron") ){
                 i.weight = 50;
-            } else if (i.material.equals("Gold")) {
+            }else if( i.material.equals("Gold") ){
                 i.weight = 60;
             }
-        } else if (i.type.equals("Sword")) {
-            if (i.material.equals("Wooden")) {
+        }else if( i.type.equals("Sword") ){
+            if( i.material.equals("Wooden") ){
                 i.weight = 10;
-            } else if (i.material.equals("Iron")) {
+            }else if( i.material.equals("Iron") ){
                 i.weight = 30;
-            } else if (i.material.equals("Gold")) {
+            }else if( i.material.equals("Gold") ){
                 i.weight = 40;
             }
-        } else if (i.type.equals("Arrow")) {
-            i.weight = 2 * count;
-        } else if (i.type.equals("Potion")) {
-            i.weight = 15 * count;
-        } else if (i.type.equals("Gloves")) {
+        }else if( i.type.equals("Arrow") ){
+            i.weight = 2*count;
+        }else if( i.type.equals("Potion") ){
+            i.weight = 15*count;
+        }else if( i.type.equals("Gloves") ){
             i.weight = 20;
-        } else if (i.type.equals("Staff")) {
-            if (i.material.equals("Ruby")) {
+        }else if( i.type.equals("Staff") ){
+            if( i.material.equals("Ruby") ){
                 i.weight = 15;
-            } else if (i.material.equals("Emerald")) {
+            }else if( i.material.equals("Emerald") ){
                 i.weight = 10;
-            } else if (i.material.equals("Amethyst")) {
+            }else if( i.material.equals("Amethyst") ){
                 i.weight = 5;
             }
         }
@@ -422,8 +300,8 @@ public class Server extends Thread {
 
             // TODO generate items here
             try {
-                plantItem(20, 5, rotatedMap, map.length - 2, map[0].length - 2);
-            } catch (SlickException e) {
+                plantItem(20, 5,rotatedMap, map.length-2, map[0].length-2);
+            }catch(SlickException e){
                 e.printStackTrace();
             }
 
@@ -447,7 +325,7 @@ public class Server extends Thread {
                 t.start();
                 currentPlayerId++;
             }
-        } catch (IOException e) {
+        }catch(IOException e){
             e.printStackTrace();
         }
     }

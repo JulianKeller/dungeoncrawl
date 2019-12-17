@@ -9,9 +9,7 @@ import java.util.Random;
 This class spawns AI players and items locations, these can be sent to the client and then rendered
  */
 public class AI {
-
-// TODO copy over the getTileCoordinates method
-
+    private boolean debug = false;
 
     /**
      * run dijkstra's algorithm and gets the next direction the AI should move
@@ -44,7 +42,7 @@ public class AI {
         ArrayList<int[]> shortest = null;
 
         // if ai close enough pathfind with dijkstra and player is not invisible
-        if (playerNearby(range, hero.wx, hero.wy, ai.wx, ai.wy) && !hero.invisible) {
+        if (hero.path != null && playerNearby(range, hero.wx, hero.wy, ai.wx, ai.wy) && !hero.invisible) {
             // apply effects from stinky and frightening hero
             if (hero.stinky || hero.frightening) {
                 Random random = new Random();
@@ -153,6 +151,7 @@ public class AI {
      * The result is saved to an arraylist of strings which is then returned
      */
     public static ArrayList<Msg> spawnEnemies(int[][] map, int count) {
+        Msg message;
         int id = 0;
         int tilesize = 32;
         int offset = tilesize/2;
@@ -170,7 +169,15 @@ public class AI {
             }
             float wx = (tilesize * row) - offset;
             float wy = (tilesize * col) - tilesize - doubleOffset;
-            Msg message = new Msg(id, "skeleton_basic",wx,wy,150, true);   // "x y id"
+            if (count == 1) {
+                message = new Msg(id, "skeleton_boss",wx,wy,250, true, 1);   // "x y id"
+            }
+            else {
+                message = new Msg(id, "skeleton_basic", wx, wy, 150, true, 1);   // "x y id"
+            }
+//            if (debug) System.out.printf("placing skeleton at: %s, %s\n", wx, wy);
+            message.tilex = row;
+            message.tiley = col;
             enemies.add(message);
             count--;
             id++;
@@ -185,8 +192,33 @@ public class AI {
         ArrayList<Msg> enemies = new ArrayList<>(1);
         float wx = (tilesize * 18) - offset;
         float wy = (tilesize * 18) - tilesize - doubleOffset;
-        Msg message = new Msg(333, "skeleton_basic",wx,wy,150, true);   // "x y id"
+        Msg message = new Msg(333, "skeleton_basic",wx,wy,150, true, 1);   // "x y id"
         enemies.add(message);
         return enemies;
+    }
+
+    /*
+Id should be the size of Server.enemies + 1
+ */
+    public static void spawnBoss(int[][] map) {
+        int tilesize = 32;
+        int offset = tilesize/2;
+        int doubleOffset = offset/2;
+        int maxcol =  40;
+        int maxrow = 23;
+        Random rand = new Random();
+        int col = rand.nextInt(maxcol);
+        int row = rand.nextInt(maxrow);
+        while(row < 2 || col < 2 || map[col][row] == 1){
+            col = rand.nextInt(maxcol) - 1;
+            row = rand.nextInt(maxrow) - 1;
+        }
+
+        row = 5;
+        col = 5;
+        float wx = (tilesize * row) - offset;
+        float wy = (tilesize * col) - tilesize - doubleOffset;
+        Server.enemies.add(new Msg(Server.enemies.size(), "skeleton_boss", wx, wy, 250, true, 1));
+        System.out.printf("Spawning Boss at: %s, %s\n", row, col);
     }
 }

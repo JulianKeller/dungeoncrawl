@@ -39,6 +39,7 @@ public class Character extends MovingEntity {
     PathFinding find;
     public String next;
     public String keystroke;
+    public int deathTimer = 10;
 
 
     /**
@@ -365,6 +366,10 @@ public class Character extends MovingEntity {
      * @throws SlickException 
      */
     public void moveAI(int delta) throws SlickException {
+//        if (getHitPoints() <=0 || (!dc.boss && getType().equals("skeleton_boss"))) {
+        if (getHitPoints() <=0) {
+            return;
+        }
         String currentDirection = direction;
 
         // moved the character fixed to the grid
@@ -440,13 +445,6 @@ public class Character extends MovingEntity {
                     }
                 }
             }
-            /*
-            find = new PathFinding(dc, getTileWorldCoordinates(), heroWC);
-            int startX = (int) getTileWorldCoordinates().getX();
-            int startY = (int) getTileWorldCoordinates().getY();
-            shortest = find.dijkstra(dc, startX, startY);
-            next = getNextDirection(dc);
-            */
         }
 
         // load arrows for dijkstra's debugging
@@ -748,6 +746,9 @@ public class Character extends MovingEntity {
         int ox; // other x, y
         int oy;
         for (Character ch : chars) {
+            if (getHitPoints() <=0) {
+                continue;
+            }
             if (ch.getCharacterID() == this.getCharacterID()) {
                 continue;
             }
@@ -840,8 +841,26 @@ public class Character extends MovingEntity {
         float hp = this.getHitPoints();
         float wx = this.getWorldCoordinates().getX();
         float wy = this.getWorldCoordinates().getY();
-        Msg msg = new Msg(this.id,this.type,wx,wy,hp,this.ai);
-        msg.ks = keystroke;
+        Msg msg = new Msg(this.id,this.type,wx,wy,hp,this.ai, 1);
+        msg.id = this.id;
+        msg.type = this.type;
+        msg.tilex = (int) this.getTileWorldCoordinates().getX();
+        msg.tiley = (int) this.getTileWorldCoordinates().getY();
+        msg.ks = this.keystroke;
+        msg.ai = this.ai;
+        msg.dijkstraWeights = this.weights;
+//        msg.nextDirection = this.nextDirection;
+        msg.invisible = this.isInvisible();
+        msg.stinky = this.isStinky();
+        msg.thorny = this.isThorny();
+        msg.frightening = this.isFrightening();
+        msg.reflecting = this.isReflecting();
+        msg.mighty = this.isMighty();
+//        msg.path = this.path;
+        msg.canMove = this.canMove;
+        msg.action = this.action;
+
+
         return msg;
     }
 
