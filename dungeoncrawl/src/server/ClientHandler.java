@@ -94,11 +94,7 @@ public class ClientHandler extends Thread {
         do {
             col = rand.nextInt(maxcol);
             row = rand.nextInt(maxrow);
-        }while(map[row][col] == 1);
-        while(row < 2 || col < 2 || map[col][row] == 1){
-            col = rand.nextInt(maxcol) - 1;
-            row = rand.nextInt(maxrow) - 1;
-        }
+        }while(row < 2 || col < 2 || map[row][col] == 1);
         float wx = (tilesize * row) - offset;
         float wy = (tilesize * col) - tilesize - doubleOffset;
 
