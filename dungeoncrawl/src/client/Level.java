@@ -52,12 +52,6 @@ public class Level extends BasicGameState {
     
     private ArrayList<Character> targets; //union of enemies and characters
 
-    //whether to display player inventory/codex on the screen
-    /*
-    private boolean displayInventory = false;
-    private boolean displayCodex = false;
-    private boolean displayCharacterSheet = false;
-    */
     private int itemx = 0;
     private int itemy = 0; //which item is currently selected in the inventory
     private int selectedEquippedItem = 0; //item selected in the hotbar
@@ -206,10 +200,6 @@ public class Level extends BasicGameState {
         dc.mapHeight = dc.map.length;
 
         // setup the dc.hero character
-//        float wx = (dc.tilesize * 20) - dc.offset;
-//        float wy = (dc.tilesize * 18) - dc.tilesize - dc.doubleOffset;
-
-//        if (debug) System.out.printf("setting character at %s, %s\n", wx, wy);
 
         // Send the players type to the server
         try {
@@ -305,6 +295,7 @@ public class Level extends BasicGameState {
         }
         if (debug) System.out.printf("\n");
     }
+
 
 
     private void receiveEnemyList(Main dc){

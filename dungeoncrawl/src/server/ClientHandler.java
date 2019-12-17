@@ -1,7 +1,11 @@
 package server;
 
+import client.Character;
+import client.Main;
+
 import java.net.*;
 import java.io.*;
+import java.util.Random;
 import java.util.concurrent.*;
 
 public class ClientHandler extends Thread {
@@ -46,7 +50,7 @@ public class ClientHandler extends Thread {
             // TODO update spawning to be dynamic
             float wx = (tilesize * 20) - offset;
             float wy = (tilesize * 18) - tilesize - doubleOffset;
-            Msg hero = new Msg(id, type, wx, wy, 100, false, 1);
+            Msg hero = spawnHero(type,Server.map);
             sendHeroToClient(hero);
             Server.characters.add(hero);
 
@@ -81,7 +85,24 @@ public class ClientHandler extends Thread {
         }
     }
 
+    private Msg spawnHero(String type, int [][]map){
+        int tilesize = 32;
+        int offset = tilesize/2;
+        int doubleOffset = offset/2;
+        int maxcol =  map.length - 41;
+        int maxrow = map[0].length - 24;
+        Random rand = new Random();
+        int col = rand.nextInt(maxcol);
+        int row = rand.nextInt(maxrow);
+        while(row < 2 || col < 2 || map[col][row] == 1){
+            col = rand.nextInt(maxcol) - 1;
+            row = rand.nextInt(maxrow) - 1;
+        }
+        float wx = (tilesize * row) - offset;
+        float wy = (tilesize * col) - tilesize - doubleOffset;
 
+        return new Msg(this.id,type,wx,wy,100,false,1);
+    }
     /**
      * send the hero to the client on enter
      * @param hero
