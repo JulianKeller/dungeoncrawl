@@ -240,15 +240,6 @@ public class Server extends Thread {
         
         return im;
     }
-    
-    public static void replaceItem(Item i){
-    	//put the item back on the worldItems list
-        ItemMsg im = new ItemMsg(i.getID(), i.getOID(), i.getWorldCoordinates().getX(), i.getWorldCoordinates().getY(),
-				i.getType(), i.getEffect(), i.getMaterial(), i.getRequiredClasses(), i.isCursed(),
-				i.isIdentified(), i.getWeight(), i.count, i.getRequiredLevel());
-        
-        worldItems.add(im);
-    }
 
     public static void updateWeight(ItemMsg i, int count){
         //set weight based on type and material

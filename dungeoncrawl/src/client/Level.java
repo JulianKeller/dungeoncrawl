@@ -61,6 +61,8 @@ public class Level extends BasicGameState {
     private int itemy = 0; //which item is currently selected in the inventory
     private int selectedEquippedItem = 0; //item selected in the hotbar
     
+    private ArrayList<ItemMsg> droppedItems;
+    
     private int itemsIdentified = 0;
     
     private int averagePlayerLevel = 1; //the average level of all players
@@ -146,6 +148,8 @@ public class Level extends BasicGameState {
         serverMessage = "";
         Main dc = (Main) game;
         paused = false;
+        
+        droppedItems = new ArrayList<ItemMsg>();
         
         //let there be sound \o/
         container.setSoundOn(true);
@@ -283,6 +287,9 @@ public class Level extends BasicGameState {
         try {
             int count = inStream.readInt();
             if (debug) System.out.printf("Reading item count: %s\n",count);
+            if( count > 0 ){
+            	System.out.println("Receiving " + count + " items from server.");
+            }
             for (int j = 0; j < count; j++) {
                 try {
                     ItemMsg i = (ItemMsg) inStream.readObject();
@@ -341,6 +348,7 @@ public class Level extends BasicGameState {
     private void setItemImage(Item i) throws SlickException{
         //get an image based on item type
         Image image = null;
+        System.out.println("Adding image for " + i.toString() );
         if( i.getType().equals("Potion") ){
             //int r = rand.nextInt(5);
             switch( i.getMaterial() ){
@@ -418,6 +426,7 @@ public class Level extends BasicGameState {
                 throw new SlickException("Invalid staff material '" + i.getMaterial() + "'.");
             }
         }
+        
         i.setImage(image);
     }
     private boolean wallAdjacent(int row, int col, int[][] map){
@@ -558,7 +567,8 @@ public class Level extends BasicGameState {
     	}
     	return false;
     }
-
+    
+    
 
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
@@ -1318,6 +1328,8 @@ public class Level extends BasicGameState {
         // read/send to server every other loop
         if (everyOther) {
             sendHeroToServer(dc);
+            sendItemsToServer(dc);
+            receiveItemList(); //should only receive a few items
             readCharactersFromServer(dc);
 
             sendEnemyStatusToServer(dc);
@@ -1571,6 +1583,7 @@ public class Level extends BasicGameState {
 	                		);
 	                Main.im.take(itm, dc.hero, wc, false);
 	                
+	                
 	                //play drop sound
 	                SFXManager.playSound("item_drop");
 	                
@@ -1584,9 +1597,17 @@ public class Level extends BasicGameState {
 	
 	                //add the item to the render list
 	                // TODO may need to be changed to be added to worldItems
-	                itemsToRender.add(itm);
+	                //itemsToRender.add(itm);
 	
 	                addMessage("Dropped "+itm.toString()+".");
+	                
+	                ItemMsg im = new ItemMsg(itm.getID(), itm.getOID(), itm.getWorldCoordinates().getX(), itm.getWorldCoordinates().getY(),
+	        				itm.getType(), itm.getEffect(), itm.getMaterial(), itm.getRequiredClasses(), itm.isCursed(),
+	        				itm.isIdentified(), itm.getWeight(), itm.count, itm.getRequiredLevel());
+	                droppedItems.add(im);
+	                
+	                Main.im.addToWorldItems(itm);
+	                
                 }
             }else if( input.isKeyPressed(Input.KEY_RSHIFT) ){
                 //return item to inventory
@@ -1826,6 +1847,22 @@ public class Level extends BasicGameState {
         }
         //remove expired timers
         itemLockTimers.removeIf(b -> b.timer <= 0);
+    }
+    
+    private void sendItemsToServer(Main dc){
+    	try{
+    		outStream.writeInt(droppedItems.size());
+    		if( droppedItems.size() > 0 ){
+    			System.out.println("Sending " + droppedItems.size() + " items to server.");
+    			for( ItemMsg im : droppedItems ){
+    				outStream.writeObject(im);
+    			}
+    			droppedItems.clear();
+    		}
+    		outStream.flush();
+    	}catch(IOException e){
+    		e.printStackTrace();
+    	}
     }
 
     /*

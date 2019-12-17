@@ -2,6 +2,7 @@ package server;
 
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.concurrent.*;
 
 public class ClientHandler extends Thread {
@@ -59,6 +60,8 @@ public class ClientHandler extends Thread {
                         break;
                     }
                     readHeroFromClient();
+                    readItemsFromClient();
+                    sendItemsToClients();
                     sendCharactersToClient();
 
                     readEnemyStatusFromClient();
@@ -79,6 +82,24 @@ public class ClientHandler extends Thread {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+    }
+    
+    private ArrayList<ItemMsg> itemsToSend = new ArrayList<ItemMsg>();
+    
+    private void sendItemsToClients(){
+    	//send the contents of itemsToSend to the clients
+    	try{
+    		outStream.writeInt(itemsToSend.size());
+    		if( itemsToSend.size() > 0 ){
+    			System.out.println("Sending " + itemsToSend.size() + " items to clients.");
+    			for( ItemMsg im : itemsToSend ){
+    				outStream.writeObject(im);
+    			}
+    			itemsToSend.clear();
+    		}
+    	}catch(IOException e){
+    		e.printStackTrace();
+    	}
     }
 
 
@@ -167,6 +188,24 @@ public class ClientHandler extends Thread {
         if (debug) System.out.println();
     }
     
+    public void readItemsFromClient() throws ClassNotFoundException{
+    	ArrayList<ItemMsg> items = new ArrayList<ItemMsg>();
+    	try{
+    		synchronized(Server.worldItems){
+    			int count = inStream.readInt();
+    			if( count > 0 ){
+    				System.out.println("Reading " + count + " items from client.");
+    				for( int i = 0; i < count; i++ ){
+    					items.add((ItemMsg) inStream.readObject());
+    				}
+    				Server.worldItems.addAll(items);
+    				itemsToSend.addAll(items);
+    			}
+    		}
+    	}catch(IOException e){
+    		e.printStackTrace();
+    	}
+    }
 
 
     /**
@@ -232,6 +271,7 @@ public class ClientHandler extends Thread {
 
     
     public void sendItemList() {
+    	//sends all items to clients (only call once when a client connects)
         if (debug) System.out.println("sendItemList() " + this.getId());
         try {
             int count = Server.worldItems.size();
