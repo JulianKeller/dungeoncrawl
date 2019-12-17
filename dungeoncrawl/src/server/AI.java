@@ -218,7 +218,7 @@ Id should be the size of Server.enemies + 1
         col = 5;
         float wx = (tilesize * row) - offset;
         float wy = (tilesize * col) - tilesize - doubleOffset;
-        Server.enemies.add(new Msg(Server.enemies.size(), "skeleton_boss", wx, wy, 250, true));
+        Server.enemies.add(new Msg(Server.enemies.size(), "skeleton_boss", wx, wy, 250, true, 1));
         System.out.printf("Spawning Boss at: %s, %s\n", row, col);
     }
 }
